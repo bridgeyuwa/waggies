@@ -5,16 +5,6 @@
         :primary-cta="['label' => 'Book a Stay', 'href' => route('services.boarding.index')]"
         :secondary-cta="['label' => 'View Services', 'href' => route('services.index')]" />
 
-    <x-hero.gradient title='Premium pet services<br/><span class="text-secondary italic">in the heart of Abuja</span>'
-        subtitle="From international relocation to 5-star boarding suites. We provide world-class veterinary and grooming services tailored for the discerning pet owner."
-        :primary-cta="['label' => 'Book a Stay', 'href' => route('services.boarding.index')]"
-        :secondary-cta="['label' => 'View Services', 'href' => route('services.index')]" layout="centered" />
-
-    <x-hero.action title="Premium pet services" highlight="in the heart of Abuja"
-        subtitle="From international relocation to 5-star boarding suites. We provide world-class veterinary and grooming services tailored for the discerning pet owner."
-        :primary-cta="['label' => 'Book a Stay', 'href' => route('services.boarding.index')]"
-        :secondary-cta="['label' => 'View Services', 'href' => route('services.index')]" />
-
     {{-- Services grid --}}
     <section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
@@ -23,10 +13,10 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <x-card.service title="Luxury Boarding"
                     description="Premium overnight stays in spacious, climate-controlled suites with 24/7 care."
-                    href="{{ route('services.boarding.index') }}" image-src="/images/boarding.jpg" icon="apartment" />
+                    href="{{ route('services.boarding.index') }}" image-src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=400&fit=crop&q=80" icon="apartment" />
                 <x-card.service title="Grooming Spa"
                     description="Breed-specific treatments, luxury baths, and styling by certified pet groomers."
-                    href="{{ route('services.grooming') }}" image-src="/images/grooming.jpg" icon="spa" />
+                    href="{{ route('services.grooming') }}" image-src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=600&h=400&fit=crop&q=80" icon="spa" />
                 <x-card.service title="Vet Care"
                     description="On-site veterinary consultations, vaccinations, and wellness check-ups."
                     href="{{ route('services.vet-care') }}" image-src="/images/vetcare.jpg" icon="medical_services" />
@@ -45,9 +35,9 @@
 
     {{-- Feature band --}}
     <x-feature-band eyebrow="The Waggies Difference"
-        title='Why Pet Owners<br/><span class="text-secondary italic">Choose Us</span>'
-        subtitle="We treat every animal as family — combining luxury facilities with genuine expertise."
-        :cta="['label' => 'Learn About Us', 'href' => route('about.index')]" :features="[
+        title='Trusted Care<br/><span class="text-secondary italic">Standards</span>'
+        subtitle="Certified standards across all services."
+        :cta="['label' => 'Book a Free Consultation', 'href' => route('contact')]" :features="[
         ['icon' => 'verified', 'title' => 'PCSA Certified', 'description' => 'Fully licensed by the Pet Care Services Association of Nigeria.'],
         ['icon' => 'medical_services', 'title' => 'On-site Vet', 'description' => 'A qualified veterinarian is on-site every day of the week.'],
         ['icon' => 'lock_clock', 'title' => '24/7 Supervision', 'description' => 'Your pets are monitored around the clock — never left alone.'],
@@ -72,29 +62,6 @@
             </div>
         </div>
     </section>
-
-    <x-cta-section title="Ready to experience the Waggies difference?"
-        subtitle="Book your pet's stay or consultation today and see why we're Abuja's most trusted pet care provider."
-        :primary-cta="['label' => 'Book Now', 'href' => route('services.boarding.index')]"
-        :secondary-cta="['label' => 'Contact Us', 'href' => route('contact')]" 
-    />
-
-    
-<section class="w-full">
-    <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
-        <x-cta.primary :badge-text="'Trusted by 2,000+ Pet Owners'" :heading="'Give Your Pet the'"
-            :heading-accent="'Care They Deserve'" :body="'Book a consultation today. Our team is ready to create a personalised care plan for your furry family member.'"
-            :primary-cta="['label' => 'Book a Free Consultation', 'href' => '#']"
-            :secondary-cta="['label' => 'Call Us Now', 'href' => '#', 'icon' => 'call']" 
-        />
-   
-    </div>
-</section>
-
-    <x-blog-section label="From the Blog" heading="Pet Care Tips &amp; News"
-        subheading="Expert advice, heartwarming stories, and the latest from Waggies HQ." view-all-url="#">
-
-    </x-blog-section>
 
 
     {{-- home.blade.php (guides section) --}}
@@ -147,6 +114,182 @@
                 </a>
             </div>
 
+        </div>
+    </section>
+
+    {{-- Shop Teaser Widget (Correct Pattern) --}}
+    <section id="shop-section" class="bg-surface py-20">
+<div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
+          <!-- Section heading + View All -->
+          <div class="flex items-end justify-between mb-8">
+            <div>
+              <span class="text-primary font-bold tracking-widest uppercase text-xs mb-2 block">Waggies Shop</span>
+              <h2 class="font-serif text-3xl md:text-4xl font-bold text-primary-dark leading-tight">Shop for Your Pet</h2>
+              <p class="text-primary-dark/50 mt-2 text-sm max-w-md">Curated products our vets and groomers actually use and recommend.</p>
+            </div>
+            <a href="#" class="hidden sm:inline-flex items-center gap-1.5 text-primary font-semibold text-sm uppercase tracking-wide hover:text-primary-light transition-colors shrink-0 ml-6">
+              Visit shop <span class="material-symbols-outlined text-base">arrow_forward</span>
+            </a>
+          </div>
+
+          <!-- Category filter pills -->
+          <div class="flex gap-2 mb-8 overflow-x-auto pb-1">
+            <button class="shrink-0 px-5 py-2 rounded-full bg-primary text-white text-xs font-bold uppercase tracking-wider transition-colors focus:outline-none focus:ring-2 focus:ring-primary/60">All</button>
+            <button class="shrink-0 px-5 py-2 rounded-full border border-primary/25 text-primary-dark/70 text-xs font-semibold uppercase tracking-wider hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/60">Food &amp; Treats</button>
+            <button class="shrink-0 px-5 py-2 rounded-full border border-primary/25 text-primary-dark/70 text-xs font-semibold uppercase tracking-wider hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/60">Grooming</button>
+            <button class="shrink-0 px-5 py-2 rounded-full border border-primary/25 text-primary-dark/70 text-xs font-semibold uppercase tracking-wider hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/60">Accessories</button>
+            <button class="shrink-0 px-5 py-2 rounded-full border border-primary/25 text-primary-dark/70 text-xs font-semibold uppercase tracking-wider hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/60">Health &amp; Vet</button>
+          </div>
+
+          <!-- Product grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+            <!-- Product 1 — Bestseller -->
+            <div class="group bg-white border border-surface-purple rounded-2xl overflow-hidden card-lift cursor-pointer flex flex-col relative">
+              <!-- Badge -->
+              <span class="absolute top-3 left-3 z-10 bg-primary text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-glow">Bestseller</span>
+              <!-- Wishlist -->
+              <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur border border-surface-purple flex items-center justify-center text-primary-dark/40 hover:text-primary hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/60" aria-label="Add to wishlist">
+                <span class="material-symbols-outlined text-sm">favorite</span>
+              </button>
+              <!-- Image -->
+              <div class="img-zoom h-44 bg-surface-purple relative">
+                <div class="bg-img h-full w-full bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=400&amp;h=350&amp;fit=crop&amp;q=80')"></div>
+              </div>
+              <div class="p-4 flex flex-col flex-1 gap-3">
+                <div>
+                  <p class="text-[10px] font-bold text-primary/80 uppercase tracking-wider mb-1">Food &amp; Treats</p>
+                  <h3 class="font-semibold text-primary-dark text-sm leading-snug line-clamp-2">Royal Canin Maxi Adult Dog Food 15kg</h3>
+                </div>
+                <div class="flex items-center gap-1.5 mt-auto">
+                  <span class="material-symbols-outlined icon-filled text-gold text-sm">star</span>
+                  <span class="text-xs font-bold text-primary-dark">4.8</span>
+                  <span class="text-xs text-primary-dark/40">(124)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <p class="font-serif font-bold text-primary-dark text-lg">₦28,500</p>
+                </div>
+                <button class="w-full bg-primary hover:bg-primary-dark text-white py-2.5 rounded-full font-semibold text-xs transition shadow-glow hover:-translate-y-0.5 flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-1">
+                  <span class="material-symbols-outlined text-sm">add_shopping_cart</span>Add to Cart
+                </button>
+              </div>
+            </div>
+
+            <!-- Product 2 — Sale -->
+            <div class="group bg-white border border-surface-purple rounded-2xl overflow-hidden card-lift cursor-pointer flex flex-col relative">
+              <span class="absolute top-3 left-3 z-10 bg-error text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Sale</span>
+              <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur border border-surface-purple flex items-center justify-center text-primary hover:text-error transition-colors focus:outline-none focus:ring-2 focus:ring-primary/60" aria-label="Added to wishlist">
+                <span class="material-symbols-outlined icon-filled text-sm">favorite</span>
+              </button>
+              <div class="img-zoom h-44 bg-surface-purple relative">
+                <div class="bg-img h-full w-full bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&amp;h=350&amp;fit=crop&amp;q=80')"></div>
+              </div>
+              <div class="p-4 flex flex-col flex-1 gap-3">
+                <div>
+                  <p class="text-[10px] font-bold text-primary/80 uppercase tracking-wider mb-1">Grooming</p>
+                  <h3 class="font-semibold text-primary-dark text-sm leading-snug line-clamp-2">Professional Deshedding Brush — All Breeds</h3>
+                </div>
+                <div class="flex items-center gap-1.5 mt-auto">
+                  <span class="material-symbols-outlined icon-filled text-gold text-sm">star</span>
+                  <span class="text-xs font-bold text-primary-dark">4.6</span>
+                  <span class="text-xs text-primary-dark/40">(89)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p class="font-serif font-bold text-primary-dark text-lg">₦6,400</p>
+                  <p class="text-sm text-primary-dark/35 line-through font-medium">₦8,500</p>
+                </div>
+                <button class="w-full bg-primary hover:bg-primary-dark text-white py-2.5 rounded-full font-semibold text-xs transition shadow-glow hover:-translate-y-0.5 flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-1">
+                  <span class="material-symbols-outlined text-sm">add_shopping_cart</span>Add to Cart
+                </button>
+              </div>
+            </div>
+
+            <!-- Product 3 — New -->
+            <div class="group bg-white border border-surface-purple rounded-2xl overflow-hidden card-lift cursor-pointer flex flex-col relative">
+              <span class="absolute top-3 left-3 z-10 bg-success text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">New</span>
+              <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur border border-surface-purple flex items-center justify-center text-primary-dark/40 hover:text-primary hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/60" aria-label="Add to wishlist">
+                <span class="material-symbols-outlined text-sm">favorite</span>
+              </button>
+              <div class="img-zoom h-44 bg-surface-purple relative">
+                <div class="bg-img h-full w-full bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1575489922685-2c2534dcbc58?w=400&amp;h=350&amp;fit=crop&amp;q=80')"></div>
+              </div>
+              <div class="p-4 flex flex-col flex-1 gap-3">
+                <div>
+                  <p class="text-[10px] font-bold text-primary/80 uppercase tracking-wider mb-1">Accessories</p>
+                  <h3 class="font-semibold text-primary-dark text-sm leading-snug line-clamp-2">Waggies Signature Leather Pet Collar</h3>
+                </div>
+                <div class="flex items-center gap-1.5 mt-auto">
+                  <span class="material-symbols-outlined icon-filled text-gold text-sm">star</span>
+                  <span class="text-xs font-bold text-primary-dark">5.0</span>
+                  <span class="text-xs text-primary-dark/40">(17)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <p class="font-serif font-bold text-primary-dark text-lg">₦12,000</p>
+                </div>
+                <button class="w-full bg-primary hover:bg-primary-dark text-white py-2.5 rounded-full font-semibold text-xs transition shadow-glow hover:-translate-y-0.5 flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-1">
+                  <span class="material-symbols-outlined text-sm">add_shopping_cart</span>Add to Cart
+                </button>
+              </div>
+            </div>
+
+            <!-- Product 4 — Out of stock state -->
+            <div class="group bg-white border border-surface-purple rounded-2xl overflow-hidden cursor-not-allowed flex flex-col relative opacity-70">
+              <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur border border-surface-purple flex items-center justify-center text-primary-dark/40 cursor-not-allowed" disabled="" aria-label="Add to wishlist">
+                <span class="material-symbols-outlined text-sm">favorite</span>
+              </button>
+              <div class="h-44 bg-surface-purple/60 relative">
+                <div class="h-full w-full bg-cover bg-center grayscale" style="background-image: url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&amp;h=350&amp;fit=crop&amp;q=80')"></div>
+                <!-- Out of stock overlay -->
+                <div class="absolute inset-0 bg-white/50 flex items-center justify-center">
+                  <span class="bg-primary-dark/80 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest">Out of Stock</span>
+                </div>
+              </div>
+              <div class="p-4 flex flex-col flex-1 gap-3">
+                <div>
+                  <p class="text-[10px] font-bold text-primary/80 uppercase tracking-wider mb-1">Health &amp; Vet</p>
+                  <h3 class="font-semibold text-primary-dark text-sm leading-snug line-clamp-2">Tick &amp; Flea Prevention Drops — 3 Month</h3>
+                </div>
+                <div class="flex items-center gap-1.5 mt-auto">
+                  <span class="material-symbols-outlined icon-filled text-gold text-sm">star</span>
+                  <span class="text-xs font-bold text-primary-dark">4.9</span>
+                  <span class="text-xs text-primary-dark/40">(203)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <p class="font-serif font-bold text-primary-dark/40 text-lg">₦9,800</p>
+                </div>
+                <button disabled="" class="w-full border border-primary-dark/20 text-primary-dark/40 py-2.5 rounded-full font-semibold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed">
+                  <span class="material-symbols-outlined text-sm">notifications</span>Notify Me
+                </button>
+              </div>
+            </div>
+
+          </div><!-- /product grid -->
+
+          <!-- Mobile "Visit Shop" -->
+          <div class="mt-8 text-center sm:hidden">
+            <a href="#" class="inline-flex items-center gap-2 border border-primary text-primary px-7 py-3 rounded-full font-semibold text-sm hover:bg-primary hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2">
+              Visit shop <span class="material-symbols-outlined text-base">arrow_forward</span>
+            </a>
+          </div>
+
+        </div>
+      </section>
+
+
+        {{-- Blog Section --}}
+    <x-blog-section label="From the Blog" heading="Pet Care Tips & News"
+        subheading="Expert advice, heartwarming stories, and the latest from Waggies HQ." view-all-url="#">
+
+    </x-blog-section>
+
+   <section class="w-full py-20">
+        <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
+            <x-cta.primary :badge-text="'Trusted by 2,000+ Pet Owners'" :heading="'Give Your Pet the'"
+                :heading-accent="'Care They Deserve'" :body="'Book a consultation today. Our team is ready to create a personalised care plan for your furry family member.'"
+                :primary-cta="['label' => 'Book a Free Consultation', 'href' => '#']"
+                :secondary-cta="['label' => 'Call Us Now', 'href' => '#', 'icon' => 'call']" 
+            />
+    
         </div>
     </section>
 

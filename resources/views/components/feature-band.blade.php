@@ -21,6 +21,7 @@
 
             {{-- LEFT --}}
             <div class="flex flex-col gap-6 max-w-xl">
+            {{-- <div class="flex flex-col gap-6 max-w-xl mx-auto lg:mx-0 text-center lg:text-left items-center lg:items-start"> --}}
 
                 @if($eyebrow)
                     <p class="text-secondary font-bold tracking-widest uppercase text-xs">
