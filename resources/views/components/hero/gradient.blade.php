@@ -125,7 +125,15 @@
 
                 {{-- RIGHT SLOT --}}
                 <div class="flex-1 w-full max-w-lg lg:max-w-none">
-                    {{ $slot }}
+                    @if($imageSrc)
+                        <img 
+                            src="{{ $imageSrc }}" 
+                            alt="" 
+                            class="w-full h-full object-cover rounded-2xl shadow-xl"
+                        >
+                    @else
+                        {{ $slot }}
+                    @endif
                 </div>
 
             </div>

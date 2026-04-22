@@ -1,11 +1,18 @@
 <x-layouts.app title="Luxury Pet Care, Abuja" nav-section="home">
-    <x-hero.image image-src="/images/hero.jpg" eyebrow="Abuja's #1 Pet Services"
+    <x-hero.image image-src="https://images.unsplash.com/photo-1650454027983-e2b8fe55b30b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGx1eHVyeSUyMGRvZyUyMGJvYXJkaW5nJTIwZmFjaWxpdHklMjBpbmRvb3IlMjBtb2Rlcm4lMjBjbGVhbiUyMGRvZyUyMHN1aXRlfGVufDB8fDB8fHww" eyebrow="Abuja's #1 Pet Services"
         title='Premium pet services in the heart of Abuja'
         subtitle="From international relocation to 5-star boarding suites. We provide world-class veterinary and grooming services tailored for the discerning pet owner."
         :primary-cta="['label' => 'Book a Stay', 'href' => route('services.boarding.index')]"
         :secondary-cta="['label' => 'View Services', 'href' => route('services.index')]" />
 
-    {{-- Services grid --}}
+
+    <x-hero.gradient rating="4.3" imageSrc="https://images.unsplash.com/photo-1650454027983-e2b8fe55b30b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGx1eHVyeSUyMGRvZyUyMGJvYXJkaW5nJTIwZmFjaWxpdHklMjBpbmRvb3IlMjBtb2Rlcm4lMjBjbGVhbiUyMGRvZyUyMHN1aXRlfGVufDB8fDB8fHww" eyebrow="Experience the Waggies Difference"
+        title='Where Luxury Meets Compassionate Care'
+        subtitle="Our state-of-the-art facility in Abuja offers a unique blend of opulence and expert care, ensuring your pet's comfort and well-being at every visit."
+        :primary-cta="['label' => 'Take a Virtual Tour', 'href' => route('contact')]"
+        :secondary-cta="['label' => 'Meet Our Team', 'href' => route('contact')]" />
+
+       {{-- Services grid --}}
     <section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
             <x-section-heading eyebrow="What We Offer" title='World-Class Care<br/>for Every Pet'
@@ -13,19 +20,19 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <x-card.service title="Luxury Boarding"
                     description="Premium overnight stays in spacious, climate-controlled suites with 24/7 care."
-                    href="{{ route('services.boarding.index') }}" image-src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=400&fit=crop&q=80" icon="apartment" />
+                    href="{{ route('services.boarding.index') }}" image-src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-hFLGUTZfR4o6aEmNZblS2r51j254QMcrSmpvNX3gqf_PRrK4s4gMZDlNMovWT6w3T_GpetAuHCroSsYBK9jakgwd2tcq-ncK3OC3Fa6axI61kTa1IUJICwA8mYBa_rhA2Dh3TV4uIXJb1O0Iw2sQ6qnHppigFgxpAQsDbWg5tzx-r9sNF_2M5pObOb8oTnakgOtF80OU4vK6ClwuKgdFGRmhd6aGpTjFzvD15SopA7DUGZ8JNDxSSDPkN9SlBhE41EDqGmI6Axfm" icon="apartment" />
                 <x-card.service title="Grooming Spa"
                     description="Breed-specific treatments, luxury baths, and styling by certified pet groomers."
                     href="{{ route('services.grooming') }}" image-src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=600&h=400&fit=crop&q=80" icon="spa" />
                 <x-card.service title="Vet Care"
                     description="On-site veterinary consultations, vaccinations, and wellness check-ups."
-                    href="{{ route('services.vet-care') }}" image-src="/images/vetcare.jpg" icon="medical_services" />
+                    href="{{ route('services.vet-care') }}" image-src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTHx-2eTZ7bwYucOWHLo7yqtzUxvxjRdAb4ZpHiWevyYa1KvptQ3f-zghgc_4vKzVAfs5vVlPV2rgs7kI2FCajkWDLoMdjPapYSNyqkdN0kZsErZv9eix2rZBmjWcDSPL6cGjQ_-2weGgk7JKU6Xd6gpDTPlWDn49qUugijUJdlSwBRKd42KKg_9KKij4oO59SWhw0jGlM3Ehw32RTSVkI9bQtSRXzJ1qVFkmRnmqBkOnCjPsogYNb93pTrK6HhXijRWCk7Y3EebHF" icon="medical_services" />
                 <x-card.service title="Dog Training"
                     description="Positive-reinforcement training programmes for puppies and adult dogs."
-                    href="{{ route('services.training') }}" image-src="/images/training.jpg" icon="school" />
+                    href="{{ route('services.training') }}" image-src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmd8xXxW_oQhjGyRngta_b_G0TdAztFfgHUHcn5btMzOIh3q3eQk9tbqth3qPo9CWbuMYp8WpoWcpQM_5jT7uiC9VRtOxUAeYt6LloE-jFSki2BUrXQqQiGy3nTIVvjhj66UOsmWcxUq5Lz30b-5vlokWvpK0FUB897pMCrrNFKH7Tmc9VExw20xfsBZd8dgqysHE0Ig3d3NLp0P9ZGwWT0ZoVW-g6E7l50ZAoj9EAGz6RpKd8IvyX6y5dQBM0AGt2upSp4a0vHE7J" icon="school" />
                 <x-card.service title="Pet Relocation"
                     description="Stress-free international pet moves with full documentation support."
-                    href="{{ route('relocation.index') }}" image-src="/images/relocation.jpg" icon="flight_takeoff" />
+                    href="{{ route('relocation.index') }}" image-src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8zMeLP6ESzVNlEiUIMeqNo39rxSo0QWsdUUPiub856XZD95tgaC9TVYlM5InAGjQF5PBkOieuBiJ2FYOjI8Y7mAz3_5bVSzQ9Q-W4nKTuqrpH_e_V0gh2mznDCDB66JIruUaeX7g4-pF9lQUw9xAqL-ijY2fdaAaAeW_nJ93dvvjroQShmAIefL-FlJGH_2f4x7Tiy67wVdeChUVSQ4xOdWr9ezWlY3DB_Q0spNNoCnO-FbpB9o3e-aMrSGk1wci_fRiv-MzgZAZd" icon="flight_takeoff" />
                 <x-card.service title="Local Transport"
                     description="Door-to-door pickup and drop-off across Abuja, in air-conditioned vehicles."
                     href="{{ route('services.transport') }}" image-src="/images/transport.jpg" icon="local_shipping" />
@@ -211,7 +218,7 @@
                 <span class="material-symbols-outlined text-sm">favorite</span>
               </button>
               <div class="img-zoom h-44 bg-surface-purple relative">
-                <div class="bg-img h-full w-full bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1575489922685-2c2534dcbc58?w=400&amp;h=350&amp;fit=crop&amp;q=80')"></div>
+                <div class="bg-img h-full w-full bg-cover bg-center" style="background-image: url('https://media.istockphoto.com/id/174843968/photo/a-brown-leather-dog-collar-with-metal-accents.webp?a=1&b=1&s=612x612&w=0&k=20&c=wzpxsd9BdjND9mLiuUe1J_0D2qZxEtNPURKORpYZ_4Q=')"></div>
               </div>
               <div class="p-4 flex flex-col flex-1 gap-3">
                 <div>
