@@ -1,0 +1,285 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* ═══════════════════════════════════════════════════════════════
+   WAGGIES DESIGN TOKENS — Tailwind v4 @theme
+   Generates bg-*, text-*, border-*, shadow-*, font-*, animate-*
+   utilities from these tokens automatically.
+   ═══════════════════════════════════════════════════════════════ */
+@theme {
+
+    /* ── Brand Colours ───────────────────────────────────────── */
+    --color-primary:          #6B2C91;
+    --color-primary-light:    #9D5CC0;
+    --color-primary-dark:     #3E1A57;
+
+    --color-secondary:        #E8D5B5;
+    --color-secondary-hover:  #DCC095;
+
+    --color-surface:          #FDFBF7;
+    --color-surface-purple:   #F5F0FA;
+
+    /* ── Loyalty Tier Colours ────────────────────────────────── */
+    --color-gold:             #FFD700;
+    --color-silver:           #C0C0C0;
+    --color-bronze:           #CD7F32;
+
+    /* ── Status / Semantic Colours ──────────────────────────── */
+    --color-success:          #16a34a;
+    --color-success-light:    #dcfce7;
+    --color-error:            #dc2626;
+    --color-error-light:      #fee2e2;
+    --color-warning:          #d97706;
+    --color-warning-light:    #fef3c7;
+    --color-info:             #2563eb;
+    --color-info-light:       #dbeafe;
+
+    /* ── Third-party / Functional Colours ───────────────────── */
+    --color-whatsapp:         #25D366;
+    --color-whatsapp-hover:   #20BD5A;
+
+    /* ── Typography ──────────────────────────────────────────── */
+    --font-sans:   "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-serif:  "Cormorant Garamond", ui-serif, Georgia, serif;
+
+    /* ── Shadows ─────────────────────────────────────────────── */
+    --shadow-soft: 0 10px 40px -10px rgba(107, 44, 145, 0.12);
+    --shadow-glow: 0 0 20px rgba(107, 44, 145, 0.18);
+
+    /* ── Animations ──────────────────────────────────────────── */
+    --animate-wag-pulse:    wag-pulse    2s   ease-in-out infinite;
+    --animate-wag-bounce:   wag-bounce   3s   infinite;
+    --animate-fade-in-up:   wag-fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   BASE / RESET
+   ───────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 4rem;
+    color-scheme: light;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--color-surface);
+    color: var(--color-primary-dark);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+::selection {
+    background-color: rgba(107, 44, 145, 0.2);
+    color: var(--color-primary-dark);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   SHARED COMPONENT UTILITIES
+   ───────────────────────────────────────────────────────────── */
+
+/* Glass panel — glassmorphism surface for hero overlays */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.70);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.50);
+}
+
+/* Material Symbols — outlined (default) and filled variant */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.icon-filled {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Hide scrollbar, preserve scroll */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Brand-tinted thin scrollbar for sidebars */
+.custom-scrollbar::-webkit-scrollbar       { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--color-surface-purple);
+    border-radius: 20px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-primary-light);
+}
+
+/* Global scrollbar */
+::-webkit-scrollbar       { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--color-primary) 30%, white);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background-color: var(--color-primary); }
+
+/* Masonry grid — gallery, testimonials */
+.masonry-grid {
+    column-count: 1;
+    column-gap: 1.5rem;
+}
+@media (min-width: 640px)  { .masonry-grid { column-count: 2; } }
+@media (min-width: 1024px) { .masonry-grid { column-count: 3; } }
+.masonry-grid > * {
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+}
+
+/* Prose — long-form article content */
+.prose p          { margin-bottom: 1.25rem; line-height: 1.75; color: color-mix(in srgb, var(--color-primary-dark) 70%, transparent); }
+.prose h2         { font-family: var(--font-serif); font-size: 1.75rem; font-weight: 700; color: var(--color-primary-dark); margin-top: 2.5rem; margin-bottom: 1rem; }
+.prose h3         { font-family: var(--font-serif); font-size: 1.35rem; font-weight: 600; color: var(--color-primary-dark); margin-top: 2rem; margin-bottom: 0.75rem; }
+.prose ul         { list-style: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+.prose ol         { list-style: decimal; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+.prose li         { margin-bottom: 0.5rem; line-height: 1.7; color: color-mix(in srgb, var(--color-primary-dark) 70%, transparent); }
+.prose a          { color: var(--color-primary); text-decoration: underline; text-underline-offset: 3px; }
+.prose a:hover    { color: var(--color-primary-light); }
+.prose blockquote { border-left: 4px solid var(--color-primary); padding-left: 1.25rem; font-style: italic; color: color-mix(in srgb, var(--color-primary-dark) 70%, transparent); margin: 1.5rem 0; }
+.prose code       { background: var(--color-surface-purple); padding: 0.2em 0.45em; border-radius: 0.3em; font-size: 0.9em; color: var(--color-primary); }
+.prose pre        { background: var(--color-primary-dark); color: var(--color-secondary); padding: 1.25rem; border-radius: 0.75rem; overflow-x: auto; margin-bottom: 1.25rem; }
+.prose hr         { border-color: var(--color-surface-purple); margin: 2.5rem 0; }
+
+/* FAQ details/summary — remove native triangle, add reveal animation */
+details > summary                   { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+details[open] summary ~ *           { animation: wag-sweep 0.2s ease-in-out; }
+
+/* Radio card — checked state via sibling selector */
+.radio-card-input:checked + .radio-card {
+    border-color: var(--color-primary);
+    background-color: var(--color-surface-purple);
+    box-shadow: 0 0 0 1px var(--color-primary);
+}
+.radio-card-input:checked + .radio-card .check-icon {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Toggle switch (settings pages) */
+.toggle-checkbox:checked { right: 0; border-color: var(--color-primary); }
+.toggle-checkbox:checked + .toggle-label { background-color: var(--color-primary); }
+
+/* Stretched link — makes full card clickable via inner <a> */
+.card-link { position: static; }
+.card-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   NAVIGATION
+   ───────────────────────────────────────────────────────────── */
+
+/* Mega-menu — CSS show/hide via hover + focus-within */
+.mega-panel {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(var(--panel-x, 0)) translateY(-6px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+}
+.nav-item:hover .mega-panel,
+.nav-item:focus-within .mega-panel {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(var(--panel-x, 0)) translateY(0);
+    pointer-events: auto;
+}
+
+.chevron { transition: transform 0.2s ease; display: inline-block; }
+.nav-item:hover .chevron,
+.nav-item:focus-within .chevron { transform: rotate(180deg); }
+
+/* Mega-panel sizing & positioning */
+.mega-panel--center { --panel-x: -50%; width: 360px; left: 50%; }
+.mega-panel--right  { width: 360px; right: 0; }
+.mega-panel--wide   { --panel-x: -60%; width: 820px; left: 50%; }
+
+
+/* ─────────────────────────────────────────────────────────────
+   WCAG 2.2 — FOCUS & SKIP LINK
+   ───────────────────────────────────────────────────────────── */
+
+.skip-link {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 9999;
+    padding: 0.5rem 1rem;
+    background-color: var(--color-primary);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(107,44,145,0.35);
+    transform: translateY(-200%);
+    opacity: 0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.skip-link:focus {
+    transform: translateY(0);
+    opacity: 1;
+    outline: 3px solid var(--color-secondary);
+    outline-offset: 2px;
+}
+
+:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+[class*="focus:ring"] { outline: none; }
+
+
+/* ─────────────────────────────────────────────────────────────
+   ANIMATIONS — @keyframes
+   ───────────────────────────────────────────────────────────── */
+
+@keyframes wag-sweep {
+    0%   { opacity: 0; transform: translateY(-5px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes wag-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+@keyframes wag-bounce {
+    0%, 100% { transform: translateY(0);   animation-timing-function: cubic-bezier(0.8,0,1,1); }
+    50%       { transform: translateY(-8px); animation-timing-function: cubic-bezier(0,0,0.2,1); }
+}
+
+@keyframes wag-fade-in-up {
+    0%   { opacity: 0; transform: translateY(16px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+
