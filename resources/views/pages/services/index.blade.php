@@ -114,19 +114,176 @@
 
     </section>
 
-    <section class="w-full py-20">
+    {{-- Testimonials --}}
+    <section class="py-20 bg-surface-purple">
+        <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
+            <x-section-heading eyebrow="What Clients Say" title="What pet owners experience after using our services" />
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <x-card.testimonial stars="5"
+                    quote="Waggies is the only place I'd trust with my dog. The daily updates give me real peace of mind."
+                    author-initial="A" author-name="Adaeze O." author-subtitle="Dog owner · Maitama" />
+                <x-card.testimonial stars="5"
+                    quote="The grooming team transformed my Persian cat. She looked like she'd come straight from a pet show!"
+                    author-initial="E" author-name="Emeka N." author-subtitle="Cat owner · Wuse II" />
+                <x-card.testimonial stars="5"
+                    quote="Our relocation from London was seamless. Every document was sorted — zero stress on our end."
+                    author-initial="F" author-name="Fatima M." author-subtitle="Relocation client · Asokoro" />
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-surface-purple">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
 
-            <x-cta.primary :badge-text="'Trusted by 2,000+ Pet Owners'" :heading="'Give Your Pet the'" :heading-accent="'Care They Deserve'" :body="'Book a service or speak with our care team today.'" :primary-cta="['label' => 'Contact', 'href' => route('contact'), 'icon' => null]"
-                :secondary-cta="['label' => 'View Pricing', 'href' => '#', 'icon' => null]" />
+            {{-- Heading --}}
+            <div class="text-center mb-14">
+                <span class="text-primary font-bold tracking-widest uppercase text-xs block mb-3">
+                    Need Clarity?
+                </span>
 
-            <x-cta.secondary :heading="'Experience the Waggies Difference'" :body="'From our state-of-the-art facilities to our compassionate care team, discover why Waggies is the trusted choice for pet owners in Abuja.'" :primary-cta="['label' => 'Learn More', 'href' => route('about.index'), 'icon' => null]" />
+                <h2 class="font-serif text-3xl md:text-4xl font-bold text-primary-dark leading-tight mb-4">
+                    Before You Book, Here’s What You Should Know
+                </h2>
+
+                <p class="text-primary-dark/60 max-w-2xl mx-auto">
+                    Quick answers to help you choose the right service for your pet with confidence.
+                </p>
+            </div>
+
+            {{-- FAQ --}}
+            <div class="max-w-3xl mx-auto space-y-3">
+
+                {{-- 1 --}}
+                <details
+                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    <summary
+                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        How do I know which service my pet needs?
+                        <span
+                            class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
+                            expand_more
+                        </span>
+                    </summary>
+                    <p class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                        If you're unsure, start with a consultation or contact us. Our team will recommend the right
+                        service based on your pet’s age, health, and behavior.
+                    </p>
+                </details>
+
+                <details
+                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    <summary
+                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        Are all services safe for my pet?
+                        <span
+                            class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
+                            expand_more
+                        </span>
+                    </summary>
+
+                    <div class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                        Yes. Every service follows strict vet-supervised safety standards and trained handlers.
+                    </div>
+                </details>
+
+                {{-- 2 --}}
+                <details
+                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    <summary
+                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        Are all services safe for my pet?
+                        <span
+                            class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
+                            expand_more
+                        </span>
+                    </summary>
+                    <p class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                        Yes. Every service follows strict vet-supervised safety standards and trained handlers. Safety
+                        is built into every part of our system.
+                    </p>
+                </details>
+
+                {{-- 3 --}}
+                <details
+                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    <summary
+                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        Can I switch or combine services later?
+                        <span
+                            class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
+                            expand_more
+                        </span>
+                    </summary>
+                    <p class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                        Yes. Many clients combine grooming, boarding, and vet care depending on their pet’s needs. We
+                        can adjust plans anytime.
+                    </p>
+                </details>
+
+                {{-- 4 --}}
+                <details
+                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    <summary
+                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        Do I need a consultation before booking?
+                        <span
+                            class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
+                            expand_more
+                        </span>
+                    </summary>
+                    <p class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                        Not always. Some services can be booked directly, but consultations help us recommend the safest
+                        and most effective care plan.
+                    </p>
+                </details>
+
+                {{-- 5 --}}
+                <details
+                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    <summary
+                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        How do I get updates about my pet?
+                        <span
+                            class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
+                            expand_more
+                        </span>
+                    </summary>
+                    <p class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                        You receive regular updates including photos and status reports depending on the service you
+                        choose.
+                    </p>
+                </details>
+
+                {{-- 6 --}}
+                <details
+                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    <summary
+                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        What happens after I book a service?
+                        <span
+                            class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
+                            expand_more
+                        </span>
+                    </summary>
+                    <p class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                        Our team contacts you to confirm details, prepare your pet’s care plan, and guide you through
+                        the next steps.
+                    </p>
+                </details>
+
+            </div>
 
         </div>
     </section>
 
 
+    <section class="w-full py-20">
+        <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
 
+            <x-cta.primary :badge-text="'Trusted by 2,000+ Pet Owners'" :heading="'Give Your Pet the'" :heading-accent="'Care They Deserve'" :body="'Book a service or speak with our care team today.'" :primary-cta="['label' => 'Contact', 'href' => route('contact'), 'icon' => null]"
+                :secondary-cta="['label' => 'View Pricing', 'href' => '#', 'icon' => null]" />
+        </div>
+    </section>
 
     @push('head')
         @php
