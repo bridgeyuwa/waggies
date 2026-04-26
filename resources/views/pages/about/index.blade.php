@@ -27,7 +27,8 @@
             </div>
             <div class="flex flex-col items-center text-center">
                 <span class="font-serif text-4xl font-bold text-primary mb-1">100%</span>
-                <span class="text-xs uppercase tracking-widest text-primary-dark/50 font-semibold">Eco-Powered</span>
+                <span class="text-xs uppercase tracking-widest text-primary-dark/50 font-semibold">Protocol-Based
+                    Handling</span>
             </div>
         </div>
     </div>
@@ -56,6 +57,10 @@
                         <p>Our facility blends advanced medical technology with the comfort of a 5-star resort. Whether
                             it's a routine check-up, a grooming session, or international relocation, we handle every
                             detail with precision and grace.</p>
+                        <p>Pet Care Should Never Be Reactive:
+                            We believe animals deserve the same intentionality and structure as human healthcare. Not
+                            rushed decisions. Not inconsistent handling. Not emotional guesswork — but deliberate,
+                            thoughtful care built around long-term wellbeing</p>
                     </div>
 
                     {{-- Feature rows — A12 icon container: w-8 h-8 rounded-lg bg-surface-purple --}}
@@ -153,6 +158,15 @@
                         Every member of our team is an animal lover first. We believe the best pet care comes from
                         genuine passion — not just process.
                     </p>
+                    <p>Built From a Gap in Real Veterinary Care
+                        Waggies began with a simple but frustrating reality — pet owners in Abuja had to choose between
+                        basic boarding facilities or expensive, fragmented services with no continuity of care.
+
+                        The idea wasn’t to “start a pet business.” It was to remove the inconsistency between grooming,
+                        boarding, and veterinary handling by putting everything under one controlled system.
+
+                        What exists today is not a collection of services — but a unified care environment designed to
+                        eliminate risk created by fragmentation.</p>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     @foreach ([['value' => '500+', 'label' => 'Happy Clients'], ['value' => '7', 'label' => 'Years in Business'], ['value' => '4.9', 'label' => 'Average Rating'], ['value' => '15+', 'label' => 'Team Members']] as $stat)
@@ -169,36 +183,39 @@
     </section>
 
     {{-- Our Values --}}
-    <x-feature-band eyebrow="Our Values"
-        title='What Makes Waggies<br/><span class="text-secondary italic">Different</span>'
+    <x-feature-band eyebrow="Operating Standards"
+        title='Our Standard of Handling<br/><span class="text-secondary italic">Across All Services</span>'
         subtitle="We hold ourselves to a higher standard — because your pets deserve nothing less.
         
         Whether it’s boarding, grooming, veterinary care, training, or relocation — our decisions follow one standard: what is best for the animal always comes first.
         "
-        :cta="['label' => 'Meet the Team', 'href' => route('about.index')]" :features="[
+        :features="[
             [
                 'icon' => 'volunteer_activism',
-                'title' => 'Animal-First Decisions',
+                'title' => 'Supervised Pet-First Care',
                 'description' => 'Every service is designed around comfort, safety, and wellbeing — never convenience or
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    speed.',
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    speed.',
             ],
             [
                 'icon' => 'sync',
                 'title' => 'Consistency Across Services',
                 'description' =>
-                    'Whether a pet is boarding or receiving medical care, the same standards of attention apply.',
+                    'Boarding, grooming, and medical care follow the same documented handling standards and staff procedures.',
             ],
             [
                 'icon' => 'shield',
-                'title' => 'Safety Without Exception',
-                'description' => 'From transport to grooming to recovery care, safety protocols are never compromised.',
+                'title' => 'Controlled Safety Protocols',
+                'description' =>
+                    'Pets are separated by risk level, monitored during movement, and handled under strict safety procedures.',
             ],
             [
                 'icon' => 'visibility',
-                'title' => 'Transparency With Owners',
-                'description' => 'We communicate clearly and honestly — even when situations are imperfect.',
+                'title' => 'Transparent Owner Communication',
+                'description' =>
+                    'Owners receive clear updates on condition, progress, and any incidents — with no hidden details.',
             ],
         ]" />
+
 
     {{-- Meet the Specialists --}}
     <section class="py-20 bg-surface">
@@ -361,11 +378,6 @@
                         src="https://maps.google.com/maps?q=Garki+2+Abuja+Nigeria&output=embed">
                     </iframe>
 
-                    <div
-                        class="absolute bottom-4 left-4 text-xs text-primary-dark/50 bg-white/70 px-3 py-1 rounded-full backdrop-blur">
-                        Interactive map upgrade coming
-                    </div>
-
                 </div>
 
             </div>
@@ -405,10 +417,6 @@
 
         </div>
     </section>
-
-
-
-
 
 
     @push('head')

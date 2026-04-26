@@ -7,7 +7,7 @@
     <div class="relative aspect-4/5 overflow-hidden bg-surface-purple">
 
         <img src="{{ $image }}" alt="{{ $name }}" loading="lazy"
-            class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-[1.03]" />
+            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
 
         <!-- subtle overlay (kept stable, not flashy on hover) -->
         <div class="absolute inset-0 bg-gradient-to-t from-primary-dark/10 via-transparent to-transparent"></div>
