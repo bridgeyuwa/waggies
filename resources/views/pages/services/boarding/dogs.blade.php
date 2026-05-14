@@ -6,6 +6,18 @@
         primary_label="View Boarding Options" primary_href="/boarding/dogs" primary_icon="arrow_forward"
         secondary_label="See Facilities" secondary_href="/facilities" />
 
+    <x-hero.plain title="Why Choose Waggies for Your Dog's Boarding Needs?"
+        subtitle="Experience the difference of a boarding service that treats your dog like family, with tailored care, engaging activities, and a safe, loving environment." />
+
+    <x-hero.plainx eyebrow="Our Services" title="Everything Your Pet Needs, Handled with Care"
+        subtitle="Explore boarding, relocation, and specialized services designed for safety and comfort." />
+
+    <x-hero.plain eyebrow="Boarding Services" eyebrow_icon="pets" title="Safe & Comfortable Boarding for Every Pet"
+        subtitle="Whether it's dogs, cats, or exotic pets, we provide tailored care designed around their needs."
+        align="center" image_src="/images/boarding-preview.jpg" primary_label="Book Boarding" primary_href="/contact"
+        primary_icon="arrow_forward" secondary_label="View Options" secondary_href="#services"
+        secondary_icon="grid_view" />
+
     {{-- Our Stats --}}
     <div
         class="relative z-30 -mt-8 -mb-8 mx-4 sm:mx-10 max-w-[1200px] lg:mx-auto bg-white rounded-2xl shadow-soft border border-surface-purple">
