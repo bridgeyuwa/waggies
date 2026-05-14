@@ -1,4 +1,5 @@
 {{--
+Image hero
     Hero — Image overlay.
     Full-bleed background image with gradient overlay.
 

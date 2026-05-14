@@ -194,7 +194,7 @@
                 'icon' => 'volunteer_activism',
                 'title' => 'Supervised Pet-First Care',
                 'description' => 'Every service is designed around comfort, safety, and wellbeing — never convenience or
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    speed.',
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    speed.',
             ],
             [
                 'icon' => 'sync',
@@ -386,36 +386,14 @@
     </section>
 
     <section class="py-16 bg-white border-t border-surface-purple">
-        <div class="max-w-6xl mx-auto px-4 md:px-8">
 
-            <div
-                class="rounded-2xl border border-primary/10 bg-surface-purple px-8 md:px-12 py-10 md:py-12 flex flex-col md:flex-row items-center justify-between gap-8">
-
-                {{-- Copy --}}
-                <div class="text-center md:text-left max-w-xl">
-                    <h3 class="font-serif text-2xl md:text-3xl font-bold text-primary-dark leading-tight">
-                        Explore Our Pet Care Services
-                    </h3>
-
-                    <p class="text-primary-dark/60 text-sm md:text-base mt-2 leading-relaxed">
-                        From grooming to veterinary care and boarding, discover everything we offer to keep your pet
-                        healthy and happy.
-                    </p>
-                </div>
-
-                {{-- CTA --}}
-                <a href="{{ route('services.index') }}"
-                    class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-primary hover:bg-primary-dark text-white text-sm font-semibold transition-colors shadow-soft focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2">
-
-                    <span class="material-symbols-outlined text-base">pets</span>
-                    View Services
-
-                    <span class="material-symbols-outlined text-base">arrow_forward</span>
-                </a>
-
-            </div>
-
+        <div class="max-w-7xl mx-auto px-4 md:px-8">
+            <x-cta.secondary heading="Explore Our Pet Care Services"
+                body="From grooming to veterinary care and boarding, discover everything we offer to keep your pet healthy and happy."
+                primary_label="View Services" primary_href="{{ route('services.index') }}"
+                primary_icon="arrow_forward" />
         </div>
+
     </section>
 
 

@@ -12,14 +12,14 @@
       $ctaHref    — CTA button href
 --}}
 @props([
-    'variant'    => 'standard',
-    'tierLabel'  => '',
+    'variant' => 'standard',
+    'tierLabel' => '',
     'badgeLabel' => 'Most Popular',
-    'price'      => '',
-    'unit'       => '/night',
-    'features'   => [],
-    'ctaLabel'   => 'Get Started',
-    'ctaHref'    => '#',
+    'price' => '',
+    'unit' => '/night',
+    'features' => [],
+    'ctaLabel' => 'Get Started',
+    'ctaHref' => '#',
 ])
 
 @php
@@ -32,9 +32,10 @@
 <div class="{{ $wrapperClasses }}">
 
     {{-- Featured badge --}}
-    @if($isFeatured)
+    @if ($isFeatured)
         <div class="absolute -top-4 left-1/2 -translate-x-1/2">
-            <span class="bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-glow uppercase tracking-wider whitespace-nowrap">
+            <span
+                class="bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-glow uppercase tracking-wider whitespace-nowrap">
                 {{ $badgeLabel }}
             </span>
         </div>
@@ -51,9 +52,11 @@
 
     {{-- Feature list --}}
     <ul class="flex flex-col gap-3 mb-8">
-        @foreach($features as $feature)
-            <li class="flex items-center gap-3 text-sm {{ $feature['included'] ? 'text-primary-dark' : 'text-primary-dark/30' }}">
-                <span class="material-symbols-outlined icon-filled text-base shrink-0
+        @foreach ($features as $feature)
+            <li
+                class="flex items-center gap-3 text-sm {{ $feature['included'] ? 'text-primary-dark' : 'text-primary-dark/30' }}">
+                <span
+                    class="material-symbols-outlined icon-filled text-base shrink-0
                              {{ $feature['included'] ? 'text-success' : 'text-primary-dark/30' }}">
                     {{ $feature['included'] ? 'check_circle' : 'remove' }}
                 </span>
@@ -63,9 +66,9 @@
     </ul>
 
     {{-- CTA --}}
-    @if($isFeatured)
+    @if ($isFeatured)
         <a href="{{ $ctaHref }}"
-           class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white
+            class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white
                   py-3 rounded-full font-semibold transition shadow-glow hover:-translate-y-1
                   focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2">
             {{ $ctaLabel }}
@@ -73,7 +76,7 @@
         </a>
     @else
         <a href="{{ $ctaHref }}"
-           class="w-full flex items-center justify-center gap-2 border-2 border-primary text-primary
+            class="w-full flex items-center justify-center gap-2 border-2 border-primary text-primary
                   hover:bg-primary hover:text-white py-3 rounded-full font-semibold transition
                   focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2">
             {{ $ctaLabel }}

@@ -1,3 +1,5 @@
+{{-- Gradient hero --}}
+
 @props([
     'layout' => 'split', // split | centered
     'rating' => '4.9',

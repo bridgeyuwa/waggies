@@ -1,3 +1,4 @@
+{{-- Action hero --}}
 @props([
     'title' => '',
     'subtitle' => null,
@@ -10,7 +11,8 @@
 
     <div class="max-w-2xl mx-auto px-4 md:px-6">
 
-        <div class="flex flex-col gap-6
+        <div
+            class="flex flex-col gap-6
             {{ $align === 'left' ? 'text-left items-start' : 'text-center items-center' }}">
 
             {{-- TITLE (instructional, not marketing) --}}
@@ -19,19 +21,20 @@
             </h1>
 
             {{-- SUBTITLE (optional friction reducer) --}}
-            @if($subtitle)
+            @if ($subtitle)
                 <p class="text-primary-dark/60 text-base leading-relaxed max-w-xl">
                     {{ $subtitle }}
                 </p>
             @endif
 
             {{-- ACTIONS --}}
-            <div class="w-full flex flex-col sm:flex-row gap-3 mt-4
+            <div
+                class="w-full flex flex-col sm:flex-row gap-3 mt-4
                 {{ $align === 'left' ? 'sm:justify-start' : 'sm:justify-center' }}">
 
-                @if($primaryCta)
+                @if ($primaryCta)
                     <a href="{{ $primaryCta['href'] }}"
-                       class="inline-flex items-center justify-center gap-2
+                        class="inline-flex items-center justify-center gap-2
                               bg-primary hover:bg-primary-dark text-white
                               px-8 py-4 rounded-full font-bold
                               transition shadow-glow hover:-translate-y-1
@@ -43,9 +46,9 @@
                     </a>
                 @endif
 
-                @if($secondaryCta)
+                @if ($secondaryCta)
                     <a href="{{ $secondaryCta['href'] }}"
-                       class="inline-flex items-center justify-center gap-2
+                        class="inline-flex items-center justify-center gap-2
                               border border-primary/30 text-primary-dark
                               px-8 py-4 rounded-full font-semibold
                               hover:bg-primary/5 transition

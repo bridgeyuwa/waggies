@@ -368,10 +368,14 @@
 
     <section class="w-full py-20">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
-            <x-cta.primary :badge-text="'Trusted by 2,000+ Pet Owners'" :heading="'Give Your Pet the'" :heading-accent="'Care They Deserve'" :body="'Book a consultation today. Our team is ready to create a personalised care plan for your furry family member.'" :primary-cta="['label' => 'Book a Free Consultation', 'href' => '#']"
-                :secondary-cta="['label' => 'Call Us Now', 'href' => '#', 'icon' => 'call']" />
-
+            <x-cta.primary eyebrow_icon="pets" eyebrow_text="Trusted Pet Care" heading="Give Your Pet the"
+                heading_accent="Care They Deserve"
+                body="Book a consultation today and get a tailored care plan from our veterinary team."
+                primary_label="Book Appointment" primary_href="/book" primary_icon="arrow_forward"
+                secondary_label="Call Us Now" secondary_href="tel:+234080200000000" secondary_icon="call" />
         </div>
+
+
     </section>
 
     @push('head')

@@ -279,9 +279,10 @@
 
     <section class="w-full py-20">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
-
-            <x-cta.primary :badge-text="'Trusted by 2,000+ Pet Owners'" :heading="'Give Your Pet the'" :heading-accent="'Care They Deserve'" :body="'Book a service or speak with our care team today.'" :primary-cta="['label' => 'Contact', 'href' => route('contact'), 'icon' => null]"
-                :secondary-cta="['label' => 'View Pricing', 'href' => '#', 'icon' => null]" />
+            <x-cta.primary heading="Give Your Pet the" heading_accent="Care They Deserve"
+                body="'Book a service or speak with our care team today.'" primary_label="Book a Service"
+                primary_href="#services" primary_icon="arrow_forward" secondary_label="Call Us Now"
+                secondary_href="tel:+234080200000000" secondary_icon="call" />
         </div>
     </section>
 
