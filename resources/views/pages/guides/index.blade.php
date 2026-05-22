@@ -31,8 +31,8 @@
             <a href="{{ route('guides.show', $guide->slug) }}"
                class="group bg-white rounded-2xl shadow-sm hover:shadow-soft transition-shadow overflow-hidden flex flex-col">
                 <div class="h-44 bg-surface-purple group-hover:bg-primary/10 transition-colors overflow-hidden">
-                    @if($guide->image)
-                        <img src="{{ $guide->image }}" alt="{{ $guide->title }}"
+                    @if($guide->image_url)
+                        <img src="{{ $guide->image_url }}" alt="{{ $guide->title }}"
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                              loading="lazy" />
                     @endif

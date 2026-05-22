@@ -1,10 +1,16 @@
 ﻿<x-layouts.app title="Luxury Pet Boarding" nav-section="services">
 
-    <x-hero.overlay image_src="/images/boarding.jpg" eyebrow="Abuja's #1 Pet Boarding" eyebrow_icon="pets"
-        title="A Home Away From Home" content_align="center"
+    <x-hero.image
+        image-src="/images/boarding.jpg"
+        image-alt="Luxury pet boarding suites at Waggies"
+        eyebrow="Abuja's #1 Pet Boarding"
+        eyebrow-icon="pets"
+        title="A Home Away From Home"
+        variant="center"
         subtitle="Spacious, climate-controlled suites with 24/7 supervision, orthopedic bedding, and daily updates for total peace of mind."
-        primary_label="Book Appointment" primary_href="/book" primary_icon="arrow_forward" secondary_label="View Services"
-        secondary_href="/services" />
+        :primary-cta="['label' => 'Book Appointment', 'href' => route('contact'), 'icon' => 'arrow_forward']"
+        :secondary-cta="['label' => 'View Services', 'href' => route('services.index')]"
+    />
 
 
 

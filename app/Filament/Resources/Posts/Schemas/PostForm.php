@@ -2,16 +2,19 @@
 
 namespace App\Filament\Resources\Posts\Schemas;
 
+use App\Models\Post;
+use App\Rules\ReservedSlug;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Unique;
 
 class PostForm
 {
@@ -25,15 +28,16 @@ class PostForm
                         'guide' => 'Guide',
                     ])
                     ->required()
-                    ->default('blog'),
+                    ->default('blog')
+                    ->live(),
                 Select::make('category')
                     ->options([
-                        'nutrition'  => 'Nutrition',
-                        'health'     => 'Health & Wellness',
-                        'training'   => 'Training & Behaviour',
-                        'grooming'   => 'Grooming',
-                        'boarding'   => 'Boarding & Care',
-                        'general'    => 'General',
+                        'nutrition' => 'Nutrition',
+                        'health' => 'Health & Wellness',
+                        'training' => 'Training & Behaviour',
+                        'grooming' => 'Grooming',
+                        'boarding' => 'Boarding & Care',
+                        'general' => 'General',
                     ])
                     ->required(),
                 TextInput::make('title')
@@ -47,7 +51,15 @@ class PostForm
                     ->columnSpanFull(),
                 TextInput::make('slug')
                     ->required()
-                    ->unique(ignoreRecord: true)
+                    ->rules([new ReservedSlug])
+                    ->unique(
+                        table: Post::class,
+                        column: 'slug',
+                        ignoreRecord: true,
+                        modifyRuleUsing: function (Unique $rule, Get $get) {
+                            return $rule->where('type', $get('type'));
+                        },
+                    )
                     ->columnSpanFull(),
                 Textarea::make('excerpt')
                     ->rows(3)
@@ -57,7 +69,9 @@ class PostForm
                     ->columnSpanFull(),
                 FileUpload::make('image')
                     ->image()
-                    ->directory('posts'),
+                    ->disk('public')
+                    ->directory('posts')
+                    ->visibility('public'),
                 TextInput::make('author')
                     ->required()
                     ->default('The Waggies Team'),

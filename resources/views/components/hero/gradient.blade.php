@@ -132,8 +132,8 @@
                 <div class="flex-1 w-full max-w-lg lg:max-w-none">
                     <div class="relative">
                         @if ($imageSrc)
-                            <img src="{{ $imageSrc }}" alt=""
-                                class="w-full h-full object-cover rounded-2xl shadow-lg">
+                            <img src="{{ $imageSrc }}" alt="{{ strip_tags($title) }}"
+                                class="w-full h-full object-cover rounded-2xl shadow-lg" loading="lazy">
                         @else
                             {{ $slot }}
                         @endif

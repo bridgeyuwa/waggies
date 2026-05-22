@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreContactRequest;
 use App\Models\Enquiry;
-use Illuminate\Http\Request;
+use App\Notifications\EnquiryReceivedNotification;
+use Illuminate\Support\Facades\Notification;
 
 class ContactController extends Controller
 {
@@ -12,15 +14,16 @@ class ContactController extends Controller
         return view('pages.contact');
     }
 
-    public function store(Request $request)
+    public function store(StoreContactRequest $request)
     {
-        $validated = $request->validate([
-            'name'    => ['required', 'string', 'max:255'],
-            'email'   => ['required', 'email', 'max:255'],
-            'message' => ['required', 'string', 'max:5000'],
-        ]);
+        $enquiry = Enquiry::create($request->validated());
 
-        Enquiry::create($validated);
+        $adminAddress = config('mail.admin_address') ?: env('ADMIN_EMAIL');
+
+        if ($adminAddress) {
+            Notification::route('mail', $adminAddress)
+                ->notify(new EnquiryReceivedNotification($enquiry));
+        }
 
         return back()->with('success', 'Your message has been sent. We\'ll be in touch soon!');
     }

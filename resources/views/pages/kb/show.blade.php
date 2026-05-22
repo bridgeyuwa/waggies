@@ -45,9 +45,7 @@
             </h1>
         </header>
 
-        <div class="prose max-w-none">
-            {!! nl2br(e($article->body)) !!}
-        </div>
+        <x-ui.markdown :content="$article->body" />
     </article>
 
 

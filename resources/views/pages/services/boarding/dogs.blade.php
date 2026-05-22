@@ -1,22 +1,15 @@
 ﻿<x-layouts.app title="Dog Boarding" nav-section="services">
-    <x-hero.split
-        image_src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=1600&q=80"
-        eyebrow="Dog Boarding" eyebrow_icon="pets" title="A Safe, Structured Stay for Your Dog" content_align="center"
+    <x-hero.image
+        image-src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=1600&q=80"
+        image-alt="Happy dog in a safe boarding environment at Waggies"
+        eyebrow="Dog Boarding"
+        eyebrow-icon="pets"
+        title="A Safe, Structured Stay for Your Dog"
+        variant="center"
         subtitle="Private suites, supervised play, and daily routines designed to keep your dog active, comfortable, and stress-free while you're away."
-        primary_label="View Boarding Options" primary_href="/boarding/dogs" primary_icon="arrow_forward"
-        secondary_label="See Facilities" secondary_href="/facilities" />
-
-    <x-hero.plain title="Why Choose Waggies for Your Dog's Boarding Needs?"
-        subtitle="Experience the difference of a boarding service that treats your dog like family, with tailored care, engaging activities, and a safe, loving environment." />
-
-    <x-hero.plainx eyebrow="Our Services" title="Everything Your Pet Needs, Handled with Care"
-        subtitle="Explore boarding, relocation, and specialized services designed for safety and comfort." />
-
-    <x-hero.plain eyebrow="Boarding Services" eyebrow_icon="pets" title="Safe & Comfortable Boarding for Every Pet"
-        subtitle="Whether it's dogs, cats, or exotic pets, we provide tailored care designed around their needs."
-        align="center" image_src="/images/boarding-preview.jpg" primary_label="Book Boarding" primary_href="/contact"
-        primary_icon="arrow_forward" secondary_label="View Options" secondary_href="#services"
-        secondary_icon="grid_view" />
+        :primary-cta="['label' => 'Book Boarding', 'href' => route('contact'), 'icon' => 'arrow_forward']"
+        :secondary-cta="['label' => 'View Options', 'href' => '#boarding-options']"
+    />
 
     {{-- Our Stats --}}
     <div
@@ -282,7 +275,7 @@
         <section class="py-16 bg-surface-purple/40">
             <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
                 <x-section-heading eyebrow="FAQs" title="Frequently Asked Questions" class="mb-8" />
-                <x-faq-accordion :faqs="$faqs->map(fn($f) => ['question' => $f->question, 'answer' => e($f->answer)])->all()" />
+                <x-faq-accordion :faqs="$faqs->map(fn($f) => ['question' => $f->question, 'answer' => $f->answer])->all()" />
                 <p class="mt-6 text-sm text-primary-dark/50">More questions? <a href="{{ route('faq') }}"
                         class="text-primary font-medium hover:underline">View all FAQs</a> or <a
                         href="{{ route('contact') }}" class="text-primary font-medium hover:underline">contact us</a>.

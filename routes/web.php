@@ -1,25 +1,25 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Services\ServicesController;
-use App\Http\Controllers\Services\BoardingController;
-use App\Http\Controllers\Services\GroomingController;
-use App\Http\Controllers\Services\VetCareController;
-use App\Http\Controllers\Services\TrainingController;
-use App\Http\Controllers\Services\TransportController;
-use App\Http\Controllers\Services\PricingController;
-use App\Http\Controllers\LoyaltyController;
-use App\Http\Controllers\Relocation\RelocationController;
-use App\Http\Controllers\Relocation\ChecklistController;
 use App\Http\Controllers\About\AboutController;
 use App\Http\Controllers\Blog\BlogController;
 use App\Http\Controllers\Blog\GuidesController;
 use App\Http\Controllers\Blog\KnowledgeBaseController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LoyaltyController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\Relocation\ChecklistController;
+use App\Http\Controllers\Relocation\RelocationController;
+use App\Http\Controllers\Services\BoardingController;
+use App\Http\Controllers\Services\GroomingController;
+use App\Http\Controllers\Services\PricingController;
+use App\Http\Controllers\Services\ServicesController;
+use App\Http\Controllers\Services\TrainingController;
+use App\Http\Controllers\Services\TransportController;
+use App\Http\Controllers\Services\VetCareController;
 use App\Http\Controllers\ShopController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -110,12 +110,15 @@ Route::get('/faq', [FaqController::class, 'index'])->name('faq');
 // Contact
 // ---------------------------------------------------------------------------
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
-Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:contact')
+    ->name('contact.store');
 
 // ---------------------------------------------------------------------------
 // Newsletter
 // ---------------------------------------------------------------------------
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'store'])
+    ->middleware('throttle:newsletter')
     ->name('newsletter.subscribe');
 
 // ---------------------------------------------------------------------------
@@ -126,6 +129,6 @@ Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 // ---------------------------------------------------------------------------
 // Legal
 // ---------------------------------------------------------------------------
-Route::view('/privacy-policy',   'pages.privacy')->name('privacy');
+Route::view('/privacy-policy', 'pages.privacy')->name('privacy');
 Route::view('/terms-of-service', 'pages.terms')->name('terms');
-Route::view('/cookies-policy',   'pages.cookies')->name('cookies');
+Route::view('/cookies-policy', 'pages.cookies')->name('cookies');

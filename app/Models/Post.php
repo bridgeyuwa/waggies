@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Post extends Model
 {
-    /** @use HasFactory<\Database\Factories\PostFactory> */
+    /** @use HasFactory<PostFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -68,6 +71,22 @@ class Post extends Model
     public function getReadingTimeAttribute(): int
     {
         $words = str_word_count(strip_tags((string) $this->body));
+
         return max(1, (int) ceil($words / 200));
+    }
+
+    protected function imageUrl(): Attribute
+    {
+        return Attribute::get(function (): ?string {
+            if (empty($this->image)) {
+                return null;
+            }
+
+            if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
+                return $this->image;
+            }
+
+            return Storage::disk('public')->url($this->image);
+        });
     }
 }

@@ -1,5 +1,5 @@
 @props([
-    'href' => 'https://wa.me/234XXXXXXXXXX',
+    'href' => 'https://wa.me/2348000000000',
     'tooltip' => 'Chat on WhatsApp',
 ])
 

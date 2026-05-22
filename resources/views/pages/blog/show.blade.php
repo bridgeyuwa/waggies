@@ -48,8 +48,8 @@
             </p>
         </header>
 
-        @if($post->image)
-            <img src="{{ $post->image }}" alt="{{ $post->title }}"
+        @if($post->image_url)
+            <img src="{{ $post->image_url }}" alt="{{ $post->title }}"
                  class="w-full h-64 object-cover rounded-2xl mb-8" />
         @else
             <div class="w-full h-64 bg-surface-purple rounded-2xl mb-8"></div>
@@ -59,9 +59,7 @@
             <p class="text-lg text-primary-dark/70 leading-relaxed font-medium mb-6 italic">{{ $post->excerpt }}</p>
         @endif
 
-        <div class="prose max-w-none">
-            {!! nl2br(e($post->body)) !!}
-        </div>
+        <x-ui.markdown :content="$post->body" />
     </article>
 
 
@@ -74,7 +72,7 @@ $_schema = \Spatie\SchemaOrg\Schema::blogPosting()
     ->datePublished($post->published_at->toIso8601String())
     ->url(url()->current())
     ->publisher(\Spatie\SchemaOrg\Schema::organization()->name('Waggies')->url(url('/')));
-if ($post->image) { $_schema->image($post->image); }
+if ($post->image_url) { $_schema->image($post->image_url); }
 echo $_schema->toScript();
 @endphp
 @endpush

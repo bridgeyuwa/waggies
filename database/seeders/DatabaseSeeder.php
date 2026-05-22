@@ -6,12 +6,24 @@ use App\Models\Enquiry;
 use App\Models\KbArticle;
 use App\Models\Post;
 use App\Models\Subscriber;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('local') || env('ADMIN_EMAIL')) {
+            User::firstOrCreate(
+                ['email' => env('ADMIN_EMAIL', 'admin@waggies.test')],
+                [
+                    'name' => env('ADMIN_NAME', 'Admin'),
+                    'password' => Hash::make(env('ADMIN_PASSWORD', 'password')),
+                ],
+            );
+        }
+
         // Blog posts — 24 published, 3 drafts
         Post::factory(24)->blog()->create();
         Post::factory(3)->blog()->draft()->create();

@@ -25,7 +25,7 @@
             </summary>
 
             <div class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
-                {!! $faq['answer'] !!}
+                {{ $faq['answer'] }}
             </div>
 
         </details>

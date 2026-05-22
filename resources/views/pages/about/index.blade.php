@@ -1,5 +1,5 @@
 ﻿<x-layouts.app title="About Us" nav-section="about">
-    <x-hero.gradient title='Complete Veterinary & Pet Care in Abuja' badge="Veterinary-led care system"
+    <x-hero.gradient title='Complete Veterinary & Pet Care in Abuja'
         subtitle="A fully integrated veterinary, boarding, grooming, training, relocation, and identification service designed for consistent, professional pet care in one place."
         :primary-cta="['label' => 'Book a Free Consultation', 'href' => route('contact')]" :secondary-cta="['label' => 'Explore Services', 'href' => route('services.index')]"
         image-src="https://images.unsplash.com/photo-1650454027983-e2b8fe55b30b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGx1eHVyeSUyMGRvZyUyMGJvYXJkaW5nJTIwZmFjaWxpdHklMjBpbmRvb3IlMjBtb2Rlcm4lMjBjbGVhbiUyMGRvZyUyMHN1aXRlfGVufDB8fDB8fHww" />
@@ -237,27 +237,27 @@
                 <x-about.team-card name="Dr. Amara Okeke" role="Head Veterinarian"
                     image="https://lh3.googleusercontent.com/aida-public/AB6AXuAgWoocAfd8dbeiglF8t-YP3DrZ9K05COA2RiovxrhAO-TUUngB1JpLH6jTxb5iRiV3TXGzHWkZpkC6i5XPSDPGBHqQ6nrrauWhu8_vY_rlKNbWr0oAbVbJ8PhvCpeDTVwH2MlWYtJZZfKP5korMPIhPeEaPLjUd1yQc2P776NsK6BEkLYGE1PPRYDUnttzIX94gLA9gJ2nKsuBHbgg4NHn9ImoG3LF2oz9sTz78dL4-P-Ge6az336MMDYSi46u3gMq3-Dc4Kx0ewRl"
                     badge="Vet" :roles="['DVM', 'Surgery Cert']">
-                    XXX Specialist in small animal surgery with over a decade of clinical experience.
+                    Board-certified specialist in small animal surgery with over a decade of clinical experience.
                 </x-about.team-card>
 
                 {{-- Card --}}
                 <x-about.team-card name="Dr. Amara Okeke" role="Head Veterinarian"
                     image="https://lh3.googleusercontent.com/aida-public/AB6AXuAgWoocAfd8dbeiglF8t-YP3DrZ9K05COA2RiovxrhAO-TUUngB1JpLH6jTxb5iRiV3TXGzHWkZpkC6i5XPSDPGBHqQ6nrrauWhu8_vY_rlKNbWr0oAbVbJ8PhvCpeDTVwH2MlWYtJZZfKP5korMPIhPeEaPLjUd1yQc2P776NsK6BEkLYGE1PPRYDUnttzIX94gLA9gJ2nKsuBHbgg4NHn9ImoG3LF2oz9sTz78dL4-P-Ge6az336MMDYSi46u3gMq3-Dc4Kx0ewRl"
                     badge="Vet" :roles="['DVM', 'Surgery Cert']">
-                    XXX Specialist in small animal surgery with over a decade of clinical experience.
+                    Board-certified specialist in small animal surgery with over a decade of clinical experience.
                 </x-about.team-card>
 
                 {{-- Card --}}
                 <x-about.team-card name="Dr. Amara Okeke" role="Head Veterinarian"
                     image="https://lh3.googleusercontent.com/aida-public/AB6AXuAgWoocAfd8dbeiglF8t-YP3DrZ9K05COA2RiovxrhAO-TUUngB1JpLH6jTxb5iRiV3TXGzHWkZpkC6i5XPSDPGBHqQ6nrrauWhu8_vY_rlKNbWr0oAbVbJ8PhvCpeDTVwH2MlWYtJZZfKP5korMPIhPeEaPLjUd1yQc2P776NsK6BEkLYGE1PPRYDUnttzIX94gLA9gJ2nKsuBHbgg4NHn9ImoG3LF2oz9sTz78dL4-P-Ge6az336MMDYSi46u3gMq3-Dc4Kx0ewRl"
                     badge="Vet" :roles="['DVM', 'Surgery Cert']">
-                    XXX Specialist in small animal surgery with over a decade of clinical experience.
+                    Board-certified specialist in small animal surgery with over a decade of clinical experience.
                 </x-about.team-card>
                 {{-- Card --}}
                 <x-about.team-card name="Dr. Amara Okeke" role="Head Veterinarian"
                     image="https://lh3.googleusercontent.com/aida-public/AB6AXuAgWoocAfd8dbeiglF8t-YP3DrZ9K05COA2RiovxrhAO-TUUngB1JpLH6jTxb5iRiV3TXGzHWkZpkC6i5XPSDPGBHqQ6nrrauWhu8_vY_rlKNbWr0oAbVbJ8PhvCpeDTVwH2MlWYtJZZfKP5korMPIhPeEaPLjUd1yQc2P776NsK6BEkLYGE1PPRYDUnttzIX94gLA9gJ2nKsuBHbgg4NHn9ImoG3LF2oz9sTz78dL4-P-Ge6az336MMDYSi46u3gMq3-Dc4Kx0ewRl"
                     badge="Vet" :roles="['DVM', 'Surgery Cert']">
-                    XXX Specialist in small animal surgery with over a decade of clinical experience.
+                    Board-certified specialist in small animal surgery with over a decade of clinical experience.
                 </x-about.team-card>
             </div>
         </div>

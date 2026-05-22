@@ -2,13 +2,14 @@
 
 namespace App\Filament\Resources\KbArticles\Schemas;
 
+use App\Rules\ReservedSlug;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
@@ -20,13 +21,13 @@ class KbArticleForm
             ->components([
                 Select::make('category')
                     ->options([
-                        'boarding'   => 'Boarding & Stays',
-                        'nutrition'  => 'Nutrition & Feeding',
-                        'health'     => 'Health & Wellness',
-                        'grooming'   => 'Grooming',
-                        'training'   => 'Training & Behaviour',
-                        'daycare'    => 'Daycare',
-                        'general'    => 'General',
+                        'boarding' => 'Boarding & Stays',
+                        'nutrition' => 'Nutrition & Feeding',
+                        'health' => 'Health & Wellness',
+                        'grooming' => 'Grooming',
+                        'training' => 'Training & Behaviour',
+                        'daycare' => 'Daycare',
+                        'general' => 'General',
                     ])
                     ->required(),
                 TextInput::make('title')
@@ -40,6 +41,7 @@ class KbArticleForm
                     ->columnSpanFull(),
                 TextInput::make('slug')
                     ->required()
+                    ->rules([new ReservedSlug])
                     ->unique(ignoreRecord: true)
                     ->columnSpanFull(),
                 MarkdownEditor::make('body')

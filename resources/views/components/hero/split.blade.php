@@ -31,6 +31,7 @@
     'eyebrow' => null,
     'eyebrow_icon' => null,
     'image_src' => null,
+    'image_alt' => null,
     'rating' => '4.9',
     'review_count' => '500+',
 
@@ -128,8 +129,8 @@
                 <div class="relative aspect-[4/3] lg:aspect-[5/4] rounded-2xl overflow-hidden shadow-lg">
 
                     @if ($image_src)
-                        <img src="{{ $image_src }}" alt=""
-                            class="absolute inset-0 w-full h-full object-cover">
+                        <img src="{{ $image_src }}" alt="{{ $image_alt ?? strip_tags($title) }}"
+                            class="absolute inset-0 w-full h-full object-cover" loading="lazy">
                     @else
                         <div class="absolute inset-0 flex items-center justify-center">
                             {{ $slot }}

@@ -54,7 +54,7 @@
     <section class="py-16 bg-surface-purple/40">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
             <x-section-heading eyebrow="FAQs" title="Frequently Asked Questions" class="mb-8" />
-            <x-faq-accordion :faqs="$faqs->map(fn($f) => ['question' => $f->question, 'answer' => e($f->answer)])->all()" />
+            <x-faq-accordion :faqs="$faqs->map(fn($f) => ['question' => $f->question, 'answer' => $f->answer])->all()" />
             <p class="mt-6 text-sm text-primary-dark/50">More questions? <a href="{{ route('faq') }}" class="text-primary font-medium hover:underline">View all FAQs</a> or <a href="{{ route('contact') }}" class="text-primary font-medium hover:underline">contact us</a>.</p>
         </div>
     </section>

@@ -36,8 +36,8 @@
             <a href="{{ route('blog.show', $post->slug) }}"
                class="group bg-white rounded-2xl shadow-sm hover:shadow-soft transition-shadow overflow-hidden flex flex-col">
                 <div class="h-44 bg-surface-purple group-hover:bg-primary/10 transition-colors overflow-hidden">
-                    @if($post->image)
-                        <img src="{{ $post->image }}" alt="{{ $post->title }}"
+                    @if($post->image_url)
+                        <img src="{{ $post->image_url }}" alt="{{ $post->title }}"
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                              loading="lazy" />
                     @endif

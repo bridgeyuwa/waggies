@@ -43,8 +43,8 @@
             </p>
         </header>
 
-        @if($guide->image)
-            <img src="{{ $guide->image }}" alt="{{ $guide->title }}"
+        @if($guide->image_url)
+            <img src="{{ $guide->image_url }}" alt="{{ $guide->title }}"
                  class="w-full h-64 object-cover rounded-2xl mb-8" />
         @else
             <div class="w-full h-64 bg-surface-purple rounded-2xl mb-8"></div>
@@ -54,9 +54,7 @@
             <p class="text-lg text-primary-dark/70 leading-relaxed font-medium mb-6 italic">{{ $guide->excerpt }}</p>
         @endif
 
-        <div class="prose max-w-none">
-            {!! nl2br(e($guide->body)) !!}
-        </div>
+        <x-ui.markdown :content="$guide->body" />
     </article>
 
 
@@ -69,7 +67,7 @@ $_schema = \Spatie\SchemaOrg\Schema::article()
     ->datePublished($guide->published_at->toIso8601String())
     ->url(url()->current())
     ->publisher(\Spatie\SchemaOrg\Schema::organization()->name('Waggies')->url(url('/')));
-if ($guide->image) { $_schema->image($guide->image); }
+if ($guide->image_url) { $_schema->image($guide->image_url); }
 echo $_schema->toScript();
 @endphp
 @endpush
