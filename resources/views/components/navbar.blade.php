@@ -10,14 +10,73 @@
         servicesOpen: false,
         aboutOpen: false,
         resourcesOpen: false,
+        activeMenu: null,
+        pinnedMenu: null,
+        hoverTimer: null,
+        scheduleOpen(menu) {
+            clearTimeout(this.hoverTimer);
+            this.hoverTimer = setTimeout(() => {
+                if (! this.pinnedMenu || this.pinnedMenu === menu) {
+                    this.activeMenu = menu;
+                }
+            }, 150);
+        },
+        scheduleClose(menu) {
+            clearTimeout(this.hoverTimer);
+            this.hoverTimer = setTimeout(() => {
+                if (this.pinnedMenu === menu) {
+                    return;
+                }
+                if (this.activeMenu === menu) {
+                    this.activeMenu = null;
+                }
+            }, 150);
+        },
+        togglePin(menu) {
+            clearTimeout(this.hoverTimer);
+            if (this.pinnedMenu === menu) {
+                this.pinnedMenu = null;
+                this.activeMenu = null;
+                return;
+            }
+            this.pinnedMenu = menu;
+            this.activeMenu = menu;
+        },
+        closeDesktopMenus() {
+            clearTimeout(this.hoverTimer);
+            this.pinnedMenu = null;
+            this.activeMenu = null;
+        },
+        focusFirstMenuItem(menu) {
+            this.activeMenu = menu;
+            this.$nextTick(() => {
+                this.$refs[menu + 'Panel']?.querySelector('[role=menuitem]')?.focus();
+            });
+        },
+        focusMenuItem(direction) {
+            const items = [...this.$refs.servicesPanel.querySelectorAll('[role=menuitem]')];
+            if (! items.length) {
+                return;
+            }
+            const idx = items.indexOf(document.activeElement);
+            let next = idx + direction;
+            if (next < 0) {
+                next = items.length - 1;
+            }
+            if (next >= items.length) {
+                next = 0;
+            }
+            items[next].focus();
+        },
     }"
     x-effect="document.body.classList.toggle('overflow-hidden', mobileOpen)"
-    @keydown.escape.window="mobileOpen = false"
+    @keydown.escape.window="if (mobileOpen) { mobileOpen = false } else { closeDesktopMenus() }"
+    class="contents"
 >
 
-{{-- ── Desktop header ──────────────────────────────────────────── --}}
-<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-surface-purple shadow-sm">
-    <nav class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 h-16 flex items-center justify-between"
+{{-- ── Desktop header (sticky; wrapper uses display:contents so parent is not height-limited) --}}
+<header class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-surface-purple shadow-sm overflow-visible supports-[backdrop-filter]:bg-white/80">
+    <nav class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 h-16 flex items-center justify-between overflow-visible"
          aria-label="Main navigation">
 
         {{-- Logo --}}
@@ -29,66 +88,31 @@
         </a>
 
         {{-- Desktop nav --}}
-        <ul class="hidden lg:flex items-center gap-1" role="list">
+        <ul class="hidden lg:flex items-center gap-1 overflow-visible"
+            @click.outside="closeDesktopMenus()"
+            role="list">
 
-            {{-- Services flyout (includes Relocation) --}}
-            <li class="relative"
-                x-data="{
-                    open: false,
-                    timer: null,
-                    focusFirstItem() {
-                        this.open = true;
-                        this.$nextTick(() => this.$refs.flyout?.querySelector('[role=menuitem]')?.focus());
-                    },
-                    focusMenuItem(direction) {
-                        const items = [...this.$refs.flyout.querySelectorAll('[role=menuitem]')];
-                        if (! items.length) {
-                            return;
-                        }
-                        const idx = items.indexOf(document.activeElement);
-                        let next = idx + direction;
-                        if (next < 0) {
-                            next = items.length - 1;
-                        }
-                        if (next >= items.length) {
-                            next = 0;
-                        }
-                        items[next].focus();
-                    },
-                    closeAndFocusTrigger() {
-                        this.open = false;
-                        this.$refs.servicesTrigger?.focus();
-                    },
-                }"
-                x-init="$nextTick(() => {
-                    const flyout = $el.querySelector('[data-flyout]');
-                    if (flyout) {
-                        flyout.style.left = `-${$el.getBoundingClientRect().left - 16}px`;
-                    }
-                })"
-                @mouseenter="clearTimeout(timer); timer = setTimeout(() => open = true, 150)"
-                @mouseleave="timer = setTimeout(() => { if (! $el.contains(document.activeElement)) open = false }, 150)"
-                @focusin="clearTimeout(timer); open = true"
-                @focusout="timer = setTimeout(() => { if (! $el.contains(document.activeElement)) open = false }, 150)"
-                @keydown.escape.window="if (open) closeAndFocusTrigger()">
+            {{-- Services mega-menu (includes Relocation) --}}
+            <li class="relative overflow-visible"
+                @mouseenter="scheduleOpen('services')"
+                @mouseleave="scheduleClose('services')">
                 <button type="button"
                         x-ref="servicesTrigger"
                         aria-haspopup="true"
-                        :aria-expanded="open.toString()"
-                        @click.prevent="open = !open"
-                        @keydown.arrow-down.prevent="focusFirstItem()"
+                        :aria-expanded="(activeMenu === 'services').toString()"
+                        @click.prevent="togglePin('services')"
+                        @keydown.arrow-down.prevent="focusFirstMenuItem('services')"
                         class="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-wide rounded-lg transition-colors
                                {{ $servicesActive ? 'text-primary font-semibold bg-surface-purple' : 'text-primary-dark/60 hover:text-primary hover:bg-surface-purple' }}"
                         @if($servicesActive) aria-current="page" @endif>
                     Services
                     <span class="material-symbols-outlined text-sm transition-transform duration-200"
-                          :class="{ 'rotate-180': open }">expand_more</span>
+                          :class="{ 'rotate-180': activeMenu === 'services' }">expand_more</span>
                 </button>
-                <div x-ref="flyout"
-                     data-flyout
+                <div x-ref="servicesPanel"
                      role="menu"
                      aria-label="Services menu"
-                     x-show="open"
+                     x-show="activeMenu === 'services'"
                      x-transition:enter="transition ease-out duration-150"
                      x-transition:enter-start="opacity-0 -translate-y-1"
                      x-transition:enter-end="opacity-100 translate-y-0"
@@ -97,14 +121,14 @@
                      x-transition:leave-end="opacity-0 -translate-y-1"
                      @keydown.arrow-down.prevent="focusMenuItem(1)"
                      @keydown.arrow-up.prevent="focusMenuItem(-1)"
-                     @keydown.escape="closeAndFocusTrigger()"
-                     class="absolute left-0 mt-2 w-screen max-w-md bg-white rounded-2xl shadow-soft border border-surface-purple overflow-hidden z-50"
+                     @keydown.escape.prevent="closeDesktopMenus(); $refs.servicesTrigger?.focus()"
+                     class="nav-dropdown nav-dropdown--services absolute top-full mt-1 left-1/2 -translate-x-1/2"
                      style="display: none">
-                    <div class="bg-gradient-to-r from-primary-dark to-primary px-6 py-3">
+                    <div class="bg-gradient-to-r from-primary-dark to-primary px-5 py-2.5">
                         <p class="text-white/80 text-xs font-bold uppercase tracking-widest">Our Services</p>
                     </div>
-                    <div class="p-4 max-h-[70vh] overflow-y-auto flex flex-col gap-4">
-                        <div>
+                    <div class="nav-dropdown__columns nav-dropdown__columns--services">
+                        <div role="group" aria-label="Boarding">
                             <p class="text-xs font-bold uppercase tracking-widest text-primary/60 mb-2 px-2">Boarding</p>
                             <div class="flex flex-col gap-0.5">
                                 <x-navbar.mega-link :in-menu="true" href="{{ route('services.boarding.index') }}" icon="apartment"    title="Luxury Boarding"  subtitle="Premium overnight stays" />
@@ -113,7 +137,7 @@
                                 <x-navbar.mega-link :in-menu="true" href="{{ route('services.boarding.exotic') }}" icon="bug_report"  title="Exotic Pets"      subtitle="Specialist care" />
                             </div>
                         </div>
-                        <div>
+                        <div role="group" aria-label="Wellness">
                             <p class="text-xs font-bold uppercase tracking-widest text-primary/60 mb-2 px-2">Wellness</p>
                             <div class="flex flex-col gap-0.5">
                                 <x-navbar.mega-link :in-menu="true" href="{{ route('services.grooming') }}" icon="spa"              title="Grooming Spa"  subtitle="Breed-specific treatments" />
@@ -121,21 +145,14 @@
                                 <x-navbar.mega-link :in-menu="true" href="{{ route('services.training') }}" icon="school"           title="Dog Training"  subtitle="Positive-reinforcement methods" />
                             </div>
                         </div>
-                        <div>
-                            <p class="text-xs font-bold uppercase tracking-widest text-primary/60 mb-2 px-2">More</p>
-                            <div class="flex flex-col gap-0.5">
-                                <x-navbar.mega-link :in-menu="true" href="{{ route('services.transport') }}" icon="local_shipping" title="Local Transport"   subtitle="Door-to-door pickup" />
-                                <x-navbar.mega-link :in-menu="true" href="{{ route('services.pricing') }}"   icon="payments"       title="Pricing"           subtitle="Transparent, honest rates" />
-                                <x-navbar.mega-link :in-menu="true" href="{{ route('loyalty') }}"             icon="loyalty"        title="Loyalty Programme" subtitle="Rewards for regulars" />
-                            </div>
-                        </div>
-                        <div>
+                        <div role="group" aria-label="Relocation">
                             <p class="text-xs font-bold uppercase tracking-widest text-primary/60 mb-2 px-2">Relocation</p>
                             <div class="flex flex-col gap-0.5">
                                 <x-navbar.mega-link :in-menu="true" href="{{ route('relocation.index') }}"    icon="public"         title="Relocation"          subtitle="International pet moves" />
                                 <x-navbar.mega-link :in-menu="true" href="{{ route('relocation.import') }}"   icon="flight_land"    title="Pet Import"          subtitle="Bringing pets into Nigeria" />
                                 <x-navbar.mega-link :in-menu="true" href="{{ route('relocation.export') }}"   icon="flight_takeoff" title="Pet Export"           subtitle="Moving pets abroad" />
                                 <x-navbar.mega-link :in-menu="true" href="{{ route('relocation.checklist') }}" icon="checklist"     title="Doc Checklist"        subtitle="Generate your document list" />
+                                <x-navbar.mega-link :in-menu="true" href="{{ route('services.transport') }}" icon="local_shipping" title="Local Transport"   subtitle="Door-to-door pickup" />
                             </div>
                         </div>
                     </div>
@@ -143,58 +160,80 @@
             </li>
 
             {{-- About --}}
-            <li class="nav-item relative"
-                x-data="{ open: false }"
-                @mouseenter="open = true" @mouseleave="open = false"
-                @focusin="open = true"   @focusout="open = false">
+            <li class="relative overflow-visible"
+                @mouseenter="scheduleOpen('about')"
+                @mouseleave="scheduleClose('about')">
                 <button type="button"
-                        :aria-expanded="open.toString()"
+                        :aria-expanded="(activeMenu === 'about').toString()"
                         aria-haspopup="true"
+                        @click.prevent="togglePin('about')"
                         class="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-wide rounded-lg transition-colors
                                {{ $navSection === 'about' ? 'text-primary font-semibold bg-surface-purple' : 'text-primary-dark/60 hover:text-primary hover:bg-surface-purple' }}"
                         @if($navSection === 'about') aria-current="page" @endif>
                     About
-                    <span class="material-symbols-outlined text-sm chevron">expand_more</span>
+                    <span class="material-symbols-outlined text-sm transition-transform duration-200"
+                          :class="{ 'rotate-180': activeMenu === 'about' }">expand_more</span>
                 </button>
-                <div class="mega-panel mega-panel--center absolute top-full mt-1 bg-white rounded-2xl shadow-soft border border-surface-purple overflow-hidden"
-                     role="region" aria-label="About menu">
-                    <div class="bg-gradient-to-r from-primary-dark to-primary px-6 py-3">
+                <div x-ref="aboutPanel"
+                     x-show="activeMenu === 'about'"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 -translate-y-1"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-100"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-1"
+                     class="nav-dropdown nav-dropdown--stacked absolute top-full mt-1 left-1/2 -translate-x-1/2"
+                     role="menu"
+                     aria-label="About menu"
+                     style="display: none">
+                    <div class="bg-gradient-to-r from-primary-dark to-primary px-5 py-2.5">
                         <p class="text-white/80 text-xs font-bold uppercase tracking-widest">About Waggies</p>
                     </div>
-                    <div class="p-4 flex flex-col gap-1">
-                        <x-navbar.mega-link href="{{ route('about.index') }}"        icon="info"          title="About Us"       subtitle="Our story and mission" />
-                        <x-navbar.mega-link href="{{ route('about.testimonials') }}" icon="reviews"       title="Testimonials"   subtitle="What pet owners say" />
-                        <x-navbar.mega-link href="{{ route('about.gallery') }}"      icon="photo_library" title="Gallery"        subtitle="Moments at Waggies" />
-                        <x-navbar.mega-link href="{{ route('about.careers') }}"      icon="work"          title="Careers"        subtitle="Join our team" />
-                        <x-navbar.mega-link href="{{ route('about.partnerships') }}" icon="handshake"     title="Partnerships"   subtitle="Grow with us" />
+                    <div class="p-3 flex flex-col gap-0.5">
+                        <x-navbar.mega-link :in-menu="true" href="{{ route('about.index') }}"        icon="info"          title="About Us"       subtitle="Our story and mission" />
+                        <x-navbar.mega-link :in-menu="true" href="{{ route('about.testimonials') }}" icon="reviews"       title="Testimonials"   subtitle="What pet owners say" />
+                        <x-navbar.mega-link :in-menu="true" href="{{ route('about.gallery') }}"      icon="photo_library" title="Gallery"        subtitle="Moments at Waggies" />
+                        <x-navbar.mega-link :in-menu="true" href="{{ route('about.careers') }}"      icon="work"          title="Careers"        subtitle="Join our team" />
+                        <x-navbar.mega-link :in-menu="true" href="{{ route('about.partnerships') }}" icon="handshake"     title="Partnerships"   subtitle="Grow with us" />
                     </div>
                 </div>
             </li>
 
             {{-- Resources --}}
-            <li class="nav-item relative"
-                x-data="{ open: false }"
-                @mouseenter="open = true" @mouseleave="open = false"
-                @focusin="open = true"   @focusout="open = false">
+            <li class="relative overflow-visible"
+                @mouseenter="scheduleOpen('resources')"
+                @mouseleave="scheduleClose('resources')">
                 <button type="button"
-                        :aria-expanded="open.toString()"
+                        :aria-expanded="(activeMenu === 'resources').toString()"
                         aria-haspopup="true"
+                        @click.prevent="togglePin('resources')"
                         class="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-wide rounded-lg transition-colors
                                {{ in_array($navSection, ['blog','guides','kb']) ? 'text-primary font-semibold bg-surface-purple' : 'text-primary-dark/60 hover:text-primary hover:bg-surface-purple' }}"
                         @if(in_array($navSection, ['blog','guides','kb'])) aria-current="page" @endif>
                     Resources
-                    <span class="material-symbols-outlined text-sm chevron">expand_more</span>
+                    <span class="material-symbols-outlined text-sm transition-transform duration-200"
+                          :class="{ 'rotate-180': activeMenu === 'resources' }">expand_more</span>
                 </button>
-                <div class="mega-panel mega-panel--right absolute top-full mt-1 bg-white rounded-2xl shadow-soft border border-surface-purple overflow-hidden"
-                     role="region" aria-label="Resources menu">
-                    <div class="bg-gradient-to-r from-primary-dark to-primary px-6 py-3">
+                <div x-ref="resourcesPanel"
+                     x-show="activeMenu === 'resources'"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 -translate-y-1"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-100"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-1"
+                     class="nav-dropdown nav-dropdown--stacked absolute top-full right-0 mt-1"
+                     role="menu"
+                     aria-label="Resources menu"
+                     style="display: none">
+                    <div class="bg-gradient-to-r from-primary-dark to-primary px-5 py-2.5">
                         <p class="text-white/80 text-xs font-bold uppercase tracking-widest">Resources</p>
                     </div>
-                    <div class="p-4 flex flex-col gap-1">
-                        <x-navbar.mega-link href="{{ route('blog.index') }}"   icon="article"     title="Blog"           subtitle="Tips, news &amp; stories" />
-                        <x-navbar.mega-link href="{{ route('guides.index') }}" icon="menu_book"   title="Guides"         subtitle="In-depth how-to guides" />
-                        <x-navbar.mega-link href="{{ route('kb.index') }}"     icon="help_center" title="Knowledge Base"  subtitle="Answers to common questions" />
-                        <x-navbar.mega-link href="{{ route('faq') }}"          icon="quiz"        title="FAQ"            subtitle="Quick answers" />
+                    <div class="p-3 flex flex-col gap-0.5">
+                        <x-navbar.mega-link :in-menu="true" href="{{ route('blog.index') }}"   icon="article"     title="Blog"           subtitle="Tips, news &amp; stories" />
+                        <x-navbar.mega-link :in-menu="true" href="{{ route('guides.index') }}" icon="menu_book"   title="Guides"         subtitle="In-depth how-to guides" />
+                        <x-navbar.mega-link :in-menu="true" href="{{ route('kb.index') }}"     icon="help_center" title="Knowledge Base"  subtitle="Answers to common questions" />
+                        <x-navbar.mega-link :in-menu="true" href="{{ route('faq') }}"          icon="quiz"        title="FAQ"            subtitle="Quick answers" />
                     </div>
                 </div>
             </li>
@@ -311,28 +350,26 @@
                  x-transition:leave="transition duration-150 ease-in"
                  x-transition:leave-start="opacity-100 translate-y-0"
                  x-transition:leave-end="opacity-0 -translate-y-1"
-                 class="pl-3"
+                 class="pl-3 pb-1"
                  style="display: none">
-                <div class="flex flex-col gap-0.5 py-1">
-                    @foreach([
-                        ['href' => 'services.boarding.index', 'label' => 'Luxury Boarding'],
-                        ['href' => 'services.boarding.dogs',  'label' => 'Dog Boarding'],
-                        ['href' => 'services.boarding.cats',  'label' => 'Cat Boarding'],
-                        ['href' => 'services.boarding.exotic','label' => 'Exotic Pet Boarding'],
-                        ['href' => 'services.grooming',       'label' => 'Grooming Spa'],
-                        ['href' => 'services.vet-care',       'label' => 'Vet Care'],
-                        ['href' => 'services.training',       'label' => 'Dog Training'],
-                        ['href' => 'services.transport',      'label' => 'Local Transport'],
-                        ['href' => 'services.pricing',        'label' => 'Pricing'],
-                        ['href' => 'loyalty',                 'label' => 'Loyalty Programme'],
-                        ['href' => 'relocation.index',        'label' => 'Relocation'],
-                        ['href' => 'relocation.import',       'label' => 'Pet Import'],
-                        ['href' => 'relocation.export',       'label' => 'Pet Export'],
-                        ['href' => 'relocation.checklist',    'label' => 'Doc Checklist Generator'],
-                    ] as $link)
-                        <x-navbar.mobile-link href="{{ route($link['href']) }}" label="{{ $link['label'] }}" />
-                    @endforeach
-                </div>
+                <x-navbar.mobile-group heading="Boarding">
+                    <x-navbar.mobile-link href="{{ route('services.boarding.index') }}" label="Luxury Boarding" />
+                    <x-navbar.mobile-link href="{{ route('services.boarding.dogs') }}"  label="Dog Boarding" />
+                    <x-navbar.mobile-link href="{{ route('services.boarding.cats') }}"  label="Cat Boarding" />
+                    <x-navbar.mobile-link href="{{ route('services.boarding.exotic') }}" label="Exotic Pet Boarding" />
+                </x-navbar.mobile-group>
+                <x-navbar.mobile-group heading="Wellness">
+                    <x-navbar.mobile-link href="{{ route('services.grooming') }}" label="Grooming Spa" />
+                    <x-navbar.mobile-link href="{{ route('services.vet-care') }}" label="Vet Care" />
+                    <x-navbar.mobile-link href="{{ route('services.training') }}" label="Dog Training" />
+                </x-navbar.mobile-group>
+                <x-navbar.mobile-group heading="Relocation">
+                    <x-navbar.mobile-link href="{{ route('relocation.index') }}"     label="Relocation" />
+                    <x-navbar.mobile-link href="{{ route('relocation.import') }}"    label="Pet Import" />
+                    <x-navbar.mobile-link href="{{ route('relocation.export') }}"    label="Pet Export" />
+                    <x-navbar.mobile-link href="{{ route('relocation.checklist') }}" label="Doc Checklist Generator" />
+                    <x-navbar.mobile-link href="{{ route('services.transport') }}" label="Local Transport" />
+                </x-navbar.mobile-group>
             </div>
         </div>
 
@@ -357,19 +394,15 @@
                  x-transition:leave="transition duration-150 ease-in"
                  x-transition:leave-start="opacity-100 translate-y-0"
                  x-transition:leave-end="opacity-0 -translate-y-1"
-                 class="pl-3"
+                 class="pl-3 pb-1"
                  style="display: none">
-                <div class="flex flex-col gap-0.5 py-1">
-                    @foreach([
-                        ['href' => 'about.index',        'label' => 'About Us'],
-                        ['href' => 'about.testimonials', 'label' => 'Testimonials'],
-                        ['href' => 'about.gallery',      'label' => 'Gallery'],
-                        ['href' => 'about.careers',      'label' => 'Careers'],
-                        ['href' => 'about.partnerships', 'label' => 'Partnerships'],
-                    ] as $link)
-                        <x-navbar.mobile-link href="{{ route($link['href']) }}" label="{{ $link['label'] }}" />
-                    @endforeach
-                </div>
+                <x-navbar.mobile-group heading="About Waggies">
+                    <x-navbar.mobile-link href="{{ route('about.index') }}"        label="About Us" />
+                    <x-navbar.mobile-link href="{{ route('about.testimonials') }}" label="Testimonials" />
+                    <x-navbar.mobile-link href="{{ route('about.gallery') }}"      label="Gallery" />
+                    <x-navbar.mobile-link href="{{ route('about.careers') }}"      label="Careers" />
+                    <x-navbar.mobile-link href="{{ route('about.partnerships') }}" label="Partnerships" />
+                </x-navbar.mobile-group>
             </div>
         </div>
 

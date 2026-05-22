@@ -163,10 +163,10 @@ h1, h2, h3, h4, h5, h6 {
 .prose pre        { background: var(--color-primary-dark); color: var(--color-secondary); padding: 1.25rem; border-radius: 0.75rem; overflow-x: auto; margin-bottom: 1.25rem; }
 .prose hr         { border-color: var(--color-surface-purple); margin: 2.5rem 0; }
 
-/* FAQ details/summary — remove native triangle, add reveal animation */
-details > summary                   { list-style: none; cursor: pointer; }
+/* FAQ details/summary — remove native triangle, full-width header hit target, reveal animation */
+details > summary                         { list-style: none; cursor: pointer; display: flex; width: 100%; }
 details > summary::-webkit-details-marker { display: none; }
-details[open] summary ~ *           { animation: wag-sweep 0.2s ease-in-out; }
+details[open] summary ~ *                 { animation: wag-sweep 0.2s ease-in-out; }
 
 /* Radio card — checked state via sibling selector */
 .radio-card-input:checked + .radio-card {
@@ -198,30 +198,40 @@ details[open] summary ~ *           { animation: wag-sweep 0.2s ease-in-out; }
    NAVIGATION
    ───────────────────────────────────────────────────────────── */
 
-/* Mega-menu — CSS show/hide via hover + focus-within */
-.mega-panel {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(var(--panel-x, 0)) translateY(-6px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-    pointer-events: none;
-}
-.nav-item:hover .mega-panel,
-.nav-item:focus-within .mega-panel {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(var(--panel-x, 0)) translateY(0);
-    pointer-events: auto;
+/* Desktop nav dropdowns (Alpine-controlled) */
+.nav-dropdown {
+    background-color: #fff;
+    border-radius: 1rem;
+    border: 1px solid var(--color-surface-purple);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    z-index: 50;
 }
 
-.chevron { transition: transform 0.2s ease; display: inline-block; }
-.nav-item:hover .chevron,
-.nav-item:focus-within .chevron { transform: rotate(180deg); }
+.nav-dropdown--stacked {
+    width: 22.5rem;
+    max-width: min(calc(100vw - 2rem), 22.5rem);
+}
 
-/* Mega-panel sizing & positioning */
-.mega-panel--center { --panel-x: -50%; width: 360px; left: 50%; }
-.mega-panel--right  { width: 360px; right: 0; }
-.mega-panel--wide   { --panel-x: -60%; width: 820px; left: 50%; }
+.nav-dropdown--services {
+    width: max-content;
+    max-width: calc(100vw - 2rem);
+}
+
+.nav-dropdown__columns {
+    display: grid;
+    gap: 0.5rem 2rem;
+    padding: 0.875rem 1.25rem;
+}
+
+.nav-dropdown__columns--services {
+    grid-template-columns: repeat(3, minmax(13.5rem, max-content));
+}
+
+.nav-dropdown__columns > [role='group']:not(:last-child) {
+    border-right: 1px solid var(--color-surface-purple);
+    padding-right: 1.25rem;
+}
 
 
 /* ─────────────────────────────────────────────────────────────

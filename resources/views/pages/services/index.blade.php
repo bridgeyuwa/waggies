@@ -155,25 +155,25 @@
 
                 {{-- 1 --}}
                 <details
-                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    class="group bg-white border border-primary/10 rounded-2xl hover:border-primary/30 hover:shadow-sm transition">
                     <summary
-                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        class="flex w-full cursor-pointer items-center justify-between gap-4 px-6 py-5 font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
                         How do I know which service my pet needs?
                         <span
                             class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
                             expand_more
                         </span>
                     </summary>
-                    <p class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                    <p class="px-6 pb-5 pt-3 text-sm text-primary-dark/60 leading-relaxed">
                         If you're unsure, start with a consultation or contact us. Our team will recommend the right
                         service based on your pet’s age, health, and behavior.
                     </p>
                 </details>
 
                 <details
-                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    class="group bg-white border border-primary/10 rounded-2xl hover:border-primary/30 hover:shadow-sm transition">
                     <summary
-                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        class="flex w-full cursor-pointer items-center justify-between gap-4 px-6 py-5 font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
                         Are all services safe for my pet?
                         <span
                             class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
@@ -181,23 +181,23 @@
                         </span>
                     </summary>
 
-                    <div class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                    <div class="px-6 pb-5 pt-3 text-sm text-primary-dark/60 leading-relaxed">
                         Yes. Every service follows strict vet-supervised safety standards and trained handlers.
                     </div>
                 </details>
 
                 {{-- 2 --}}
                 <details
-                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    class="group bg-white border border-primary/10 rounded-2xl hover:border-primary/30 hover:shadow-sm transition">
                     <summary
-                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        class="flex w-full cursor-pointer items-center justify-between gap-4 px-6 py-5 font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
                         Are all services safe for my pet?
                         <span
                             class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
                             expand_more
                         </span>
                     </summary>
-                    <p class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                    <p class="px-6 pb-5 pt-3 text-sm text-primary-dark/60 leading-relaxed">
                         Yes. Every service follows strict vet-supervised safety standards and trained handlers. Safety
                         is built into every part of our system.
                     </p>
@@ -205,16 +205,16 @@
 
                 {{-- 3 --}}
                 <details
-                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    class="group bg-white border border-primary/10 rounded-2xl hover:border-primary/30 hover:shadow-sm transition">
                     <summary
-                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        class="flex w-full cursor-pointer items-center justify-between gap-4 px-6 py-5 font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
                         Can I switch or combine services later?
                         <span
                             class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
                             expand_more
                         </span>
                     </summary>
-                    <p class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                    <p class="px-6 pb-5 pt-3 text-sm text-primary-dark/60 leading-relaxed">
                         Yes. Many clients combine grooming, boarding, and vet care depending on their pet’s needs. We
                         can adjust plans anytime.
                     </p>
@@ -222,16 +222,16 @@
 
                 {{-- 4 --}}
                 <details
-                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    class="group bg-white border border-primary/10 rounded-2xl hover:border-primary/30 hover:shadow-sm transition">
                     <summary
-                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        class="flex w-full cursor-pointer items-center justify-between gap-4 px-6 py-5 font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
                         Do I need a consultation before booking?
                         <span
                             class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
                             expand_more
                         </span>
                     </summary>
-                    <p class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                    <p class="px-6 pb-5 pt-3 text-sm text-primary-dark/60 leading-relaxed">
                         Not always. Some services can be booked directly, but consultations help us recommend the safest
                         and most effective care plan.
                     </p>
@@ -239,16 +239,16 @@
 
                 {{-- 5 --}}
                 <details
-                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    class="group bg-white border border-primary/10 rounded-2xl hover:border-primary/30 hover:shadow-sm transition">
                     <summary
-                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        class="flex w-full cursor-pointer items-center justify-between gap-4 px-6 py-5 font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
                         How do I get updates about my pet?
                         <span
                             class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
                             expand_more
                         </span>
                     </summary>
-                    <p class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                    <p class="px-6 pb-5 pt-3 text-sm text-primary-dark/60 leading-relaxed">
                         You receive regular updates including photos and status reports depending on the service you
                         choose.
                     </p>
@@ -256,16 +256,16 @@
 
                 {{-- 6 --}}
                 <details
-                    class="group bg-white border border-primary/10 rounded-2xl px-6 py-5 hover:border-primary/30 hover:shadow-sm transition">
+                    class="group bg-white border border-primary/10 rounded-2xl hover:border-primary/30 hover:shadow-sm transition">
                     <summary
-                        class="flex cursor-pointer items-center justify-between font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
+                        class="flex w-full cursor-pointer items-center justify-between gap-4 px-6 py-5 font-semibold text-primary-dark hover:text-primary transition-colors list-none [&::-webkit-details-marker]:hidden">
                         What happens after I book a service?
                         <span
                             class="material-symbols-outlined text-primary shrink-0 transition-transform duration-200 group-open:rotate-180">
                             expand_more
                         </span>
                     </summary>
-                    <p class="mt-3 text-sm text-primary-dark/60 leading-relaxed">
+                    <p class="px-6 pb-5 pt-3 text-sm text-primary-dark/60 leading-relaxed">
                         Our team contacts you to confirm details, prepare your pet’s care plan, and guide you through
                         the next steps.
                     </p>

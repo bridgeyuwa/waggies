@@ -14,10 +14,12 @@
                 flex items-center justify-center text-primary transition-colors shrink-0">
         <span class="material-symbols-outlined text-base">{{ $icon }}</span>
     </div>
-    <div class="min-w-0">
-        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors truncate">
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
             {{ $title }}
         </p>
-        <p class="text-xs text-primary-dark/50 truncate">{{ $subtitle }}</p>
+        @if($subtitle)
+            <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">{{ $subtitle }}</p>
+        @endif
     </div>
 </a>
