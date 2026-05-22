@@ -1,12 +1,16 @@
 ﻿<x-layouts.content :title="$post->title" nav-section="blog">
 
-    <x-slot:breadcrumb>
-        <x-breadcrumb :items="[
-            ['label' => 'Blog', 'href' => route('blog.index')],
-            ['label' => $post->category_label, 'href' => route('blog.category', $post->category)],
-            ['label' => $post->title],
-        ]" />
-    </x-slot:breadcrumb>
+    <x-slot:hero>
+        <x-hero.image
+            :image-src="$post->hero_image_url"
+            :image-alt="$post->title"
+            :eyebrow="$post->category_label"
+            eyebrow-icon="article"
+            :title="$post->title"
+            :subtitle="$post->excerpt"
+            min-height="420px"
+        />
+    </x-slot:hero>
 
     <x-slot:sidebar>
         <div class="bg-surface-purple rounded-2xl p-6">
@@ -34,30 +38,11 @@
     </x-slot:sidebar>
 
     <article>
-        <header class="mb-8">
-            <span class="text-xs font-bold uppercase tracking-widest text-primary/60 block mb-3 capitalize">
-                {{ str_replace('-', ' ', $post->category) }}
-            </span>
-            <h1 class="font-serif text-3xl md:text-4xl font-bold text-primary-dark leading-tight mb-3">
-                {{ $post->title }}
-            </h1>
-            <p class="text-sm text-primary-dark/40">
-                By {{ $post->author }}
-                · {{ $post->published_at->format('F j, Y') }}
-                · {{ $post->reading_time }} min read
-            </p>
-        </header>
-
-        @if($post->image_url)
-            <img src="{{ $post->image_url }}" alt="{{ $post->title }}"
-                 class="w-full h-64 object-cover rounded-2xl mb-8" />
-        @else
-            <div class="w-full h-64 bg-surface-purple rounded-2xl mb-8"></div>
-        @endif
-
-        @if($post->excerpt)
-            <p class="text-lg text-primary-dark/70 leading-relaxed font-medium mb-6 italic">{{ $post->excerpt }}</p>
-        @endif
+        <p class="text-sm text-primary-dark/40 mb-8">
+            By {{ $post->author }}
+            · {{ $post->published_at->format('F j, Y') }}
+            · {{ $post->reading_time }} min read
+        </p>
 
         <x-ui.markdown :content="$post->body" />
     </article>

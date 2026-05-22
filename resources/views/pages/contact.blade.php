@@ -1,7 +1,10 @@
 ﻿<x-layouts.app title="Contact Us" nav-section="">
 
-    <x-ui.page-header
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
+    <x-hero.plain
         eyebrow="Get in Touch"
+        eyebrow-icon="mail"
         title="Contact Waggies"
         subtitle="Have a question, want to make a booking, or need a quote? We'd love to hear from you."
     />
@@ -19,8 +22,37 @@
                         </div>
                     @endif
 
+                    @if ($hasPricingContext ?? false)
+                        <div class="mb-6 p-4 bg-surface-purple border border-primary/10 rounded-xl text-sm text-primary-dark/80">
+                            <p class="font-semibold text-primary-dark mb-1">Your estimate is attached to this message</p>
+                            @if (! empty($context['summary']))
+                                <p>{{ $context['summary'] }}</p>
+                            @endif
+                            <p class="mt-2">
+                                <a href="{{ \App\Support\PricingQuote::estimateUrl($context['service'] ?? null, $context['variant'] ?? null, $context['tier'] ?? null) }}"
+                                    class="text-primary font-medium hover:underline">Adjust estimate</a>
+                            </p>
+                        </div>
+                    @endif
+
                     <form action="{{ route('contact.store') }}" method="POST" class="flex flex-col gap-5">
                         @csrf
+
+                        @if (! empty($context['service']))
+                            <input type="hidden" name="service" value="{{ $context['service'] }}" />
+                        @endif
+                        @if (! empty($context['variant']))
+                            <input type="hidden" name="variant" value="{{ $context['variant'] }}" />
+                        @endif
+                        @if (! empty($context['tier']))
+                            <input type="hidden" name="tier" value="{{ $context['tier'] }}" />
+                        @endif
+                        @if (! empty($context['intent']))
+                            <input type="hidden" name="intent" value="{{ $context['intent'] }}" />
+                        @endif
+                        @if (! empty($context['summary']))
+                            <input type="hidden" name="estimate_summary" value="{{ $context['summary'] }}" />
+                        @endif
 
                         <x-form.input
                             label="Your Name"
@@ -46,6 +78,7 @@
                             :rows="5"
                             :required="true"
                             :error="$errors->first('message')"
+                            :value="old('message', $prefillMessage ?? '')"
                         />
 
                         <button type="submit"

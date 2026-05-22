@@ -1,8 +1,8 @@
 <x-layouts.utility title="Frequently Asked Questions" nav-section="">
 
-    <x-section-heading eyebrow="FAQs" title="Frequently Asked Questions"
-        subtitle="Quick answers to the questions we hear most often. Can't find what you need? Contact us directly."
-        class="mb-10" />
+    <x-slot:hero>
+        <x-hero.hub type="faq" />
+    </x-slot:hero>
 
     @if ($categories->isEmpty())
 

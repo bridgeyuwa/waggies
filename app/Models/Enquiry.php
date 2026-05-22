@@ -2,16 +2,26 @@
 
 namespace App\Models;
 
+use Database\Factories\EnquiryFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Enquiry extends Model
 {
-    /** @use HasFactory<\Database\Factories\EnquiryFactory> */
+    /** @use HasFactory<EnquiryFactory> */
     use HasFactory;
 
-    protected $fillable = ['name', 'email', 'message'];
+    protected $fillable = [
+        'name',
+        'email',
+        'message',
+        'service',
+        'variant',
+        'tier',
+        'intent',
+        'estimate_summary',
+    ];
 
     protected $casts = [
         'read_at' => 'datetime',

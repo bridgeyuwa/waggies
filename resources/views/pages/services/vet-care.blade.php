@@ -1,12 +1,14 @@
 ﻿<x-layouts.app title="Veterinary Care" nav-section="services">
 
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
     <x-hero.image
         image-src="/images/vetcare.jpg"
         eyebrow="On-Site Vet Care · Abuja"
         title='On-Site Veterinary Care<br/>You Can Rely On'
         subtitle="Consultations, vaccinations, wellness checks, and minor treatments — delivered by our qualified on-site veterinarian every day of the week."
-        :primary-cta="['label' => 'Book a Consultation', 'href' => route('contact')]"
-        :secondary-cta="['label' => 'View Pricing', 'href' => route('services.pricing')]"
+        :primary-cta="['label' => 'Book a Consultation', 'href' => \App\Support\PricingQuote::contactUrl('book', ['service' => 'vet-care'])]"
+        :secondary-cta="['label' => 'Get Estimate', 'href' => \App\Support\PricingQuote::estimateUrl('vet-care'), 'icon' => 'calculate']"
     />
 
     <section class="py-20 bg-white">

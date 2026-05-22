@@ -1,10 +1,8 @@
 ﻿<x-layouts.listing title="Pet Care Guides" nav-section="blog">
 
-    <x-slot:header>
-        <span class="text-xs font-bold uppercase tracking-widest text-primary/60 block mb-3">Guides</span>
-        <h1 class="font-serif text-4xl md:text-5xl font-bold text-primary-dark mb-3">In-Depth Pet Care Guides</h1>
-        <p class="text-primary-dark/60 max-w-xl">Comprehensive, expert-written guides to help you make the best decisions for your pet.</p>
-    </x-slot:header>
+    <x-slot:hero>
+        <x-hero.hub type="guide" />
+    </x-slot:hero>
 
     <x-slot:sidebar>
         <div class="bg-surface-purple rounded-2xl p-6">
@@ -23,9 +21,19 @@
         </div>
     </x-slot:sidebar>
 
-    @if($guides->isEmpty())
+    @if($featured)
+        <x-content.featured-story :post="$featured" type="guide" />
+    @endif
+
+    @if($guides->isEmpty() && ! $featured)
         <p class="text-primary-dark/50 text-sm">No guides published yet — check back soon.</p>
-    @else
+    @elseif($guides->isNotEmpty())
+        <x-section-heading
+            :eyebrow="$featured ? 'Latest' : null"
+            title="{{ $featured ? 'More Guides' : 'All Guides' }}"
+            class="mb-8"
+        />
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             @foreach($guides as $guide)
             <a href="{{ route('guides.show', $guide->slug) }}"

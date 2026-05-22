@@ -1,12 +1,14 @@
 ﻿<x-layouts.app title="Dog Training" nav-section="services">
 
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
     <x-hero.image
         image-src="/images/training.jpg"
         eyebrow="Dog Training · Abuja"
         title='Positive Training for<br/>a Better-Behaved Dog'
         subtitle="Science-based, positive-reinforcement training programmes for puppies and adult dogs — building confidence, manners, and a stronger bond."
-        :primary-cta="['label' => 'Enquire About Training', 'href' => route('contact')]"
-        :secondary-cta="['label' => 'View Pricing', 'href' => route('services.pricing')]"
+        :primary-cta="['label' => 'Enquire About Training', 'href' => \App\Support\PricingQuote::contactUrl('consult', ['service' => 'training'])]"
+        :secondary-cta="['label' => 'Get Estimate', 'href' => \App\Support\PricingQuote::estimateUrl('training'), 'icon' => 'calculate']"
     />
 
     <section class="py-20 bg-white">

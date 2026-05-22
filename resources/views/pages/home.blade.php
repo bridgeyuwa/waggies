@@ -371,8 +371,8 @@
             <x-cta.primary eyebrow_icon="pets" eyebrow_text="Trusted Pet Care" heading="Give Your Pet the"
                 heading_accent="Care They Deserve"
                 body="Book a consultation today and get a tailored care plan from our veterinary team."
-                primary_label="Book Appointment" primary_href="/book" primary_icon="arrow_forward"
-                secondary_label="Call Us Now" secondary_href="tel:+234080200000000" secondary_icon="call" />
+                primary_label="Book Appointment" :primary_href="route('services.pricing')" primary_icon="arrow_forward"
+                secondary_label="Get Estimate" :secondary_href="\App\Support\PricingQuote::estimateUrl()" secondary_icon="calculate" />
         </div>
 
 

@@ -1,5 +1,7 @@
 ﻿<x-layouts.app title="Luxury Pet Boarding" nav-section="services">
 
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
     <x-hero.image
         image-src="/images/boarding.jpg"
         image-alt="Luxury pet boarding suites at Waggies"
@@ -8,11 +10,9 @@
         title="A Home Away From Home"
         variant="center"
         subtitle="Spacious, climate-controlled suites with 24/7 supervision, orthopedic bedding, and daily updates for total peace of mind."
-        :primary-cta="['label' => 'Book Appointment', 'href' => route('contact'), 'icon' => 'arrow_forward']"
-        :secondary-cta="['label' => 'View Services', 'href' => route('services.index')]"
+        :primary-cta="['label' => 'Book Appointment', 'href' => \App\Support\PricingQuote::contactUrl('book', ['service' => 'boarding']), 'icon' => 'arrow_forward']"
+        :secondary-cta="['label' => 'Get Estimate', 'href' => \App\Support\PricingQuote::estimateUrl('boarding'), 'icon' => 'calculate']"
     />
-
-
 
     <section class="py-20 bg-surface">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
@@ -344,8 +344,8 @@
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
             <x-cta.primary heading="Secure Your Pet’s Stay" heading_accent="While You're Away"
                 body="Reserve your pet’s suite today and enjoy complete peace of mind with daily updates, expert care, and 24/7 supervision."
-                primary_label="Book Boarding" primary_href="/book/boarding" primary_icon="arrow_forward"
-                secondary_label="Speak to Our Team" secondary_href="tel:+234080200000000" secondary_icon="call" />
+                primary_label="Book Boarding" :primary_href="\App\Support\PricingQuote::contactUrl('book', ['service' => 'boarding'])" primary_icon="arrow_forward"
+                secondary_label="Get Estimate" :secondary_href="\App\Support\PricingQuote::estimateUrl('boarding')" secondary_icon="calculate" />
         </div>
     </section>
 

@@ -9,7 +9,12 @@ class BlogController extends Controller
 {
     public function index()
     {
-        $posts = Post::published()->blog()->latest('published_at')->paginate(12);
+        $featured = Post::published()->blog()->latest('published_at')->first();
+
+        $posts = Post::published()->blog()
+            ->when($featured, fn ($query) => $query->where('id', '!=', $featured->id))
+            ->latest('published_at')
+            ->paginate(12);
 
         $categories = Post::published()->blog()
             ->select('category')
@@ -17,12 +22,18 @@ class BlogController extends Controller
             ->orderBy('category')
             ->pluck('category');
 
-        return view('pages.blog.index', compact('posts', 'categories'));
+        return view('pages.blog.index', compact('featured', 'posts', 'categories'));
     }
 
     public function category(string $slug)
     {
-        $posts = Post::published()->blog()->inCategory($slug)->latest('published_at')->paginate(12);
+        $featured = Post::published()->blog()->inCategory($slug)->latest('published_at')->first();
+
+        $posts = Post::published()->blog()
+            ->inCategory($slug)
+            ->when($featured, fn ($query) => $query->where('id', '!=', $featured->id))
+            ->latest('published_at')
+            ->paginate(12);
 
         $categories = Post::published()->blog()
             ->select('category')
@@ -30,7 +41,7 @@ class BlogController extends Controller
             ->orderBy('category')
             ->pluck('category');
 
-        return view('pages.blog.category', compact('posts', 'categories', 'slug'));
+        return view('pages.blog.category', compact('featured', 'posts', 'categories', 'slug'));
     }
 
     public function show(string $slug)

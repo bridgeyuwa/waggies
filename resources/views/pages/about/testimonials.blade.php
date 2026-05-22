@@ -1,14 +1,21 @@
 ﻿<x-layouts.app title="Client Testimonials" nav-section="about">
 
-    <div class="bg-surface-purple border-b border-primary/10">
-        <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 py-16 md:py-20">
-            <span class="text-xs font-bold uppercase tracking-widest text-primary/60 block mb-3">What Clients Say</span>
-            <h1 class="font-serif text-4xl md:text-5xl font-bold text-primary-dark mb-4">Trusted by 500+<br />Abuja Pet
-                Owners</h1>
-            <p class="text-primary-dark/60 max-w-xl">Don't take our word for it — here's what our clients have to say
-                about their Waggies experience.</p>
-        </div>
-    </div>
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
+    <x-hero.split
+        eyebrow="What Clients Say"
+        eyebrow_icon="reviews"
+        title="Trusted by 500+<br />Abuja Pet Owners"
+        subtitle="Don't take our word for it — here's what our clients have to say about their Waggies experience."
+        image_src="/images/gallery/boarding-1.jpg"
+        image_alt="Happy dog at Waggies boarding facility"
+        rating="4.9"
+        review_count="500+"
+        primary_label="Book a Stay"
+        :primary_href="route('services.boarding.index')"
+        secondary_label="Contact Us"
+        :secondary_href="route('contact')"
+    />
 
     <section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">

@@ -1,5 +1,7 @@
 ﻿<x-layouts.app title="Loyalty Programme" nav-section="loyalty">
 
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
     <x-hero.gradient
         rating="4.9"
         review-count="500+"

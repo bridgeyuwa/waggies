@@ -1,10 +1,8 @@
 ﻿<x-layouts.listing title="Blog" nav-section="blog">
 
-    <x-slot:header>
-        <span class="text-xs font-bold uppercase tracking-widest text-primary/60 block mb-3">Waggies Blog</span>
-        <h1 class="font-serif text-4xl md:text-5xl font-bold text-primary-dark mb-3">Pet Care Tips &amp; News</h1>
-        <p class="text-primary-dark/60 max-w-xl">Advice, guides, and updates from the Waggies team.</p>
-    </x-slot:header>
+    <x-slot:hero>
+        <x-hero.hub type="blog" />
+    </x-slot:hero>
 
     <x-slot:sidebar>
         <div class="bg-surface-purple rounded-2xl p-6">
@@ -28,9 +26,19 @@
         </div>
     </x-slot:sidebar>
 
-    @if($posts->isEmpty())
+    @if($featured)
+        <x-content.featured-story :post="$featured" type="blog" />
+    @endif
+
+    @if($posts->isEmpty() && ! $featured)
         <p class="text-primary-dark/50 text-sm">No posts published yet — check back soon.</p>
-    @else
+    @elseif($posts->isNotEmpty())
+        <x-section-heading
+            :eyebrow="$featured ? 'Latest' : null"
+            title="{{ $featured ? 'More Articles' : 'All Articles' }}"
+            class="mb-8"
+        />
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             @foreach($posts as $post)
             <a href="{{ route('blog.show', $post->slug) }}"

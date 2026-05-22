@@ -89,4 +89,17 @@ class Post extends Model
             return Storage::disk('public')->url($this->image);
         });
     }
+
+    protected function heroImageUrl(): Attribute
+    {
+        return Attribute::get(function (): string {
+            if ($this->image_url) {
+                return $this->image_url;
+            }
+
+            $key = $this->type === 'guide' ? 'guide' : 'blog';
+
+            return config("waggies.hero_images.{$key}", config('waggies.hero_images.default'));
+        });
+    }
 }

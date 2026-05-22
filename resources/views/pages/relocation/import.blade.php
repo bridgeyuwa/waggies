@@ -1,11 +1,13 @@
 ﻿<x-layouts.app title="Import a Pet to Nigeria" nav-section="relocation">
 
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
     <x-hero.image
         image-src="/images/relocation-import.jpg"
         eyebrow="Pet Import · Nigeria"
         title='Bringing Your Pet<br/>to Nigeria?'
         subtitle="We manage every import requirement — from advance permits and health certificates to airport collection and quarantine coordination."
-        :primary-cta="['label' => 'Get an Import Quote', 'href' => route('contact')]"
+        :primary-cta="['label' => 'Get Estimate', 'href' => \App\Support\PricingQuote::estimateUrl('relocation', null, 'import'), 'icon' => 'calculate']"
         :secondary-cta="['label' => 'View Checklist', 'href' => route('relocation.checklist')]"
     />
 
@@ -47,7 +49,7 @@
             </div>
             <div class="flex gap-3 shrink-0">
                 <a href="{{ route('relocation.checklist') }}" class="inline-flex items-center gap-2 border-2 border-primary text-primary px-6 py-3 rounded-full font-semibold hover:bg-primary hover:text-white transition">View Checklist</a>
-                <a href="{{ route('contact') }}" class="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-full font-bold transition shadow-glow hover:-translate-y-1">Get a Quote <span class="material-symbols-outlined text-base">arrow_forward</span></a>
+                <a href="{{ \App\Support\PricingQuote::estimateUrl('relocation', null, 'import') }}" class="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-full font-bold transition shadow-glow hover:-translate-y-1">Get Estimate <span class="material-symbols-outlined text-base">calculate</span></a>
             </div>
         </div>
     </section>

@@ -1,12 +1,14 @@
 ﻿<x-layouts.app title="Pet Grooming Spa" nav-section="services">
 
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
     <x-hero.image
         image-src="/images/grooming.jpg"
         eyebrow="Grooming Spa · Abuja"
         title='The Grooming Spa<br/>Your Pet Deserves'
         subtitle="Breed-specific treatments, luxury baths, and precision styling by certified groomers in a calm, purpose-built spa."
-        :primary-cta="['label' => 'Book a Groom', 'href' => route('contact')]"
-        :secondary-cta="['label' => 'View Pricing', 'href' => route('services.pricing')]"
+        :primary-cta="['label' => 'Book a Groom', 'href' => \App\Support\PricingQuote::contactUrl('book', ['service' => 'grooming'])]"
+        :secondary-cta="['label' => 'Get Estimate', 'href' => \App\Support\PricingQuote::estimateUrl('grooming'), 'icon' => 'calculate']"
     />
 
     <section class="py-20 bg-white">

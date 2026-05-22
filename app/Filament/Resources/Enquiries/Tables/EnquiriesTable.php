@@ -22,6 +22,12 @@ class EnquiriesTable
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
+                TextColumn::make('service')
+                    ->badge()
+                    ->toggleable(),
+                TextColumn::make('intent')
+                    ->badge()
+                    ->toggleable(),
                 TextColumn::make('message')
                     ->limit(60)
                     ->wrap(),

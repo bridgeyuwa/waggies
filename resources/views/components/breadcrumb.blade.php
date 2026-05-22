@@ -1,43 +1,42 @@
 {{--
-    Breadcrumb navigation (B6).
+    Breadcrumb navigation (B6) — diglactic/laravel-breadcrumbs + Waggies styling.
 
-    Props:
-      $crumbs — array of ['label' => string, 'href' => string|null]
-                The last item should have href = null (renders as plain text).
+    Route-bound (preferred): omit props on named routes; definitions live in routes/breadcrumbs.php.
+        <x-breadcrumb />
 
-    Example:
-      <x-breadcrumb :crumbs="[
-          ['label' => 'Home', 'href' => route('home')],
-          ['label' => 'Services', 'href' => route('services.index')],
-          ['label' => 'Dog Boarding', 'href' => null],
-      ]" />
+    Explicit render:
+        <x-breadcrumb name="blog.show" :parameters="[$post->slug]" />
+
+    Legacy manual crumbs (discouraged):
+        <x-breadcrumb :crumbs="[['label' => 'Services', 'href' => route('services.index')], ...]" />
 --}}
 @props([
-    'crumbs' => [],
+    'name' => null,
+    'parameters' => [],
+    'crumbs' => null,
 ])
 
-<nav aria-label="Breadcrumb">
-    <ol class="flex items-center flex-wrap gap-2 text-xs font-medium text-primary-dark/50">
-        <li>
-            <a href="{{ route('home') }}"
-               class="hover:text-primary transition-colors"
-               aria-label="Home">
-                <span class="material-symbols-outlined text-sm" aria-hidden="true">home</span>
-            </a>
-        </li>
-        @foreach($crumbs as $crumb)
-            <li class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-xs text-primary-dark/30" aria-hidden="true">chevron_right</span>
-                @if(!empty($crumb['href']))
-                    <a href="{{ $crumb['href'] }}" class="hover:text-primary transition-colors">
-                        {{ $crumb['label'] }}
-                    </a>
-                @else
-                    <span class="text-primary-dark font-semibold" aria-current="page">
-                        {{ $crumb['label'] }}
-                    </span>
-                @endif
-            </li>
-        @endforeach
-    </ol>
-</nav>
+@php
+    use Diglactic\Breadcrumbs\Breadcrumbs as BreadcrumbTrail;
+    use Diglactic\Breadcrumbs\Exceptions\InvalidBreadcrumbException;
+    use Diglactic\Breadcrumbs\Exceptions\UnnamedRouteException;
+
+    $breadcrumbs = collect();
+
+    if (is_array($crumbs) && $crumbs !== []) {
+        $breadcrumbs = collect($crumbs)->map(fn (array $crumb): object => (object) [
+            'title' => $crumb['label'],
+            'url' => $crumb['href'] ?? null,
+        ]);
+    } elseif (! request()->routeIs('home')) {
+        try {
+            $breadcrumbs = $name
+                ? BreadcrumbTrail::generate($name, ...$parameters)
+                : BreadcrumbTrail::generate();
+        } catch (InvalidBreadcrumbException|UnnamedRouteException) {
+            $breadcrumbs = collect();
+        }
+    }
+@endphp
+
+@include('vendor.breadcrumbs.waggies', ['breadcrumbs' => $breadcrumbs])

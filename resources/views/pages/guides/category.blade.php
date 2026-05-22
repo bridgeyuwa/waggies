@@ -1,18 +1,13 @@
 ﻿<x-layouts.listing title="{{ ucwords(str_replace('-', ' ', $slug)) }} Guides" nav-section="blog">
 
-    <x-slot:breadcrumb>
-        <x-breadcrumb :items="[
-            ['label' => 'Guides', 'href' => route('guides.index')],
-            ['label' => ucwords(str_replace('-', ' ', $slug))],
-        ]" />
-    </x-slot:breadcrumb>
-
-    <x-slot:header>
-        <span class="text-xs font-bold uppercase tracking-widest text-primary/60 block mb-3">Guides</span>
-        <h1 class="font-serif text-4xl font-bold text-primary-dark capitalize">
-            {{ str_replace('-', ' ', $slug) }}
-        </h1>
-    </x-slot:header>
+    <x-slot:hero>
+        <x-hero.hub
+            type="guide"
+            eyebrow="Guides · Category"
+            :title="ucwords(str_replace('-', ' ', $slug))"
+            min-height="420px"
+        />
+    </x-slot:hero>
 
     <x-slot:sidebar>
         <div class="bg-surface-purple rounded-2xl p-6">
@@ -31,19 +26,41 @@
         </div>
     </x-slot:sidebar>
 
-    @if($guides->isEmpty())
-        <p class="text-primary-dark/50 text-sm">No guides in this topic yet — check back soon.</p>
-    @else
+    @if($featured)
+        <x-content.featured-story :post="$featured" type="guide" />
+    @endif
+
+    @if($guides->isEmpty() && ! $featured)
+        <p class="text-primary-dark/50 text-sm">No guides in this category yet — check back soon.</p>
+    @elseif($guides->isNotEmpty())
+        @if($featured)
+            <x-section-heading eyebrow="Topic" title="More guides" class="mb-8" />
+        @endif
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             @foreach($guides as $guide)
             <a href="{{ route('guides.show', $guide->slug) }}"
                class="group bg-white rounded-2xl shadow-sm hover:shadow-soft transition-shadow overflow-hidden flex flex-col">
-                <div class="h-44 bg-surface-purple group-hover:bg-primary/10 transition-colors"></div>
+                <div class="h-44 bg-surface-purple group-hover:bg-primary/10 transition-colors overflow-hidden">
+                    @if($guide->image_url)
+                        <img src="{{ $guide->image_url }}" alt="{{ $guide->title }}"
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                             loading="lazy" />
+                    @endif
+                </div>
                 <div class="p-5 flex flex-col gap-2 flex-1">
+                    <span class="text-xs font-bold uppercase tracking-widest text-primary/60 capitalize">
+                        {{ str_replace('-', ' ', $guide->category) }}
+                    </span>
                     <h2 class="font-serif text-lg font-bold text-primary-dark leading-snug group-hover:text-primary transition-colors">
                         {{ $guide->title }}
                     </h2>
-                    <span class="text-xs text-primary-dark/40 mt-auto">{{ $guide->published_at->format('F j, Y') }}</span>
+                    @if($guide->excerpt)
+                        <p class="text-sm text-primary-dark/60 line-clamp-2">{{ $guide->excerpt }}</p>
+                    @endif
+                    <span class="text-xs text-primary font-semibold mt-auto inline-flex items-center gap-1">
+                        Read guide <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </span>
                 </div>
             </a>
             @endforeach

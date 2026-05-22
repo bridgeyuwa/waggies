@@ -1,11 +1,8 @@
 ﻿<x-layouts.utility title="Pet Relocation Checklist" nav-section="relocation">
 
-    <x-section-heading
-        eyebrow="Relocation Checklist"
-        title="Your Pet Relocation<br/>Checklist"
-        subtitle="Use this checklist to stay on top of every requirement. Start early — some steps can take weeks to complete."
-        class="mb-12"
-    />
+    <x-slot:hero>
+        <x-hero.hub type="checklist" variant="bottom" />
+    </x-slot:hero>
 
     @foreach([
         [

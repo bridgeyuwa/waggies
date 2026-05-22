@@ -1,5 +1,7 @@
 ﻿<x-layouts.app title="Pet Transport" nav-section="services">
 
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
     <x-hero.image
         image-src="/images/transport.jpg"
         eyebrow="Pet Transport · Abuja"

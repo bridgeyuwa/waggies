@@ -1,12 +1,15 @@
 ﻿<x-layouts.content :title="$article->title" nav-section="blog">
 
-    <x-slot:breadcrumb>
-        <x-breadcrumb :items="[
-            ['label' => 'Knowledge Base', 'href' => route('kb.index')],
-            ['label' => $article->category_label, 'href' => route('kb.category', $article->category)],
-            ['label' => $article->title],
-        ]" />
-    </x-slot:breadcrumb>
+    <x-slot:hero>
+        <x-hero.image
+            :image-src="config('waggies.hero_images.kb')"
+            :eyebrow="$article->category_label"
+            eyebrow-icon="help"
+            :title="$article->title"
+            :subtitle="\Illuminate\Support\Str::limit(strip_tags($article->body), 160)"
+            min-height="400px"
+        />
+    </x-slot:hero>
 
     <x-slot:sidebar>
         <div class="bg-surface-purple rounded-2xl p-6">
@@ -36,15 +39,6 @@
     </x-slot:sidebar>
 
     <article>
-        <header class="mb-8">
-            <span class="text-xs font-bold uppercase tracking-widest text-primary/60 block mb-3 capitalize">
-                {{ str_replace('-', ' ', $article->category) }}
-            </span>
-            <h1 class="font-serif text-3xl md:text-4xl font-bold text-primary-dark leading-tight">
-                {{ $article->title }}
-            </h1>
-        </header>
-
         <x-ui.markdown :content="$article->body" />
     </article>
 

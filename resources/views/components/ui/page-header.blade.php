@@ -8,6 +8,8 @@
     'title' => '',
     'subtitle' => null,
     'variant' => 'purple',
+    'bare' => false,
+    'align' => 'left',
 ])
 
 @php
@@ -16,8 +18,12 @@
         : 'bg-white border-b border-primary/10';
 @endphp
 
-<div {{ $attributes->class([$wrapper]) }}>
-    <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 py-16 md:py-20">
+@php
+    $alignClass = $align === 'center' ? 'text-center items-center' : 'text-left items-start';
+@endphp
+
+@if ($bare)
+    <div {{ $attributes->class(['flex flex-col', $alignClass]) }}>
         @if ($eyebrow)
             <span class="text-xs font-bold uppercase tracking-widest text-primary/60 block mb-3">{{ $eyebrow }}</span>
         @endif
@@ -25,11 +31,29 @@
         <h1 class="font-serif text-4xl md:text-5xl font-bold text-primary-dark mb-3">{{ $title }}</h1>
 
         @if ($subtitle)
-            <p class="text-primary-dark/60 max-w-xl">{{ $subtitle }}</p>
+            <p class="text-primary-dark/60 max-w-xl {{ $align === 'center' ? 'mx-auto' : '' }}">{{ $subtitle }}</p>
         @endif
 
         @if ($slot->isNotEmpty())
             <div class="mt-6">{{ $slot }}</div>
         @endif
     </div>
-</div>
+@else
+    <div {{ $attributes->class([$wrapper]) }}>
+        <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 py-16 md:py-20 flex flex-col {{ $alignClass }}">
+            @if ($eyebrow)
+                <span class="text-xs font-bold uppercase tracking-widest text-primary/60 block mb-3">{{ $eyebrow }}</span>
+            @endif
+
+            <h1 class="font-serif text-4xl md:text-5xl font-bold text-primary-dark mb-3">{{ $title }}</h1>
+
+            @if ($subtitle)
+                <p class="text-primary-dark/60 max-w-xl {{ $align === 'center' ? 'mx-auto' : '' }}">{{ $subtitle }}</p>
+            @endif
+
+            @if ($slot->isNotEmpty())
+                <div class="mt-6">{{ $slot }}</div>
+            @endif
+        </div>
+    </div>
+@endif

@@ -1,17 +1,17 @@
 ﻿<x-layouts.app title="Shop" nav-section="">
 
-    <div class="bg-surface-purple border-b border-primary/10">
-        <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 py-16 md:py-24 text-center">
-            <span class="inline-block text-xs font-bold uppercase tracking-widest text-primary/60 mb-3">Coming Soon</span>
-            <h1 class="font-serif text-4xl md:text-5xl font-bold text-primary-dark mb-4">The Waggies Shop</h1>
-            <p class="text-primary-dark/60 max-w-xl mx-auto mb-8">
-                Premium pet food, accessories, grooming products, and more — hand-picked by the Waggies team. Launching soon.
-            </p>
-            <a href="{{ route('contact') }}" class="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-full font-bold transition shadow-glow hover:-translate-y-1">
-                Notify Me When Live <span class="material-symbols-outlined">arrow_forward</span>
-            </a>
-        </div>
-    </div>
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
+    <x-ui.page-header
+        align="center"
+        eyebrow="Coming Soon"
+        title="The Waggies Shop"
+        subtitle="Premium pet food, accessories, grooming products, and more — hand-picked by the Waggies team. Launching soon."
+    >
+        <a href="{{ route('contact') }}" class="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-full font-bold transition shadow-glow hover:-translate-y-1">
+            Notify Me When Live <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        </a>
+    </x-ui.page-header>
 
     <section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">

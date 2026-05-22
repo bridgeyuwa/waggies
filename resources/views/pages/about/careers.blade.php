@@ -1,5 +1,7 @@
 ﻿<x-layouts.app title="Careers at Waggies" nav-section="about">
 
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
     <x-hero.image
         image-src="/images/careers.jpg"
         eyebrow="Join Our Team"

@@ -1,11 +1,11 @@
 ﻿<x-layouts.app title="Our Services" nav-section="services">
 
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
     <x-hero.image image-src="/images/services.jpg" eyebrow="Everything Your Pet Needs" variant="center"
         title='Luxury Pet Care,<br/>All Under One Roof'
         subtitle="From overnight boarding to international relocation — Waggies offers a full suite of premium services tailored to your pet."
         :primary-cta="['label' => 'View Our Services', 'href' => route('services.index') . '#services']" />
-
-
 
     <section id="services" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">

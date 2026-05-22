@@ -1,11 +1,13 @@
 ﻿<x-layouts.app title="Pet Relocation" nav-section="relocation">
 
+    <x-breadcrumb.strip class="bg-white border-b border-primary/5" />
+
     <x-hero.image
         image-src="/images/relocation.jpg"
         eyebrow="International Pet Relocation"
         title='Stress-Free International<br/>Pet Relocation'
         subtitle="Full-service import and export of pets — from health certificates and microchipping to airline bookings and customs clearance."
-        :primary-cta="['label' => 'Get a Quote', 'href' => route('contact')]"
+        :primary-cta="['label' => 'Get Estimate', 'href' => \App\Support\PricingQuote::estimateUrl('relocation'), 'icon' => 'calculate']"
         :secondary-cta="['label' => 'View Checklist', 'href' => route('relocation.checklist')]"
     />
 
@@ -28,7 +30,7 @@
         eyebrow="Why Choose Waggies Relocation?"
         title='Every Document,<br/><span class="text-secondary italic">Every Step</span>'
         subtitle="International pet moves are complex. We've done hundreds of them — let us handle the details."
-        :cta="['label' => 'Get a Quote', 'href' => route('contact')]"
+        :cta="['label' => 'Get Estimate', 'href' => \App\Support\PricingQuote::estimateUrl('relocation')]"
         :features="[
             ['icon' => 'description',      'title' => 'Full Documentation',      'description' => 'Health certs, import/export permits, microchip records — all handled for you.'],
             ['icon' => 'flight',           'title' => 'Airline Coordination',    'description' => 'We liaise directly with airlines to book the right cargo or cabin option.'],

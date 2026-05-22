@@ -1,10 +1,8 @@
 ﻿<x-layouts.listing title="Knowledge Base" nav-section="blog">
 
-    <x-slot:header>
-        <span class="text-xs font-bold uppercase tracking-widest text-primary/60 block mb-3">Knowledge Base</span>
-        <h1 class="font-serif text-4xl md:text-5xl font-bold text-primary-dark mb-3">How Can We Help?</h1>
-        <p class="text-primary-dark/60 max-w-xl">Quick answers to common questions about our services, policies, and pet care.</p>
-    </x-slot:header>
+    <x-slot:hero>
+        <x-hero.hub type="kb" />
+    </x-slot:hero>
 
     <x-slot:sidebar>
         <div class="bg-surface-purple rounded-2xl p-6">
@@ -30,26 +28,24 @@
     </x-slot:sidebar>
 
     @if($featured->isNotEmpty())
-        <div class="mb-8">
-            <h2 class="font-serif text-xl font-bold text-primary-dark mb-4">Featured Articles</h2>
-            <div class="flex flex-col gap-4">
-                @foreach($featured as $article)
-                <a href="{{ route('kb.show', $article->slug) }}" class="group flex items-center justify-between gap-4 bg-white rounded-2xl px-6 py-5 shadow-sm hover:shadow-soft transition-shadow">
-                    <div>
-                        <span class="text-xs font-bold uppercase tracking-widest text-primary/50 block mb-1 capitalize">{{ str_replace('-', ' ', $article->category) }}</span>
-                        <h3 class="font-semibold text-primary-dark group-hover:text-primary transition-colors">{{ $article->title }}</h3>
-                    </div>
-                    <span class="material-symbols-outlined text-primary-dark/30 group-hover:text-primary transition-colors shrink-0">chevron_right</span>
-                </a>
-                @endforeach
-            </div>
+        <x-section-heading eyebrow="Popular" title="Featured Articles" class="mb-6" />
+        <div class="mb-10 flex flex-col gap-4">
+            @foreach($featured as $article)
+            <a href="{{ route('kb.show', $article->slug) }}" class="group flex items-center justify-between gap-4 bg-white rounded-2xl px-6 py-5 shadow-sm hover:shadow-soft transition-shadow">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-primary/50 block mb-1 capitalize">{{ str_replace('-', ' ', $article->category) }}</span>
+                    <h3 class="font-semibold text-primary-dark group-hover:text-primary transition-colors">{{ $article->title }}</h3>
+                </div>
+                <span class="material-symbols-outlined text-primary-dark/30 group-hover:text-primary transition-colors shrink-0">chevron_right</span>
+            </a>
+            @endforeach
         </div>
     @endif
 
     @if($articles->isEmpty())
         <p class="text-primary-dark/50 text-sm">No articles published yet — check back soon.</p>
     @else
-        <h2 class="font-serif text-xl font-bold text-primary-dark mb-4">All Articles</h2>
+        <x-section-heading title="All Articles" class="mb-6" />
         <div class="flex flex-col gap-4">
             @foreach($articles as $article)
             <a href="{{ route('kb.show', $article->slug) }}" class="group flex items-center justify-between gap-4 bg-white rounded-2xl px-6 py-5 shadow-sm hover:shadow-soft transition-shadow">

@@ -1,12 +1,16 @@
 ﻿<x-layouts.content :title="$guide->title" nav-section="blog">
 
-    <x-slot:breadcrumb>
-        <x-breadcrumb :items="[
-            ['label' => 'Guides', 'href' => route('guides.index')],
-            ['label' => $guide->category_label, 'href' => route('guides.category', $guide->category)],
-            ['label' => $guide->title],
-        ]" />
-    </x-slot:breadcrumb>
+    <x-slot:hero>
+        <x-hero.image
+            :image-src="$guide->hero_image_url"
+            :image-alt="$guide->title"
+            :eyebrow="$guide->category_label"
+            eyebrow-icon="menu_book"
+            :title="$guide->title"
+            :subtitle="$guide->excerpt"
+            min-height="420px"
+        />
+    </x-slot:hero>
 
     <x-slot:sidebar>
         <div class="bg-surface-purple rounded-2xl p-6">
@@ -29,30 +33,11 @@
     </x-slot:sidebar>
 
     <article>
-        <header class="mb-8">
-            <span class="text-xs font-bold uppercase tracking-widest text-primary/60 block mb-3 capitalize">
-                {{ str_replace('-', ' ', $guide->category) }}
-            </span>
-            <h1 class="font-serif text-3xl md:text-4xl font-bold text-primary-dark leading-tight mb-3">
-                {{ $guide->title }}
-            </h1>
-            <p class="text-sm text-primary-dark/40">
-                By {{ $guide->author }}
-                · {{ $guide->published_at->format('F j, Y') }}
-                · {{ $guide->reading_time }} min read
-            </p>
-        </header>
-
-        @if($guide->image_url)
-            <img src="{{ $guide->image_url }}" alt="{{ $guide->title }}"
-                 class="w-full h-64 object-cover rounded-2xl mb-8" />
-        @else
-            <div class="w-full h-64 bg-surface-purple rounded-2xl mb-8"></div>
-        @endif
-
-        @if($guide->excerpt)
-            <p class="text-lg text-primary-dark/70 leading-relaxed font-medium mb-6 italic">{{ $guide->excerpt }}</p>
-        @endif
+        <p class="text-sm text-primary-dark/40 mb-8">
+            By {{ $guide->author }}
+            · {{ $guide->published_at->format('F j, Y') }}
+            · {{ $guide->reading_time }} min read
+        </p>
 
         <x-ui.markdown :content="$guide->body" />
     </article>

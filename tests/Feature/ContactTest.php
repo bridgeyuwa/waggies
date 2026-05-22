@@ -32,3 +32,14 @@ it('validates contact form fields', function () {
 
     $response->assertSessionHasErrors(['name', 'email', 'message']);
 });
+
+it('rejects invalid pricing service keys', function () {
+    $response = $this->post(route('contact.store'), [
+        'name' => 'Jane Doe',
+        'email' => 'jane@example.com',
+        'message' => 'Hello.',
+        'service' => 'invalid-service',
+    ]);
+
+    $response->assertSessionHasErrors(['service']);
+});
