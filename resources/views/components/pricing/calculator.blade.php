@@ -51,7 +51,7 @@
                     </select>
                 </div>
 
-                <div x-show="tierOptions.length">
+                <div x-show="hasTierOptions">
                     <label for="calc-tier" class="block text-sm font-semibold text-primary-dark mb-2">Package</label>
                     <select id="calc-tier" x-model="tier"
                         class="w-full rounded-xl border border-surface-purple px-4 py-3 text-primary-dark focus:ring-2 focus:ring-primary/40 focus:border-primary">

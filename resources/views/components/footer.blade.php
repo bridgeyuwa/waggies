@@ -99,6 +99,7 @@
                 ['label' => 'Vet Services',   'route' => 'services.vet-care'],
                 ['label' => 'Grooming Spa',   'route' => 'services.grooming'],
                 ['label' => 'Dog Training',   'route' => 'services.training'],
+                ['label' => 'Pricing / Estimate Tool',  'route' => 'services.pricing'],
               ] as $link)
                 <li>
                   <a href="{{ route($link['route']) }}" class="flex items-center gap-1.5 text-sm {{ $linkText }} transition-colors">

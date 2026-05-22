@@ -123,24 +123,24 @@
             <x-guides.featured-card title="The Complete Pet Relocation Checklist for Nigeria"
                 description="Everything you need to move your pet internationally — documents, timelines, vaccinations, and airline requirements in one place."
                 downloadUrl="{{ route('home', 'relocation-checklist') }}"
-                readUrl="{{ route('guides.show', 'relocation-checklist') }}" :pages="12" />
+                readUrl="{{ route('relocation.checklist', 'relocation-checklist') }}" :pages="12" />
 
             <div
                 class="divide-y divide-surface-purple border border-surface-purple rounded-2xl bg-white overflow-hidden">
                 <x-guides.featured-card-row icon="vaccines" title="Nigeria Pet Vaccination Schedule 2026"
                     meta="Vet-approved · 8 min read · Vaccination"
-                    href="{{ route('guides.show', 'vaccination-schedule-2026') }}" badge="Updated"
+                    href="{{ route('guides.show', '#') }}" badge="Updated"
                     badgeVariant="success" />
                 <x-guides.featured-card-row icon="flight"
                     title="Airline Pet Policies: Which Airlines Fly Pets from Lagos?"
                     meta="Relocation · 10 min read · International Travel"
-                    href="{{ route('guides.show', 'airline-pet-policies') }}" badge="Popular" />
+                    href="{{ route('guides.show', '#') }}" badge="Popular" />
                 <x-guides.featured-card-row icon="content_cut" title="Home Grooming Basics: A Step-by-Step Dog Guide"
                     meta="Grooming · 6 min read · Beginner-friendly"
-                    href="{{ route('guides.show', 'home-grooming-basics') }}" />
+                    href="{{ route('guides.show', '#') }}" />
                 <x-guides.featured-card-row icon="health_and_safety"
                     title="Signs Your Dog Needs Immediate Vet Attention" meta="Vet Care · 5 min read · Health"
-                    href="{{ route('guides.show', 'vet-attention-signs') }}" />
+                    href="{{ route('guides.show', '#') }}" />
             </div>
 
             <div class="mt-8 text-center sm:hidden">

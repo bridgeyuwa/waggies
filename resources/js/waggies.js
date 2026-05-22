@@ -11,10 +11,6 @@ document.addEventListener('alpine:init', () => {
         initialService: payload.selectedService || '',
 
         init() {
-            if (this.service) {
-                this.onServiceChange();
-            }
-
             if (this.initialService) {
                 this.$nextTick(() => {
                     document.getElementById('pricing-calculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -53,6 +49,10 @@ document.addEventListener('alpine:init', () => {
             }
 
             return this.currentService.tiers || {};
+        },
+
+        get hasTierOptions() {
+            return Object.keys(this.tierOptions).length > 0;
         },
 
         get currentTier() {

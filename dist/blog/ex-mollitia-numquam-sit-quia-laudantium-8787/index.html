@@ -1,0 +1,1520 @@
+﻿﻿<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content="rWo3KgEy07dwdYSOP7tL5xYDB8WF1zdFzfQkm1lA" />
+
+    <title>Ex mollitia numquam sit quia laudantium — Waggies</title>
+    <meta name="description" content="Waggies is Abuja&#039;s most trusted luxury pet boarding, grooming, vet care and relocation specialists." />
+
+    
+    
+    <meta property="og:type"        content="website" />
+    <meta property="og:title"       content="Ex mollitia numquam sit quia laudantium — Waggies" />
+    <meta property="og:description" content="Waggies is Abuja&#039;s most trusted luxury pet care specialist." />
+    
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+
+    <script type="module" src="https://waggies.test:5173/@vite/client" data-navigate-track="reload"></script><link rel="stylesheet" href="https://waggies.test:5173/resources/css/app.css" data-navigate-track="reload" /><script type="module" src="https://waggies.test:5173/resources/js/app.js" data-navigate-track="reload"></script>
+    
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Waggies","description":"Abuja's most trusted luxury pet boarding, grooming, vet care and relocation specialists.","url":"https://waggies.test"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"Waggies","description":"Luxury pet boarding, grooming, vet care, training, transport and relocation in Abuja, Nigeria.","url":"https://waggies.test","address":{"@type":"PostalAddress","addressLocality":"Abuja","addressRegion":"FCT","addressCountry":"NG"}}</script>    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Ex mollitia numquam sit quia laudantium","description":"Praesentium vel et et ut. Ut totam incidunt aut velit. Et est dignissimos eos placeat.","author":{"@type":"Person","name":"The Waggies Team"},"datePublished":"2026-03-04T23:01:41+00:00","url":"https://waggies.test/blog/ex-mollitia-numquam-sit-quia-laudantium-8787","publisher":{"@type":"Organization","name":"Waggies","url":"https://waggies.test"}}</script><script id="browser-logger-active">
+(function() {
+    const ENDPOINT = 'https://waggies.test/_boost/browser-logs';
+    const logQueue = [];
+    let flushTimeout = null;
+
+    console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+
+    // Store original console methods
+    const originalConsole = {
+        log: console.log,
+        info: console.info,
+        error: console.error,
+        warn: console.warn,
+        table: console.table
+    };
+
+    // Helper to safely stringify values
+    function safeStringify(obj) {
+        const seen = new WeakSet();
+        return JSON.stringify(obj, (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                if (seen.has(value)) return '[Circular]';
+                seen.add(value);
+            }
+            if (value instanceof Error) {
+                return {
+                    name: value.name,
+                    message: value.message,
+                    stack: value.stack
+                };
+            }
+            return value;
+        });
+    }
+
+    // Batch and send logs
+    function flushLogs() {
+        if (logQueue.length === 0) return;
+
+        const batch = logQueue.splice(0, logQueue.length);
+
+        fetch(ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ logs: batch })
+        }).catch(err => {
+            // Silently fail to avoid infinite loops
+            originalConsole.error('Failed to send logs:', err);
+        });
+    }
+
+    // Debounced flush (100ms)
+    function scheduleFlush() {
+        if (flushTimeout) clearTimeout(flushTimeout);
+        flushTimeout = setTimeout(flushLogs, 100);
+    }
+
+    // Intercept console methods
+    ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
+        console[method] = function(...args) {
+            // Call original method
+            originalConsole[method].apply(console, args);
+
+            // Capture log data
+            try {
+                logQueue.push({
+                    type: method,
+                    timestamp: new Date().toISOString(),
+                    data: args.map(arg => {
+                        try {
+                            return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                        } catch (e) {
+                            return String(arg);
+                        }
+                    }),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent
+                });
+
+                scheduleFlush();
+            } catch (e) {
+                // Fail silently
+            }
+        };
+    });
+
+    // Global error handlers for uncaught errors
+    const originalOnError = window.onerror;
+    window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
+        try {
+            logQueue.push({
+                type: 'uncaught_error',
+                timestamp: new Date().toISOString(),
+                data: [{
+                    message: errorMsg,
+                    filename: url,
+                    lineno: lineNumber,
+                    colno: colNumber,
+                    error: error ? {
+                        name: error.name,
+                        message: error.message,
+                        stack: error.stack
+                    } : null
+                }],
+                url: window.location.href,
+                userAgent: navigator.userAgent
+            });
+
+            scheduleFlush();
+        } catch (e) {
+            // Fail silently
+        }
+
+        // Call original handler if it exists
+        if (originalOnError && typeof originalOnError === 'function') {
+            return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+        }
+
+        // Let the error continue to propagate
+        return false;
+    }
+    window.addEventListener('error', (event) => {
+        try {
+            logQueue.push({
+                type: 'window_error',
+                timestamp: new Date().toISOString(),
+                data: [{
+                    message: event.message,
+                    filename: event.filename,
+                    lineno: event.lineno,
+                    colno: event.colno,
+                    error: event.error ? {
+                        name: event.error.name,
+                        message: event.error.message,
+                        stack: event.error.stack
+                    } : null
+                }],
+                url: window.location.href,
+                userAgent: navigator.userAgent
+            });
+
+            scheduleFlush();
+        } catch (e) {
+            // Fail silently
+        }
+
+        // Let the error continue to propagate
+        return false;
+    });
+    window.addEventListener('unhandledrejection', (event) => {
+        try {
+            logQueue.push({
+                type: 'error',
+                timestamp: new Date().toISOString(),
+                data: [{
+                    message: 'Unhandled Promise Rejection',
+                    reason: event.reason instanceof Error ? {
+                        name: event.reason.name,
+                        message: event.reason.message,
+                        stack: event.reason.stack
+                    } : event.reason
+                }],
+                url: window.location.href,
+                userAgent: navigator.userAgent
+            });
+
+            scheduleFlush();
+        } catch (e) {
+            // Fail silently
+        }
+
+        // Let the rejection continue to propagate
+        return false;
+    });
+
+    // Flush on page unload
+    window.addEventListener('beforeunload', () => {
+        if (logQueue.length > 0) {
+            navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+        }
+    });
+})();
+</script>
+</head>
+
+<body class="bg-surface text-primary-dark antialiased" data-nav-section="blog">
+
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <div
+    x-data="{
+        mobileOpen: false,
+        servicesOpen: false,
+        aboutOpen: false,
+        resourcesOpen: false,
+        activeMenu: null,
+        pinnedMenu: null,
+        hoverTimer: null,
+        scheduleOpen(menu) {
+            clearTimeout(this.hoverTimer);
+            this.hoverTimer = setTimeout(() => {
+                if (! this.pinnedMenu || this.pinnedMenu === menu) {
+                    this.activeMenu = menu;
+                }
+            }, 150);
+        },
+        scheduleClose(menu) {
+            clearTimeout(this.hoverTimer);
+            this.hoverTimer = setTimeout(() => {
+                if (this.pinnedMenu === menu) {
+                    return;
+                }
+                if (this.activeMenu === menu) {
+                    this.activeMenu = null;
+                }
+            }, 150);
+        },
+        togglePin(menu) {
+            clearTimeout(this.hoverTimer);
+            if (this.pinnedMenu === menu) {
+                this.pinnedMenu = null;
+                this.activeMenu = null;
+                return;
+            }
+            this.pinnedMenu = menu;
+            this.activeMenu = menu;
+        },
+        closeDesktopMenus() {
+            clearTimeout(this.hoverTimer);
+            this.pinnedMenu = null;
+            this.activeMenu = null;
+        },
+        focusFirstMenuItem(menu) {
+            this.activeMenu = menu;
+            this.$nextTick(() => {
+                this.$refs[menu + 'Panel']?.querySelector('[role=menuitem]')?.focus();
+            });
+        },
+        focusMenuItem(direction) {
+            const items = [...this.$refs.servicesPanel.querySelectorAll('[role=menuitem]')];
+            if (! items.length) {
+                return;
+            }
+            const idx = items.indexOf(document.activeElement);
+            let next = idx + direction;
+            if (next < 0) {
+                next = items.length - 1;
+            }
+            if (next >= items.length) {
+                next = 0;
+            }
+            items[next].focus();
+        },
+    }"
+    x-effect="document.body.classList.toggle('overflow-hidden', mobileOpen)"
+    @keydown.escape.window="if (mobileOpen) { mobileOpen = false } else { closeDesktopMenus() }"
+    class="contents"
+>
+
+
+<header class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-surface-purple shadow-sm overflow-visible supports-[backdrop-filter]:bg-white/80">
+    <nav class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 h-16 flex items-center justify-between overflow-visible"
+         aria-label="Main navigation">
+
+        
+        <a href="https://waggies.test" class="flex items-center gap-2 shrink-0" aria-label="Waggies — home">
+            <div class="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-glow">
+                <span class="material-symbols-outlined text-white text-lg icon-filled">pets</span>
+            </div>
+            <span class="font-serif text-xl font-bold text-primary-dark tracking-tight">Waggies</span>
+        </a>
+
+        
+        <ul class="hidden lg:flex items-center gap-1 overflow-visible"
+            @click.outside="closeDesktopMenus()"
+            role="list">
+
+            
+            <li class="relative overflow-visible"
+                @mouseenter="scheduleOpen('services')"
+                @mouseleave="scheduleClose('services')">
+                <button type="button"
+                        x-ref="servicesTrigger"
+                        aria-haspopup="true"
+                        :aria-expanded="(activeMenu === 'services').toString()"
+                        @click.prevent="togglePin('services')"
+                        @keydown.arrow-down.prevent="focusFirstMenuItem('services')"
+                        class="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-wide rounded-lg transition-colors
+                               text-primary-dark/60 hover:text-primary hover:bg-surface-purple"
+                        >
+                    Services
+                    <span class="material-symbols-outlined text-sm transition-transform duration-200"
+                          :class="{ 'rotate-180': activeMenu === 'services' }">expand_more</span>
+                </button>
+                <div x-ref="servicesPanel"
+                     role="menu"
+                     aria-label="Services menu"
+                     x-show="activeMenu === 'services'"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 -translate-y-1"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-100"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-1"
+                     @keydown.arrow-down.prevent="focusMenuItem(1)"
+                     @keydown.arrow-up.prevent="focusMenuItem(-1)"
+                     @keydown.escape.prevent="closeDesktopMenus(); $refs.servicesTrigger?.focus()"
+                     class="nav-dropdown nav-dropdown--services absolute top-full mt-1 left-1/2 -translate-x-1/2"
+                     style="display: none">
+                    <div class="bg-gradient-to-r from-primary-dark to-primary px-5 py-2.5">
+                        <p class="text-white/80 text-xs font-bold uppercase tracking-widest">Our Services</p>
+                    </div>
+                    <div class="nav-dropdown__columns nav-dropdown__columns--services">
+                        <div role="group" aria-label="Boarding">
+                            <p class="text-xs font-bold uppercase tracking-widest text-primary/60 mb-2 px-2">Boarding</p>
+                            <div class="flex flex-col gap-0.5">
+                                <a href="https://waggies.test/services/boarding"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">apartment</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Luxury Boarding
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Premium overnight stays</p>
+            </div>
+</a>
+                                <a href="https://waggies.test/services/boarding/dogs"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">cruelty_free</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Dog Boarding
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Tailored for your dog</p>
+            </div>
+</a>
+                                <a href="https://waggies.test/services/boarding/cats"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">emoticon</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Cat Boarding
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Calm feline retreat</p>
+            </div>
+</a>
+                                <a href="https://waggies.test/services/boarding/exotic"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">bug_report</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Exotic Pets
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Specialist care</p>
+            </div>
+</a>
+                            </div>
+                        </div>
+                        <div role="group" aria-label="Wellness">
+                            <p class="text-xs font-bold uppercase tracking-widest text-primary/60 mb-2 px-2">Wellness</p>
+                            <div class="flex flex-col gap-0.5">
+                                <a href="https://waggies.test/services/grooming"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">spa</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Grooming Spa
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Breed-specific treatments</p>
+            </div>
+</a>
+                                <a href="https://waggies.test/services/vet-care"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">medical_services</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Vet Care
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">On-site veterinary support</p>
+            </div>
+</a>
+                                <a href="https://waggies.test/services/training"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">school</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Dog Training
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Positive-reinforcement methods</p>
+            </div>
+</a>
+                            </div>
+                        </div>
+                        <div role="group" aria-label="Relocation">
+                            <p class="text-xs font-bold uppercase tracking-widest text-primary/60 mb-2 px-2">Relocation</p>
+                            <div class="flex flex-col gap-0.5">
+                                <a href="https://waggies.test/relocation"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">public</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Relocation
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">International pet moves</p>
+            </div>
+</a>
+                                <a href="https://waggies.test/relocation/import"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">flight_land</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Pet Import
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Bringing pets into Nigeria</p>
+            </div>
+</a>
+                                <a href="https://waggies.test/relocation/export"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">flight_takeoff</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Pet Export
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Moving pets abroad</p>
+            </div>
+</a>
+                                <a href="https://waggies.test/relocation/checklist"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">checklist</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Doc Checklist
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Generate your document list</p>
+            </div>
+</a>
+                                <a href="https://waggies.test/services/transport"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">local_shipping</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Local Transport
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Door-to-door pickup</p>
+            </div>
+</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            
+            <li class="relative overflow-visible"
+                @mouseenter="scheduleOpen('about')"
+                @mouseleave="scheduleClose('about')">
+                <button type="button"
+                        :aria-expanded="(activeMenu === 'about').toString()"
+                        aria-haspopup="true"
+                        @click.prevent="togglePin('about')"
+                        class="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-wide rounded-lg transition-colors
+                               text-primary-dark/60 hover:text-primary hover:bg-surface-purple"
+                        >
+                    About
+                    <span class="material-symbols-outlined text-sm transition-transform duration-200"
+                          :class="{ 'rotate-180': activeMenu === 'about' }">expand_more</span>
+                </button>
+                <div x-ref="aboutPanel"
+                     x-show="activeMenu === 'about'"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 -translate-y-1"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-100"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-1"
+                     class="nav-dropdown nav-dropdown--stacked absolute top-full mt-1 left-1/2 -translate-x-1/2"
+                     role="menu"
+                     aria-label="About menu"
+                     style="display: none">
+                    <div class="bg-gradient-to-r from-primary-dark to-primary px-5 py-2.5">
+                        <p class="text-white/80 text-xs font-bold uppercase tracking-widest">About Waggies</p>
+                    </div>
+                    <div class="p-3 flex flex-col gap-0.5">
+                        <a href="https://waggies.test/about"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">info</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            About Us
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Our story and mission</p>
+            </div>
+</a>
+                        <a href="https://waggies.test/about/testimonials"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">reviews</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Testimonials
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">What pet owners say</p>
+            </div>
+</a>
+                        <a href="https://waggies.test/about/gallery"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">photo_library</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Gallery
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Moments at Waggies</p>
+            </div>
+</a>
+                        <a href="https://waggies.test/about/careers"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">work</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Careers
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Join our team</p>
+            </div>
+</a>
+                        <a href="https://waggies.test/about/partnerships"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">handshake</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Partnerships
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Grow with us</p>
+            </div>
+</a>
+                    </div>
+                </div>
+            </li>
+
+            
+            <li class="relative overflow-visible"
+                @mouseenter="scheduleOpen('resources')"
+                @mouseleave="scheduleClose('resources')">
+                <button type="button"
+                        :aria-expanded="(activeMenu === 'resources').toString()"
+                        aria-haspopup="true"
+                        @click.prevent="togglePin('resources')"
+                        class="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-wide rounded-lg transition-colors
+                               text-primary font-semibold bg-surface-purple"
+                         aria-current="page" >
+                    Resources
+                    <span class="material-symbols-outlined text-sm transition-transform duration-200"
+                          :class="{ 'rotate-180': activeMenu === 'resources' }">expand_more</span>
+                </button>
+                <div x-ref="resourcesPanel"
+                     x-show="activeMenu === 'resources'"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 -translate-y-1"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-100"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-1"
+                     class="nav-dropdown nav-dropdown--stacked absolute top-full right-0 mt-1"
+                     role="menu"
+                     aria-label="Resources menu"
+                     style="display: none">
+                    <div class="bg-gradient-to-r from-primary-dark to-primary px-5 py-2.5">
+                        <p class="text-white/80 text-xs font-bold uppercase tracking-widest">Resources</p>
+                    </div>
+                    <div class="p-3 flex flex-col gap-0.5">
+                        <a href="https://waggies.test/blog"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">article</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Blog
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Tips, news &amp;amp; stories</p>
+            </div>
+</a>
+                        <a href="https://waggies.test/guides"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">menu_book</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Guides
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">In-depth how-to guides</p>
+            </div>
+</a>
+                        <a href="https://waggies.test/knowledge-base"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">help_center</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            Knowledge Base
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Answers to common questions</p>
+            </div>
+</a>
+                        <a href="https://waggies.test/faq"
+    role="menuitem" tabindex="-1"    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-purple transition-colors group">
+    <div class="w-8 h-8 rounded-lg bg-surface-purple group-hover:bg-primary group-hover:text-white
+                flex items-center justify-center text-primary transition-colors shrink-0">
+        <span class="material-symbols-outlined text-base">quiz</span>
+    </div>
+    <div>
+        <p class="text-sm font-semibold text-primary-dark group-hover:text-primary transition-colors leading-snug">
+            FAQ
+        </p>
+                    <p class="text-xs text-primary-dark/50 leading-snug mt-0.5">Quick answers</p>
+            </div>
+</a>
+                    </div>
+                </div>
+            </li>
+
+            
+            <li>
+                <a href="https://waggies.test/shop"
+                   class="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-wide rounded-lg transition-colors
+                          text-primary-dark/60 hover:text-primary hover:bg-surface-purple"
+                   >
+                    Shop
+                </a>
+            </li>
+
+        </ul>
+
+        
+        <div class="flex items-center gap-3">
+            <a href="https://waggies.test/contact"
+               class="hidden lg:flex items-center gap-2 bg-primary hover:bg-primary-dark text-white
+                      px-6 py-2.5 rounded-full text-sm font-semibold transition shadow-glow hover:-translate-y-1
+                      focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2">
+                Get a Quote
+                <span class="material-symbols-outlined text-base" aria-hidden="true">arrow_forward</span>
+            </a>
+
+            <button type="button"
+                    @click="mobileOpen = !mobileOpen"
+                    :aria-expanded="mobileOpen.toString()"
+                    :aria-label="mobileOpen ? 'Close navigation menu' : 'Open navigation menu'"
+                    aria-controls="mobile-menu"
+                    class="lg:hidden flex flex-col gap-[5px] p-2 rounded-lg hover:bg-surface-purple transition-colors">
+                <span :class="{ 'translate-y-[7px] rotate-45': mobileOpen }"
+                      class="block w-5 h-0.5 bg-primary-dark rounded-full transition-all duration-300 origin-center"
+                      aria-hidden="true"></span>
+                <span :class="{ 'opacity-0': mobileOpen }"
+                      class="block w-5 h-0.5 bg-primary-dark rounded-full transition-all duration-300"
+                      aria-hidden="true"></span>
+                <span :class="{ '-translate-y-[7px] -rotate-45': mobileOpen }"
+                      class="block w-5 h-0.5 bg-primary-dark rounded-full transition-all duration-300 origin-center"
+                      aria-hidden="true"></span>
+            </button>
+        </div>
+
+    </nav>
+</header>
+
+
+<div class="fixed inset-0 bg-primary-dark/40 backdrop-blur-sm z-40 lg:hidden"
+     x-show="mobileOpen"
+     x-transition:enter="transition duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     @click="mobileOpen = false"
+     aria-hidden="true"
+     style="display: none">
+</div>
+
+
+<aside id="mobile-menu"
+       role="navigation"
+       aria-label="Main navigation"
+       x-trap="mobileOpen"
+       @click.outside="mobileOpen = false"
+       class="fixed top-0 right-0 h-full w-80 max-w-[90vw] bg-white z-50 shadow-2xl flex flex-col lg:hidden"
+       x-show="mobileOpen"
+       x-transition:enter="transition-transform duration-300 ease-out"
+       x-transition:enter-start="translate-x-full"
+       x-transition:enter-end="translate-x-0"
+       x-transition:leave="transition-transform duration-200 ease-in"
+       x-transition:leave-start="translate-x-0"
+       x-transition:leave-end="translate-x-full"
+       :aria-hidden="(!mobileOpen).toString()"
+       style="display: none">
+
+    <div class="flex items-center justify-between px-5 py-4 border-b border-surface-purple">
+        <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-white text-base icon-filled" aria-hidden="true">pets</span>
+            </div>
+            <span class="font-serif text-lg font-bold text-primary-dark">Waggies</span>
+        </div>
+        <button @click="mobileOpen = false"
+                type="button"
+                aria-label="Close navigation menu"
+                class="p-2 rounded-lg hover:bg-surface-purple transition-colors">
+            <span class="material-symbols-outlined text-primary-dark" aria-hidden="true">close</span>
+        </button>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-1" aria-label="Mobile navigation links">
+
+        
+        <div>
+            <button type="button"
+                    @click="servicesOpen = !servicesOpen"
+                    :aria-expanded="servicesOpen.toString()"
+                    aria-controls="mobile-services-submenu"
+                    class="w-full flex items-center justify-between px-3 py-3 text-sm font-semibold
+                           text-primary-dark hover:bg-surface-purple rounded-xl transition-colors">
+                Services
+                <span :class="{ 'rotate-180': servicesOpen }"
+                      class="material-symbols-outlined text-sm transition-transform duration-200"
+                      aria-hidden="true">expand_more</span>
+            </button>
+            <div id="mobile-services-submenu"
+                 x-show="servicesOpen"
+                 x-transition:enter="transition duration-200 ease-out"
+                 x-transition:enter-start="opacity-0 -translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition duration-150 ease-in"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-1"
+                 class="pl-3 pb-1"
+                 style="display: none">
+                <div  role="group" aria-label="Boarding"  class="py-2 first:pt-0">
+            <p class="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-primary/60">Boarding</p>
+        <div class="flex flex-col gap-0.5">
+        <a href="https://waggies.test/services/boarding"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Luxury Boarding
+</a>
+                    <a href="https://waggies.test/services/boarding/dogs"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Dog Boarding
+</a>
+                    <a href="https://waggies.test/services/boarding/cats"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Cat Boarding
+</a>
+                    <a href="https://waggies.test/services/boarding/exotic"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Exotic Pet Boarding
+</a>
+    </div>
+</div>
+                <div  role="group" aria-label="Wellness"  class="py-2 first:pt-0">
+            <p class="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-primary/60">Wellness</p>
+        <div class="flex flex-col gap-0.5">
+        <a href="https://waggies.test/services/grooming"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Grooming Spa
+</a>
+                    <a href="https://waggies.test/services/vet-care"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Vet Care
+</a>
+                    <a href="https://waggies.test/services/training"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Dog Training
+</a>
+    </div>
+</div>
+                <div  role="group" aria-label="Relocation"  class="py-2 first:pt-0">
+            <p class="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-primary/60">Relocation</p>
+        <div class="flex flex-col gap-0.5">
+        <a href="https://waggies.test/relocation"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Relocation
+</a>
+                    <a href="https://waggies.test/relocation/import"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Pet Import
+</a>
+                    <a href="https://waggies.test/relocation/export"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Pet Export
+</a>
+                    <a href="https://waggies.test/relocation/checklist"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Doc Checklist Generator
+</a>
+                    <a href="https://waggies.test/services/transport"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Local Transport
+</a>
+    </div>
+</div>
+            </div>
+        </div>
+
+        
+        <div>
+            <button type="button"
+                    @click="aboutOpen = !aboutOpen"
+                    :aria-expanded="aboutOpen.toString()"
+                    aria-controls="mobile-about-submenu"
+                    class="w-full flex items-center justify-between px-3 py-3 text-sm font-semibold
+                           text-primary-dark hover:bg-surface-purple rounded-xl transition-colors">
+                About
+                <span :class="{ 'rotate-180': aboutOpen }"
+                      class="material-symbols-outlined text-sm transition-transform duration-200"
+                      aria-hidden="true">expand_more</span>
+            </button>
+            <div id="mobile-about-submenu"
+                 x-show="aboutOpen"
+                 x-transition:enter="transition duration-200 ease-out"
+                 x-transition:enter-start="opacity-0 -translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition duration-150 ease-in"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-1"
+                 class="pl-3 pb-1"
+                 style="display: none">
+                <div  role="group" aria-label="About Waggies"  class="py-2 first:pt-0">
+            <p class="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-primary/60">About Waggies</p>
+        <div class="flex flex-col gap-0.5">
+        <a href="https://waggies.test/about"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    About Us
+</a>
+                    <a href="https://waggies.test/about/testimonials"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Testimonials
+</a>
+                    <a href="https://waggies.test/about/gallery"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Gallery
+</a>
+                    <a href="https://waggies.test/about/careers"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Careers
+</a>
+                    <a href="https://waggies.test/about/partnerships"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Partnerships
+</a>
+    </div>
+</div>
+            </div>
+        </div>
+
+        
+        <div>
+            <button type="button"
+                    @click="resourcesOpen = !resourcesOpen"
+                    :aria-expanded="resourcesOpen.toString()"
+                    aria-controls="mobile-resources-submenu"
+                    class="w-full flex items-center justify-between px-3 py-3 text-sm font-semibold
+                           text-primary-dark hover:bg-surface-purple rounded-xl transition-colors">
+                Resources
+                <span :class="{ 'rotate-180': resourcesOpen }"
+                      class="material-symbols-outlined text-sm transition-transform duration-200"
+                      aria-hidden="true">expand_more</span>
+            </button>
+            <div id="mobile-resources-submenu"
+                 x-show="resourcesOpen"
+                 x-transition:enter="transition duration-200 ease-out"
+                 x-transition:enter-start="opacity-0 -translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition duration-150 ease-in"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-1"
+                 class="pl-3"
+                 style="display: none">
+                <div class="flex flex-col gap-0.5 py-1">
+                                            <a href="https://waggies.test/blog"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Blog
+</a>
+                                            <a href="https://waggies.test/guides"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Guides
+</a>
+                                            <a href="https://waggies.test/knowledge-base"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    Knowledge Base
+</a>
+                                            <a href="https://waggies.test/faq"
+   @click="mobileOpen = false"
+   class="flex items-center gap-2 px-3 py-2.5 text-sm text-primary-dark/70 hover:text-primary
+          hover:bg-surface-purple rounded-lg transition-colors">
+    <span class="w-1 h-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true"></span>
+    FAQ
+</a>
+                                    </div>
+            </div>
+        </div>
+
+        <a href="https://waggies.test/shop"
+           @click="mobileOpen = false"
+           class="px-3 py-3 text-sm font-semibold text-primary-dark hover:bg-surface-purple rounded-xl transition-colors block">
+            Shop
+        </a>
+
+    </nav>
+
+    <div class="px-4 py-4 border-t border-surface-purple">
+        <a href="https://waggies.test/contact"
+           @click="mobileOpen = false"
+           class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark
+                  text-white py-3 rounded-full font-semibold transition shadow-glow
+                  focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2">
+            Get a Quote
+            <span class="material-symbols-outlined text-base" aria-hidden="true">arrow_forward</span>
+        </a>
+    </div>
+
+</aside>
+
+</div>
+
+    <main id="main-content" tabindex="-1">
+        <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 py-4 bg-white border-b border-primary/5">
+        <nav aria-label="Breadcrumb">
+        <ol class="flex items-center flex-wrap gap-2 text-xs font-medium text-primary-dark/50">
+            <li>
+                <a href="https://waggies.test"
+                   class="hover:text-primary transition-colors flex items-center gap-1"
+                   aria-label="Home">
+                    <span class="material-symbols-outlined text-sm" aria-hidden="true">home</span>
+                </a>
+            </li>
+
+                            <li class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-xs text-primary-dark/30" aria-hidden="true">chevron_right</span>
+
+                                            <a href="https://waggies.test/blog" class="hover:text-primary transition-colors">
+                            Blog
+                        </a>
+                                    </li>
+                            <li class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-xs text-primary-dark/30" aria-hidden="true">chevron_right</span>
+
+                                            <a href="https://waggies.test/blog/category/relocation" class="hover:text-primary transition-colors">
+                            Relocation
+                        </a>
+                                    </li>
+                            <li class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-xs text-primary-dark/30" aria-hidden="true">chevron_right</span>
+
+                                            <span class="text-primary-dark font-semibold"  aria-current="page" >
+                            Ex mollitia numquam sit quia laudantium
+                        </span>
+                                    </li>
+                    </ol>
+    </nav>
+    </div>
+                <section
+    class="relative flex flex-col bg-cover bg-center justify-end"
+    style="min-height: 420px; background-image: linear-gradient(rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%), url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=1600&amp;auto=format&amp;fit=crop&amp;q=80');"
+    aria-label="Ex mollitia numquam sit quia laudantium"
+    role="img"
+    aria-roledescription="hero"
+>
+    <div class="max-w-7xl mx-auto w-full px-4 md:px-10 lg:px-12 py-12 md:py-16">
+        <div class="relative z-10 max-w-xl animate-fade-in-up">
+
+                            <span
+                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4
+                             bg-white/15 border border-white/25 text-white text-xs font-bold
+                             uppercase tracking-widest backdrop-blur-sm">
+                    <span class="material-symbols-outlined text-sm text-secondary icon-filled"
+                        aria-hidden="true">article</span>
+                    Relocation
+                </span>
+            
+            <h1 class="font-serif text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
+                Ex mollitia numquam sit quia laudantium
+            </h1>
+
+                            <p class="text-white/75 text-base mb-6 leading-relaxed">Praesentium vel et et ut. Ut totam incidunt aut velit. Et est dignissimos eos placeat.</p>
+            
+            
+        </div>
+    </div>
+</section>
+    
+    <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 py-10 md:py-16">
+
+        <div class="flex flex-col lg:flex-row gap-12 xl:gap-16">
+
+            <article class="flex-1 min-w-0">
+                <div class="prose max-w-none">
+                    <article>
+        <p class="text-sm text-primary-dark/40 mb-8">
+            By The Waggies Team
+            · March 4, 2026
+            · 1 min read
+        </p>
+
+        <div class="prose max-w-none">
+    <p>Ad molestias numquam aliquid quidem. Perspiciatis sapiente ut animi quibusdam. Et quos in enim neque animi ab. Voluptatem sed commodi velit quasi nihil nostrum voluptatem. Quibusdam magni consequatur quas distinctio repudiandae.</p>
+<p>Sit quidem id doloremque ad qui inventore voluptas accusamus. Pariatur autem sit est commodi quia. Quis fugiat est ex. Debitis assumenda ratione animi hic ut quia.</p>
+<p>Mollitia rerum id ut itaque officia aut dolore. Quam esse consequuntur iusto voluptatem explicabo omnis. Qui exercitationem ad non rerum ducimus inventore accusamus voluptas.</p>
+<p>Maiores dolores similique nobis molestiae nihil. Modi quos unde laudantium facere sapiente. Voluptatum possimus libero nobis nulla. Veritatis est eligendi nihil et.</p>
+<p>Quam et architecto omnis quo. Ratione molestiae optio illo consequatur ullam minus perspiciatis aliquam. Veniam praesentium non pariatur laudantium magni est quaerat.</p>
+<p>Sapiente itaque omnis eveniet dignissimos. Est facilis et possimus cupiditate. Nihil recusandae exercitationem et assumenda ratione exercitationem.</p>
+
+</div>
+    </article>
+                </div>
+            </article>
+
+                            <aside class="w-full lg:w-80 xl:w-96 shrink-0 flex flex-col gap-6">
+                    <div class="bg-surface-purple rounded-2xl p-6">
+            <h3 class="font-semibold text-primary-dark mb-3">More Articles</h3>
+                            <ul class="flex flex-col gap-3">
+                                        <li>
+                        <a href="https://waggies.test/blog/eaque-consequatur-quibusdam-mollitia-quia-libero-iusto-quae-qui-rem-6428"
+                           class="text-sm text-primary-dark/70 hover:text-primary transition leading-snug block">
+                            Eaque consequatur quibusdam mollitia quia libero iusto quae qui rem
+                        </a>
+                    </li>
+                                        <li>
+                        <a href="https://waggies.test/blog/doloribus-omnis-aut-enim-qui-6295"
+                           class="text-sm text-primary-dark/70 hover:text-primary transition leading-snug block">
+                            Doloribus omnis aut enim qui
+                        </a>
+                    </li>
+                                        <li>
+                        <a href="https://waggies.test/blog/reiciendis-culpa-aliquam-eum-ea-quas-fuga-occaecati-quasi-doloribus-omnis-337"
+                           class="text-sm text-primary-dark/70 hover:text-primary transition leading-snug block">
+                            Reiciendis culpa aliquam eum ea quas fuga occaecati quasi doloribus omnis
+                        </a>
+                    </li>
+                                    </ul>
+                    </div>
+        <div class="bg-primary rounded-2xl p-6">
+            <h3 class="font-semibold text-white mb-2">Get Care Tips</h3>
+            <p class="text-white/70 text-sm mb-4">Subscribe for expert pet care advice from the Waggies team.</p>
+            <div x-data="{
+    email: '',
+    clientError: '',
+    subscribed: false,
+    isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+    validate() {
+        if (!this.email)                    { this.clientError = 'Please enter your email address.'; return false; }
+        if (!this.isValidEmail(this.email)) { this.clientError = 'Please enter a valid email address.'; return false; }
+        this.clientError = '';
+        return true;
+    },
+}" class="flex flex-col gap-3">
+
+        
+    <div x-show="!subscribed">
+        <form method="POST" action="https://waggies.test/newsletter/subscribe" @submit.prevent="validate() && $el.submit()">
+            <input type="hidden" name="_token" value="rWo3KgEy07dwdYSOP7tL5xYDB8WF1zdFzfQkm1lA" autocomplete="off">            <div class="flex flex-col gap-3">
+                <input type="email"
+                       name="email"
+                       x-model="email"
+                       :class="{ 'border-red-400': clientError || false }"
+                       placeholder="your@email.com"
+                       class="w-full h-12 px-5 rounded-2xl border border-primary/30 bg-white/50
+                              font-medium text-primary-dark placeholder:text-primary-dark/50
+                              focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-primary transition"
+                       aria-label="Email address" />
+
+                <p x-show="clientError" x-text="clientError"
+                   class="text-red-500 text-xs font-medium" role="alert"></p>
+
+                
+                <button type="submit"
+                        class="w-full bg-primary hover:bg-primary-dark text-white py-3 rounded-full
+                               font-semibold transition shadow-glow hover:-translate-y-0.5
+                               focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2">
+                    Subscribe
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div x-show="subscribed"
+         class="flex items-center gap-2 text-green-600 text-sm font-semibold py-1"
+         style="display:none">
+        <span class="material-symbols-outlined text-base icon-filled" aria-hidden="true">check_circle</span>
+        <span>You're subscribed — welcome to the pack!</span>
+    </div>
+
+</div>
+        </div>
+                </aside>
+            
+        </div>
+    </div>
+    </main>
+
+    <footer class="bg-primary-dark border-t border-white/10">
+  <div class="mx-auto max-w-7xl px-6 pt-16 pb-8 sm:pt-24 lg:px-8 lg:pt-32">
+
+    <div class="xl:grid xl:grid-cols-3 xl:gap-8">
+
+      
+      <div class="space-y-8">
+        <a href="https://waggies.test" class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-glow">
+            <span class="material-symbols-outlined text-white icon-filled">pets</span>
+          </div>
+          <span class="font-serif font-bold text-white text-xl">Waggies</span>
+        </a>
+
+        <p class="text-sm text-white/70 max-w-xs">
+          Abuja's most trusted luxury pet care and relocation specialists. Where every pet is family.
+        </p>
+
+        <div class="flex gap-x-4">
+
+          
+          <a href="#" class="w-10 h-10 rounded-full bg-white/10 border border-white/10 text-white/70 hover:bg-primary hover:text-white hover:border-primary transition-colors flex items-center justify-center">
+            <span class="sr-only">Instagram</span>
+            <svg class="size-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+            </svg>
+          </a>
+
+          
+          
+          <a href="#" class="w-10 h-10 rounded-full bg-white/10 border border-white/10 text-white/70 hover:bg-primary hover:text-white hover:border-primary transition-colors flex items-center justify-center">
+            <span class="sr-only">Facebook</span>
+            <svg class="size-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.62 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
+                          </svg>
+          </a>
+
+          
+          <a href="#" class="w-10 h-10 rounded-full bg-white/10 border border-white/10 text-white/70 hover:bg-primary hover:text-white hover:border-primary transition-colors flex items-center justify-center">
+            <span class="sr-only">TikTok</span>
+            <svg class="size-5" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M16.656 1.029c1.637-0.025 3.262-0.012 4.886-0.025 0.054 2.031 0.878 3.859 2.189 5.213l-0.002-0.002c1.411 1.271 3.247 2.095 5.271 2.235l0.028 0.002v5.036c-1.912-0.048-3.71-0.489-5.331-1.247l0.082 0.034c-0.784-0.377-1.447-0.764-2.077-1.196l0.052 0.034c-0.012 3.649 0.012 7.298-0.025 10.934-0.103 1.853-0.719 3.543-1.707 4.954l0.020-0.031c-1.652 2.366-4.328 3.919-7.371 4.011l-0.014 0c-0.123 0.006-0.268 0.009-0.414 0.009-1.73 0-3.347-0.482-4.725-1.319l0.040 0.023c-2.508-1.509-4.238-4.091-4.558-7.094l-0.004-0.041c-0.025-0.625-0.037-1.25-0.012-1.862 0.49-4.779 4.494-8.476 9.361-8.476 0.547 0 1.083 0.047 1.604 0.136l-0.056-0.008c0.025 1.849-0.050 3.699-0.050 5.548-0.423-0.153-0.911-0.242-1.42-0.242-1.868 0-3.457 1.194-4.045 2.861l-0.009 0.030c-0.133 0.427-0.21 0.918-0.21 1.426 0 0.206 0.013 0.41 0.037 0.61l-0.002-0.024c0.332 2.046 2.086 3.59 4.201 3.59 0.061 0 0.121-0.001 0.181-0.004l-0.009 0c1.463-0.044 2.733-0.831 3.451-1.994l0.010-0.018c0.267-0.372 0.45-0.822 0.511-1.311l0.001-0.014c0.125-2.237 0.075-4.461 0.087-6.698 0.012-5.036-0.012-10.060 0.025-15.083z" />
+            </svg>
+          </a>
+
+          
+          <a href="#" class="w-10 h-10 rounded-full bg-white/10 border border-white/10 text-white/70 hover:bg-primary hover:text-white hover:border-primary transition-colors flex items-center justify-center">
+            <span class="sr-only">X</span>
+            <svg class="size-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M13.6823 10.6218L20.2391 3H18.6854L12.9921 9.61788L8.44486 3H3.2002L10.0765 13.0074L3.2002 21H4.75404L10.7663 14.0113L15.5685 21H20.8131L13.6819 10.6218H13.6823ZM11.5541 13.0956L10.8574 12.0991L5.31391 4.16971H7.70053L12.1742 10.5689L12.8709 11.5655L18.6861 19.8835H16.2995L11.5541 13.096V13.0956Z" />
+            </svg>
+          </a>
+
+          
+          <a href="#" class="w-10 h-10 rounded-full bg-white/10 border border-white/10 text-white/70 hover:bg-primary hover:text-white hover:border-primary transition-colors flex items-center justify-center">
+            <span class="sr-only">YouTube</span>
+            <svg class="size-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" />
+            </svg>
+          </a>
+
+        </div>
+      </div>
+
+      
+      <div class="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
+
+        <div class="md:grid md:grid-cols-2 md:gap-8">
+
+          
+          <div>
+            <h3 class="font-bold text-secondary text-sm uppercase tracking-widest mb-5">Services</h3>
+            <ul class="mt-6 space-y-4">
+                              <li>
+                  <a href="https://waggies.test/services/boarding" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                    <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                    Pet Boarding
+                  </a>
+                </li>
+                              <li>
+                  <a href="https://waggies.test/relocation" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                    <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                    Pet Relocation
+                  </a>
+                </li>
+                              <li>
+                  <a href="https://waggies.test/services/vet-care" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                    <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                    Vet Services
+                  </a>
+                </li>
+                              <li>
+                  <a href="https://waggies.test/services/grooming" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                    <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                    Grooming Spa
+                  </a>
+                </li>
+                              <li>
+                  <a href="https://waggies.test/services/training" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                    <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                    Dog Training
+                  </a>
+                </li>
+                              <li>
+                  <a href="https://waggies.test/services/pricing" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                    <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                    Pricing / Estimate Tool
+                  </a>
+                </li>
+                          </ul>
+          </div>
+
+          
+          <div class="mt-10 md:mt-0">
+            <h3 class="font-bold text-secondary text-sm uppercase tracking-widest mb-5">Company</h3>
+            <ul class="mt-6 space-y-4">
+                              <li>
+                  <a href="https://waggies.test/about" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                    <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                    About Us
+                  </a>
+                </li>
+                              <li>
+                  <a href="https://waggies.test/about/partnerships" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                    <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                    Partnerships
+                  </a>
+                </li>
+                              <li>
+                  <a href="https://waggies.test/about/gallery" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                    <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                    Gallery
+                  </a>
+                </li>
+                              <li>
+                  <a href="https://waggies.test/blog" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                    <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                    Blog
+                  </a>
+                </li>
+                              <li>
+                  <a href="https://waggies.test/guides" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                    <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                    Guides
+                  </a>
+                </li>
+                              <li>
+                  <a href="https://waggies.test/about/careers" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                    <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                    Careers
+                  </a>
+                </li>
+                          </ul>
+          </div>
+
+        </div>
+
+        <div class="md:grid md:grid-cols-2 md:gap-8">
+
+          
+          <div>
+            <h3 class="font-bold text-secondary text-sm uppercase tracking-widest mb-5">Support</h3>
+            <ul class="mt-6 space-y-4">
+              <li>
+                <a href="https://waggies.test/faq" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                  <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                  FAQ
+                </a>
+              </li>
+              <li>
+                <a href="https://waggies.test/contact" class="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors">
+                  <span class="w-1.5 h-1.5 bg-primary-light/80 rounded-full"></span>
+                  Contact Us
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          
+          <div class="mt-10 md:mt-0">
+            <h3 class="font-bold text-secondary text-sm uppercase tracking-widest mb-5">Legal</h3>
+            <ul class="mt-6 space-y-4">
+              <li>
+                <a href="https://waggies.test/privacy-policy" class="text-sm text-white/60 hover:text-white transition-colors">Privacy Policy</a>
+              </li>
+              <li>
+                <a href="https://waggies.test/terms-of-service" class="text-sm text-white/60 hover:text-white transition-colors">Terms of Service</a>
+              </li>
+              <li>
+                <a href="https://waggies.test/cookies-policy" class="text-sm text-white/60 hover:text-white transition-colors">Cookies</a>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  
+  <div class="border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p class="text-sm/6 text-white/50">&copy; 2026 Waggies Pet Services. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+    <div class="fixed bottom-16 right-6 z-40">
+    <div class="relative group">
+        <a href="https://wa.me/2348000000000"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Chat on WhatsApp"
+           class="w-14 h-14 bg-whatsapp rounded-full shadow-2xl flex items-center justify-center text-white
+                  transition-all duration-200 hover:scale-110 hover:-translate-y-0.5
+                  hover:bg-whatsapp-hover hover:ring-4 hover:ring-white block">
+            <svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 32 32"
+     class="w-6 h-6 fill-current"
+     aria-hidden="true">
+    <path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732 0.737 5.291 2.022 7.491l-0.038-0.070-2.109 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h0.006c8.209-0.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507l0 0zM16.062 28.228h-0.005c-0 0-0.001 0-0.001 0-2.319 0-4.489-0.64-6.342-1.753l0.056 0.031-0.451-0.267-4.675 1.227 1.247-4.559-0.294-0.467c-1.185-1.862-1.889-4.131-1.889-6.565 0-6.822 5.531-12.353 12.353-12.353s12.353 5.531 12.353 12.353c0 6.822-5.53 12.353-12.353 12.353h-0zM22.838 18.977c-0.371-0.186-2.197-1.083-2.537-1.208-0.341-0.124-0.589-0.185-0.837 0.187-0.246 0.371-0.958 1.207-1.175 1.455-0.216 0.249-0.434 0.279-0.805 0.094-1.15-0.466-2.138-1.087-2.997-1.852l0.010 0.009c-0.799-0.74-1.484-1.587-2.037-2.521l-0.028-0.052c-0.216-0.371-0.023-0.572 0.162-0.757 0.167-0.166 0.372-0.434 0.557-0.65 0.146-0.179 0.271-0.384 0.366-0.604l0.006-0.017c0.043-0.087 0.068-0.188 0.068-0.296 0-0.131-0.037-0.253-0.101-0.357l0.002 0.003c-0.094-0.186-0.836-2.014-1.145-2.758-0.302-0.724-0.609-0.625-0.836-0.637-0.216-0.010-0.464-0.012-0.712-0.012-0.395 0.010-0.746 0.188-0.988 0.463l-0.001 0.002c-0.802 0.761-1.3 1.834-1.3 3.023 0 0.026 0 0.053 0.001 0.079l-0-0.004c0.131 1.467 0.681 2.784 1.527 3.857l-0.012-0.015c1.604 2.379 3.742 4.282 6.251 5.564l0.094 0.043c0.548 0.248 1.25 0.513 1.968 0.74l0.149 0.041c0.442 0.14 0.951 0.221 1.479 0.221 0.303 0 0.601-0.027 0.889-0.078l-0.031 0.004c1.069-0.223 1.956-0.868 2.497-1.749l0.009-0.017c0.165-0.366 0.261-0.793 0.261-1.242 0-0.185-0.016-0.366-0.047-0.542l0.003 0.019c-0.092-0.155-0.34-0.247-0.712-0.434z"/>
+</svg>
+        </a>
+        <div class="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+            <div class="bg-primary-dark text-white text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap shadow-soft">
+                Chat on WhatsApp
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div
+    x-data="{
+        show: false,
+        init() {
+            if (!localStorage.getItem('waggies-cookies')) {
+                setTimeout(() => this.show = true, 50);
+            }
+        },
+        accept(type) {
+            localStorage.setItem('waggies-cookies', type);
+            this.show = false;
+        },
+    }"
+    x-show="show"
+    x-transition:enter="transition duration-500 ease-out"
+    x-transition:enter-start="translate-y-full"
+    x-transition:enter-end="translate-y-0"
+    x-transition:leave="transition duration-300 ease-in"
+    x-transition:leave-start="translate-y-0"
+    x-transition:leave-end="translate-y-full"
+    class="fixed bottom-0 left-0 right-0 z-[9998] px-4 py-3 md:px-8 md:py-4"
+    style="display:none"
+>
+    <div class="max-w-5xl mx-auto bg-primary-dark rounded-2xl shadow-2xl px-6 py-4
+                flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div class="flex items-start gap-3 flex-1">
+            <span class="material-symbols-outlined text-secondary text-2xl shrink-0 mt-0.5">cookie</span>
+            <p class="text-white/80 text-sm leading-relaxed">
+                We use cookies to personalise content, improve your experience, and analyse our traffic.
+                <a href="https://waggies.test/cookies-policy" class="text-secondary underline hover:text-secondary-hover transition-colors">Learn more</a>
+            </p>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+            <button @click="accept('essential')"
+                    class="border border-white/30 text-white px-4 py-2 rounded-full text-xs font-semibold
+                           hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">
+                Essential only
+            </button>
+            <button @click="accept('all')"
+                    class="bg-secondary text-primary-dark px-4 py-2 rounded-full text-xs font-semibold
+                           hover:bg-secondary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-secondary/60">
+                Accept All
+            </button>
+        </div>
+    </div>
+</div>
+
+    
+</body>
+</html>

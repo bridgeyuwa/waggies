@@ -292,4 +292,7 @@ details[open] summary ~ *                 { animation: wag-sweep 0.2s ease-in-ou
     100% { opacity: 1; transform: translateY(0); }
 }
 
+[x-cloak] {
+    display: none !important;
+}
 
