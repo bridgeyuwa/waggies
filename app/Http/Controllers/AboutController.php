@@ -57,8 +57,8 @@ final class AboutController extends Controller
                 ],
             ],
             'mosaicImages' => [
-                ['src' => 'https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?w=600&h=400&fit=crop&q=80', 'alt' => 'Veterinarian examining a dog in a clinic [stock photo — replace with Waggies clinic interior]', 'offset' => true],
-                ['src' => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=600&h=400&fit=crop&q=80', 'alt' => 'Dog being groomed at a spa [stock photo — replace with Waggies grooming session]'],
+                ['src' => 'https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?w=600&h=400&fit=crop&q=80', 'alt' => 'Veterinarian examining a dog in a clinic', 'offset' => true],
+                ['src' => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=600&h=400&fit=crop&q=80', 'alt' => 'Dog being groomed at a spa'],
             ],
             'story' => [
                 'title' => 'Built by Pet Lovers,<br />for Pet Owners',

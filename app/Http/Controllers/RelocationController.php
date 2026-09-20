@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\View\View;
+use Spatie\SchemaOrg\Contracts\ThingContract;
 use Spatie\SchemaOrg\Schema;
 
 final class RelocationController extends Controller
@@ -38,7 +39,9 @@ final class RelocationController extends Controller
     {
         $page = config('waggies_relocation.transport');
         $metadata = ['title' => $page['metaTitle'].' - Waggies', 'description' => $page['description'], 'canonical' => route('relocation.transport'), 'ogTitle' => $page['ogTitle'], 'ogDescription' => $page['description']];
-        $faqSchema = array_map(static fn (array $faq): array => ['@type' => 'Question', 'name' => $faq['question'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq['answer']]], $this->faqs('transport'));
+        $faqSchema = array_map(static fn (array $faq): ThingContract => Schema::question()
+            ->name($faq['question'])
+            ->acceptedAnswer(Schema::answer()->text($faq['answer'])), $this->faqs('transport'));
         $this->setPageHead($metadata, [$this->serviceSchema($page['ogTitle'], $metadata), Schema::faqPage()->mainEntity($faqSchema)->toArray()]);
 
         return view('pages.relocation.transport', $metadata + [
@@ -81,7 +84,7 @@ final class RelocationController extends Controller
         $faqs = array_values(array_filter(
             config('waggies_faqs'),
             static fn (array $faq): bool => $faq['category'] === $category
-                && ($category === 'transport' || $subcategory === null || ($faq['subcategory'] ?? null) === null || ($faq['subcategory'] ?? null) === $subcategory),
+                && ($category === 'transport' || $subcategory === null || ! isset($faq['subcategory']) || $faq['subcategory'] === $subcategory),
         ));
 
         usort($faqs, static function (array $left, array $right) use ($category): int {

@@ -1,13 +1,13 @@
 ---
 paths:
-  - app/**
-  - bootstrap/**
-  - config/**
-  - database/**
-  - resources/**
-  - routes/**
-  - tests/**
-  - public/**
+  - 'app/**'
+  - 'bootstrap/**'
+  - 'config/**'
+  - 'database/**'
+  - 'resources/**'
+  - 'routes/**'
+  - 'tests/**'
+  - 'public/**'
   - composer.json
   - package.json
 ---
@@ -743,3 +743,9 @@ The package ecosystem is a **search space, not a whitelist**.
 The current package list is an architectural baseline, **not a closed catalogue**.
 
 Waggies should continuously prefer the best appropriate solution available at the time a requirement is implemented, while avoiding unnecessary dependency churn and preserving clear domain ownership.
+
+## Post-conversion Laravel source of truth
+After the conversion gate has passed, the current standalone Laravel implementation is the sole normative source for Waggies development. Historical implementations are archival and may only be consulted for explicit investigation of a known legacy behavior; they do not set current components, layout, spacing, architecture, naming, interactions, markup, or visual composition.
+
+## Audit before consolidation
+Standardize genuine semantic and behavioral responsibilities, but do not consolidate merely because implementations look similar. Before merging or abstracting, establish responsibility, usage, variation, dependencies, edge cases, and API requirements; then choose a shared implementation, deliberate variant, primitive/composition, or separate implementation. Avoid mega-components and boolean-branch-heavy abstractions.

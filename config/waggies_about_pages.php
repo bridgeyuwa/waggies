@@ -8,7 +8,7 @@ return [
             'title' => 'Trusted by Pet Owners<br />Across Abuja',
             'subtitle' => 'Read what clients share about their Waggies experience.',
             'imageSrc' => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=400&fit=crop&q=80',
-            'imageAlt' => 'Dog at a Waggies boarding suite (stock photo — replace with verified client photo)',
+            'imageAlt' => 'Dog in a boarding suite',
             'primaryCta' => ['label' => 'Book a Stay', 'route' => 'services.boarding'],
             'secondaryCta' => ['label' => 'Contact Us', 'route' => 'contact'],
         ],
@@ -81,7 +81,7 @@ return [
     'careers' => [
         'hero' => [
             'imageSrc' => 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=1200&h=600&fit=crop&q=80',
-            'imageAlt' => 'Stock photo of a diverse team (client photo required)',
+            'imageAlt' => 'A diverse pet-care team',
             'eyebrow' => 'Careers',
             'title' => 'Join the Waggies Pack',
             'subtitle' => "Build a career doing what you love — caring for pets in Abuja's premier pet care facility.",

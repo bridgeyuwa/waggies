@@ -7,6 +7,9 @@ parameters:
     paths:
         - app/
 
+    parallel:
+        maximumNumberOfProcesses: 1
+
     # Level 10 is the highest level
     level: 5
 

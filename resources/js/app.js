@@ -376,7 +376,20 @@ const waggiesRecentlyViewed = (currentProductId, products) => ({
     isVisible(id) { return this.visibleIds.includes(id); },
     hasVisible() { return this.visibleIds.length > 0; },
 });
-const waggiesToasts = () => ({ items: [], listen() { window.addEventListener('waggies:toast', event => this.add(event.detail)); }, add(message) { const id = Date.now(); this.items.push({ id, message }); setTimeout(() => this.items = this.items.filter(item => item.id !== id), 4500); } });
+const waggiesToasts = () => ({
+    items: [],
+    init() {
+        this.listen();
+    },
+    listen() {
+        window.addEventListener('waggies:toast', event => this.add(event.detail));
+    },
+    add(message) {
+        const id = Date.now();
+        this.items.push({ id, message });
+        setTimeout(() => this.items = this.items.filter(item => item.id !== id), 4500);
+    },
+});
 const waggiesShare = (title, description) => ({ copied: false, checkIcon: '<span class="inline-block h-5 w-5 bg-current" style="mask:url(/icons/material-symbols/outlined/check.svg) center/contain no-repeat;-webkit-mask:url(/icons/material-symbols/outlined/check.svg) center/contain no-repeat"></span>', icon(name) { const material = ['link', 'email'].includes(name); const file = name === 'email' ? 'mail' : name; const root = material ? '/icons/material-symbols/outlined/' : '/icons/brands/'; return `<span class="inline-block h-5 w-5 bg-current" style="mask:url(${root}${file}.svg) center/contain no-repeat;-webkit-mask:url(${root}${file}.svg) center/contain no-repeat"></span>`; }, share(type) { const url = window.location.href; if (type === 'link') { navigator.clipboard?.writeText(url).then(() => { this.copied = true; setTimeout(() => this.copied = false, 2000); }); return; } const targets = { whatsapp: `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`, facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, x: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`, linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, email: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(description + '\n\n' + url)}` }; if (targets[type]) window.open(targets[type], '_blank', 'noopener,noreferrer'); } });
 window.waggiesTransportEstimate = (inputs, pricing) => {
     const transport = pricing?.transport || {}, product = transport.products?.[inputs.productId], messages = transport.messages || {}, rules = transport.rules || {}, result = { currency: pricing?.currency || 'NGN', productId: inputs.productId || null, amount: null, missingInputs: [], reason: null, customerMessage: null };
@@ -621,17 +634,54 @@ const galleryLightbox = (images, categories) => ({
     lockScroll() { if (this.lightboxIndex === null) document.body.style.overflow = ''; },
 });
 
-const testimonialForm = () => ({
-    step: 0, submitted: false, errors: {}, services: ['Boarding', 'Grooming', 'Vet Care', 'Training', 'Transport', 'Relocation'], petTypes: ['Dog', 'Cat', 'Bird', 'Rabbit', 'Reptile', 'Other'], data: { rating: 0, service: '', title: '', story: '', authorName: '', authorLocation: '', petName: '', petType: '', photoUrl: undefined, consent: false },
+const testimonialForm = (submitUrl) => ({
+    step: 0, submitted: false, submitting: false, serverError: '', errors: {}, services: ['Boarding', 'Grooming', 'Vet Care', 'Training', 'Transport', 'Relocation'], petTypes: ['Dog', 'Cat', 'Bird', 'Rabbit', 'Reptile', 'Other'], data: { rating: 0, service: '', title: '', story: '', authorName: '', authorLocation: '', petName: '', petType: '', photoUrl: undefined, consent: false },
     get stepIndex() { return this.step; },
     clear(field) { delete this.errors[field]; },
     validateExperience() { const errors = {}; if (!Number.isInteger(this.data.rating) || this.data.rating < 1 || this.data.rating > 5) errors.rating = 'Please select a star rating.'; if (!this.services.includes(this.data.service)) errors.service = this.data.service ? 'Please choose a valid service.' : 'Please select the service you used.'; if (!this.data.title) errors.title = 'Please give your experience a short title.'; else if (this.data.title.length > 80) errors.title = 'Title should be 80 characters or less.'; if (this.data.story.length < 50) errors.story = 'Please share at least 50 characters about your experience.'; else if (this.data.story.length > 2000) errors.story = 'Story should be 2000 characters or less.'; return errors; },
     validateAbout() { const errors = {}; if (this.data.authorName.trim().length < 2) errors.authorName = 'Please enter your name (min 2 characters).'; else if (this.data.authorName.length > 60) errors.authorName = 'Name should be 60 characters or less.'; if (this.data.authorLocation.trim().length < 2) errors.authorLocation = 'Please enter your area (e.g. Maitama, Abuja).'; else if (this.data.authorLocation.length > 80) errors.authorLocation = 'Location should be 80 characters or less.'; if (this.data.petName.length > 60) errors.petName = 'Pet name should be 60 characters or less.'; if (!this.petTypes.includes(this.data.petType)) errors.petType = this.data.petType ? 'Please choose a valid pet type.' : 'Please select your pet type.'; return errors; },
     next() { const errors = this.step === 0 ? this.validateExperience() : this.validateAbout(); this.errors = errors; if (!Object.keys(errors).length) this.step += 1; },
     back() { if (this.step > 0) { this.step -= 1; this.errors = {}; } },
-    photoChange(event) { const file = event.target.files?.[0]; if (!file) return; if (!file.type.startsWith('image/')) { this.errors.photoUrl = 'Please choose an image file.'; return; } if (file.size > 4 * 1024 * 1024) { this.errors.photoUrl = 'Please choose an image under 4 MB.'; return; } const reader = new FileReader(); reader.onload = () => { this.data.photoUrl = typeof reader.result === 'string' ? reader.result : undefined; this.clear('photoUrl'); }; reader.readAsDataURL(file); },
+    photoChange(event) { const file = event.target.files?.[0]; if (!file) return; if (!file.type.startsWith('image/')) { this.errors.photo = 'Please choose an image file.'; return; } if (file.size > 4 * 1024 * 1024) { this.errors.photo = 'Please choose an image under 4 MB.'; return; } const reader = new FileReader(); reader.onload = () => { this.data.photoUrl = typeof reader.result === 'string' ? reader.result : undefined; this.clear('photo'); }; reader.readAsDataURL(file); },
     removePhoto() { this.data.photoUrl = undefined; const input = document.getElementById('testimonial-photo'); if (input) input.value = ''; },
-    submit() { this.errors = this.data.consent ? {} : { consent: 'Please agree to let Waggies use your testimonial.' }; if (Object.keys(this.errors).length) return; this.submitted = true; window.dispatchEvent(new CustomEvent('waggies:toast', { detail: 'Thank you! Your testimonial has been submitted.' })); setTimeout(() => { this.submitted = false; this.step = 0; this.data = { rating: 0, service: '', title: '', story: '', authorName: '', authorLocation: '', petName: '', petType: '', photoUrl: undefined, consent: false }; this.errors = {}; }, 3000); },
+    async submit(event) {
+        this.errors = this.data.consent ? {} : { consent: 'Please agree to let Waggies use your testimonial.' };
+        this.serverError = '';
+        if (Object.keys(this.errors).length) return;
+
+        this.submitting = true;
+
+        try {
+            const response = await fetch(submitUrl, {
+                method: 'POST',
+                body: new FormData(event.target),
+                headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            });
+
+            if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                if (response.status === 422) {
+                    this.errors = Object.fromEntries(Object.entries(payload.errors ?? {}).map(([field, messages]) => [field, messages[0]]));
+                    return;
+                }
+
+                throw new Error('The testimonial could not be submitted. Please try again.');
+            }
+
+            this.submitted = true;
+            window.dispatchEvent(new CustomEvent('waggies:toast', { detail: 'Thank you! Your testimonial has been submitted for review.' }));
+            setTimeout(() => {
+                this.submitted = false;
+                this.step = 0;
+                this.data = { rating: 0, service: '', title: '', story: '', authorName: '', authorLocation: '', petName: '', petType: '', photoUrl: undefined, consent: false };
+                this.errors = {};
+            }, 3000);
+        } catch (error) {
+            this.serverError = error.message;
+        } finally {
+            this.submitting = false;
+        }
+    },
 });
 
 const waggiesGuidesIndex = initialCategory => ({

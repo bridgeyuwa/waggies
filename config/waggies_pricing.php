@@ -2,6 +2,25 @@
 
 return [
     'currency' => 'NGN',
+    'cost_calculator' => [
+        'pet_types' => [
+            'dog' => ['sizes' => ['small', 'medium', 'large'], 'labels' => ['small' => 'Small (0-10kg)', 'medium' => 'Medium (10-25kg)', 'large' => 'Large (25kg+)']],
+            'cat' => ['sizes' => ['small', 'medium'], 'labels' => ['small' => 'Small (0-4kg)', 'medium' => 'Medium (4kg+)']],
+        ],
+        'services' => [
+            'boarding' => ['label' => 'Boarding', 'description' => 'Per night'],
+            'grooming' => ['label' => 'Grooming', 'description' => 'Per session'],
+            'vet' => ['label' => 'Vet Care', 'description' => 'Per visit'],
+            'training' => ['label' => 'Training', 'description' => 'Per session'],
+        ],
+        'rates' => [
+            'boarding' => ['small' => [8000, 12000], 'medium' => [12000, 18000], 'large' => [18000, 28000]],
+            'grooming' => ['small' => [5000, 8000], 'medium' => [8000, 15000], 'large' => [15000, 25000]],
+            'vet' => ['small' => [3000, 8000], 'medium' => [5000, 12000], 'large' => [8000, 20000]],
+            'training' => ['small' => [10000, 15000], 'medium' => [15000, 25000], 'large' => [20000, 35000]],
+        ],
+        'fallback_rate' => [5000, 10000],
+    ],
     'services' => [
         'boarding' => [
             'label' => 'Boarding', 'unit' => '/night', 'quantity_label' => 'Nights', 'min' => 1, 'max' => 30,

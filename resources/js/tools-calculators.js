@@ -66,23 +66,15 @@ const petAgeCalculator = () => ({
     },
 });
 
-const costPetTypes = {
-    dog: { sizes: ['small', 'medium', 'large'], labels: { small: 'Small (0-10kg)', medium: 'Medium (10-25kg)', large: 'Large (25kg+)' } },
-    cat: { sizes: ['small', 'medium'], labels: { small: 'Small (0-4kg)', medium: 'Medium (4kg+)' } },
-};
-
-const costCalculator = () => ({
+const costCalculator = (data) => ({
     petType: 'dog',
     petSize: 'medium',
     service: 'boarding',
     duration: 7,
-    petTypes: costPetTypes,
-    services: {
-        boarding: { label: 'Boarding', description: 'Per night' },
-        grooming: { label: 'Grooming', description: 'Per session' },
-        vet: { label: 'Vet Care', description: 'Per visit' },
-        training: { label: 'Training', description: 'Per session' },
-    },
+    petTypes: data.pet_types,
+    services: data.services,
+    rates: data.rates,
+    fallbackRate: data.fallback_rate,
     validSizes() {
         return this.petTypes[this.petType].sizes;
     },
@@ -93,12 +85,7 @@ const costCalculator = () => ({
         this.petType = type;
     },
     estimate() {
-        const rates = {
-            boarding: { small: [8000, 12000], medium: [12000, 18000], large: [18000, 28000] },
-            grooming: { small: [5000, 8000], medium: [8000, 15000], large: [15000, 25000] },
-            vet: { small: [3000, 8000], medium: [5000, 12000], large: [8000, 20000] },
-            training: { small: [10000, 15000], medium: [15000, 25000], large: [20000, 35000] },
-        }[this.service][this.effectiveSize()] ?? [5000, 10000];
+        const rates = this.rates[this.service]?.[this.effectiveSize()] ?? this.fallbackRate;
         const multiplier = this.service === 'grooming' || this.service === 'vet' ? 1 : Number(this.duration);
         return { min: rates[0] * multiplier, max: rates[1] * multiplier };
     },

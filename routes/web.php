@@ -15,6 +15,7 @@ use App\Http\Controllers\RelocationController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\ToolsController;
 use App\Support\PublicUrlCatalog;
 use Illuminate\Support\Facades\Route;
@@ -71,6 +72,7 @@ Route::controller(ToolsController::class)->group(function (): void {
     Route::get('/tools/new-pet-checklist', 'newPetChecklist')->name('tools.new-pet-checklist');
 });
 Route::post('/api/newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');
+Route::post('/api/testimonials', [TestimonialController::class, 'store'])->name('testimonials.store');
 Route::get('/api/search', SearchController::class)->name('search');
 Route::get('/sitemap.xml', fn (): Sitemap => Sitemap::create()->add((new PublicUrlCatalog)->urls()))->name('sitemap');
 Route::get('/robots.txt', function () {

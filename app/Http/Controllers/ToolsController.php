@@ -47,7 +47,9 @@ final class ToolsController extends Controller
 
     public function cost(): View
     {
-        return view('pages.tools.cost-calculator', $this->meta('Cost Calculator', "Estimate costs for Waggies pet services including boarding, grooming, vet care, and training. Get a quick price range for your pet's needs.", 'Cost Calculator - Waggies', 'Estimate costs for Waggies pet services.'));
+        return view('pages.tools.cost-calculator', $this->meta('Cost Calculator', "Estimate costs for Waggies pet services including boarding, grooming, vet care, and training. Get a quick price range for your pet's needs.", 'Cost Calculator - Waggies', 'Estimate costs for Waggies pet services.') + [
+            'costCalculator' => config('waggies_pricing.cost_calculator'),
+        ]);
     }
 
     public function nutrition(): View

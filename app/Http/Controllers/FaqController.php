@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Spatie\SchemaOrg\Contracts\ThingContract;
 use Spatie\SchemaOrg\Schema;
 
 final class FaqController extends Controller
@@ -40,11 +41,9 @@ final class FaqController extends Controller
             'ogDescription' => $meta['description'],
             'robots' => $category === null || $isPublishedCategory ? ['index', 'follow'] : ['noindex', 'follow'],
         ];
-        $faqSchema = array_map(static fn (array $faq): array => [
-            '@type' => 'Question',
-            'name' => $faq['question'],
-            'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq['answer']],
-        ], $faqs);
+        $faqSchema = array_map(static fn (array $faq): ThingContract => Schema::question()
+            ->name($faq['question'])
+            ->acceptedAnswer(Schema::answer()->text($faq['answer'])), $faqs);
         $this->setPageHead($metadata, [
             Schema::faqPage()->mainEntity($faqSchema)->toArray(),
         ]);
