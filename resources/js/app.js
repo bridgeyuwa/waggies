@@ -357,9 +357,8 @@ const waggiesProductDetail = (productId, cartItem) => ({
     decrease() { this.quantity = Math.max(1, this.quantity - 1); },
     addToCart() { window.dispatchEvent(new CustomEvent('waggies:add-item', { detail: { ...this.cartItem, quantity: this.quantity } })); },
 });
-const waggiesRecentlyViewed = (currentProductId, products) => ({
+const waggiesRecentlyViewed = currentProductId => ({
     currentProductId,
-    products,
     visibleIds: [],
     init() {
         this.load();
