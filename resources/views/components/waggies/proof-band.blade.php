@@ -29,10 +29,10 @@
         <div class="mx-auto mb-14 max-w-2xl text-center"><span class="text-eyebrow mb-2 block">PROVEN CARE OUTCOMES</span><h2 class="text-h2 mb-3">What Pet Owners Experience</h2><p class="text-body-sm text-primary-dark/70">Real feedback from pet owners across Abuja who count on Waggies for boarding, grooming, and relocation.</p></div>
         <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
             @foreach ($testimonials as $testimonial)
-                <div class="w-card flex flex-col justify-between rounded-2xl border border-primary/10 bg-white p-7 transition-shadow hover:shadow-md">
+                <x-waggies.card hover class="flex flex-col justify-between border border-primary/10 bg-white p-7">
                     <div><div class="mb-4 flex items-center justify-between gap-2 border-b border-primary/5 pb-3"><span class="text-xs font-bold uppercase tracking-wider text-primary">{{ $testimonial['serviceName'] }}</span><div class="flex gap-0.5" aria-label="5 out of 5 stars">@for($i = 0; $i < 5; $i++)<x-waggies.icon name="star" size="16" variant="filled" class="text-gold" />@endfor</div></div><blockquote class="mb-6 text-sm font-medium leading-relaxed text-primary-dark/85">“{{ $testimonial['quote'] }}”</blockquote></div>
                     <div><div class="mb-4 flex items-center gap-3 border-t border-primary/5 pt-3"><div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 font-serif text-xs font-bold text-primary" aria-hidden="true">{{ $testimonial['initial'] }}</div><div><cite class="not-italic block text-sm font-bold leading-tight text-primary-dark">{{ $testimonial['name'] }}</cite><span class="block text-xs text-primary-dark/50">{{ $testimonial['subtitle'] }}</span></div></div><a href="{{ $testimonial['serviceHref'] }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary transition-colors hover:text-primary-dark">Explore {{ $testimonial['serviceName'] }} <x-waggies.icon name="arrow-forward" size="14" /></a></div>
-                </div>
+                </x-waggies.card>
             @endforeach
         </div>
     </div>
