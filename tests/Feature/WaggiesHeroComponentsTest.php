@@ -1,41 +1,39 @@
 <?php
 
-namespace Tests\Feature;
-
-use Tests\TestCase;
-
-final class WaggiesHeroComponentsTest extends TestCase
-{
-    public function test_cover_hero_preserves_semantic_media_and_action_links(): void
-    {
-        $view = $this->blade(
-            '<x-waggies.cover-hero :hero="$hero"><x-slot:supporting>Trusted care</x-slot:supporting></x-waggies.cover-hero>',
-            [
-                'hero' => [
-                    'eyebrow' => 'Pet Care',
-                    'title' => 'A better stay for your pet',
-                    'description' => 'Personalised care from a trusted team.',
-                    'imageSrc' => 'https://example.test/hero.jpg',
-                    'imageAlt' => 'Dog resting in a Waggies suite',
-                    'primaryAction' => ['label' => 'Book now', 'route' => 'contact'],
+test('cover hero preserves semantic media and action links', function () {
+    $view = $this->blade(
+        '<x-waggies.cover-hero :hero="$hero"><x-slot:supporting>Trusted care</x-slot:supporting></x-waggies.cover-hero>',
+        [
+            'hero' => [
+                'eyebrow' => 'Pet Care',
+                'title' => 'A better stay for your pet',
+                'description' => 'Personalised care from a trusted team.',
+                'imageSrc' => 'https://example.test/hero.jpg',
+                'imageAlt' => 'Dog resting in a Waggies suite',
+                'actions' => [
+                    ['label' => 'Book now', 'route' => 'contact'],
                 ],
             ],
-        );
+        ],
+    );
 
-        $view->assertSee('<img', false);
-        $view->assertSee('alt="Dog resting in a Waggies suite"', false);
-        $view->assertSee('fetchpriority="high"', false);
-        $view->assertSee('Trusted care');
-        $view->assertSee('href="'.route('contact').'"', false);
-    }
+    $view->assertSee('<img', false);
+    $view->assertSee('alt="Dog resting in a Waggies suite"', false);
+    $view->assertSee('fetchpriority="high"', false);
+    $view->assertSee('Trusted care');
+    $view->assertSee('href="'.route('contact').'"', false);
+});
 
-    public function test_page_header_renders_tool_identity_as_part_of_a_standard_page_heading(): void
-    {
-        $view = $this->blade('<x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" eyebrow-icon="calculator" title="Cost Calculator" description="Estimate your pet care costs." />');
+test('page header supports contextual identity and actions without changing its heading semantics', function () {
+    $view = $this->blade(
+        '<x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" eyebrow-icon="calculator" title="Cost Calculator" description="Estimate your pet care costs."><x-slot:supporting>Reviewed by our care team</x-slot:supporting><x-slot:actions><x-waggies.hero-actions :actions="[[\'label\' => \'Start\', \'href\' => \'/start\']]" tone="light" /></x-slot:actions></x-waggies.page-header>',
+    );
 
-        $view->assertSee('<h1', false);
-        $view->assertSee('Cost Calculator');
-        $view->assertSee('Estimate your pet care costs.');
-        $view->assertSee('Pet Care Tool');
-    }
-}
+    $view->assertSee('<h1 id="page-header-title"', false);
+    $view->assertSee('aria-labelledby="page-header-title"', false);
+    $view->assertSee('Cost Calculator');
+    $view->assertSee('Estimate your pet care costs.');
+    $view->assertSee('Pet Care Tool');
+    $view->assertSee('Reviewed by our care team');
+    $view->assertSee('href="/start"', false);
+});

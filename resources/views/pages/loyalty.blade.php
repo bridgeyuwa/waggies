@@ -3,29 +3,25 @@
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Loyalty Programme']]" class="border-b border-primary/5 bg-white" />
 
-    <section class="w-full bg-surface-purple">
-        <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12">
-            <div class="flex flex-col items-center gap-12 py-16 md:py-24 lg:flex-row lg:gap-16">
-                <div class="flex max-w-md flex-1 flex-col gap-6">
-                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-surface-purple bg-white px-4 py-1.5 shadow-sm">
-                        <x-waggies.icon name="star" variant="filled" size="18" class="text-gold" />
-                        <span class="text-xs font-bold text-primary-dark">{{ $page['hero']['rating'] }} · {{ $page['hero']['reviewCount'] }} Reviews</span>
-                        <span class="h-2 w-2 rounded-full bg-primary" aria-hidden="true"></span>
-                    </div>
+    <x-waggies.page-header
+        alignment="left"
+        title-id="loyalty-page-header-title"
+        class="border-0 bg-surface-purple"
+        :title="$page['hero']['title']"
+        :description="$page['hero']['description']"
+    >
+        <x-slot:supporting>
+            <span class="inline-flex items-center gap-2 rounded-full border border-surface-purple bg-white px-4 py-1.5 shadow-sm">
+                <x-waggies.icon name="star" variant="filled" size="18" class="text-gold" />
+                <span class="text-xs font-bold text-primary-dark">{{ $page['hero']['rating'] }} · {{ $page['hero']['reviewCount'] }} Reviews</span>
+                <span class="h-2 w-2 rounded-full bg-primary" aria-hidden="true"></span>
+            </span>
+        </x-slot:supporting>
 
-                    <h1 class="text-balance font-serif text-4xl font-bold leading-tight text-primary-dark md:text-5xl">{!! $page['hero']['title'] !!}</h1>
-                    <p class="text-base leading-relaxed text-primary-dark/60">{{ $page['hero']['subtitle'] }}</p>
-
-                    <div class="ml-1 flex flex-col items-start gap-3">
-                        <a href="{{ route($page['hero']['primaryCta']['route']) }}" class="w-cta w-cta--primary">{{ $page['hero']['primaryCta']['label'] }}</a>
-                        <a href="{{ route($page['hero']['secondaryCta']['route']) }}" class="w-cta w-cta--secondary">{{ $page['hero']['secondaryCta']['label'] }}</a>
-                    </div>
-                </div>
-
-                <div class="w-full max-w-lg flex-1 lg:max-w-none"></div>
-            </div>
-        </div>
-    </section>
+        <x-slot:actions>
+            <x-waggies.hero-actions :actions="$page['hero']['actions']" tone="light" />
+        </x-slot:actions>
+    </x-waggies.page-header>
 
     <section class="bg-white py-20">
         <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12">

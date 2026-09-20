@@ -9,8 +9,10 @@ return [
             'description' => 'Read what clients share about their Waggies experience.',
             'imageSrc' => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=400&fit=crop&q=80',
             'imageAlt' => 'Dog in a boarding suite',
-            'primaryAction' => ['label' => 'Book a Stay', 'route' => 'services.boarding'],
-            'secondaryAction' => ['label' => 'Contact Us', 'route' => 'contact'],
+            'actions' => [
+                ['label' => 'Book a Stay', 'route' => 'services.boarding'],
+                ['label' => 'Contact Us', 'route' => 'contact'],
+            ],
         ],
         'filters' => [
             ['value' => 'all', 'label' => 'All Services'],
@@ -85,7 +87,7 @@ return [
             'eyebrow' => 'Careers',
             'title' => 'Join the Waggies Pack',
             'description' => "Build a career doing what you love — caring for pets in Abuja's premier pet care facility.",
-            'primaryAction' => ['label' => 'View Open Roles', 'href' => '#open-roles'],
+            'actions' => [['label' => 'View Open Roles', 'href' => '#open-roles']],
         ],
         'perksHeading' => ['eyebrow' => 'Why Waggies', 'title' => 'Perks & Benefits', 'subtitle' => 'We invest in our team because our people are the heart of everything we do.'],
         'perks' => [

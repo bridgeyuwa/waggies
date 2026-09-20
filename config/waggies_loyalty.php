@@ -5,9 +5,11 @@ return [
         'rating' => '4.9',
         'reviewCount' => '500+',
         'title' => 'Rewards for Every<br/><span class="text-primary italic">Waggies Visit</span>',
-        'subtitle' => 'Earn points every time you use Waggies. Redeem them for free services, discounts, and exclusive member perks.',
-        'primaryCta' => ['label' => 'Join for Free', 'route' => 'contact'],
-        'secondaryCta' => ['label' => 'View Services', 'route' => 'services.index'],
+        'description' => 'Earn points every time you use Waggies. Redeem them for free services, discounts, and exclusive member perks.',
+        'actions' => [
+            ['label' => 'Join for Free', 'route' => 'contact'],
+            ['label' => 'View Services', 'route' => 'services.index'],
+        ],
     ],
     'howItWorksHeading' => [
         'eyebrow' => 'How It Works',

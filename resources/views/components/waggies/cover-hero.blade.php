@@ -3,6 +3,8 @@
     'titleId' => 'hero-image-title',
     'size' => 'standard',
     'contentPosition' => 'center',
+    'imagePosition' => null,
+    'scrim' => null,
 ])
 
 @php
@@ -11,19 +13,23 @@
         default => 'min-h-[35rem]',
     };
 
-    $contentPositionClasses = $contentPosition === 'bottom'
-        ? 'justify-end'
-        : 'justify-center';
+    $contentPositionClasses = match ($contentPosition) {
+        'bottom' => 'justify-end',
+        default => 'justify-center',
+    };
 
-    $primaryAction = $hero['primaryAction'] ?? null;
-    $secondaryAction = $hero['secondaryAction'] ?? null;
+    $imagePositionClass = match ($imagePosition ?? $hero['imagePosition'] ?? 'center') {
+        'top' => 'object-top',
+        'bottom' => 'object-bottom',
+        'left' => 'object-left',
+        'right' => 'object-right',
+        default => 'object-center',
+    };
 
-    $actionDestination = static function (array $action): string {
-        if (isset($action['route'])) {
-            return route($action['route'], $action['params'] ?? []);
-        }
-
-        return $action['href'];
+    $scrimClass = match ($scrim ?? $hero['scrim'] ?? 'standard') {
+        'light' => 'bg-[linear-gradient(to_bottom,rgba(0,0,0,0.06)_0%,rgba(0,0,0,0.18)_52%,rgba(0,0,0,0.46)_100%)]',
+        'strong' => 'bg-[linear-gradient(to_bottom,rgba(0,0,0,0.16)_0%,rgba(0,0,0,0.42)_52%,rgba(0,0,0,0.82)_100%)]',
+        default => 'bg-[linear-gradient(to_bottom,rgba(0,0,0,0.10)_0%,rgba(0,0,0,0.28)_52%,rgba(0,0,0,0.70)_100%)]',
     };
 @endphp
 
@@ -33,9 +39,9 @@
         :alt="$hero['imageAlt']"
         loading="eager"
         fetch-priority="high"
-        class="absolute inset-0 h-full w-full object-cover"
+        class="absolute inset-0 h-full w-full object-cover {{ $imagePositionClass }}"
     />
-    <div class="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.10)_0%,rgba(0,0,0,0.28)_52%,rgba(0,0,0,0.70)_100%)]" aria-hidden="true"></div>
+    <div class="absolute inset-0 {{ $scrimClass }}" aria-hidden="true"></div>
 
     <div class="relative z-10 w-full">
         <div class="mx-auto w-full max-w-7xl px-4 py-12 md:px-10 md:py-16 lg:px-12">
@@ -59,24 +65,8 @@
                     <p class="mb-7 max-w-xl text-base leading-relaxed text-white/80 md:text-lg">{{ $hero['description'] }}</p>
                 @endif
 
-                @if($primaryAction || $secondaryAction)
-                    <div class="flex flex-wrap gap-3">
-                        @if($primaryAction)
-                            <x-waggies.button href="{{ $actionDestination($primaryAction) }}" class="!bg-secondary !text-primary-dark hover:!bg-secondary-hover">
-                                {{ $primaryAction['label'] }}
-                                <x-waggies.icon name="{{ $primaryAction['icon'] ?? 'arrow-forward' }}" size="18" />
-                            </x-waggies.button>
-                        @endif
-
-                        @if($secondaryAction)
-                            <x-waggies.button href="{{ $actionDestination($secondaryAction) }}" variant="outline" class="border-white/30 bg-transparent text-white hover:bg-white/10">
-                                @if(! empty($secondaryAction['iconBefore']))
-                                    <x-waggies.icon name="{{ $secondaryAction['iconBefore'] }}" size="18" class="text-white" />
-                                @endif
-                                {{ $secondaryAction['label'] }}
-                            </x-waggies.button>
-                        @endif
-                    </div>
+                @if(! empty($hero['actions']))
+                    <x-waggies.hero-actions :actions="$hero['actions']" tone="image" />
                 @endif
             </div>
         </div>
