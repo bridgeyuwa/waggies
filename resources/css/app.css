@@ -1,0 +1,1167 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@source '../../vendor/livewire/livewire/src/**/*.blade.php';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* ════════════════════════════════════════════════════════════════════════════
+   WAGGIES DESIGN SYSTEM v2
+   ────────────────────────────────────────────────────────────────────────────
+   Light mode only. No dark mode variants.
+
+   Goals achieved:
+   • WCAG 2.2 AA compliant (solid text colours, 3px focus, forced-colours)
+   • Refactoring UI principles (restrained elevation, real borders, selective brand colour)
+   • 100% production token compatibility (no breaking changes)
+   • Elevated navigation (soft borders + strong shadow)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BRAND + FOUNDATION TOKENS
+   ───────────────────────────────────────────────────────────────────────── */
+@theme {
+    --font-dm-sans: 'DM Sans';
+    --font-cormorant-garamond: 'Cormorant Garamond';
+    /* Brand */
+    --color-waggies-primary: oklch(0.432 0.162 309.9);
+    /* #6B2C91 – AA with white */
+    --color-waggies-primary-light: oklch(0.489 0.145 305);
+    --color-waggies-primary-dark: oklch(0.196 0.108 310);
+
+    --color-waggies-secondary: oklch(0.849 0.037 80);
+    /* brand beige – DO NOT CHANGE */
+    --color-waggies-secondary-hover: oklch(0.64 0.04 80);
+
+    /* Surfaces */
+    --color-waggies-surface: oklch(0.985 0.005 90);
+    /* cream page */
+    --color-waggies-surface-purple: oklch(0.955 0.018 305);
+    /* brand tint (kept for existing use) */
+    --color-waggies-surface-subtle: oklch(0.95 0.012 80);
+    /* quiet neutral */
+    --color-waggies-surface-hover: oklch(0.955 0.018 305);
+    /* oklch(0.90 0.04 305); */
+    /* perceptible hover */
+    --color-waggies-surface-raised: oklch(1 0 0);
+    --color-waggies-beige-soft: oklch(0.94 0.028 82);
+
+    /* Reading palette – solid, warm, background-independent */
+    --color-waggies-ink: oklch(0.27 0.02 70);
+    --color-waggies-ink-secondary: oklch(0.46 0.02 70);
+    --color-waggies-ink-muted: oklch(0.52 0.018 70);
+
+    /* Structural borders (Refactoring UI: controls need real edges) */
+    --color-waggies-border: oklch(0.62 0.02 75);
+    --color-border-subtle: oklch(0.68 0.02 75);
+
+    /* Soft border used only for elevated navigation panels */
+    --color-nav-border: oklch(0.91 0.012 80);
+
+    /* Focus */
+    --color-focus: var(--color-waggies-primary);
+
+    /* Purple-tinted depth keeps the warm brand consistent through elevation. */
+    --color-waggies-shadow: oklch(0.196 0.108 310);
+
+    /* Feedback – darkened for usability + foreground tokens */
+    --color-success: oklch(0.50 0.13 145);
+    --color-success-light: oklch(0.94 0.03 145);
+    --color-success-foreground: #ffffff;
+
+    --color-error: oklch(0.55 0.18 25);
+    --color-error-light: oklch(0.95 0.03 25);
+    --color-error-foreground: #ffffff;
+
+    --color-warning: oklch(0.55 0.08 75);
+    --color-warning-light: oklch(0.96 0.025 75);
+    --color-warning-foreground: #ffffff;
+
+    --color-whatsapp: oklch(0.46 0.10 145);
+    --color-whatsapp-foreground: #ffffff;
+
+    /* Loyalty – usable on light surfaces */
+    --color-gold: oklch(0.56 0.08 90);
+    --color-silver: oklch(0.56 0.005 270);
+    --color-bronze: oklch(0.56 0.07 55);
+
+    /* Radius – small intentional vocabulary */
+    --radius-xs: 0.125rem;
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.25rem;
+
+    /* Elevation scale – Refactoring UI compliant (restrained & neutral) */
+    --shadow-xs: 0 1px 2px oklch(0.196 0.108 310 / 0.05);
+    --shadow-sm: 0 1px 3px oklch(0.196 0.108 310 / 0.06),
+        0 1px 2px oklch(0.196 0.108 310 / 0.04);
+    --shadow-md: 0 4px 6px oklch(0.196 0.108 310 / 0.06),
+        0 2px 4px oklch(0.196 0.108 310 / 0.035);
+    --shadow-lg: 0 10px 15px oklch(0.196 0.108 310 / 0.07),
+        0 4px 6px oklch(0.196 0.108 310 / 0.035);
+    --shadow-xl: 0 20px 25px oklch(0.196 0.108 310 / 0.08),
+        0 8px 10px oklch(0.196 0.108 310 / 0.04);
+
+    /* Soft lift used for hover states – very restrained */
+    --shadow-soft: 0 8px 24px -4px oklch(0.196 0.108 310 / 0.12),
+        0 4px 8px -2px oklch(0.196 0.108 310 / 0.05);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SEMANTIC + SHADCN MAPPING  (public API – do not rename)
+   ───────────────────────────────────────────────────────────────────────── */
+@theme inline {
+    /* Application semantic aliases – preserved exactly */
+    --color-primary: var(--color-waggies-primary);
+    --color-primary-light: var(--color-waggies-primary-light);
+    --color-primary-dark: var(--color-waggies-primary-dark);
+
+    --color-secondary: var(--color-waggies-secondary);
+    /* KEEP brand beige */
+    --color-secondary-hover: var(--color-waggies-secondary-hover);
+
+    --color-surface: var(--color-waggies-surface);
+    --color-surface-purple: var(--color-waggies-surface-purple);
+    --color-surface-raised: var(--color-waggies-surface-raised);
+    --color-beige-soft: var(--color-waggies-beige-soft);
+
+    /* Solid text – WCAG safe */
+    --color-text-body: var(--color-waggies-ink);
+    --color-text-secondary: var(--color-waggies-ink-secondary);
+    --color-text-muted: var(--color-waggies-ink-muted);
+
+    --color-border-subtle: var(--color-waggies-border);
+    --color-focus: var(--color-waggies-primary);
+
+    /* Shadcn */
+    --color-background: var(--color-surface);
+    --color-foreground: var(--color-waggies-ink);
+
+    --color-card: #ffffff;
+    --color-card-foreground: var(--color-waggies-ink);
+
+    --color-popover: #ffffff;
+    --color-popover-foreground: var(--color-waggies-ink);
+
+    --color-primary-foreground: #ffffff;
+
+    --color-secondary-foreground: var(--color-waggies-ink);
+
+    --color-muted: var(--color-waggies-surface-subtle);
+    --color-muted-foreground: var(--color-waggies-ink-muted);
+
+    --color-accent: var(--color-waggies-secondary);
+    --color-accent-foreground: var(--color-waggies-ink);
+
+    --color-destructive: var(--color-error);
+    --color-destructive-foreground: var(--color-error-foreground);
+
+    --color-border: var(--color-waggies-border);
+    --color-input: var(--color-waggies-border);
+    --color-ring: var(--color-focus);
+
+    /* Charts – better hue separation */
+    --color-chart-1: var(--color-waggies-primary);
+    --color-chart-2: oklch(0.55 0.12 245);
+    --color-chart-3: oklch(0.55 0.12 175);
+    --color-chart-4: var(--color-error);
+    --color-chart-5: oklch(0.56 0.08 90);
+
+    /* Sidebar */
+    --color-sidebar: #ffffff;
+    --color-sidebar-foreground: var(--color-waggies-ink);
+    --color-sidebar-primary: var(--color-waggies-primary);
+    --color-sidebar-primary-foreground: #ffffff;
+    --color-sidebar-accent: var(--color-waggies-surface-subtle);
+    --color-sidebar-accent-foreground: var(--color-waggies-ink);
+    --color-sidebar-border: var(--color-waggies-border);
+    --color-sidebar-ring: var(--color-focus);
+
+    /* Typography */
+    --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --font-serif: var(--font-cormorant-garamond), ui-serif, Georgia, serif;
+
+    --radius: var(--radius-lg);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BASE / RESET
+   ════════════════════════════════════════════════════════════════════════════ */
+@layer base {
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: auto;
+        scroll-padding-top: 5rem;
+        color-scheme: light;
+        overflow-x: clip;
+    }
+
+    /* Request form scroll restoration */
+    #request-form,
+    #request-review {
+        scroll-margin-top: 6rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto !important;
+        }
+    }
+
+    body {
+        font-family: var(--font-sans);
+        background-color: var(--color-surface);
+        color: var(--color-foreground);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: clip;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    ::selection {
+        background-color: oklch(0.432 0.162 309.9 / 0.18);
+        color: var(--color-waggies-ink);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-serif);
+        color: var(--color-primary-dark);
+    }
+
+    * {
+        border-color: var(--color-border);
+        outline-color: var(--color-focus);
+    }
+
+    :focus-visible {
+        outline: 3px solid var(--color-focus);
+        outline-offset: 3px;
+    }
+
+    :focus:not(:focus-visible) {
+        outline: none;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   COMPONENTS
+   ════════════════════════════════════════════════════════════════════════════ */
+@layer components {
+    /* Floating actions use the same safe-area-aware fixed geometry as the
+       reference implementation. Keep these values explicit because the
+       CSS functions are not emitted reliably by every utility build. */
+    .waggies-chat-panel {
+        bottom: max(5rem, calc(env(safe-area-inset-bottom, 0px) + 5rem)) !important;
+        right: max(1.5rem, env(safe-area-inset-right, 0px)) !important;
+        min-height: min(60dvh, 400px);
+        max-height: calc(100dvh - 7rem);
+        width: clamp(280px, calc(100vw - 2rem), 380px);
+    }
+
+    .waggies-fab--whatsapp {
+        bottom: max(4.75rem, calc(env(safe-area-inset-bottom, 0px) + 4.25rem)) !important;
+        right: max(1.5rem, env(safe-area-inset-right, 0px)) !important;
+    }
+
+    .waggies-fab--assistant {
+        bottom: max(4.75rem, calc(env(safe-area-inset-bottom, 0px) + 4.25rem)) !important;
+        right: max(4.5rem, calc(env(safe-area-inset-right, 0px) + 3rem)) !important;
+    }
+
+    .waggies-fab--back-to-top {
+        bottom: max(8.75rem, calc(env(safe-area-inset-bottom, 0px) + 8.25rem)) !important;
+        right: max(1.5rem, env(safe-area-inset-right, 0px)) !important;
+    }
+
+    @media (min-width: 768px) {
+        .waggies-fab--whatsapp,
+        .waggies-fab--assistant {
+            bottom: max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem)) !important;
+        }
+
+        .waggies-fab--back-to-top {
+            bottom: max(5.5rem, calc(env(safe-area-inset-bottom, 0px) + 4.5rem)) !important;
+        }
+    }
+
+    /* Typography scale */
+    .text-display,
+    .text-h1 {
+        font-family: var(--font-serif);
+        font-weight: 700;
+        font-size: clamp(2.5rem, 5.5vw, 4rem);
+        line-height: 1.08;
+        letter-spacing: -0.015em;
+        text-wrap: balance;
+    }
+
+    .text-h2 {
+        font-family: var(--font-serif);
+        font-weight: 700;
+        font-size: clamp(1.875rem, 3.2vw, 2.75rem);
+        line-height: 1.15;
+        letter-spacing: -0.01em;
+        text-wrap: balance;
+    }
+
+    .text-h2-feature {
+        font-family: var(--font-serif);
+        font-weight: 700;
+        font-size: clamp(2.25rem, 4.2vw, 3.5rem);
+        line-height: 1.08;
+        letter-spacing: -0.015em;
+        text-wrap: balance;
+    }
+
+    .text-h3 {
+        font-family: var(--font-serif);
+        font-weight: 600;
+        font-size: 1.5rem;
+        line-height: 1.25;
+    }
+
+    .text-h4 {
+        font-family: var(--font-serif);
+        font-weight: 600;
+        font-size: 1.1875rem;
+        line-height: 1.35;
+    }
+
+    .text-eyebrow {
+        font-family: var(--font-sans);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-primary);
+    }
+
+    .text-body {
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--color-text-body);
+        max-width: 65ch;
+    }
+
+    .text-body-sm {
+        font-family: var(--font-sans);
+        font-size: 0.875rem;
+        line-height: 1.6;
+        color: var(--color-text-secondary);
+    }
+
+    .text-meta {
+        font-family: var(--font-sans);
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        color: var(--color-text-muted);
+    }
+
+    .text-label {
+        font-family: var(--font-sans);
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .text-nav {
+        font-family: var(--font-sans);
+        font-size: 0.9375rem;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    .text-btn {
+        font-family: var(--font-sans);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+
+    .section-pad {
+        padding-top: 4.5rem;
+        padding-bottom: 4.5rem;
+    }
+
+    @media (min-width: 768px) {
+        .section-pad {
+            padding-top: 6.5rem;
+            padding-bottom: 6.5rem;
+        }
+    }
+
+    /* Card language */
+    .w-card {
+        background-color: var(--color-surface-raised);
+        border-radius: var(--radius-xl);
+        box-shadow: inset 0 0 0 1px oklch(0.196 0.108 310 / 0.08), var(--shadow-sm);
+    }
+
+    .w-card-hover {
+        transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1),
+            box-shadow 180ms cubic-bezier(0.23, 1, 0.32, 1),
+            border-color 180ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .w-card-hover:active {
+        transform: translateY(1px) scale(0.99);
+    }
+
+    @media (hover: hover) {
+        .w-card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-soft);
+        }
+    }
+
+    .w-card-hover:focus-visible {
+        outline: 3px solid var(--color-focus);
+        outline-offset: 3px;
+    }
+
+    /* Keep browser autofill readable and visually aligned with the light-only
+       Waggies field surfaces instead of letting the user-agent yellow leak in. */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    textarea:-webkit-autofill:hover,
+    textarea:-webkit-autofill:focus,
+    select:-webkit-autofill {
+        -webkit-text-fill-color: var(--color-waggies-ink);
+        box-shadow: 0 0 0 1000px var(--color-surface-raised) inset;
+        transition: background-color 9999s ease-out 0s;
+    }
+
+    /* Prose */
+    .prose p {
+        margin-bottom: 1.25rem;
+        line-height: 1.75;
+        color: var(--color-text-body);
+    }
+
+    .prose h2 {
+        font-family: var(--font-serif);
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--color-primary-dark);
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .prose h3 {
+        font-family: var(--font-serif);
+        font-size: 1.35rem;
+        font-weight: 600;
+        color: var(--color-primary-dark);
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .prose ul,
+    .prose ol {
+        padding-left: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .prose ul {
+        list-style: disc;
+    }
+
+    .prose ol {
+        list-style: decimal;
+    }
+
+    .prose li {
+        margin-bottom: 0.5rem;
+        line-height: 1.7;
+        color: var(--color-text-body);
+    }
+
+    .prose a {
+        color: var(--color-primary);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .prose a:hover {
+        color: var(--color-primary-dark);
+    }
+
+    .prose blockquote {
+        border-left: 0;
+        border-top: 1px solid var(--color-border-subtle);
+        border-bottom: 1px solid var(--color-border-subtle);
+        padding: 1.25rem 0;
+        font-style: italic;
+        color: var(--color-text-body);
+        margin: 1.5rem 0;
+    }
+
+    .prose code {
+        background: var(--color-surface-purple);
+        padding: 0.2em 0.45em;
+        border-radius: 0.3em;
+        font-size: 0.9em;
+        color: var(--color-primary-dark);
+    }
+
+    .prose pre {
+        background: var(--color-primary-dark);
+        color: var(--color-secondary);
+        padding: 1.25rem;
+        border-radius: var(--radius-lg);
+        overflow-x: auto;
+        margin-bottom: 1.25rem;
+    }
+
+    .prose hr {
+        border-color: var(--color-border-subtle);
+        margin: 2.5rem 0;
+    }
+
+    /* Shared editorial wrappers. These are intentionally quiet so content,
+       imagery, and the request flow carry the page rather than decoration. */
+    .w-page-intro {
+        position: relative;
+        overflow: hidden;
+        background: var(--color-surface);
+        border-bottom: 1px solid oklch(0.196 0.108 310 / 0.08);
+    }
+
+    .w-page-intro::after {
+        content: "";
+        position: absolute;
+        width: 18rem;
+        height: 18rem;
+        right: -6rem;
+        top: -9rem;
+        border-radius: 999px;
+        background: var(--color-beige-soft);
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    .w-page-intro__content {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Request fields mirror the reference engine's shared baseInputClasses.
+       Keep this primitive separate from page-specific calculator fields: the
+       request engine uses the larger rounded-2xl field geometry. */
+    .contact-input {
+        display: block;
+        width: 100%;
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+        border: 1px solid color-mix(in oklab, var(--color-primary) 20%, transparent);
+        border-radius: var(--radius-2xl);
+        background-color: #ffffff;
+        color: var(--color-primary-dark);
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .contact-input::placeholder {
+        color: color-mix(in oklab, var(--color-primary-dark) 45%, transparent);
+    }
+
+    .contact-input:focus {
+        border-color: var(--color-primary);
+        outline: none;
+        box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-primary) 50%, transparent);
+    }
+
+    .contact-input:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    /* The contact pet repeater uses the compact rounded-xl control family
+       from the reference form. Its fields are rendered dynamically, so use
+       their stable id prefix rather than changing the request-state markup. */
+    main input[id^="pet-"][id$="-name"].contact-input,
+    main input[id^="pet-"][id$="-breed"].contact-input,
+    main input[id^="pet-"][id$="-age"].contact-input,
+    main textarea[id^="pet-"][id$="-notes"].contact-input {
+          border-radius: var(--radius-xl);
+    }
+
+    /* Contact repeater controls are the smaller secondary buttons in the
+       reference, rather than the default large CTA treatment. */
+    main [x-data^="contactRequest"] .w-cta--secondary.w-fit {
+          gap: 0.375rem;
+          padding: 0.75rem 1.5rem;
+          font-size: 0.875rem;
+    }
+
+    /* Forms */
+    details>summary {
+        list-style: none;
+        cursor: pointer;
+        display: flex;
+        width: 100%;
+    }
+
+    details>summary::-webkit-details-marker {
+        display: none;
+    }
+
+    details[open] summary~* {
+        animation: wag-reveal 0.2s ease-in-out;
+    }
+
+    /* ───────────────────────────────────────────────────────────────────────
+     NAVIGATION – Elevated treatment
+     Soft borders + strong shadow = floating feel
+     ─────────────────────────────────────────────────────────────────────── */
+    .nav-dropdown {
+        background-color: #ffffff;
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--color-nav-border);
+        /* soft */
+        box-shadow: var(--shadow-lg);
+        /* elevation does the work */
+        overflow: hidden;
+        z-index: 50;
+    }
+
+    .nav-dropdown--stacked {
+        width: 24rem;
+        max-width: min(calc(100vw - 2rem), 24rem);
+    }
+
+    .nav-dropdown--mega {
+        width: min(72rem, calc(100vw - 2rem));
+        left: 50%;
+        transform: translateX(calc(-50% + var(--mega-offset, 0px)));
+    }
+
+    .waggies-select-options[data-state="open"] {
+        transform-origin: var(--waggies-select-transform-origin, center top);
+        animation: waggies-select-open 150ms ease-out;
+    }
+
+    .waggies-select-options[data-side="top"] {
+        transform-origin: center bottom;
+    }
+
+    .waggies-select-options [data-highlighted],
+    .waggies-select-options [role="option"]:focus {
+        background-color: var(--color-surface-purple);
+        color: var(--color-primary-dark);
+    }
+
+    .waggies-select-trigger[aria-invalid="true"] {
+        border-color: color-mix(in oklab, var(--color-error) 60%, transparent);
+    }
+
+    .waggies-select-trigger[aria-invalid="true"]:focus-visible {
+        border-color: var(--color-error);
+        box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-error) 30%, transparent);
+    }
+
+    .nav-dropdown__eyebrow {
+        padding: 0.75rem 1.75rem;
+        border-bottom: 1px solid var(--color-nav-border);
+        /* soft */
+        background-color: var(--color-surface-purple);
+    }
+
+    .nav-dropdown__eyebrow-text {
+        font-family: var(--font-serif);
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: var(--color-primary);
+    }
+
+    .nav-dropdown__hub {
+        padding: 0.75rem 1.75rem 0.5rem;
+        border-bottom: 1px solid var(--color-nav-border);
+        /* soft */
+    }
+
+    .nav-dropdown__hub-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-serif);
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--color-primary);
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .nav-dropdown__hub-link:hover {
+        background-color: var(--color-waggies-surface-hover);
+    }
+
+    .nav-dropdown__hub-link:focus-visible {
+        outline: 3px solid var(--color-focus);
+        outline-offset: 3px;
+    }
+
+    .nav-dropdown__hub-link[aria-current="page"],
+    .nav-dropdown__hub-link--current {
+        background-color: var(--color-surface-purple);
+        box-shadow: inset 3px 0 0 var(--color-primary);
+    }
+
+    .nav-dropdown__hub-arrow {
+        transition: transform 0.15s ease;
+        flex-shrink: 0;
+    }
+
+    .nav-dropdown__hub-link:hover .nav-dropdown__hub-arrow {
+        transform: translateX(2px);
+    }
+
+    .nav-dropdown__group-heading {
+        font-family: var(--font-serif);
+        font-size: 1.0625rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--color-primary-dark);
+        margin-bottom: 0.625rem;
+        padding: 0 0.5rem;
+    }
+
+    .nav-dropdown__columns {
+        display: grid;
+        gap: 0.75rem 2.5rem;
+        padding: 1.5rem 1.75rem 1.75rem;
+    }
+
+    .nav-dropdown__stacked-links {
+        padding: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .nav-mega-link {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.625rem;
+        border-radius: var(--radius-sm);
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .nav-mega-link:hover {
+        background-color: var(--color-waggies-surface-hover);
+    }
+
+    .nav-mega-link:focus-visible {
+        outline: 3px solid var(--color-focus);
+        outline-offset: 3px;
+    }
+
+    /* Persistent current location — not a copy of hover (no icon invert). */
+    .nav-mega-link[aria-current="page"] {
+        background-color: var(--color-surface-purple);
+        box-shadow: inset 3px 0 0 var(--color-primary);
+    }
+
+    .nav-mega-link[aria-current="page"] .nav-mega-link__title {
+        color: var(--color-primary);
+    }
+
+    /* Parent/overview hub of a nested current route — weaker than exact current. */
+    .nav-mega-link--contains-current {
+        box-shadow: inset 3px 0 0 var(--color-primary);
+    }
+
+    .nav-mega-link--contains-current .nav-mega-link__title {
+        color: var(--color-primary);
+    }
+
+    .nav-mega-link__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: var(--radius-sm);
+        background-color: var(--color-surface-purple);
+        color: var(--color-primary);
+        flex-shrink: 0;
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .nav-mega-link:hover .nav-mega-link__icon {
+        background-color: var(--color-primary);
+        color: #ffffff;
+    }
+
+    .nav-mega-link__title {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--color-primary-dark);
+        transition: color 0.15s ease;
+    }
+
+    .nav-mega-link:hover .nav-mega-link__title {
+        color: var(--color-primary);
+    }
+
+    .nav-mega-link__subtitle {
+        display: block;
+        font-size: 0.75rem;
+        line-height: 1.35;
+        color: var(--color-text-muted);
+        margin-top: 0.125rem;
+    }
+
+    .nav-mega-link--overview .nav-mega-link__title {
+        font-weight: 700;
+    }
+
+    .nav-mega-link--overview .nav-mega-link__icon {
+        background-color: oklch(0.93 0.03 305);
+    }
+
+    .nav-mega-link--child {
+        padding-left: 1.25rem;
+    }
+
+    .nav-mega-link--child .nav-mega-link__icon {
+        width: 1.75rem;
+        height: 1.75rem;
+    }
+
+    .nav-mega-link--child .nav-mega-link__title {
+        font-weight: 500;
+        font-size: 0.8125rem;
+    }
+
+    .nav-dropdown__columns--mega-3col {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* Soft vertical dividers between categories */
+    @media (min-width: 1153px) {
+        .nav-dropdown__columns--mega-3col>[role="group"]:not(:last-child) {
+            border-right: 1px solid var(--color-nav-border);
+            padding-right: 2.5rem;
+        }
+    }
+
+    @media (max-width: 1152px) {
+        .nav-dropdown__columns--mega-3col {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* Skip link */
+    .skip-link {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        z-index: 9999;
+        padding: 0.5rem 1rem;
+        background-color: var(--color-primary);
+        color: #ffffff;
+        font-weight: 600;
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-200%);
+        opacity: 0;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .skip-link:focus {
+        transform: translateY(0);
+        opacity: 1;
+        outline: 3px solid var(--color-focus);
+        outline-offset: 3px;
+    }
+
+    /* Laravel shell uses the same canonical Waggies CTA contract as the
+       reference implementation: 44px pill targets with three visual tiers. */
+    .w-cta {
+        display: inline-flex;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: 9999px;
+        padding: 0.875rem 2rem;
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.5;
+        white-space: nowrap;
+        transition: background-color 200ms ease, border-color 200ms ease,
+            color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+    }
+
+    .w-cta:active {
+        transform: scale(0.98);
+    }
+
+    .w-cta:focus-visible,
+    .mobile-nav-link:focus-visible,
+    .mobile-nav-sublink:focus-visible {
+        outline: 3px solid var(--color-focus);
+        outline-offset: 3px;
+    }
+
+    .w-cta--primary {
+        background-color: var(--color-primary);
+        color: #fff;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .w-cta--primary:hover {
+        background-color: var(--color-primary-dark);
+        box-shadow: var(--shadow-md);
+    }
+
+    .w-cta--secondary {
+        border: 1px solid color-mix(in oklab, var(--color-primary) 30%, transparent);
+        background-color: color-mix(in oklab, #fff 60%, transparent);
+        color: var(--color-primary-dark);
+        font-weight: 600;
+    }
+
+    .w-cta--secondary:hover {
+        border-color: color-mix(in oklab, var(--color-primary) 50%, transparent);
+        background-color: #fff;
+    }
+
+    .mobile-nav-link,
+    .mobile-nav-sublink {
+        display: flex;
+        min-height: 44px;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: var(--radius-md);
+        padding: 0.75rem 1rem;
+        color: var(--color-primary-dark);
+        font-size: 0.9375rem;
+        font-weight: 600;
+    }
+
+    .mobile-nav-link:hover,
+    .mobile-nav-sublink:hover {
+        background-color: var(--color-surface-purple);
+        color: var(--color-primary);
+    }
+
+    .mobile-nav-sublink {
+        min-height: 40px;
+        padding-block: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   UTILITIES
+   ════════════════════════════════════════════════════════════════════════════ */
+@layer utilities {
+    .navigation-progress {
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 60;
+        height: 0.125rem;
+        transform: scaleX(0);
+        transform-origin: left;
+        background: var(--color-primary);
+        transition: transform 500ms ease-out;
+    }
+    .navigation-progress.is-loading { transform: scaleX(0.8); }
+    .print-only {
+        display: none;
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: var(--color-waggies-border);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: var(--color-primary-dark);
+    }
+
+    .card-link {
+        position: relative;
+    }
+
+    .card-link::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        border-radius: inherit;
+    }
+
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    .text-pretty {
+        text-wrap: pretty;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   ANIMATIONS + A11Y
+   ════════════════════════════════════════════════════════════════════════════ */
+@keyframes wag-reveal {
+    0% {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes waggies-select-open {
+    from {
+        opacity: 0;
+        transform: translateY(-0.5rem) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+button,
+a,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+select,
+summary {
+    touch-action: manipulation;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /*
+     * Reduced motion is intentionally semantic rather than a blanket
+     * near-zero duration override. Global timing overrides can interrupt
+     * modal/drawer sequencing and make state changes harder to understand;
+     * Framer Motion components opt into their own reduced-motion branches.
+     */
+    html {
+        scroll-behavior: auto !important;
+    }
+
+    /* Native disclosure content should be present immediately, without the
+     * spatial reveal. The open state and keyboard interaction remain native. */
+    details[open] summary~* {
+        animation: none !important;
+    }
+
+    /* These utilities are continuous/decorative or loading loops. A static
+     * indicator remains visible and does not delay or hide the underlying UI. */
+    .animate-spin,
+    .animate-ping,
+    .animate-pulse,
+    .animate-bounce {
+        animation: none !important;
+    }
+
+    /* The skip link is focus feedback, not spatial decoration. */
+    .skip-link {
+        transition: none !important;
+    }
+
+    .waggies-select-options[data-state="open"] {
+        animation: none !important;
+    }
+
+    .w-card-hover,
+    .w-card-hover:hover,
+    .w-card-hover:active {
+        transform: none !important;
+        transition: none !important;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .w-card-hover:hover {
+            box-shadow: inset 0 0 0 1px oklch(0.332 0.155 305 / 0.16), var(--shadow-soft);
+        }
+    }
+}
+
+@media (forced-colors: active) {
+    :focus-visible {
+        outline: 3px solid CanvasText !important;
+        outline-offset: 3px;
+    }
+}
+
+/* Checklist print controls keep the screen UI intact while producing a
+ * readable paper/PDF handoff. */
+@media print {
+    body > header,
+    body > footer,
+    body > nav,
+    main > *:not(:has([data-checklist-artifact])),
+    [data-print-hide] {
+        display: none !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+
+    body,
+    main,
+    [data-checklist-artifact] {
+        background: #fff !important;
+        color: #111 !important;
+    }
+
+    .print-hidden,
+    [data-print-hide] {
+        display: none !important;
+    }
+
+    .print-break-inside-avoid,
+    [data-print-break] {
+        break-inside: avoid;
+    }
+}

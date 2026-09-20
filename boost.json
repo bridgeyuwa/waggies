@@ -1,0 +1,37 @@
+{
+    "agents": [
+        "claude_code",
+        "codex",
+        "opencode"
+    ],
+    "cloud": true,
+    "guidelines": true,
+    "mcp": true,
+    "nightwatch": false,
+    "packages": [
+        "fruitcake/laravel-debugbar",
+        "spatie/boost-spatie-guidelines",
+        "filament/filament",
+        "spatie/laravel-activitylog",
+        "spatie/laravel-medialibrary",
+        "spatie/laravel-backup",
+        "spatie/laravel-sluggable",
+        "spatie/laravel-permission"
+    ],
+    "sail": false,
+    "skills": [
+        "infer-conventions",
+        "deploying-to-cloud",
+        "laravel-best-practices",
+        "testing-best-practices",
+        "livewire-development",
+        "tailwindcss-development",
+        "filament-development",
+        "laravel-backup",
+        "medialibrary-development",
+        "laravel-permission-development",
+        "sluggable-development",
+        "debug-using-debugbar",
+        "spatie-laravel-php-standards"
+    ]
+}

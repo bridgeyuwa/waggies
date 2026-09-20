@@ -1,0 +1,11 @@
+@extends('layouts.app')
+
+@section('content')
+<div data-print-hide><x-waggies.breadcrumb-strip :items="[['label' => 'Services', 'route' => 'services.index'], ['label' => 'Relocation', 'route' => 'services.relocation'], ['label' => 'Document Checklist', 'route' => 'relocation.checklist']]" class="border-b border-primary/5 bg-white" /><x-waggies.cover-hero :hero="$page['hero']" title-id="hero-image-title" alignment="bottom" min-height="480px" mobile-min-height="480px" /></div>
+<div class="mx-auto max-w-5xl px-4 py-12 md:px-10 md:py-20" data-checklist-artifact>
+    <div class="mb-10 flex justify-end print-hidden" data-print-hide><button type="button" @click="window.print()" aria-label="Print this checklist" class="w-cta w-cta--secondary"><x-waggies.icon name="print" size="18" aria-hidden="true" />Print checklist</button></div>
+    <div class="print-only mb-6"><h1 class="font-serif text-3xl font-bold text-primary-dark">Pet Relocation Checklist</h1><p class="mt-1 text-sm text-primary-dark/65">A travel-planning checklist from early preparation to travel day.</p></div>
+    @foreach($page['phases'] as $phase)<div class="mb-10 print-break-inside-avoid" data-print-break><div class="mb-4 flex items-center gap-3"><div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10"><x-waggies.icon name="{{ $phase['icon'] }}" size="20" class="text-primary" /></div><h2 class="font-serif text-xl font-bold text-primary-dark">{{ $phase['heading'] }}</h2></div><ul class="flex flex-col gap-3 pl-12">@foreach($phase['items'] as $item)<li class="flex items-start gap-3 text-sm text-primary-dark/70"><x-waggies.icon name="checklist" size="18" class="mt-0.5 shrink-0 text-primary/50" aria-hidden="true" />{{ $item }}</li>@endforeach</ul></div>@endforeach
+    <div class="mt-12 rounded-2xl bg-surface-purple p-6"><h3 class="mb-2 font-serif text-lg font-bold text-primary-dark">Need help working through this?</h3><p class="mb-4 text-sm text-primary-dark/60">Our relocation team manages every item on this list for you. Get in touch to start the process.</p><a href="{{ route('contact') }}" class="w-cta w-cta--primary">Contact Us <x-waggies.icon name="chevron-right" size="18" aria-hidden="true" /></a></div>
+</div>
+@endsection
