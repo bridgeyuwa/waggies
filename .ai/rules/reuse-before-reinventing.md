@@ -1,3 +1,17 @@
+---
+paths:
+  - app/**
+  - bootstrap/**
+  - config/**
+  - database/**
+  - resources/**
+  - routes/**
+  - tests/**
+  - public/**
+  - composer.json
+  - package.json
+---
+
 # Waggies Laravel — Reuse Before Reinventing
 
 Waggies follows a **reuse-before-reinventing** principle.

@@ -1,3 +1,9 @@
+---
+paths:
+  - app/Http/Controllers/**
+  - routes/**
+---
+
 # Cruddy by Design — Controller and Resource Architecture
 
 Waggies follows the **Cruddy by Design** approach presented by Adam Wathan in the Laracon US 2017 `laracon2017` repository.
