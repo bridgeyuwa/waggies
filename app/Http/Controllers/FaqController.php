@@ -56,7 +56,7 @@ final class FaqController extends Controller
                 'eyebrow' => 'Help Centre',
                 'eyebrowIcon' => 'help',
                 'title' => 'Frequently Asked Questions',
-                'subtitle' => "Quick answers to the questions we hear most often. Can't find what you need? Contact us directly.",
+                'description' => "Quick answers to the questions we hear most often. Can't find what you need? Contact us directly.",
             ],
             'faqs' => $faqs,
             'categories' => $categories,

@@ -1,7 +1,15 @@
 @extends('layouts.app')
 @section('content')
 <x-waggies.breadcrumb-strip :items="[['label' => 'About']]" class="border-b border-primary/5 bg-white" />
-<x-waggies.cover-hero :hero="$hero" />
+<x-waggies.cover-hero :hero="$hero">
+    <x-slot:supporting>
+        <span class="inline-flex items-center gap-2 rounded-full border border-surface-purple bg-white px-4 py-1.5 shadow-sm">
+            <x-waggies.icon name="star" variant="filled" size="18" class="text-gold" />
+            <span class="text-xs font-bold text-primary-dark">4.9 · 500+ Reviews</span>
+            <span class="h-2 w-2 rounded-full bg-primary" aria-hidden="true"></span>
+        </span>
+    </x-slot:supporting>
+</x-waggies.cover-hero>
 
 <section class="relative z-30 -mt-8 mx-4 max-w-[1200px] rounded-2xl border border-primary/12 bg-white shadow-soft sm:mx-10 lg:mx-auto"><div class="grid grid-cols-2 gap-0 divide-x divide-y divide-primary/10 sm:px-4 md:grid-cols-4 md:divide-y-0">@foreach($stats as $stat)<div class="flex min-h-32 flex-col justify-center px-5 py-6 text-center sm:px-7"><span class="font-serif text-4xl font-bold leading-none text-primary">{{ $stat['value'] }}</span><span class="mt-2 text-label text-primary-dark/55">{{ $stat['label'] }}</span></div>@endforeach</div></section>
 

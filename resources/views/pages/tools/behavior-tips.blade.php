@@ -2,7 +2,7 @@
 
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Tools', 'route' => 'tools.index'], ['label' => 'Behavior & Training Tips']]" class="border-b border-primary/5 bg-white" />
-    <x-waggies.tool-hero eyebrow="Pet Care Tool" eyebrow-icon="behavior" title="Behavior &amp; Training Tips" subtitle="Choose your pet and explore practical, non-diagnostic guidance for everyday behavior concerns." />
+    <x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" eyebrow-icon="behavior" title="Behavior &amp; Training Tips" description="Choose your pet and explore practical, non-diagnostic guidance for everyday behavior concerns." />
     <section class="bg-surface pb-20 md:pb-28">
         <div x-data="behaviorTips(@js($behaviorTips))" class="mx-auto max-w-4xl px-4 md:px-10">
             <div class="flex flex-col gap-4 border-b border-primary/10 pb-6 sm:flex-row sm:items-end sm:justify-between">

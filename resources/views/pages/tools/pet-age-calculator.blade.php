@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Tools', 'route' => 'tools.index'], ['label' => 'Pet Age Calculator']]" class="border-b border-primary/5 bg-white" />
-    <x-waggies.tool-hero eyebrow="Pet Care Tool" eyebrow-icon="cake" title="Pet Age Calculator" subtitle="Find out how old your pet is in human years. Dogs and cats age differently depending on their size." />
+    <x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" eyebrow-icon="cake" title="Pet Age Calculator" description="Find out how old your pet is in human years. Dogs and cats age differently depending on their size." />
     <section class="bg-surface pb-20 md:pb-28">
         <div x-data="petAgeCalculator" class="mx-auto max-w-2xl px-4 md:px-10">
             <div class="flex flex-col gap-8">

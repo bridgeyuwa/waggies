@@ -1,17 +1,21 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="relative isolate flex min-h-[560px] overflow-hidden bg-primary-dark" aria-labelledby="home-cover-hero-title">
-    <img src="{{ $homeHero['imageSrc'] }}" alt="{{ $homeHero['imageAlt'] }}" class="absolute inset-0 h-full w-full object-cover" fetchpriority="high">
-    <div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(0,0,0,.10) 0%,rgba(0,0,0,.28) 52%,rgba(0,0,0,.70) 100%)" aria-hidden="true"></div>
-    <div class="relative z-10 flex w-full items-center"><div class="mx-auto w-full max-w-7xl px-4 pb-[calc(6rem+env(safe-area-inset-bottom,0px))] pt-16 md:px-10 md:pb-16 lg:px-12 lg:pt-24"><div class="max-w-xl">
-        <span class="mb-5 inline-flex items-center gap-2 rounded-full border border-white/25 bg-primary-dark/70 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-white"><x-waggies.icon name="pets" size="14" class="text-secondary" />{{ $homeHero['eyebrow'] }}</span>
-        <h1 id="home-cover-hero-title" class="mb-4 font-serif text-4xl font-bold leading-tight text-white md:text-5xl lg:text-[3.25rem] lg:leading-[1.08]">{{ $homeHero['headline'] }}</h1>
-        <div class="mb-5"><span class="inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 rounded-full border border-primary/10 bg-white px-4 py-2 shadow-sm"><x-waggies.icon name="verified" size="18" variant="filled" class="text-primary" />@foreach (['PCSA Certified','On-Site Vet','24/7 Supervision'] as $i => $trust)<span class="whitespace-nowrap text-sm font-semibold tracking-wide text-primary-dark/80">{{ $trust }}@if($i < 2)<span class="mx-1.5 text-primary-dark/30" aria-hidden="true">·</span>@endif</span>@endforeach</span></div>
-        <p class="mb-7 max-w-xl text-base leading-relaxed text-white/80 md:text-lg">{{ $homeHero['subtitle'] }}</p>
-        <div class="flex flex-wrap gap-3"><a href="{{ route($homeHero['primaryCta']['route'], $homeHero['primaryCta']['params'] ?? []) }}" class="w-cta w-cta--primary !bg-secondary !text-primary-dark hover:!bg-secondary-hover">{{ $homeHero['primaryCta']['label'] }}<x-waggies.icon name="arrow-forward" size="18" class="text-primary-dark" /></a><a href="{{ route($homeHero['secondaryCta']['route'], $homeHero['secondaryCta']['params'] ?? []) }}" class="w-cta w-cta--secondary border-white/30 bg-transparent text-white hover:bg-white/10"><x-waggies.icon name="pets" size="18" class="text-white" />{{ $homeHero['secondaryCta']['label'] }}</a></div>
-    </div></div></div>
-</section>
+<x-waggies.cover-hero :hero="$homeHero" title-id="home-cover-hero-title">
+    <x-slot:supporting>
+        <span class="inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 rounded-full border border-primary/10 bg-white px-4 py-2 shadow-sm">
+            <x-waggies.icon name="verified" size="18" variant="filled" class="text-primary" />
+            @foreach (['PCSA Certified', 'On-Site Vet', '24/7 Supervision'] as $index => $trust)
+                <span class="whitespace-nowrap text-sm font-semibold tracking-wide text-primary-dark/80">
+                    {{ $trust }}
+                    @if($index < 2)
+                        <span class="mx-1.5 text-primary-dark/30" aria-hidden="true">·</span>
+                    @endif
+                </span>
+            @endforeach
+        </span>
+    </x-slot:supporting>
+</x-waggies.cover-hero>
 
 <section class="section-pad bg-surface"><div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12"><div class="mb-12 max-w-xl"><span class="text-eyebrow mb-2 block">OUR SERVICES</span><h2 class="text-h2">What We Offer</h2></div><div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-6">
 @foreach ($homeServiceCards as $index => $card) @php($starts = ['lg:col-start-1','lg:col-start-3','lg:col-start-5','lg:col-start-2','lg:col-start-4'])

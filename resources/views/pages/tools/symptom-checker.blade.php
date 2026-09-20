@@ -2,7 +2,7 @@
 
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Tools', 'route' => 'tools.index'], ['label' => 'Symptom Checker']]" class="border-b border-primary/5 bg-white" />
-    <x-waggies.tool-hero eyebrow="Pet Care Tool" title="Pet Symptom Checker" subtitle="Select your pet type, choose the affected area, and pick the symptoms you notice to get general guidance." />
+    <x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" title="Pet Symptom Checker" description="Select your pet type, choose the affected area, and pick the symptoms you notice to get general guidance." />
 
     <section class="bg-surface pb-20 md:pb-28">
         <div x-data="symptomChecker(@js($symptomChecker))" class="mx-auto max-w-3xl px-4 md:px-10">

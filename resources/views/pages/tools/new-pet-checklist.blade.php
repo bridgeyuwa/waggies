@@ -3,7 +3,7 @@
 @section('content')
     <div data-print-hide>
         <x-waggies.breadcrumb-strip :items="[['label' => 'Tools', 'route' => 'tools.index'], ['label' => 'New Pet Checklist']]" class="border-b border-primary/5 bg-white" />
-        <x-waggies.tool-hero eyebrow="Pet Care Tool" eyebrow-icon="checklist" title="New Pet Checklist" subtitle="An interactive checklist of everything you need before and after bringing a new pet home." />
+        <x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" eyebrow-icon="checklist" title="New Pet Checklist" description="An interactive checklist of everything you need before and after bringing a new pet home." />
     </div>
 
     <section class="bg-surface pb-20 md:pb-28">

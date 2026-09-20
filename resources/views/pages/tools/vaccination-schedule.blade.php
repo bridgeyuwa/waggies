@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Tools', 'route' => 'tools.index'], ['label' => 'Vaccination Schedule']]" class="border-b border-primary/5 bg-white" />
-    <x-waggies.tool-hero eyebrow="Pet Care Tool" title="Vaccination Schedule" subtitle="See the recommended vaccination timeline for your pet. Core vaccines are required; non-core vaccines depend on your pet's lifestyle." />
+    <x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" title="Vaccination Schedule" description="See the recommended vaccination timeline for your pet. Core vaccines are required; non-core vaccines depend on your pet's lifestyle." />
     <section class="bg-surface pb-20 md:pb-28"><div x-data="{ petType: 'dog', schedules: @js($schedules) }" class="mx-auto max-w-3xl px-4 md:px-10">
         <div class="flex flex-col gap-8">
             <div class="rounded-2xl border border-primary/10 bg-white p-6"><h3 class="mb-5 font-serif text-lg font-bold text-primary-dark">Select Pet Type</h3><div class="grid grid-cols-2 gap-3"><template x-for="pt in ['dog','cat']" :key="pt"><button type="button" @click="petType = pt" class="flex items-center justify-center gap-2 rounded-xl border-2 p-4 font-semibold transition-colors" :class="petType === pt ? 'border-primary bg-surface-purple text-primary' : 'border-primary/10 bg-white text-primary-dark/60 hover:border-primary/30'"><x-waggies.icon name="pets" size="24" /><span x-text="pt === 'dog' ? 'Dog' : 'Cat'"></span></button></template></div></div>

@@ -2,7 +2,7 @@
 
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'About', 'route' => 'about'], ['label' => 'Partnerships']]" class="bg-white border-b border-primary/5" />
-    <x-waggies.page-header :eyebrow="$hero['eyebrow']" :title="$hero['title']" :subtitle="$hero['subtitle']" align="center" />
+    <x-waggies.page-header :eyebrow="$hero['eyebrow']" :title="$hero['title']" :description="$hero['description']" alignment="center" />
 
     <section class="section-pad bg-white">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">

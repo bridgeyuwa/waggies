@@ -29,12 +29,12 @@ final class HomeController extends Controller
             'navSection' => 'home',
             'homeHero' => [
                 'eyebrow' => "ABUJA'S TRUSTED PET CARE",
-                'headline' => "Your Pet's Home Away From Home",
-                'subtitle' => 'Boarding, grooming, vet care, training, relocation and local transport — all in one place, right here in Abuja.',
+                'title' => "Your Pet's Home Away From Home",
+                'description' => 'Boarding, grooming, vet care, training, relocation and local transport — all in one place, right here in Abuja.',
                 'imageSrc' => 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&h=600&fit=crop',
                 'imageAlt' => 'Happy dog sitting with their owner outdoors',
-                'primaryCta' => ['label' => 'Book Now', 'route' => 'contact', 'params' => ['intent' => 'booking']],
-                'secondaryCta' => ['label' => 'View Services', 'route' => 'services.index'],
+                'primaryAction' => ['label' => 'Book Now', 'route' => 'contact', 'params' => ['intent' => 'booking']],
+                'secondaryAction' => ['label' => 'View Services', 'route' => 'services.index', 'iconBefore' => 'pets'],
             ],
             'homeServiceCards' => [
                 ['title' => 'Boarding', 'description' => 'Overnight stays in spacious, climate-controlled suites with 24/7 care.', 'route' => 'services.boarding', 'imageSrc' => 'https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&auto=format&fit=crop&q=60', 'icon' => 'boarding'],

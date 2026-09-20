@@ -6,11 +6,11 @@ return [
             'eyebrow' => 'What Clients Say',
             'eyebrowIcon' => 'reviews',
             'title' => 'Trusted by Pet Owners<br />Across Abuja',
-            'subtitle' => 'Read what clients share about their Waggies experience.',
+            'description' => 'Read what clients share about their Waggies experience.',
             'imageSrc' => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=400&fit=crop&q=80',
             'imageAlt' => 'Dog in a boarding suite',
-            'primaryCta' => ['label' => 'Book a Stay', 'route' => 'services.boarding'],
-            'secondaryCta' => ['label' => 'Contact Us', 'route' => 'contact'],
+            'primaryAction' => ['label' => 'Book a Stay', 'route' => 'services.boarding'],
+            'secondaryAction' => ['label' => 'Contact Us', 'route' => 'contact'],
         ],
         'filters' => [
             ['value' => 'all', 'label' => 'All Services'],
@@ -50,7 +50,7 @@ return [
         'hero' => [
             'eyebrow' => 'Photo Gallery',
             'title' => 'Take a Look Inside',
-            'subtitle' => 'Our facilities speak for themselves. Browse our boarding suites, grooming spa, veterinary clinic, training grounds, and the happy faces of our guests.',
+            'description' => 'Our facilities speak for themselves. Browse our boarding suites, grooming spa, veterinary clinic, training grounds, and the happy faces of our guests.',
         ],
         'images' => [
             ['src' => 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=400&fit=crop&q=80', 'alt' => 'Golden retriever relaxing outdoors in a spacious green play area', 'category' => 'Boarding', 'groupTitle' => 'Boarding Suites & Play Areas'],
@@ -84,8 +84,8 @@ return [
             'imageAlt' => 'A diverse pet-care team',
             'eyebrow' => 'Careers',
             'title' => 'Join the Waggies Pack',
-            'subtitle' => "Build a career doing what you love — caring for pets in Abuja's premier pet care facility.",
-            'primaryCta' => ['label' => 'View Open Roles', 'href' => '#open-roles'],
+            'description' => "Build a career doing what you love — caring for pets in Abuja's premier pet care facility.",
+            'primaryAction' => ['label' => 'View Open Roles', 'href' => '#open-roles'],
         ],
         'perksHeading' => ['eyebrow' => 'Why Waggies', 'title' => 'Perks & Benefits', 'subtitle' => 'We invest in our team because our people are the heart of everything we do.'],
         'perks' => [
@@ -104,7 +104,7 @@ return [
         'speculativeNote' => "Don't see a role that fits? We're always open to hearing from passionate pet lovers. Send us your CV and we'll keep you in mind.",
     ],
     'partnerships' => [
-        'hero' => ['eyebrow' => 'Partnerships', 'title' => 'Better Together', 'subtitle' => 'We partner with aligned organisations  -  vets, breeders, pet retailers, and businesses  -  who share our commitment to animal welfare and quality care.'],
+        'hero' => ['eyebrow' => 'Partnerships', 'title' => 'Better Together', 'description' => 'We partner with aligned organisations  -  vets, breeders, pet retailers, and businesses  -  who share our commitment to animal welfare and quality care.'],
         'typesHeading' => ['eyebrow' => 'Partnership Types', 'title' => 'How We Work<br/>With Partners', 'subtitle' => "Whether you're a veterinary clinic, a pet shop, or a corporate with pet-owning employees, we have a partnership model that works."],
         'types' => [
             ['icon' => 'medical', 'title' => 'Veterinary Clinics', 'desc' => 'Cross-referral partnerships with vet clinics across Abuja  -  ensuring continuity of care for shared patients.'],

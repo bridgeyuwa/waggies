@@ -3,7 +3,7 @@
 @section('content')
 <x-waggies.breadcrumb-strip :items="[['label' => 'Services', 'route' => 'services.index'], ['label' => 'Pet Relocation', 'route' => 'services.relocation']]" />
 
-<x-waggies.cover-hero :hero="array_merge($hero, ['eyebrow' => 'International & Local Relocation', 'eyebrowIcon' => 'airport-departure', 'title' => 'Stress-Free Pet Relocation<br/>Home & Abroad', 'subtitle' => 'End-to-end relocation management for pets moving into, out of, or across Nigeria. Permits, vet endorsements, IATA crates, and flight coordination handled with total precision.', 'cta' => ['label' => 'Request Relocation Quote', 'route' => 'contact', 'params' => ['intent' => 'quote', 'service' => 'relocation'], 'icon' => 'arrow-forward'], 'secondaryCta' => ['label' => 'Explore Relocation Hub', 'route' => 'services.relocation']])" title-id="hero-image-title" :center="true" />
+<x-waggies.cover-hero :hero="array_merge($hero, ['eyebrow' => 'International & Local Relocation', 'eyebrowIcon' => 'airport-departure', 'title' => 'Stress-Free Pet Relocation<br/>Home & Abroad', 'description' => 'End-to-end relocation management for pets moving into, out of, or across Nigeria. Permits, vet endorsements, IATA crates, and flight coordination handled with total precision.', 'primaryAction' => ['label' => 'Request Relocation Quote', 'route' => 'contact', 'params' => ['intent' => 'quote', 'service' => 'relocation'], 'icon' => 'arrow-forward'], 'secondaryAction' => ['label' => 'Explore Relocation Hub', 'route' => 'services.relocation']])" />
 
 <section class="bg-white py-20">
     <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12">

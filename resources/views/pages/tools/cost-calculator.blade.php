@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Tools', 'route' => 'tools.index'], ['label' => 'Cost Calculator']]" class="border-b border-primary/5 bg-white" />
-    <x-waggies.tool-hero eyebrow="Pet Care Tool" eyebrow-icon="calculator" title="Cost Calculator" subtitle="Get a quick estimate for Waggies services based on your pet's type, size, and the service you need." />
+    <x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" eyebrow-icon="calculator" title="Cost Calculator" description="Get a quick estimate for Waggies services based on your pet's type, size, and the service you need." />
     <section class="bg-surface pb-20 md:pb-28">
         <div x-data="costCalculator(@js($costCalculator))" class="mx-auto max-w-2xl px-4 md:px-10">
             <div class="flex flex-col gap-8">

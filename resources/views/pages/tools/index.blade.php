@@ -10,7 +10,7 @@
 
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Tools']]" class="border-b border-primary/5 bg-white" />
-    <x-waggies.tool-hero eyebrow="Pet Care Tools" title="Useful Tools for Pet Owners" subtitle="Free interactive tools and reference guides to help you take better care of your pets." />
+    <x-waggies.page-header alignment="center" eyebrow="Pet Care Tools" title="Useful Tools for Pet Owners" description="Free interactive tools and reference guides to help you take better care of your pets." />
     <section class="bg-surface pb-20 md:pb-28">
         <div class="mx-auto max-w-6xl px-4 md:px-10 lg:px-12">
             <x-waggies.card hover class="group mb-10 p-6 sm:p-8 md:p-10">

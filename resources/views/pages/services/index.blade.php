@@ -3,7 +3,7 @@
 @section('content')
 <x-waggies.breadcrumb-strip class="border-b border-primary/5 bg-white" :items="[['label' => 'Services', 'route' => 'services.index']]" />
 
-<x-waggies.cover-hero :hero="$hero" title-id="home-cover-hero-title" />
+<x-waggies.cover-hero :hero="$hero" />
 
 <section id="services" class="bg-white py-20">
     <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12">

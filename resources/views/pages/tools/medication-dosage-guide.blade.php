@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Tools', 'route' => 'tools.index'], ['label' => 'Medication Dosage Guide']]" class="border-b border-primary/5 bg-white" />
-    <x-waggies.tool-hero eyebrow="Pet Care Tool" eyebrow-icon="medication" title="Medication Dosage Guide" subtitle="A veterinary-reviewed reference for common pet medications, dosage guidelines, and safety notes." />
+    <x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" eyebrow-icon="medication" title="Medication Dosage Guide" description="A veterinary-reviewed reference for common pet medications, dosage guidelines, and safety notes." />
     <section class="bg-surface pb-20 md:pb-28"><div class="mx-auto max-w-3xl px-4 md:px-10">
         <x-waggies.medical-disclaimer />
         <div class="mt-8 rounded-2xl border border-primary/10 bg-white p-6 text-center sm:p-8"><div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-purple"><x-waggies.icon name="medical" size="28" class="text-primary" /></div><h2 class="font-serif text-lg font-bold text-primary-dark sm:text-xl">This guide is being prepared by our veterinary team</h2><p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-primary-dark/50">Check back soon for verified medication reference information. In the meantime, always consult your veterinarian for medication questions.</p></div>

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Tools', 'route' => 'tools.index'], ['label' => 'Nutrition Calculator']]" class="border-b border-primary/5 bg-white" />
-    <x-waggies.tool-hero eyebrow="Pet Care Tool" eyebrow-icon="nutrition" title="Diet &amp; Nutrition Calculator" subtitle="Estimate your pet's daily calorie needs based on weight, species, life stage, and activity level." />
+    <x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" eyebrow-icon="nutrition" title="Diet &amp; Nutrition Calculator" description="Estimate your pet's daily calorie needs based on weight, species, life stage, and activity level." />
     <section class="bg-surface pb-20 md:pb-28">
         <div x-data="nutritionCalculator" class="mx-auto max-w-2xl px-4 md:px-10">
             <x-waggies.medical-disclaimer variant="compact" />

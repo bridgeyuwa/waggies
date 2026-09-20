@@ -2,7 +2,7 @@
 
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'About', 'route' => 'about'], ['label' => 'Careers']]" class="bg-white border-b border-primary/5" />
-    <x-waggies.legacy-image-hero :hero="$hero" />
+    <x-waggies.cover-hero :hero="$hero" />
 
     <section class="section-pad bg-white">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">

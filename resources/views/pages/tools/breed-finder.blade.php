@@ -2,7 +2,7 @@
 
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Tools', 'route' => 'tools.index'], ['label' => 'Breed Info Finder']]" class="border-b border-primary/5 bg-white" />
-    <x-waggies.tool-hero eyebrow="Pet Care Tool" eyebrow-icon="search" title="Breed Info Finder" subtitle="Browse popular dog and cat breeds with general information on size, energy, grooming, and temperament." />
+    <x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" eyebrow-icon="search" title="Breed Info Finder" description="Browse popular dog and cat breeds with general information on size, energy, grooming, and temperament." />
     <section class="bg-surface pb-20 md:pb-28">
         <div x-data="breedFinder(@js($breeds))" class="mx-auto max-w-6xl px-4 md:px-10">
             <div class="space-y-6">

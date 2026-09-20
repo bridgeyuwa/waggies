@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div data-print-hide><x-waggies.breadcrumb-strip :items="[['label' => 'Services', 'route' => 'services.index'], ['label' => 'Relocation', 'route' => 'services.relocation'], ['label' => 'Document Checklist', 'route' => 'relocation.checklist']]" class="border-b border-primary/5 bg-white" /><x-waggies.cover-hero :hero="$page['hero']" title-id="hero-image-title" alignment="bottom" min-height="480px" mobile-min-height="480px" /></div>
+<div data-print-hide><x-waggies.breadcrumb-strip :items="[['label' => 'Services', 'route' => 'services.index'], ['label' => 'Relocation', 'route' => 'services.relocation'], ['label' => 'Document Checklist', 'route' => 'relocation.checklist']]" class="border-b border-primary/5 bg-white" /><x-waggies.cover-hero :hero="$page['hero']" content-position="bottom" size="compact" /></div>
 <div class="mx-auto max-w-5xl px-4 py-12 md:px-10 md:py-20" data-checklist-artifact>
     <div class="mb-10 flex justify-end print-hidden" data-print-hide><button type="button" @click="window.print()" aria-label="Print this checklist" class="w-cta w-cta--secondary"><x-waggies.icon name="print" size="18" aria-hidden="true" />Print checklist</button></div>
     <div class="print-only mb-6"><h1 class="font-serif text-3xl font-bold text-primary-dark">Pet Relocation Checklist</h1><p class="mt-1 text-sm text-primary-dark/65">A travel-planning checklist from early preparation to travel day.</p></div>

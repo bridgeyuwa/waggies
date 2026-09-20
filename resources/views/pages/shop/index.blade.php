@@ -3,15 +3,7 @@
 @section('content')
 <x-waggies.breadcrumb-strip :items="[['label' => 'Shop']]" class="border-b border-primary/5 bg-white" />
 
-<section class="w-page-intro section-pad bg-surface">
-    <div class="w-page-intro__content mx-auto max-w-5xl px-4 md:px-10 lg:px-12">
-        <div class="mx-auto flex max-w-3xl flex-col items-center gap-5 text-center">
-            <span class="text-eyebrow inline-flex items-center gap-2">Pet Shop</span>
-            <h1 class="text-display text-primary-dark">Pet Supplies &amp; Products</h1>
-            <p class="text-body text-lg leading-relaxed max-w-2xl">Food, toys, grooming essentials, health products, and accessories for your pets.</p>
-        </div>
-    </div>
-</section>
+<x-waggies.page-header class="bg-surface" alignment="center" eyebrow="Pet Shop" title="Pet Supplies &amp; Products" description="Food, toys, grooming essentials, health products, and accessories for your pets." />
 
 <section x-data="waggiesShopIndex(@js($activeCategory), @js($categories))" class="bg-surface pb-20 md:pb-28">
     <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12">

@@ -29,12 +29,11 @@ final class AboutController extends Controller
             'navSection' => 'about',
             'hero' => [
                 'title' => 'Complete Veterinary & Pet Care in Abuja',
-                'subtitle' => 'Vet care, boarding, grooming, training, and relocation - all in one place.',
-                'primaryCta' => ['label' => 'Book a Free Consultation', 'href' => route('contact')],
-                'secondaryCta' => ['label' => 'Explore Services', 'href' => route('services.index')],
+                'description' => 'Vet care, boarding, grooming, training, and relocation - all in one place.',
+                'primaryAction' => ['label' => 'Book a Free Consultation', 'href' => route('contact')],
+                'secondaryAction' => ['label' => 'Explore Services', 'href' => route('services.index')],
                 'imageSrc' => 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=1200&h=600&fit=crop&q=80',
                 'imageAlt' => 'Complete Veterinary & Pet Care in Abuja',
-                'trust' => true,
             ],
             'stats' => [
                 ['value' => '500+', 'label' => 'Clients Served'],

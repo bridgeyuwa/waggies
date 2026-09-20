@@ -17,7 +17,7 @@
 @endphp
 
 <x-waggies.breadcrumb-strip class="border-b border-primary/5 bg-white" :items="[['label' => 'Services', 'route' => 'services.index'], ['label' => 'Boarding', 'route' => 'services.boarding'], ['label' => $page['hero']['eyebrow'], 'route' => 'services.boarding.species', 'params' => ['species' => $species]]]" />
-<x-waggies.cover-hero :hero="$page['hero']" :center="true" height-contract="service" />
+<x-waggies.cover-hero :hero="$page['hero']" size="compact" />
 <div class="relative z-30 -mt-8 -mb-8 mx-4 max-w-[1200px] rounded-2xl border border-surface-purple bg-white shadow-soft sm:mx-10 lg:mx-auto"><div class="grid grid-cols-2 gap-8 px-6 py-8 md:grid-cols-4 md:divide-x md:divide-primary/10 md:px-10">@foreach($page['stats'] as $stat)<div class="flex flex-col items-center text-center"><span class="mb-1 font-serif text-4xl font-bold text-primary">{{ $stat['value'] }}</span><span class="text-xs font-semibold uppercase tracking-widest text-primary-dark/50">{{ $stat['label'] }}</span></div>@endforeach</div></div>
 
 @if($species === 'dogs')

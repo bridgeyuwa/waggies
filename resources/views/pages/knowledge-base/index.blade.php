@@ -3,15 +3,7 @@
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Knowledge Base']]" class="bg-white border-b border-primary/5" />
 
-    <section class="w-page-intro section-pad">
-        <div class="w-page-intro__content max-w-5xl mx-auto px-4 md:px-10 lg:px-12">
-            <div class="flex flex-col gap-5 text-center items-center max-w-3xl mx-auto">
-                <span class="text-eyebrow inline-flex items-center gap-2"><x-waggies.icon name="training" size="16" class="text-secondary" />Knowledge Base</span>
-                <h1 class="text-display text-primary-dark">Pet Care Answers</h1>
-                <p class="text-body text-lg leading-relaxed max-w-2xl">Find quick, practical answers to common questions about pet care services and more.</p>
-            </div>
-        </div>
-    </section>
+    <x-waggies.page-header alignment="center" eyebrow="Knowledge Base" eyebrow-icon="training" title="Pet Care Answers" description="Find quick, practical answers to common questions about pet care services and more." />
 
     <section x-data="waggiesKnowledgeBase(@js($filterItems), @js($categories), @js($initialCategory), @js($initialSearch), {{ $currentPage }})" class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 py-12 md:py-20">
         <div class="flex flex-col sm:flex-row gap-4 mb-10">

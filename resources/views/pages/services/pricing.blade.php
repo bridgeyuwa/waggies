@@ -2,7 +2,7 @@
 
 @section('content')
 <x-waggies.breadcrumb-strip :items="[['label' => 'Services', 'route' => 'services.index'], ['label' => 'Pricing', 'route' => 'services.pricing']]" class="bg-white border-b border-primary/5" />
-<x-waggies.page-header align="center" eyebrow="Transparent Pricing" title="Simple, Honest Pricing" subtitle="No hidden fees. Use our estimator for a tailored quote, then book or speak with our team." />
+<x-waggies.page-header alignment="center" eyebrow="Transparent Pricing" title="Simple, Honest Pricing" description="No hidden fees. Use our estimator for a tailored quote, then book or speak with our team." />
 
 <section id="pricing-calculator" x-data="pricingCalculator(@js($pricing), @js($resolved), @js(route('contact')))" class="scroll-mt-24 bg-surface-purple py-16">
     <div class="mx-auto max-w-5xl px-4 md:px-10 lg:px-12">

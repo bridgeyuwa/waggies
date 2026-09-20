@@ -2,7 +2,7 @@
 
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'FAQ']]" class="border-b border-primary/5 bg-white" />
-    <x-waggies.cover-hero :hero="$hero" title-id="hero-image-title" :center="true" />
+    <x-waggies.cover-hero :hero="$hero" />
 
     <div x-data="faqPage(@js($faqs), @js($categories))" class="mx-auto max-w-5xl px-4 py-12 md:px-10 md:py-20">
         <div class="mx-auto mb-10 max-w-2xl">
