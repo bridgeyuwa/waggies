@@ -27,9 +27,9 @@
         <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12">
             <x-waggies.section-heading :eyebrow="$page['howItWorksHeading']['eyebrow']" :title="$page['howItWorksHeading']['title']" :subtitle="$page['howItWorksHeading']['subtitle']" />
 
-            <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
+            <ol class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
                 @foreach($page['howItWorks'] as $item)
-                    <div class="flex flex-col gap-4 rounded-2xl bg-surface-purple p-8">
+                    <li class="flex flex-col gap-4 rounded-2xl bg-surface-purple p-8">
                         <div class="flex items-center gap-4">
                             <span class="font-serif text-4xl font-bold text-primary/20">{{ $item['step'] }}</span>
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
@@ -38,9 +38,9 @@
                         </div>
                         <h3 class="font-serif text-xl font-bold text-primary-dark">{{ $item['title'] }}</h3>
                         <p class="text-sm leading-relaxed text-primary-dark/60">{{ $item['desc'] }}</p>
-                    </div>
+                    </li>
                 @endforeach
-            </div>
+            </ol>
         </div>
     </section>
 
