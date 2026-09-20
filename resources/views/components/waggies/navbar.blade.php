@@ -19,7 +19,7 @@
     };
 @endphp
 
-<header x-data="waggiesNavbar" class="sticky top-0 z-50 w-full overflow-visible border-b border-primary/10 bg-white transition-[background-color,box-shadow,border-color] duration-200" @click.outside="closeDesktop()" @keydown.escape.window="escape()">
+<header x-data="waggiesNavbar" class="sticky top-0 z-layer-navigation w-full overflow-visible border-b border-primary/10 bg-white transition-[background-color,box-shadow,border-color] duration-200" @click.outside="closeDesktop()" @keydown.escape.window="escape()">
     <nav x-ref="nav" class="mx-auto flex min-h-[4.5rem] max-w-7xl items-center justify-between overflow-visible px-4 md:px-10 lg:px-12" aria-label="Main navigation">
         <a href="{{ route('home') }}" class="-my-2 flex shrink-0 items-center gap-2.5 py-2" aria-label="Waggies - home">
             <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-sm"><x-waggies.icon name="pets" size="20" class="text-white" /></span>
@@ -94,8 +94,8 @@
         </div>
     </nav>
 
-    <div x-cloak x-show="mobileOpen" x-transition.opacity class="fixed inset-0 z-40 bg-primary-dark/40 lg:hidden" aria-hidden="true" @click="closeMobile()"></div>
-    <aside id="mobile-menu" x-cloak x-show="mobileOpen" x-transition x-ref="drawer" class="fixed right-0 top-0 z-50 flex h-full w-80 max-w-[90vw] flex-col bg-white shadow-2xl lg:hidden" role="navigation" aria-label="Main navigation" tabindex="-1" :aria-hidden="!mobileOpen" @click.stop>
+    <div x-cloak x-show="mobileOpen" x-transition.opacity class="fixed inset-0 z-layer-sticky bg-primary-dark/40 lg:hidden" aria-hidden="true" @click="closeMobile()"></div>
+    <aside id="mobile-menu" x-cloak x-show="mobileOpen" x-transition x-ref="drawer" class="fixed right-0 top-0 z-layer-navigation flex h-full w-80 max-w-[90vw] flex-col bg-white shadow-2xl lg:hidden" role="navigation" aria-label="Main navigation" tabindex="-1" :aria-hidden="!mobileOpen" @click.stop>
         <div class="flex items-center justify-between border-b border-surface-purple px-5 py-4">
             <a href="{{ route('home') }}" class="flex items-center gap-2" @click="closeMobile()"><span class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary"><x-waggies.icon name="pets" size="16" class="text-white" /></span><span class="font-serif text-lg font-bold text-primary-dark">Waggies</span></a>
             <button type="button" class="rounded-lg p-3 transition-colors hover:bg-surface-purple" aria-label="Close navigation menu" @click="closeMobile()"><x-waggies.icon name="close" size="20" /></button>

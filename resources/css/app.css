@@ -55,13 +55,25 @@
 
     /* Structural borders (Refactoring UI: controls need real edges) */
     --color-waggies-border: oklch(0.62 0.02 75);
-    --color-border-subtle: oklch(0.68 0.02 75);
+    --color-waggies-border-muted: oklch(0.68 0.02 75);
 
     /* Soft border used only for elevated navigation panels */
     --color-nav-border: oklch(0.91 0.012 80);
 
     /* Focus */
     --color-focus: var(--color-waggies-primary);
+
+    /* Semantic ownership. Keep primitive brand names above and consume these
+       roles in shared UI so local composition can still use the primitives. */
+    --color-primary-hover: var(--color-waggies-primary-dark);
+    --color-primary-active: var(--color-waggies-primary-dark);
+    --color-accent-hover: var(--color-waggies-secondary-hover);
+    --color-text: var(--color-waggies-ink);
+    --color-text-muted: var(--color-waggies-ink-muted);
+    --color-surface-muted: var(--color-waggies-surface-subtle);
+    --color-surface-elevated: var(--color-waggies-surface-raised);
+    --color-scrim: oklch(0 0 0 / 0.4);
+    --color-danger: var(--color-error);
 
     /* Purple-tinted depth keeps the warm brand consistent through elevation. */
     --color-waggies-shadow: oklch(0.196 0.108 310);
@@ -94,6 +106,9 @@
     --radius-lg: 0.75rem;
     --radius-xl: 1rem;
     --radius-2xl: 1.25rem;
+    --radius-control: var(--radius-md);
+    --radius-card: var(--radius-xl);
+    --radius-pill: 9999px;
 
     /* Elevation scale – Refactoring UI compliant (restrained & neutral) */
     --shadow-xs: 0 1px 2px oklch(0.196 0.108 310 / 0.05);
@@ -109,6 +124,17 @@
     /* Soft lift used for hover states – very restrained */
     --shadow-soft: 0 8px 24px -4px oklch(0.196 0.108 310 / 0.12),
         0 4px 8px -2px oklch(0.196 0.108 310 / 0.05);
+
+    /* Semantic elevation tiers. The named aliases keep existing shadow values
+       stable while clarifying ownership for later component work. */
+    --shadow-subtle: var(--shadow-xs);
+    --shadow-card: var(--shadow-sm);
+    --shadow-floating: var(--shadow-lg);
+    --shadow-modal: var(--shadow-xl);
+
+    /* Navigation's existing 1153px transition is a real product breakpoint:
+       it changes the mega-menu from two columns to three. */
+    --breakpoint-nav: 72.0625rem;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -127,15 +153,23 @@
     --color-surface: var(--color-waggies-surface);
     --color-surface-purple: var(--color-waggies-surface-purple);
     --color-surface-raised: var(--color-waggies-surface-raised);
+    --color-surface-muted: var(--color-waggies-surface-subtle);
+    --color-surface-elevated: var(--color-waggies-surface-raised);
     --color-beige-soft: var(--color-waggies-beige-soft);
 
     /* Solid text – WCAG safe */
-    --color-text-body: var(--color-waggies-ink);
+    --color-text: var(--color-waggies-ink);
+    --color-text-body: var(--color-text);
     --color-text-secondary: var(--color-waggies-ink-secondary);
     --color-text-muted: var(--color-waggies-ink-muted);
 
     --color-border-subtle: var(--color-waggies-border);
     --color-focus: var(--color-waggies-primary);
+    --color-primary-hover: var(--color-waggies-primary-dark);
+    --color-primary-active: var(--color-waggies-primary-dark);
+    --color-accent-hover: var(--color-waggies-secondary-hover);
+    --color-scrim: oklch(0 0 0 / 0.4);
+    --color-danger: var(--color-error);
 
     /* Shadcn */
     --color-background: var(--color-surface);
@@ -187,6 +221,38 @@
     --font-serif: var(--font-cormorant-garamond), ui-serif, Georgia, serif;
 
     --radius: var(--radius-lg);
+}
+
+/* Layout, rhythm, and layer contracts. These values describe the current
+   Waggies system without forcing every local composition onto one recipe. */
+:root {
+    --layout-page-max: 80rem;
+    --layout-content-max: 65ch;
+    --space-page-gutter: 1rem;
+    --space-page-gutter-md: 2.5rem;
+    --space-page-gutter-lg: 3rem;
+    --space-section-compact: 3rem;
+    --space-section-standard: 4.5rem;
+    --space-section-standard-lg: 6.5rem;
+    --space-section-large: 6rem;
+    --space-card: 1.5rem;
+    --space-control: 0.75rem;
+
+    --layer-content: 10;
+    --layer-overlap: 30;
+    --layer-sticky: 40;
+    --layer-navigation: 50;
+    --layer-floating: 50;
+    --layer-floating-panel: 51;
+    --layer-progress: 60;
+    --layer-cart: 65;
+    --layer-search: 70;
+    --layer-toast: 80;
+    --layer-lightbox: 100;
+    --layer-skip-link: 9999;
+
+    --focus-ring-width: 3px;
+    --focus-ring-offset: 3px;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -250,8 +316,8 @@
     }
 
     :focus-visible {
-        outline: 3px solid var(--color-focus);
-        outline-offset: 3px;
+        outline: var(--focus-ring-width) solid var(--color-focus);
+        outline-offset: var(--focus-ring-offset);
     }
 
     :focus:not(:focus-visible) {
@@ -300,8 +366,45 @@
         }
     }
 
+    /* The public container contract replaces repeated max-w-7xl/gutter
+       recipes when a shared shell is appropriate. */
+    .page-container {
+        width: 100%;
+        max-width: var(--layout-page-max);
+        margin-inline: auto;
+        padding-inline: var(--space-page-gutter);
+    }
+
+    .content-column {
+        width: 100%;
+        max-width: var(--layout-content-max);
+    }
+
+    .section-shell,
+    .section-pad {
+        padding-block: var(--space-section-standard);
+    }
+
+    @media (min-width: 48rem) {
+        .page-container {
+            padding-inline: var(--space-page-gutter-md);
+        }
+
+        .section-shell,
+        .section-pad {
+            padding-block: var(--space-section-standard-lg);
+        }
+    }
+
+    @media (min-width: 64rem) {
+        .page-container {
+            padding-inline: var(--space-page-gutter-lg);
+        }
+    }
+
     /* Typography scale */
     .text-display,
+    .text-page-title,
     .text-h1 {
         font-family: var(--font-serif);
         font-weight: 700;
@@ -311,7 +414,8 @@
         text-wrap: balance;
     }
 
-    .text-h2 {
+    .text-h2,
+    .text-section-title {
         font-family: var(--font-serif);
         font-weight: 700;
         font-size: clamp(1.875rem, 3.2vw, 2.75rem);
@@ -329,7 +433,8 @@
         text-wrap: balance;
     }
 
-    .text-h3 {
+    .text-h3,
+    .text-card-title {
         font-family: var(--font-serif);
         font-weight: 600;
         font-size: 1.5rem;
@@ -357,7 +462,15 @@
         font-size: 1rem;
         line-height: 1.7;
         color: var(--color-text-body);
-        max-width: 65ch;
+        max-width: var(--layout-content-max);
+    }
+
+    .text-lead {
+        font-family: var(--font-sans);
+        font-size: 1.125rem;
+        line-height: 1.7;
+        color: var(--color-text-secondary);
+        max-width: var(--layout-content-max);
     }
 
     .text-body-sm {
@@ -396,23 +509,11 @@
         line-height: 1;
     }
 
-    .section-pad {
-        padding-top: 4.5rem;
-        padding-bottom: 4.5rem;
-    }
-
-    @media (min-width: 768px) {
-        .section-pad {
-            padding-top: 6.5rem;
-            padding-bottom: 6.5rem;
-        }
-    }
-
     /* Card language */
     .w-card {
         background-color: var(--color-surface-raised);
-        border-radius: var(--radius-xl);
-        box-shadow: inset 0 0 0 1px oklch(0.196 0.108 310 / 0.08), var(--shadow-sm);
+        border-radius: var(--radius-card);
+        box-shadow: inset 0 0 0 1px oklch(0.196 0.108 310 / 0.08), var(--shadow-card);
     }
 
     .w-card-hover {
@@ -433,8 +534,8 @@
     }
 
     .w-card-hover:focus-visible {
-        outline: 3px solid var(--color-focus);
-        outline-offset: 3px;
+        outline: var(--focus-ring-width) solid var(--color-focus);
+        outline-offset: var(--focus-ring-offset);
     }
 
     /* Keep browser autofill readable and visually aligned with the light-only
@@ -640,7 +741,7 @@
         border-radius: var(--radius-xl);
         border: 1px solid var(--color-nav-border);
         /* soft */
-        box-shadow: var(--shadow-lg);
+        box-shadow: var(--shadow-floating);
         /* elevation does the work */
         overflow: hidden;
         z-index: 50;
@@ -721,8 +822,8 @@
     }
 
     .nav-dropdown__hub-link:focus-visible {
-        outline: 3px solid var(--color-focus);
-        outline-offset: 3px;
+        outline: var(--focus-ring-width) solid var(--color-focus);
+        outline-offset: var(--focus-ring-offset);
     }
 
     .nav-dropdown__hub-link[aria-current="page"],
@@ -777,8 +878,8 @@
     }
 
     .nav-mega-link:focus-visible {
-        outline: 3px solid var(--color-focus);
-        outline-offset: 3px;
+        outline: var(--focus-ring-width) solid var(--color-focus);
+        outline-offset: var(--focus-ring-offset);
     }
 
     /* Persistent current location — not a copy of hover (no icon invert). */
@@ -866,14 +967,14 @@
     }
 
     /* Soft vertical dividers between categories */
-    @media (min-width: 1153px) {
+    @media (min-width: theme(--breakpoint-nav)) {
         .nav-dropdown__columns--mega-3col>[role="group"]:not(:last-child) {
             border-right: 1px solid var(--color-nav-border);
             padding-right: 2.5rem;
         }
     }
 
-    @media (max-width: 1152px) {
+    @media (width < theme(--breakpoint-nav)) {
         .nav-dropdown__columns--mega-3col {
             grid-template-columns: repeat(2, 1fr);
         }
@@ -884,7 +985,7 @@
         position: absolute;
         top: 1rem;
         left: 1rem;
-        z-index: 9999;
+        z-index: var(--layer-skip-link);
         padding: 0.5rem 1rem;
         background-color: var(--color-primary);
         color: #ffffff;
@@ -899,8 +1000,8 @@
     .skip-link:focus {
         transform: translateY(0);
         opacity: 1;
-        outline: 3px solid var(--color-focus);
-        outline-offset: 3px;
+        outline: var(--focus-ring-width) solid var(--color-focus);
+        outline-offset: var(--focus-ring-offset);
     }
 
     /* Laravel shell uses the same canonical Waggies CTA contract as the
@@ -911,7 +1012,7 @@
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        border-radius: 9999px;
+        border-radius: var(--radius-pill);
         padding: 0.875rem 2rem;
         font-family: var(--font-sans);
         font-size: 1rem;
@@ -929,18 +1030,18 @@
     .w-cta:focus-visible,
     .mobile-nav-link:focus-visible,
     .mobile-nav-sublink:focus-visible {
-        outline: 3px solid var(--color-focus);
-        outline-offset: 3px;
+        outline: var(--focus-ring-width) solid var(--color-focus);
+        outline-offset: var(--focus-ring-offset);
     }
 
     .w-cta--primary {
         background-color: var(--color-primary);
         color: #fff;
-        box-shadow: var(--shadow-sm);
+        box-shadow: var(--shadow-subtle);
     }
 
     .w-cta--primary:hover {
-        background-color: var(--color-primary-dark);
+        background-color: var(--color-primary-hover);
         box-shadow: var(--shadow-md);
     }
 
@@ -983,6 +1084,44 @@
     }
 }
 
+/* Named layer utilities make the actual Waggies stacking hierarchy explicit
+   when a component needs to cross the normal document flow. */
+@utility z-layer-overlap {
+    z-index: var(--layer-overlap);
+}
+
+@utility z-layer-sticky {
+    z-index: var(--layer-sticky);
+}
+
+@utility z-layer-navigation {
+    z-index: var(--layer-navigation);
+}
+
+@utility z-layer-floating {
+    z-index: var(--layer-floating);
+}
+
+@utility z-layer-floating-panel {
+    z-index: var(--layer-floating-panel);
+}
+
+@utility z-layer-cart {
+    z-index: var(--layer-cart);
+}
+
+@utility z-layer-search {
+    z-index: var(--layer-search);
+}
+
+@utility z-layer-toast {
+    z-index: var(--layer-toast);
+}
+
+@utility z-layer-lightbox {
+    z-index: var(--layer-lightbox);
+}
+
 /* ════════════════════════════════════════════════════════════════════════════
    UTILITIES
    ════════════════════════════════════════════════════════════════════════════ */
@@ -990,7 +1129,7 @@
     .navigation-progress {
         position: fixed;
         inset: 0 0 auto;
-        z-index: 60;
+        z-index: var(--layer-progress);
         height: 0.125rem;
         transform: scaleX(0);
         transform-origin: left;
@@ -1128,8 +1267,8 @@ summary {
 
 @media (forced-colors: active) {
     :focus-visible {
-        outline: 3px solid CanvasText !important;
-        outline-offset: 3px;
+        outline: var(--focus-ring-width) solid CanvasText !important;
+        outline-offset: var(--focus-ring-offset);
     }
 }
 

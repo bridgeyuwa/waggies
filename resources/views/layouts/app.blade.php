@@ -22,7 +22,7 @@
         <x-waggies.floating-actions />
         <x-waggies.mobile-bottom-nav />
 
-        <div x-data="waggiesSearch" x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-[70] bg-primary-dark/40 p-4 sm:p-8" role="dialog" aria-modal="true" aria-labelledby="search-title" @click.self="close()" @keydown.escape.window="close()">
+        <div x-data="waggiesSearch" x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-layer-search bg-primary-dark/40 p-4 sm:p-8" role="dialog" aria-modal="true" aria-labelledby="search-title" @click.self="close()" @keydown.escape.window="close()">
             <div class="mx-auto mt-12 max-w-2xl overflow-hidden rounded-2xl border border-primary/10 bg-white shadow-2xl" @click.stop>
                 <div class="relative flex items-center gap-3 border-b border-surface-purple p-4"><x-waggies.icon name="search" size="20"/><label id="search-title" class="sr-only" for="global-search">Search query</label><input id="global-search" x-ref="input" x-model="query" @input.debounce.150ms="fetchResults()" aria-autocomplete="list" aria-controls="search-results-list" autocomplete="off" class="min-w-0 flex-1 border-0 text-lg focus:outline-none" placeholder="Search services, articles, products, FAQs…"><button type="button" @click="close()" aria-label="Close search" class="flex h-11 w-11 items-center justify-center rounded-full hover:bg-surface-purple"><x-waggies.icon name="close" size="20"/></button></div>
                 <div x-show="!query && !loading" class="p-4"><p class="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-primary-dark/50">Popular</p><div class="flex flex-wrap gap-2"><template x-for="term in ['Grooming', 'Vet Care', 'Boarding prices', 'Dog training', 'Pet relocation', 'Vaccination']" :key="term"><button type="button" class="rounded-xl bg-surface-purple px-3 py-2 text-sm font-medium text-primary-dark hover:bg-primary hover:text-white" x-text="term" @click="query = term; fetchResults()"></button></template></div></div>
@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <div x-data="waggiesCart" x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-[65] bg-primary-dark/40" role="dialog" aria-modal="true" aria-labelledby="cart-title" @click.self="close()" @keydown.escape.window="close()">
+        <div x-data="waggiesCart" x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-layer-cart bg-primary-dark/40" role="dialog" aria-modal="true" aria-labelledby="cart-title" @click.self="close()" @keydown.escape.window="close()">
             <aside class="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-2xl">
                 <div class="border-b border-primary/5 px-6 pb-4 pt-6">
                     <div class="flex items-center justify-between"><h2 id="cart-title" class="font-serif text-xl font-bold text-primary-dark">Your Cart</h2><button type="button" @click="close()" aria-label="Close cart" class="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-surface-purple"><x-waggies.icon name="close" size="20"/></button></div>
@@ -73,7 +73,7 @@
             </aside>
         </div>
 
-        <div x-data="waggiesToasts" class="fixed right-4 top-20 z-[80] space-y-2" aria-live="polite"><template x-for="toast in items" :key="toast.id"><div class="rounded-xl bg-primary-dark px-4 py-3 text-sm text-white shadow-lg" x-text="toast.message"></div></template></div>
+        <div x-data="waggiesToasts" class="fixed right-4 top-20 z-layer-toast space-y-2" aria-live="polite"><template x-for="toast in items" :key="toast.id"><div class="rounded-xl bg-primary-dark px-4 py-3 text-sm text-white shadow-lg" x-text="toast.message"></div></template></div>
         @stack('scripts')
     </body>
 </html>

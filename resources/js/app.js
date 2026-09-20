@@ -179,7 +179,7 @@ function initWaggiesSelect(select) {
 
     const listbox = document.createElement('div');
     listbox.id = `${button.id}-listbox`;
-    listbox.className = 'waggies-select-options fixed z-50 min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-lg border border-primary/15 bg-white p-1 shadow-lg outline-none';
+    listbox.className = 'waggies-select-options fixed z-layer-navigation min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-lg border border-primary/15 bg-white p-1 shadow-lg outline-none';
     listbox.setAttribute('role', 'listbox');
     listbox.dataset.state = 'closed';
     listbox.hidden = true;
