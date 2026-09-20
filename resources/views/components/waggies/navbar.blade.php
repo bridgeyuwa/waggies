@@ -85,7 +85,7 @@
                 <button x-data="waggiesCartIndicator" type="button" class="relative flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-surface-purple focus:outline-none focus:ring-2 focus:ring-primary/60" aria-label="Open cart" :aria-label="`Open cart${count > 0 ? `, ${count} item${count === 1 ? '' : 's'}` : ''}`" @click="$dispatch('waggies:open-cart')"><x-waggies.icon name="shopping-cart" size="20" class="text-primary-dark" /><span x-show="count > 0" x-cloak class="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-white" x-text="count > 99 ? '99+' : count"></span></button>
                 <button type="button" class="group relative flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-surface-purple focus:outline-none focus:ring-2 focus:ring-primary/60" aria-label="Search the site" title="Search the site (⌘K / Ctrl+K)" @click="$dispatch('waggies:open-search')"><x-waggies.icon name="search" size="20" class="text-primary-dark transition-transform group-hover:scale-110" /></button>
             </div>
-            <a href="{{ route('contact', ['intent' => 'booking']) }}" class="hidden w-cta w-cta--primary px-6 py-3 text-sm !gap-1.5 lg:block">Book Now</a>
+            <x-waggies.button href="{{ route('contact', ['intent' => 'booking']) }}" class="hidden !gap-1.5 px-6 py-3 text-sm lg:block">Book Now</x-waggies.button>
             <button type="button" class="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-lg p-3 transition-colors hover:bg-surface-purple lg:hidden" aria-expanded="false" :aria-expanded="mobileOpen" :aria-label="mobileOpen ? 'Close navigation menu' : 'Open navigation menu'" aria-controls="mobile-menu" @click="mobileOpen ? closeMobile() : openMobile()">
                 <span class="block h-0.5 w-5 rounded-full bg-primary-dark transition-[transform,opacity] duration-300" :class="mobileOpen && 'translate-y-[7px] rotate-45'" aria-hidden="true"></span>
                 <span class="block h-0.5 w-5 rounded-full bg-primary-dark transition-[opacity] duration-300" :class="mobileOpen && 'opacity-0'" aria-hidden="true"></span>
@@ -154,6 +154,6 @@
             <a href="{{ route('shop.index') }}" class="mobile-nav-link {{ $navSection === 'shop' || str_starts_with($currentPath, '/shop/') ? 'bg-surface-purple text-primary' : '' }}" @click="closeMobile()" @if($navSection === 'shop' || str_starts_with($currentPath, '/shop/')) aria-current="page" @endif>Shop</a>
             <a href="{{ route('contact') }}" class="mobile-nav-link" @click="closeMobile()">Contact</a>
         </nav>
-        <div class="space-y-3 border-t border-surface-purple px-4 py-4"><a href="{{ route('contact', ['intent' => 'booking']) }}" class="w-cta w-cta--primary px-6 py-3 text-sm !gap-1.5 w-full justify-center" @click="closeMobile()">Book Now</a></div>
+        <div class="space-y-3 border-t border-surface-purple px-4 py-4"><x-waggies.button href="{{ route('contact', ['intent' => 'booking']) }}" class="w-full !gap-1.5 px-6 py-3 text-sm" @click="closeMobile()">Book Now</x-waggies.button></div>
     </aside>
 </header>

@@ -31,6 +31,23 @@ Contact keeps the current request gateway and query compatibility: `service`, `b
 
 The eventual pricing domain, authoritative server-side quoting, availability, booking, payment, inventory, and database-backed pricing are deferred to the later domain phase.
 
+## Waggies UI Primitive Vocabulary
+
+Public Blade composition uses a small set of semantic primitives under `resources/views/components/waggies`:
+
+| Primitive | Responsibility |
+| --- | --- |
+| `button` | Native `<button>` for actions or `<a>` for navigation; variants are `primary`, `secondary`, `outline`, and `link`, with `sm` available for compact controls. Icons are composed in the slot. |
+| `field` | Shared label, control slot, help text, and field-error structure. `input` and `select` consume it while dynamic Alpine forms may keep their local markup. |
+| `input` / `select` | Semantic native controls with consistent IDs, required markers, help/error associations, and token-backed control styling. The enhanced select preserves the native control as its source of truth. |
+| `section-heading` / `page-header` | Section-level `h2` and page-level `h1` contracts. Article, card, and editorial headings remain local when their semantics differ. |
+| `card` | Low-level token-backed surface shell. Service, pricing, article, product, and testimonial cards remain domain-specific compositions. |
+| `icon` / `brand-icon` | Decorative icons by default; pass `label` only when the icon itself conveys meaning. Brand assets remain separate from the Material Symbols mapping. |
+| `image` | Lightweight semantic image wrapper for explicit `src`, `alt`, loading, decoding, fetch priority, and caller-supplied layout classes. Dynamic previews and hero backgrounds remain local. |
+| `alert` / `field-error` | Page or inline feedback versus validation feedback. Alerts use `alert` for errors and `status` for non-error notices by default. |
+
+Shared primitives should preserve native HTML semantics, accept attribute-bag class overrides for local composition, and expose small deliberate variants rather than unrelated modes. Domain components should consume primitives without becoming universal components.
+
 ## Controller Resource Boundaries
 
 The HTTP layer follows the Cruddy by Design resource vocabulary without changing established public URLs:

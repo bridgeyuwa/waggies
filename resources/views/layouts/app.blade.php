@@ -65,7 +65,7 @@
                         <div class="flex flex-col gap-4 border-t border-primary/5 px-6 py-5">
                             <div class="flex items-center justify-between"><span class="text-sm font-medium text-primary-dark/60">Subtotal</span><span class="text-lg font-bold text-primary-dark" x-text="formatPrice(subtotal())"></span></div>
                             <p class="text-xs text-primary-dark/60">Shipping and taxes confirmed by Waggies.</p>
-                            <a href="{{ route('contact', ['intent' => 'cart-order']) }}" @click="close()" class="w-cta w-cta--primary w-full">Checkout via WhatsApp</a>
+                            <x-waggies.button href="{{ route('contact', ['intent' => 'cart-order']) }}" @click="close()" class="w-full">Checkout via WhatsApp</x-waggies.button>
                             <button type="button" @click="clearCart()" class="w-full py-1 text-center text-xs font-medium text-primary-dark/60 transition-colors hover:text-primary-dark/70">Clear cart</button>
                         </div>
                     </div>

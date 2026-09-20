@@ -11,7 +11,7 @@
 
 <a href="{{ route('shop.show', ['id' => $product['id']]) }}" data-shop-product-category="{{ $product['category'] }}" @if($visibility) x-show="{{ $visibility }}" @endif class="group w-card w-card-hover block h-full overflow-hidden border border-primary/5" @if($visibility) x-cloak @endif>
     <div class="relative aspect-square overflow-hidden rounded-t-[1rem] bg-surface">
-        <img src="{{ $product['image'] }}" alt="{{ $product['alt'] }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]" loading="lazy" />
+        <x-waggies.image src="{{ $product['image'] }}" alt="{{ $product['alt'] }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]" />
         @if($product['badge'])
             <span class="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-white">{{ $product['badge'] }}</span>
         @endif

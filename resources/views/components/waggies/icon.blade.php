@@ -3,6 +3,7 @@
     'size' => 20,
     'variant' => 'outlined',
     'class' => '',
+    'label' => null,
 ])
 
 @php
@@ -113,4 +114,8 @@
     $file = $icon[$variant] ?? $icon['outlined'];
 @endphp
 
-<span aria-hidden="true" class="inline-block shrink-0 bg-current {{ $class }}" style="width: {{ $size }}px; height: {{ $size }}px; mask: url('{{ asset('icons/material-symbols/outlined/'.$file) }}') center / contain no-repeat; -webkit-mask: url('{{ asset('icons/material-symbols/outlined/'.$file) }}') center / contain no-repeat;"></span>
+<span
+    @if($label) role="img" aria-label="{{ $label }}" @else aria-hidden="true" @endif
+    {{ $attributes->class(['inline-block shrink-0 bg-current', $class]) }}
+    style="width: {{ $size }}px; height: {{ $size }}px; mask: url('{{ asset('icons/material-symbols/outlined/'.$file) }}') center / contain no-repeat; -webkit-mask: url('{{ asset('icons/material-symbols/outlined/'.$file) }}') center / contain no-repeat;"
+></span>

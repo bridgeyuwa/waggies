@@ -65,10 +65,10 @@
         </div>
 
         <div class="relative z-10 mt-12">
-            <a href="{{ route('contact') }}" class="w-cta w-cta--primary inline-flex items-center gap-2">
+            <x-waggies.button href="{{ route('contact') }}">
                 <x-waggies.icon name="contact" size="21" />
                 Need help? Contact Us
-            </a>
+            </x-waggies.button>
         </div>
     </section>
 @endsection

@@ -2,6 +2,7 @@
     'name' => 'instagram',
     'size' => 18,
     'class' => '',
+    'label' => null,
 ])
 
 @php
@@ -10,7 +11,7 @@
 @endphp
 
 <span
-    aria-hidden="true"
-    class="inline-block shrink-0 bg-current {{ $class }}"
+    @if($label) role="img" aria-label="{{ $label }}" @else aria-hidden="true" @endif
+    {{ $attributes->class(['inline-block shrink-0 bg-current', $class]) }}
     style="width: {{ $size }}px; height: {{ $size }}px; mask: url('{{ asset('icons/brands/'.$file) }}') center / contain no-repeat; -webkit-mask: url('{{ asset('icons/brands/'.$file) }}') center / contain no-repeat;"
 ></span>

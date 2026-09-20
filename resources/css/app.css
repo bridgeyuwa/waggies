@@ -1023,6 +1023,13 @@
             color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
     }
 
+    .w-cta--sm {
+        min-height: 44px;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
+
     .w-cta:active {
         transform: scale(0.98);
     }

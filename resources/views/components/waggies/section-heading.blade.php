@@ -1,7 +1,17 @@
-@props(['eyebrow' => null, 'title', 'subtitle' => null, 'spacing' => 'mb-16'])
+@props(['eyebrow' => null, 'title', 'subtitle' => null, 'align' => 'center', 'spacing' => 'mb-16'])
 
-<div class="text-center {{ $spacing }}">
+@php
+    $alignmentClasses = $align === 'left' ? 'text-left' : 'text-center';
+    $subtitleClasses = $align === 'left' ? 'max-w-2xl' : 'mx-auto max-w-2xl';
+@endphp
+
+<div {{ $attributes->class([$alignmentClasses, $spacing]) }}>
     @if($eyebrow)<span class="text-eyebrow mb-4 block">{{ $eyebrow }}</span>@endif
-    <h2 class="font-serif text-3xl md:text-[2.5rem] md:leading-[1.12] font-bold text-primary-dark leading-tight mb-4 text-balance">{!! $title !!}</h2>
-    @if($subtitle)<div class="text-primary-dark/60 max-w-2xl mx-auto text-pretty">{{ $subtitle }}</div>@endif
+    <div class="flex flex-col gap-4 {{ $align === 'left' ? 'items-start' : 'items-center' }}">
+        <h2 class="text-h2 text-primary-dark text-balance">{!! $title !!}</h2>
+        @if($subtitle)<div class="{{ $subtitleClasses }} text-primary-dark/60 text-pretty">{{ $subtitle }}</div>@endif
+        @if(isset($action) && $action->isNotEmpty())
+            <div>{{ $action }}</div>
+        @endif
+    </div>
 </div>

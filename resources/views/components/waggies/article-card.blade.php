@@ -2,7 +2,7 @@
 
 <a href="{{ route($routeName, ['slug' => $guide['slug']]) }}" class="group w-card w-card-hover overflow-hidden h-full flex flex-col border border-primary/5 {{ $featured ? 'md:flex' : '' }}">
     <div class="relative overflow-hidden {{ $featured ? 'md:w-1/2 md:flex-shrink-0' : 'aspect-[16/10]' }}">
-        <img src="{{ $guide['image'] }}" alt="{{ $guide['title'] }}" class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]" loading="lazy">
+        <x-waggies.image src="{{ $guide['image'] }}" alt="{{ $guide['title'] }}" class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]" />
     </div>
 
     <div class="p-5 md:p-6 flex flex-col gap-3 {{ $featured ? 'md:flex-1 md:justify-center' : '' }}">
