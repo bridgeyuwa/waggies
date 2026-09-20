@@ -641,9 +641,11 @@ const testimonialForm = (submitUrl) => ({
     validateAbout() { const errors = {}; if (this.data.authorName.trim().length < 2) errors.authorName = 'Please enter your name (min 2 characters).'; else if (this.data.authorName.length > 60) errors.authorName = 'Name should be 60 characters or less.'; if (this.data.authorLocation.trim().length < 2) errors.authorLocation = 'Please enter your area (e.g. Maitama, Abuja).'; else if (this.data.authorLocation.length > 80) errors.authorLocation = 'Location should be 80 characters or less.'; if (this.data.petName.length > 60) errors.petName = 'Pet name should be 60 characters or less.'; if (!this.petTypes.includes(this.data.petType)) errors.petType = this.data.petType ? 'Please choose a valid pet type.' : 'Please select your pet type.'; return errors; },
     next() { const errors = this.step === 0 ? this.validateExperience() : this.validateAbout(); this.errors = errors; if (!Object.keys(errors).length) this.step += 1; },
     back() { if (this.step > 0) { this.step -= 1; this.errors = {}; } },
-    photoChange(event) { const file = event.target.files?.[0]; if (!file) return; if (!file.type.startsWith('image/')) { this.errors.photo = 'Please choose an image file.'; return; } if (file.size > 4 * 1024 * 1024) { this.errors.photo = 'Please choose an image under 4 MB.'; return; } const reader = new FileReader(); reader.onload = () => { this.data.photoUrl = typeof reader.result === 'string' ? reader.result : undefined; this.clear('photo'); }; reader.readAsDataURL(file); },
+    photoChange(event) { const file = event.target.files?.[0]; if (!file) return; const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']; if (!allowedTypes.includes(file.type)) { this.errors.photo = 'Please choose a JPG, PNG, or WebP image.'; event.target.value = ''; return; } if (file.size > 4 * 1024 * 1024) { this.errors.photo = 'Please choose an image under 4 MB.'; event.target.value = ''; return; } const reader = new FileReader(); reader.onload = () => { this.data.photoUrl = typeof reader.result === 'string' ? reader.result : undefined; this.clear('photo'); }; reader.readAsDataURL(file); },
     removePhoto() { this.data.photoUrl = undefined; const input = document.getElementById('testimonial-photo'); if (input) input.value = ''; },
     async submit(event) {
+        if (this.submitting) return;
+
         this.errors = this.data.consent ? {} : { consent: 'Please agree to let Waggies use your testimonial.' };
         this.serverError = '';
         if (Object.keys(this.errors).length) return;
@@ -660,7 +662,8 @@ const testimonialForm = (submitUrl) => ({
             if (!response.ok) {
                 const payload = await response.json().catch(() => ({}));
                 if (response.status === 422) {
-                    this.errors = Object.fromEntries(Object.entries(payload.errors ?? {}).map(([field, messages]) => [field, messages[0]]));
+                    const fieldNames = { author_name: 'authorName', author_location: 'authorLocation', pet_name: 'petName', pet_type: 'petType' };
+                    this.errors = Object.fromEntries(Object.entries(payload.errors ?? {}).map(([field, messages]) => [fieldNames[field] || field, messages[0]]));
                     return;
                 }
 
@@ -668,11 +671,13 @@ const testimonialForm = (submitUrl) => ({
             }
 
             this.submitted = true;
+            this.$nextTick(() => this.$root.querySelector('[role="status"]')?.focus());
             window.dispatchEvent(new CustomEvent('waggies:toast', { detail: 'Thank you! Your testimonial has been submitted for review.' }));
             setTimeout(() => {
                 this.submitted = false;
                 this.step = 0;
                 this.data = { rating: 0, service: '', title: '', story: '', authorName: '', authorLocation: '', petName: '', petType: '', photoUrl: undefined, consent: false };
+                this.removePhoto();
                 this.errors = {};
             }, 3000);
         } catch (error) {

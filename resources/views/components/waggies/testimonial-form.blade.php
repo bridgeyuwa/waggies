@@ -1,23 +1,158 @@
 <div x-data="testimonialForm(@js(route('testimonials.store')))" class="relative">
-    <div class="bg-white rounded-3xl shadow-[0_20px_60px_-20px_rgba(107,44,145,0.35)] border border-surface-purple/60 overflow-hidden">
-        <div class="bg-primary px-6 sm:px-10 py-5"><div class="flex items-center justify-between gap-4">
-            <template x-for="(label, index) in ['Experience', 'About You', 'Photos']" :key="label"><div class="flex items-center gap-3 flex-1 last:flex-none"><div class="flex flex-col items-center gap-1.5"><div class="relative w-9 h-9 rounded-full grid place-items-center text-sm font-bold transition-colors duration-300" :class="stepIndex === index ? 'bg-white text-primary' : stepIndex > index ? 'bg-white/25 text-white' : 'bg-white/10 text-white/70'"><template x-if="stepIndex > index"><x-waggies.icon name="check" size="16" aria-hidden="true" /></template><template x-if="stepIndex <= index"><span x-text="index + 1"></span></template><span x-show="stepIndex === index" class="absolute -inset-1 rounded-full border-2 border-white/80"></span></div><span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wide" :class="stepIndex === index ? 'text-white' : stepIndex > index ? 'text-white/80' : 'text-white/60'" x-text="label"></span></div><div x-show="index < 2" class="flex-1 h-0.5 bg-white/20 rounded-full overflow-hidden hidden sm:block"><div class="h-full bg-white transition-[width] duration-300" :class="stepIndex > index ? 'w-full' : 'w-0'"></div></div></div></template>
-        </div></div>
-        <div class="px-6 sm:px-10 py-8 sm:py-10 min-h-[28rem] relative">
-            <div x-show="submitted" x-cloak class="flex flex-col items-center justify-center text-center py-10" role="status" aria-live="polite"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true"><circle cx="32" cy="32" r="28" stroke="#6B2C91" stroke-width="3" fill="#F5F0FA"/><path d="M20 33 L28 41 L44 24" stroke="#6B2C91" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><h3 class="font-serif text-2xl font-bold text-primary-dark mt-4">Thank you!</h3><p class="text-primary-dark/60 max-w-sm mt-1.5">Your testimonial has been submitted. We&apos;ll review it and share it with the Waggies community soon.</p></div>
-            <form x-show="!submitted" x-cloak @submit.prevent="submit($event)" novalidate enctype="multipart/form-data" class="space-y-5">
+    <div class="overflow-hidden rounded-3xl border border-surface-purple/60 bg-white shadow-[0_20px_60px_-20px_rgba(107,44,145,0.35)]">
+        <div class="bg-primary px-6 py-5 sm:px-10">
+            <div class="flex items-center justify-between gap-4" aria-label="Testimonial submission progress">
+                <template x-for="(label, index) in ['Experience', 'About You', 'Photos']" :key="label">
+                    <div class="flex flex-1 items-center gap-3 last:flex-none">
+                        <div class="flex flex-col items-center gap-1.5">
+                            <div class="relative grid size-9 place-items-center rounded-full text-sm font-bold transition-colors duration-300" :class="stepIndex === index ? 'bg-white text-primary' : stepIndex > index ? 'bg-white/25 text-white' : 'bg-white/10 text-white/70'">
+                                <template x-if="stepIndex > index"><x-waggies.icon name="check" size="16" aria-hidden="true" /></template>
+                                <template x-if="stepIndex <= index"><span x-text="index + 1"></span></template>
+                                <span x-show="stepIndex === index" class="absolute -inset-1 rounded-full border-2 border-white/80" aria-hidden="true"></span>
+                            </div>
+                            <span class="text-[10px] font-semibold uppercase tracking-wide sm:text-xs" :class="stepIndex === index ? 'text-white' : stepIndex > index ? 'text-white/80' : 'text-white/60'" x-text="label"></span>
+                        </div>
+                        <div x-show="index < 2" class="hidden h-0.5 flex-1 overflow-hidden rounded-full bg-white/20 sm:block">
+                            <div class="h-full bg-white transition-[width] duration-300" :class="stepIndex > index ? 'w-full' : 'w-0'"></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <div class="relative min-h-[28rem] px-6 py-8 sm:px-10 sm:py-10">
+            <div x-show="submitted" x-cloak tabindex="-1" class="flex flex-col items-center justify-center py-10 text-center" role="status" aria-live="polite">
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true"><circle cx="32" cy="32" r="28" stroke="#6B2C91" stroke-width="3" fill="#F5F0FA"/><path d="M20 33 L28 41 L44 24" stroke="#6B2C91" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <h3 class="mt-4 font-serif text-2xl font-bold text-primary-dark">Thank you!</h3>
+                <p class="mt-1.5 max-w-sm text-primary-dark/60">Your testimonial has been submitted. We&apos;ll review it and share it with the Waggies community soon.</p>
+            </div>
+
+            <form x-show="!submitted" x-cloak @submit.prevent="submit($event)" enctype="multipart/form-data" :aria-busy="submitting" class="space-y-5" aria-describedby="testimonial-form-help">
                 @csrf
+                <p id="testimonial-form-help" class="sr-only">Required fields are marked. The form has three steps.</p>
                 <input type="hidden" name="rating" :value="data.rating">
+
                 <div x-show="step === 0" x-transition class="space-y-5">
-                    <div><h3 class="font-serif text-xl font-bold text-primary-dark">Your Experience</h3><p class="text-sm text-primary-dark/60 mt-0.5">Tell us how Waggies helped you and your pet.</p></div>
-                    <div class="space-y-1.5"><label class="text-primary-dark font-semibold">Overall rating</label><div class="flex items-center gap-2"><div class="flex items-center gap-1" role="radiogroup" aria-label="Overall rating"><template x-for="n in 5" :key="n"><button type="button" @click="data.rating = n; clear('rating')" class="p-1 -m-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-full" :aria-label="n + (n > 1 ? ' stars' : ' star')" :aria-checked="data.rating === n" role="radio"><span :class="data.rating >= n ? 'text-gold' : 'text-primary-dark/20 hover:text-gold'"><x-waggies.icon name="star" size="30" variant="filled" /></span></button></template></div><span x-show="data.rating > 0" class="text-sm font-semibold text-primary-dark/70 ml-1" x-text="data.rating + ' of 5'"></span></div><p x-show="errors.rating" x-text="errors.rating" class="text-red-500 text-xs font-medium" role="alert"></p></div>
-                    <div class="space-y-1.5"><label for="testimonial-service" class="text-primary-dark font-semibold">Service used</label><select id="testimonial-service" name="service" x-model="data.service" @change="clear('service')" :aria-invalid="errors.service ? 'true' : null" :aria-describedby="errors.service ? 'testimonial-service-error' : null" class="w-full min-h-[44px] rounded-md border border-surface-purple bg-surface-purple/30 px-3 text-sm text-primary-dark focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="">Choose a service</option><template x-for="service in services" :key="service"><option :value="service" x-text="service"></option></template></select><p id="testimonial-service-error" x-show="errors.service" x-text="errors.service" class="text-red-500 text-xs font-medium" role="alert"></p></div>
-                    <div class="space-y-1.5"><label for="testimonial-title" class="text-primary-dark font-semibold">Experience title</label><input id="testimonial-title" name="title" x-model="data.title" maxlength="80" placeholder="e.g. Bruno loved his stay!" class="h-9 w-full rounded-md border border-surface-purple bg-white px-3 py-1 text-sm text-primary-dark shadow-sm focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"><div class="flex items-center justify-between text-[11px] text-primary-dark/60"><span>A short headline for your story.</span><span x-text="data.title.length + '/80'"></span></div><p x-show="errors.title" x-text="errors.title" class="text-red-500 text-xs font-medium" role="alert"></p></div>
-                    <div class="space-y-1.5"><label for="testimonial-story" class="text-primary-dark font-semibold">Your story</label><textarea id="testimonial-story" name="story" x-model="data.story" maxlength="2000" rows="5" placeholder="Share what happened, how the team treated your pet, and what you loved most..." class="h-16 min-h-16 w-full rounded-md border border-surface-purple bg-white px-3 py-2 text-sm text-primary-dark shadow-sm resize-none focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"></textarea><div class="flex items-center justify-between text-[11px] text-primary-dark/60"><span>Minimum 50 characters.</span><span x-text="data.story.length + '/2000'"></span></div><p x-show="errors.story" x-text="errors.story" class="text-red-500 text-xs font-medium" role="alert"></p></div>
+                    <div>
+                        <h3 class="font-serif text-xl font-bold text-primary-dark">Your Experience</h3>
+                        <p class="mt-0.5 text-sm text-primary-dark/60">Tell us how Waggies helped you and your pet.</p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <p id="testimonial-rating-label" class="font-semibold text-primary-dark">Overall rating <span class="text-primary" aria-hidden="true">*</span></p>
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-1" role="radiogroup" aria-labelledby="testimonial-rating-label" aria-required="true" :aria-describedby="errors.rating ? 'testimonial-rating-error' : null">
+                                <template x-for="n in 5" :key="n">
+                                    <button type="button" @click="data.rating = n; clear('rating')" class="-m-1 rounded-full p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60" :aria-label="n + (n > 1 ? ' stars' : ' star')" :aria-checked="data.rating === n" role="radio">
+                                        <span :class="data.rating >= n ? 'text-gold' : 'text-primary-dark/20 hover:text-gold'"><x-waggies.icon name="star" size="30" variant="filled" /></span>
+                                    </button>
+                                </template>
+                            </div>
+                            <span x-show="data.rating > 0" class="ml-1 text-sm font-semibold text-primary-dark/70" x-text="data.rating + ' of 5'"></span>
+                        </div>
+                        <p id="testimonial-rating-error" x-show="errors.rating" x-text="errors.rating" class="text-xs font-medium text-error" role="alert"></p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label for="testimonial-service" class="font-semibold text-primary-dark">Service used <span class="text-primary" aria-hidden="true">*</span></label>
+                        <select id="testimonial-service" name="service" x-model="data.service" @change="clear('service')" required :aria-invalid="errors.service ? 'true' : null" :aria-describedby="errors.service ? 'testimonial-service-error' : null" class="contact-input !rounded-md">
+                            <option value="">Choose a service</option>
+                            <template x-for="service in services" :key="service"><option :value="service" x-text="service"></option></template>
+                        </select>
+                        <p id="testimonial-service-error" x-show="errors.service" x-text="errors.service" class="text-xs font-medium text-error" role="alert"></p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label for="testimonial-title" class="font-semibold text-primary-dark">Experience title <span class="text-primary" aria-hidden="true">*</span></label>
+                        <input id="testimonial-title" name="title" x-model="data.title" @input="clear('title')" required maxlength="80" placeholder="e.g. Bruno loved his stay!" :aria-invalid="errors.title ? 'true' : null" :aria-describedby="errors.title ? 'testimonial-title-help testimonial-title-error' : 'testimonial-title-help'" class="contact-input !rounded-md">
+                        <div id="testimonial-title-help" class="flex items-center justify-between text-[11px] text-primary-dark/60"><span>A short headline for your story.</span><span x-text="data.title.length + '/80'"></span></div>
+                        <p id="testimonial-title-error" x-show="errors.title" x-text="errors.title" class="text-xs font-medium text-error" role="alert"></p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label for="testimonial-story" class="font-semibold text-primary-dark">Your story <span class="text-primary" aria-hidden="true">*</span></label>
+                        <textarea id="testimonial-story" name="story" x-model="data.story" @input="clear('story')" required maxlength="2000" rows="5" placeholder="Share what happened, how the team treated your pet, and what you loved most..." :aria-invalid="errors.story ? 'true' : null" :aria-describedby="errors.story ? 'testimonial-story-help testimonial-story-error' : 'testimonial-story-help'" class="contact-input resize-none !rounded-md"></textarea>
+                        <div id="testimonial-story-help" class="flex items-center justify-between text-[11px] text-primary-dark/60"><span>Minimum 50 characters.</span><span x-text="data.story.length + '/2000'"></span></div>
+                        <p id="testimonial-story-error" x-show="errors.story" x-text="errors.story" class="text-xs font-medium text-error" role="alert"></p>
+                    </div>
                 </div>
-                <div x-show="step === 1" x-transition class="space-y-5"><div><h3 class="font-serif text-xl font-bold text-primary-dark">About You &amp; Your Pet</h3><p class="text-sm text-primary-dark/60 mt-0.5">So we can attribute your testimonial properly.</p></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div class="space-y-1.5"><label for="authorName" class="text-primary-dark font-semibold">Your name <span class="text-red-500">*</span></label><input id="authorName" name="author_name" x-model="data.authorName" maxlength="60" placeholder="e.g. Adaeze O." class="h-9 w-full rounded-md border border-surface-purple bg-white px-3 py-1 text-sm text-primary-dark shadow-sm focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"><p x-show="errors.authorName" x-text="errors.authorName" class="text-red-500 text-xs font-medium" role="alert"></p></div><div class="space-y-1.5"><label for="authorLocation" class="text-primary-dark font-semibold">Your area</label><input id="authorLocation" name="author_location" x-model="data.authorLocation" maxlength="80" placeholder="e.g. Maitama, Abuja" class="h-9 w-full rounded-md border border-surface-purple bg-white px-3 py-1 text-sm text-primary-dark shadow-sm focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"><p x-show="errors.authorLocation" x-text="errors.authorLocation" class="text-red-500 text-xs font-medium" role="alert"></p></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div class="space-y-1.5"><label for="petName" class="text-primary-dark font-semibold">Pet name</label><input id="petName" name="pet_name" x-model="data.petName" maxlength="60" placeholder="Your pet's name" class="h-9 w-full rounded-md border border-surface-purple bg-white px-3 py-1 text-sm text-primary-dark shadow-sm focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"></div><div class="space-y-1.5"><label for="testimonial-pet-type" class="text-primary-dark font-semibold">Pet type</label><select id="testimonial-pet-type" name="pet_type" x-model="data.petType" :aria-invalid="errors.petType ? 'true' : null" :aria-describedby="errors.petType ? 'testimonial-pet-type-error' : null" class="w-full min-h-[44px] rounded-md border border-surface-purple bg-surface-purple/30 px-3 text-sm text-primary-dark focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="">Select pet type</option><template x-for="type in petTypes" :key="type"><option :value="type" x-text="type"></option></template></select><p id="testimonial-pet-type-error" x-show="errors.petType" x-text="errors.petType" class="text-red-500 text-xs font-medium" role="alert"></p></div></div></div>
-                <div x-show="step === 2" x-transition class="space-y-5"><div><h3 class="font-serif text-xl font-bold text-primary-dark">Photos &amp; Submit</h3><p class="text-sm text-primary-dark/60 mt-0.5">Add an optional photo and review your consent before submitting.</p></div><div x-show="serverError" x-text="serverError" class="rounded-xl border border-red-300 bg-red-50/50 p-4 text-sm text-red-700" role="alert"></div><div class="space-y-1.5"><label class="text-primary-dark font-semibold">Photo <span class="text-primary-dark/60 font-normal">(optional)</span></label><div class="flex flex-col sm:flex-row items-start sm:items-center gap-4"><label for="testimonial-photo" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-dashed border-primary/40 bg-surface-purple/40 text-primary font-semibold text-sm hover:bg-surface-purple/80 transition"><x-waggies.icon name="photo" size="16" aria-hidden="true" /><span x-text="data.photoUrl ? 'Change photo' : 'Choose a photo'"></span></label><input id="testimonial-photo" name="photo" type="file" accept="image/*" @change="photoChange" class="sr-only"><template x-if="data.photoUrl"><div class="relative"><img :src="data.photoUrl" alt="Selected preview" class="w-24 h-24 object-cover rounded-xl border border-surface-purple"><button type="button" @click="removePhoto" class="absolute -top-2 -right-2 w-11 h-11 rounded-full bg-red-500 text-white text-xs grid place-items-center shadow hover:bg-red-600" aria-label="Remove photo"><x-waggies.icon name="close" size="14" aria-hidden="true" /></button></div></template><span x-show="!data.photoUrl" class="text-xs text-primary-dark/60">JPG, PNG or WebP - max 4 MB. We&apos;ll preview it here.</span></div><p x-show="errors.photo" x-text="errors.photo" class="text-red-500 text-xs font-medium" role="alert"></p></div><div class="space-y-1.5"><label for="testimonial-consent" class="flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition" :class="errors.consent ? 'border-red-400 bg-red-50/40' : 'border-surface-purple bg-surface-purple/40 hover:bg-surface-purple/70'"><input id="testimonial-consent" name="consent" type="checkbox" x-model="data.consent" @change="clear('consent')" class="mt-1 h-4 w-4 accent-primary"><span class="text-sm text-primary-dark/80 leading-relaxed">I agree to Waggies using my testimonial on their website and marketing materials.</span></label><p x-show="errors.consent" x-text="errors.consent" class="text-red-500 text-xs font-medium" role="alert"></p></div><div class="mt-2 rounded-xl border border-surface-purple bg-white p-4"><p class="text-[11px] font-semibold uppercase tracking-wide text-primary-dark/50 mb-2">Your submission</p><div class="flex flex-wrap items-center gap-3 text-sm"><div class="flex items-center gap-0.5"><template x-for="n in 5" :key="n"><span :class="data.rating >= n ? 'text-gold' : 'text-primary-dark/20'"><x-waggies.icon name="star" size="16" variant="filled" /></span></template></div><span class="text-primary-dark/60">·</span><span class="font-semibold text-primary-dark" x-text="data.service || ' - '"></span><span class="text-primary-dark/60">·</span><span class="text-primary-dark/70" x-text="(data.authorName || 'Your name') + (data.authorLocation ? ' · ' + data.authorLocation : '')"></span></div><p x-show="data.title" x-text="data.title" class="font-serif text-base font-bold text-primary-dark mt-2"></p><p x-show="data.story" x-text="data.story" class="text-sm text-primary-dark/70 mt-1 line-clamp-2"></p></div></div>
-                <div class="flex items-center justify-between gap-3 pt-4"><button type="button" @click="back" :disabled="stepIndex === 0" class="inline-flex items-center gap-1 rounded-full px-4 py-3 text-primary-dark hover:text-primary hover:bg-surface-purple/60 disabled:opacity-40 disabled:cursor-not-allowed"><x-waggies.icon name="arrow-back" size="16" aria-hidden="true" />Back</button><button x-show="stepIndex < 2" type="button" @click="next" class="w-cta w-cta--primary">Continue <x-waggies.icon name="arrow-forward" size="16" aria-hidden="true" /></button><button x-show="stepIndex === 2" type="submit" class="w-cta w-cta--primary"><x-waggies.icon name="send" size="16" aria-hidden="true" />Submit Testimonial</button></div>
+
+                <div x-show="step === 1" x-transition class="space-y-5">
+                    <div>
+                        <h3 class="font-serif text-xl font-bold text-primary-dark">About You &amp; Your Pet</h3>
+                        <p class="mt-0.5 text-sm text-primary-dark/60">So we can attribute your testimonial properly.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div class="space-y-1.5">
+                            <label for="authorName" class="font-semibold text-primary-dark">Your name <span class="text-primary" aria-hidden="true">*</span></label>
+                            <input id="authorName" name="author_name" x-model="data.authorName" @input="clear('authorName')" required maxlength="60" placeholder="e.g. Adaeze O." :aria-invalid="errors.authorName ? 'true' : null" :aria-describedby="errors.authorName ? 'author-name-error' : null" class="contact-input !rounded-md">
+                            <p id="author-name-error" x-show="errors.authorName" x-text="errors.authorName" class="text-xs font-medium text-error" role="alert"></p>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label for="authorLocation" class="font-semibold text-primary-dark">Your area <span class="text-primary" aria-hidden="true">*</span></label>
+                            <input id="authorLocation" name="author_location" x-model="data.authorLocation" @input="clear('authorLocation')" required maxlength="80" placeholder="e.g. Maitama, Abuja" :aria-invalid="errors.authorLocation ? 'true' : null" :aria-describedby="errors.authorLocation ? 'author-location-error' : null" class="contact-input !rounded-md">
+                            <p id="author-location-error" x-show="errors.authorLocation" x-text="errors.authorLocation" class="text-xs font-medium text-error" role="alert"></p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div class="space-y-1.5">
+                            <label for="petName" class="font-semibold text-primary-dark">Pet name</label>
+                            <input id="petName" name="pet_name" x-model="data.petName" @input="clear('petName')" maxlength="60" placeholder="Your pet's name" :aria-invalid="errors.petName ? 'true' : null" :aria-describedby="errors.petName ? 'pet-name-error' : null" class="contact-input !rounded-md">
+                            <p id="pet-name-error" x-show="errors.petName" x-text="errors.petName" class="text-xs font-medium text-error" role="alert"></p>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label for="testimonial-pet-type" class="font-semibold text-primary-dark">Pet type <span class="text-primary" aria-hidden="true">*</span></label>
+                            <select id="testimonial-pet-type" name="pet_type" x-model="data.petType" @change="clear('petType')" required :aria-invalid="errors.petType ? 'true' : null" :aria-describedby="errors.petType ? 'testimonial-pet-type-error' : null" class="contact-input !rounded-md">
+                                <option value="">Select pet type</option>
+                                <template x-for="type in petTypes" :key="type"><option :value="type" x-text="type"></option></template>
+                            </select>
+                            <p id="testimonial-pet-type-error" x-show="errors.petType" x-text="errors.petType" class="text-xs font-medium text-error" role="alert"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="step === 2" x-transition class="space-y-5">
+                    <div>
+                        <h3 class="font-serif text-xl font-bold text-primary-dark">Photos &amp; Submit</h3>
+                        <p class="mt-0.5 text-sm text-primary-dark/60">Add an optional photo and review your consent before submitting.</p>
+                    </div>
+
+                    <div x-show="serverError" x-text="serverError" class="rounded-xl border border-error/40 bg-error-light/50 p-4 text-sm text-error" role="alert" aria-live="assertive"></div>
+
+                    <div class="space-y-1.5">
+                        <p id="testimonial-photo-label" class="font-semibold text-primary-dark">Photo <span class="font-normal text-primary-dark/60">(optional)</span></p>
+                        <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                            <label for="testimonial-photo" class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-dashed border-primary/40 bg-surface-purple/40 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-surface-purple/80"><x-waggies.icon name="photo" size="16" aria-hidden="true" /><span x-text="data.photoUrl ? 'Change photo' : 'Choose a photo'"></span></label>
+                            <input id="testimonial-photo" name="photo" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" @change="photoChange" aria-labelledby="testimonial-photo-label" class="sr-only">
+                            <template x-if="data.photoUrl"><div class="relative"><img :src="data.photoUrl" alt="Selected preview" class="size-24 rounded-xl border border-surface-purple object-cover"><button type="button" @click="removePhoto" class="absolute -right-2 -top-2 grid size-11 place-items-center rounded-full bg-error text-xs text-white shadow hover:bg-error/90" aria-label="Remove photo"><x-waggies.icon name="close" size="14" aria-hidden="true" /></button></div></template>
+                            <span x-show="!data.photoUrl" class="text-xs text-primary-dark/60">JPG, PNG or WebP - max 4 MB. We&apos;ll preview it here.</span>
+                        </div>
+                        <p id="testimonial-photo-error" x-show="errors.photo" x-text="errors.photo" class="text-xs font-medium text-error" role="alert"></p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label for="testimonial-consent" class="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition" :class="errors.consent ? 'border-error bg-error-light/40' : 'border-surface-purple bg-surface-purple/40 hover:bg-surface-purple/70'">
+                            <input id="testimonial-consent" name="consent" type="checkbox" x-model="data.consent" @change="clear('consent')" required :aria-invalid="errors.consent ? 'true' : null" :aria-describedby="errors.consent ? 'testimonial-consent-error' : null" class="mt-1 size-4 accent-primary">
+                            <span class="text-sm leading-relaxed text-primary-dark/80">I agree to Waggies using my testimonial on their website and marketing materials.</span>
+                        </label>
+                        <p id="testimonial-consent-error" x-show="errors.consent" x-text="errors.consent" class="text-xs font-medium text-error" role="alert"></p>
+                    </div>
+
+                    <div class="mt-2 rounded-xl border border-surface-purple bg-white p-4">
+                        <p class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-primary-dark/50">Your submission</p>
+                        <div class="flex flex-wrap items-center gap-3 text-sm"><div class="flex items-center gap-0.5"><template x-for="n in 5" :key="n"><span :class="data.rating >= n ? 'text-gold' : 'text-primary-dark/20'"><x-waggies.icon name="star" size="16" variant="filled" /></span></template></div><span class="text-primary-dark/60">·</span><span class="font-semibold text-primary-dark" x-text="data.service || ' - '"></span><span class="text-primary-dark/60">·</span><span class="text-primary-dark/70" x-text="(data.authorName || 'Your name') + (data.authorLocation ? ' · ' + data.authorLocation : '')"></span></div>
+                        <p x-show="data.title" x-text="data.title" class="mt-2 font-serif text-base font-bold text-primary-dark"></p>
+                        <p x-show="data.story" x-text="data.story" class="mt-1 line-clamp-2 text-sm text-primary-dark/70"></p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 pt-4">
+                    <button type="button" @click="back" :disabled="stepIndex === 0 || submitting" class="inline-flex min-h-11 items-center gap-1 rounded-full px-4 py-3 text-primary-dark hover:bg-surface-purple/60 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"><x-waggies.icon name="arrow-back" size="16" aria-hidden="true" />Back</button>
+                    <x-waggies.button x-show="stepIndex < 2" type="button" @click="next" class="w-cta w-cta--primary">Continue <x-waggies.icon name="arrow-forward" size="16" aria-hidden="true" /></x-waggies.button>
+                    <x-waggies.button x-show="stepIndex === 2" type="submit" x-bind:disabled="submitting" x-bind:aria-busy="submitting" class="w-cta w-cta--primary"><span x-show="!submitting" class="inline-flex items-center gap-2"><x-waggies.icon name="send" size="16" aria-hidden="true" />Submit Testimonial</span><span x-show="submitting" aria-hidden="true">Submitting...</span></x-waggies.button>
+                </div>
             </form>
         </div>
     </div>
