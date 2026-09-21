@@ -37,3 +37,14 @@ test('page header supports contextual identity and actions without changing its 
     $view->assertSee('Reviewed by our care team');
     $view->assertSee('href="/start"', false);
 });
+
+test('button renders a dynamic Alpine href binding as an anchor', function () {
+    $view = $this->blade(
+        '<x-waggies.button x-bind:href="whatsappUrl()" target="_blank">Continue to WhatsApp</x-waggies.button>',
+    );
+
+    $view->assertSee('x-bind:href="whatsappUrl()"', false);
+    $view->assertSee('target="_blank"', false);
+    $view->assertSee('Continue to WhatsApp');
+    $view->assertDontSee('<button', false);
+});

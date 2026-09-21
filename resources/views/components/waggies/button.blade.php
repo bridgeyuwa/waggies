@@ -20,10 +20,12 @@
     };
 
     $isDisabled = $disabled || $loading;
+    $isLink = $href !== null || $attributes->has('x-bind:href');
+    $hrefAttribute = $href !== null ? 'href="'.e($href).'"' : '';
 @endphp
 
-@if($href !== null)
-    <a href="{{ $href }}" @if($isDisabled) aria-disabled="true" tabindex="-1" @endif @if($loading) aria-busy="true" @endif {{ $attributes->class([$variantClasses, $sizeClasses, 'pointer-events-none opacity-50' => $isDisabled]) }}>
+@if($isLink)
+    <a{!! $hrefAttribute !== '' ? ' '.$hrefAttribute : '' !!} @if($isDisabled) aria-disabled="true" tabindex="-1" @endif @if($loading) aria-busy="true" @endif {{ $attributes->class([$variantClasses, $sizeClasses, 'pointer-events-none opacity-50' => $isDisabled]) }}>
         @if($loading)<span aria-hidden="true" class="animate-pulse">…</span>@endif
         {{ $slot }}
     </a>
