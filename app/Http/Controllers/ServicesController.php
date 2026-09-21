@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\View\View;
+use LogicException;
 use Spatie\SchemaOrg\Schema;
 
 final class ServicesController extends Controller
 {
     public function index(): View
     {
+        $comparison = $this->serviceComparison();
         $metadata = ['title' => 'Our Services - Waggies', 'description' => 'Pet services in Abuja: boarding, grooming, vet care, training, relocation and local transport.', 'canonical' => route('services.index'), 'ogTitle' => 'Our Services - Waggies Pet Care Abuja', 'ogDescription' => 'Pet services in Abuja: boarding, grooming, vet care, training, relocation and local transport.'];
         $this->setPageHead($metadata, [Schema::webPage()->name('Our Services - Waggies Pet Care Abuja')->description($metadata['description'])->url($metadata['canonical'])->toArray()]);
 
@@ -24,6 +26,7 @@ final class ServicesController extends Controller
             ],
             'stats' => [['icon' => 'veterinary-care', 'title' => 'Vet-Supervised Care', 'subtitle' => 'Health-first handling'], ['icon' => 'hours', 'title' => '24/7 Monitoring', 'subtitle' => 'Constant supervision'], ['icon' => 'boarding', 'title' => 'Climate-Controlled Suites', 'subtitle' => 'Comfort in every season'], ['icon' => 'verified', 'title' => 'PCSA Certified', 'subtitle' => 'Licensed pet care facility']],
             'standards' => [['title' => 'Structured Daily Routines', 'desc' => 'Professionally trained handlers and protocols.'], ['title' => '24/7 Supervision', 'desc' => 'Continuous monitoring, day and night.'], ['title' => 'Daily Updates', 'desc' => 'Owners receive real-time pet updates.']],
+            'comparisonServices' => $comparison['services'], 'comparisonFeatures' => $comparison['features'],
             'faqs' => $this->serviceIndexFaqs(),
         ]);
     }
@@ -50,7 +53,7 @@ final class ServicesController extends Controller
 
         return view('pages.services.boarding.species', $metadata + [
             'navSection' => 'services', 'species' => $species, 'page' => $page,
-            'tiers' => config("waggies_boarding.tiers.{$species}"), 'faqs' => $faqs,
+            'serviceKey' => 'boarding-'.$species, 'tiers' => $this->boardingTiers($species), 'faqs' => $faqs,
         ]);
     }
 
@@ -71,7 +74,7 @@ final class ServicesController extends Controller
 
     private function serviceDetail(string $service): View
     {
-        $page = config("waggies_service_details.{$service}");
+        $page = $this->withCanonicalPackagePricing($service, config("waggies_service_details.{$service}"));
         $faqs = array_values(array_filter(config('waggies_faqs'), fn (array $faq): bool => $faq['category'] === $service));
         $metadata = ['title' => $page['meta']['title'].' - Waggies', 'description' => $page['meta']['description'], 'canonical' => route("services.{$service}"), 'ogTitle' => $page['meta']['title'].' - Waggies', 'ogDescription' => $page['meta']['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($metadata['ogTitle'], $metadata)]);
@@ -79,6 +82,97 @@ final class ServicesController extends Controller
         return view('pages.services.detail', $metadata + [
             'navSection' => 'services', 'service' => $service, 'page' => $page, 'faqs' => $faqs,
         ]);
+    }
+
+    private function boardingTiers(string $species): array
+    {
+        $tiers = config("waggies_pricing.services.boarding.variants.{$species}.tiers", []);
+
+        return collect($tiers)->map(function (array $tier, string $key): array {
+            return array_merge($tier, [
+                'key' => $key,
+                'price' => $this->formatTierPrice($tier),
+                'unit' => config('waggies_pricing.services.boarding.unit', '/night'),
+                'featured' => $tier['featured'] ?? false,
+            ]);
+        })->values()->all();
+    }
+
+    private function withCanonicalPackagePricing(string $service, array $page): array
+    {
+        $tiers = config("waggies_pricing.services.{$service}.tiers", []);
+
+        $page['packages'] = array_map(function (array $package) use ($service, $tiers): array {
+            if (! isset($package['pricingKey'])) {
+                return $package;
+            }
+
+            $pricingKey = $package['pricingKey'];
+            $tier = $tiers[$pricingKey] ?? null;
+
+            if ($tier === null) {
+                throw new LogicException("Missing canonical pricing tier [{$service}.{$pricingKey}].");
+            }
+
+            return array_merge($package, ['price' => $this->formatTierPrice($tier)]);
+        }, $page['packages']);
+
+        return $page;
+    }
+
+    private function serviceComparison(): array
+    {
+        $comparison = config('waggies.service_comparison');
+        $services = config('waggies_pricing.services');
+
+        $comparison['services'] = array_map(function (array $service) use ($services): array {
+            $pricing = $service['pricing'];
+
+            if ($pricing['type'] === 'from') {
+                $amounts = $this->serviceAmounts($service['key'], $services);
+                $service['price'] = 'From ₦'.number_format(min($amounts)).$pricing['unit'];
+            } else {
+                $service['price'] = $pricing['label'];
+            }
+
+            unset($service['pricing']);
+
+            return $service;
+        }, $comparison['services']);
+
+        return $comparison;
+    }
+
+    private function serviceAmounts(string $service, array $services): array
+    {
+        $tiers = $service === 'boarding'
+            ? collect($services['boarding']['variants'])->flatMap(fn (array $variant): array => $variant['tiers'])->all()
+            : ($services[$service]['tiers'] ?? []);
+        $amounts = array_values(array_filter(array_map(
+            fn (array $tier): ?int => ($tier['type'] ?? 'fixed') === 'quote' ? null : ($tier['amount'] ?? null),
+            $tiers,
+        ), fn (?int $amount): bool => $amount !== null));
+
+        if ($amounts === []) {
+            throw new LogicException("Missing canonical comparison pricing for [{$service}].");
+        }
+
+        return $amounts;
+    }
+
+    private function formatTierPrice(array $tier): string
+    {
+        if (($tier['type'] ?? 'fixed') === 'quote') {
+            return 'Quote';
+        }
+
+        $amount = '₦'.number_format($tier['amount']);
+
+        if (($tier['type'] ?? 'fixed') === 'estimate' && isset($tier['max_amount']) && $tier['max_amount'] !== $tier['amount']) {
+            return $amount.' - ₦'.number_format($tier['max_amount']);
+        }
+
+        return $amount;
     }
 
     private function serviceIndexFaqs(): array

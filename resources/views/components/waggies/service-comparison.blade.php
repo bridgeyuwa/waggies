@@ -1,7 +1,4 @@
-@php
-    $services = config('waggies.service_comparison.services');
-    $features = config('waggies.service_comparison.features');
-@endphp
+@props(['services', 'features'])
 
 <section class="bg-white py-16">
     <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12">

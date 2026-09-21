@@ -73,12 +73,12 @@ return [
     ],
     'service_comparison' => [
         'services' => [
-            ['key' => 'boarding', 'label' => 'Boarding', 'icon' => 'boarding', 'price' => 'From ₦6,000/night'],
-            ['key' => 'grooming', 'label' => 'Grooming', 'icon' => 'grooming', 'price' => 'From ₦10,000/session'],
-            ['key' => 'vet-care', 'label' => 'Vet Care', 'icon' => 'veterinary-care', 'price' => 'From ₦12,000/visit'],
-            ['key' => 'training', 'label' => 'Training', 'icon' => 'training', 'price' => 'From ₦80,000/programme'],
-            ['key' => 'relocation', 'label' => 'Relocation', 'icon' => 'airport-departure', 'price' => 'Custom quote'],
-            ['key' => 'transport', 'label' => 'Local Transport', 'icon' => 'transport', 'price' => 'Route estimate/trip'],
+            ['key' => 'boarding', 'label' => 'Boarding', 'icon' => 'boarding', 'pricing' => ['type' => 'from', 'unit' => '/night']],
+            ['key' => 'grooming', 'label' => 'Grooming', 'icon' => 'grooming', 'pricing' => ['type' => 'from', 'unit' => '/session']],
+            ['key' => 'vet-care', 'label' => 'Vet Care', 'icon' => 'veterinary-care', 'pricing' => ['type' => 'from', 'unit' => '/visit']],
+            ['key' => 'training', 'label' => 'Training', 'icon' => 'training', 'pricing' => ['type' => 'from', 'unit' => '/programme']],
+            ['key' => 'relocation', 'label' => 'Relocation', 'icon' => 'airport-departure', 'pricing' => ['type' => 'editorial', 'label' => 'Custom quote']],
+            ['key' => 'transport', 'label' => 'Local Transport', 'icon' => 'transport', 'pricing' => ['type' => 'editorial', 'label' => 'Route estimate/trip']],
         ],
         'features' => [
             ['label' => '24/7 Care', 'supported' => ['boarding']],
