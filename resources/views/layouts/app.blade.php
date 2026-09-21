@@ -5,8 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         @head($headStatus ?? null)
         @stack('head')
-        @livewireStyles
-        @livewireScriptConfig
+        {{-- Livewire's bundled ESM export provides Alpine for the public bundle; this guard prevents its automatic Livewire boot. --}}
+        <script>window.livewireScriptConfig = window.livewireScriptConfig ?? {};</script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="min-h-screen bg-surface text-primary-dark antialiased" data-contact-url="{{ route('contact') }}" data-search-url="{{ route('search') }}" data-boarding-url="{{ route('services.boarding') }}" data-grooming-url="{{ route('services.grooming') }}" data-pricing-url="{{ route('services.pricing') }}" data-vet-care-url="{{ route('services.vet-care') }}" data-training-url="{{ route('services.training') }}" data-relocation-hub="{{ route('services.relocation') }}" data-relocation-transport="{{ route('relocation.transport') }}">

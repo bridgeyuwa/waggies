@@ -12,3 +12,13 @@ test('global dialogs render an accessible trigger and modal contract', function 
         ->assertSee('x-ref="closeButton"', false)
         ->assertSee('@keydown="handleDialogKeydown($event)"', false);
 });
+
+test('public layout keeps Alpine markup without Livewire assets', function (): void {
+    $response = $this->get(route('home'));
+    $html = strtolower($response->getContent() ?: '');
+
+    expect($html)->not->toContain('data-livewire-style')
+        ->and($html)->not->toContain('livewirescripts');
+
+    $response->assertSee('x-data="waggiesSearch"', false);
+});
