@@ -68,11 +68,85 @@ const waggiesNavbar = () => ({
     openMobile() { this.lastFocus = document.activeElement; this.mobileOpen = true; }, closeMobile() { this.mobileOpen = false; },
     escape() { if (this.mobileOpen) this.closeMobile(); else this.closeDesktop(); },
 });
+const waggiesDialog = () => ({
+    dialogState: 'open',
+    dialogTrigger: null,
+    dialogFallback: null,
+    dialogInitialFocus: null,
+    initDialog(getInitialFocus, state = 'open') {
+        this.dialogState = state;
+        this.dialogInitialFocus = getInitialFocus;
+        this.$watch(state, isOpen => {
+            if (isOpen) {
+                this.$nextTick(() => requestAnimationFrame(() => {
+                    const target = this.dialogInitialFocus?.() || this.dialogFocusableElements()[0];
+                    target?.focus();
+                }));
+
+                return;
+            }
+
+            this.$nextTick(() => requestAnimationFrame(() => this.restoreDialogFocus()));
+        });
+    },
+    openDialog(trigger, fallback = null) {
+        this.dialogTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+        this.dialogFallback = fallback instanceof HTMLElement ? fallback : null;
+        this.dialogTrigger?.setAttribute('aria-expanded', 'true');
+        this[this.dialogState] = true;
+    },
+    closeDialog() {
+        this[this.dialogState] = false;
+    },
+    dialogFocusableElements() {
+        return [...this.$el.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+            .filter(node => node.getClientRects().length > 0 && node.getAttribute('aria-hidden') !== 'true');
+    },
+    handleDialogKeydown(event) {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            this.close();
+
+            return;
+        }
+
+        if (event.key !== 'Tab') return;
+
+        const focusable = this.dialogFocusableElements();
+        if (!focusable.length) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const current = document.activeElement;
+
+        if (!this.$el.contains(current)) {
+            event.preventDefault();
+            (event.shiftKey ? last : first).focus();
+        } else if (event.shiftKey && current === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && current === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    },
+    restoreDialogFocus() {
+        const trigger = [this.dialogTrigger, this.dialogFallback].find(node => node?.isConnected && node.getClientRects().length > 0);
+        this.dialogTrigger?.setAttribute('aria-expanded', 'false');
+        this.dialogFallback?.setAttribute('aria-expanded', 'false');
+        trigger?.setAttribute('aria-expanded', 'false');
+        trigger?.focus();
+        this.dialogTrigger = null;
+        this.dialogFallback = null;
+    },
+});
+
 const waggiesSearch = () => ({
+    ...waggiesDialog(),
     open: false, query: '', results: [], loading: false,
-    init() { this.listen(); },
-    listen() { window.addEventListener('waggies:open-search', () => { this.open = true; this.query = ''; this.results = []; this.$nextTick(() => this.$refs.input?.focus()); }); },
-    close() { this.open = false; this.query = ''; this.results = []; },
+    init() { this.initDialog(() => this.$refs.input); this.listen(); },
+    listen() { window.addEventListener('waggies:open-search', event => { this.openDialog(event.detail?.trigger, event.detail?.fallback); this.query = ''; this.results = []; }); },
+    close() { this.closeDialog(); this.query = ''; this.results = []; },
     async fetchResults() {
         const value = this.query.trim();
         if (!value) { this.results = []; return; }
@@ -82,12 +156,13 @@ const waggiesSearch = () => ({
     navigate(href) { this.close(); window.location.href = href; },
 });
 const waggiesCart = () => ({
+    ...waggiesDialog(),
     open: false,
     items: [],
-    init() { this.listen(); },
+    init() { this.initDialog(() => this.$refs.closeButton); this.listen(); },
     listen() {
         this.load();
-        window.addEventListener('waggies:open-cart', () => { this.load(); this.open = true; });
+        window.addEventListener('waggies:open-cart', event => { this.load(); this.openDialog(event.detail?.trigger, event.detail?.fallback); });
         window.addEventListener('waggies:add-item', event => this.addItem(event.detail, event.detail.quantity || 1));
         window.addEventListener('storage', event => { if (event.key === 'waggies-cart') this.load(); });
     },
@@ -113,7 +188,7 @@ const waggiesCart = () => ({
     clearCart() { this.items = []; this.persist(); },
     subtotal() { return this.items.reduce((total, item) => total + item.price * item.quantity, 0); },
     formatPrice(amount) { return '₦' + Number(amount).toLocaleString('en-NG'); },
-    close() { this.open = false; },
+    close() { this.closeDialog(); },
 });
 const waggiesCartIndicator = () => ({
     count: 0,
