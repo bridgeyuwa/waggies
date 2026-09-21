@@ -1,7 +1,7 @@
 @props(['services', 'features'])
 
 <section class="bg-white py-16">
-    <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12">
+    <div class="page-container">
         <div class="mb-10 text-center">
             <span class="text-eyebrow mb-4 block">Compare Services</span>
             <h2 class="font-serif text-3xl font-bold leading-tight text-primary-dark md:text-4xl">Find the Right Fit for Your Pet</h2>

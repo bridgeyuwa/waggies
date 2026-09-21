@@ -3,7 +3,7 @@
 @php($ctaDestination = static fn (array $cta): string => isset($cta['route']) ? route($cta['route'], $cta['params'] ?? []) : url($cta['href']))
 
 <section class="w-full bg-primary-dark py-24 text-white">
-    <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12"><div class="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
+    <div class="page-container"><div class="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
         <div class="flex max-w-xl flex-col gap-6">
             @if(!empty($band['eyebrow']))<p class="text-xs font-bold uppercase tracking-widest text-secondary">{{ $band['eyebrow'] }}</p>@endif
             <h2 class="font-serif text-3xl font-bold leading-tight text-white md:text-4xl">{!! $band['title'] !!}</h2>

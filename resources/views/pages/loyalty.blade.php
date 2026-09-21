@@ -24,7 +24,7 @@
     </x-waggies.page-header>
 
     <section class="bg-white py-20">
-        <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12">
+        <div class="page-container">
             <x-waggies.section-heading :eyebrow="$page['howItWorksHeading']['eyebrow']" :title="$page['howItWorksHeading']['title']" :subtitle="$page['howItWorksHeading']['subtitle']" />
 
             <ol class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -45,7 +45,7 @@
     </section>
 
     <section class="border-t border-surface-purple bg-white py-20">
-        <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12">
+        <div class="page-container">
             <x-waggies.section-heading :eyebrow="$page['tiersHeading']['eyebrow']" :title="$page['tiersHeading']['title']" />
 
             <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">

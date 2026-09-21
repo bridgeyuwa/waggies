@@ -20,7 +20,7 @@
 @endphp
 
 <header x-data="waggiesNavbar" class="sticky top-0 z-layer-navigation w-full overflow-visible border-b border-primary/10 bg-white transition-[background-color,box-shadow,border-color] duration-200" @click.outside="closeDesktop()" @keydown.escape.window="escape()">
-    <nav x-ref="nav" class="mx-auto flex min-h-[4.5rem] max-w-7xl items-center justify-between overflow-visible px-4 md:px-10 lg:px-12" aria-label="Main navigation">
+    <nav x-ref="nav" class="page-container flex min-h-[4.5rem] items-center justify-between overflow-visible" aria-label="Main navigation">
         <a href="{{ route('home') }}" class="-my-2 flex shrink-0 items-center gap-2.5 py-2" aria-label="Waggies - home">
             <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-sm"><x-waggies.icon name="pets" size="20" class="text-white" /></span>
             <span class="font-serif text-[1.375rem] font-bold tracking-tight text-primary-dark">Waggies</span>

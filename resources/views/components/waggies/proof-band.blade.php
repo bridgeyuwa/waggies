@@ -25,7 +25,7 @@
 @endphp
 
 <section class="border-y border-primary/5 bg-surface-purple/30 py-20">
-    <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12">
+    <div class="page-container">
         <div class="mx-auto mb-14 max-w-2xl text-center"><span class="text-eyebrow mb-2 block">PROVEN CARE OUTCOMES</span><h2 class="text-h2 mb-3">What Pet Owners Experience</h2><p class="text-body-sm text-primary-dark/70">Real feedback from pet owners across Abuja who count on Waggies for boarding, grooming, and relocation.</p></div>
         <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
             @foreach ($testimonials as $testimonial)

@@ -44,7 +44,7 @@
     <div class="absolute inset-0 {{ $scrimClass }}" aria-hidden="true"></div>
 
     <div class="relative z-10 w-full">
-        <div class="mx-auto w-full max-w-7xl px-4 py-12 md:px-10 md:py-16 lg:px-12">
+        <div class="page-container w-full py-12 md:py-16">
             <div class="max-w-xl">
                 @if(! empty($hero['eyebrow']))
                     <span class="mb-5 inline-flex items-center gap-2 rounded-full border border-white/25 bg-primary-dark/70 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-white">

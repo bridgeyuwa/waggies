@@ -3,7 +3,7 @@
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Knowledge Base', 'route' => 'knowledge-base.index'], ['label' => $article['title']]]" class="bg-white border-b border-primary/5" />
 
-    <article class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 py-10 md:py-16">
+    <article class="page-container py-10 md:py-16">
         <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12">
             <div class="max-w-3xl">
                 <div>

@@ -5,7 +5,7 @@
     <x-waggies.cover-hero :hero="$hero" />
 
     <section class="section-pad bg-white">
-        <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
+        <div class="page-container">
             <x-waggies.section-heading :eyebrow="$perksHeading['eyebrow']" :title="$perksHeading['title']" :subtitle="$perksHeading['subtitle']" />
             <div class="mt-10 grid grid-cols-1 gap-0 divide-y divide-primary/12 sm:grid-cols-2 sm:gap-x-10 sm:divide-y-0 lg:grid-cols-4">
                 @foreach($perks as $perk)
@@ -20,7 +20,7 @@
     </section>
 
     <section id="open-roles" class="section-pad border-t border-surface-purple bg-surface">
-        <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
+        <div class="page-container">
             <x-waggies.section-heading :eyebrow="$openRolesHeading['eyebrow']" :title="$openRolesHeading['title']" />
             <div class="mt-10 grid gap-4 lg:grid-cols-2">
                 @foreach($openRoles as $role)

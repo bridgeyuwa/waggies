@@ -5,7 +5,7 @@
 
     <x-waggies.page-header alignment="center" eyebrow="Guides" eyebrow-icon="guide" title="Pet Care Guides" description="Step-by-step guides to help you give your pets the best care." />
 
-    <section x-data="waggiesGuidesIndex('{{ $initialCategory }}')" class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 py-12 md:py-20">
+    <section x-data="waggiesGuidesIndex('{{ $initialCategory }}')" class="page-container py-12 md:py-20">
         <div class="flex flex-wrap gap-2 mb-10">
             @foreach(array_merge(['All'], $categories) as $filter)
                 <button type="button" @click="select('{{ $filter }}')" class="rounded-full px-4 py-2 transition-colors" :class="activeCategory === '{{ $filter }}' ? 'bg-primary text-white' : 'bg-surface-purple text-primary hover:bg-primary/10'">{{ $filter }}</button>

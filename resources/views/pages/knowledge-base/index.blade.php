@@ -5,7 +5,7 @@
 
     <x-waggies.page-header alignment="center" eyebrow="Knowledge Base" eyebrow-icon="training" title="Pet Care Answers" description="Find quick, practical answers to common questions about pet care services and more." />
 
-    <section x-data="waggiesKnowledgeBase(@js($filterItems), @js($categories), @js($initialCategory), @js($initialSearch), {{ $currentPage }})" class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12 py-12 md:py-20">
+    <section x-data="waggiesKnowledgeBase(@js($filterItems), @js($categories), @js($initialCategory), @js($initialSearch), {{ $currentPage }})" class="page-container py-12 md:py-20">
         <div class="flex flex-col sm:flex-row gap-4 mb-10">
             <div class="relative flex-1 max-w-md">
                 <x-waggies.icon name="search" size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />

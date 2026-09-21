@@ -6,7 +6,7 @@
 <x-waggies.page-header class="bg-surface" alignment="center" eyebrow="Pet Shop" title="Pet Supplies &amp; Products" description="Food, toys, grooming essentials, health products, and accessories for your pets." />
 
 <section x-data="waggiesShopIndex(@js($activeCategory), @js($categories))" class="bg-surface pb-20 md:pb-28">
-    <div class="mx-auto max-w-7xl px-4 md:px-10 lg:px-12">
+    <div class="page-container">
         <div class="mb-10 flex flex-wrap justify-center gap-2">
             <button type="button" @click="select('All')" :aria-pressed="activeCategory === 'All'" :class="activeCategory === 'All' ? 'bg-primary text-white' : 'border border-primary/10 bg-white text-primary-dark/60 hover:bg-surface-purple hover:text-primary-dark'" class="min-h-[44px] rounded-full px-5 py-2.5 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2">All</button>
             @foreach($categories as $category)

@@ -1,7 +1,7 @@
 @props(['items', 'filters'])
 
 <section x-data="testimonialsGrid(@js($items))" class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
+    <div class="page-container">
         <div class="mb-10"><fieldset><legend class="sr-only">Filter testimonials by service</legend><div class="flex flex-wrap gap-2">
             @foreach($filters as $filter)
                 <button type="button" @click="select('{{ $filter['value'] }}')" :aria-pressed="selected === '{{ $filter['value'] }}'" :class="selected === '{{ $filter['value'] }}' ? 'bg-primary text-white' : 'bg-surface-purple text-primary-dark/70 hover:bg-surface-purple/80 hover:text-primary'" class="px-4 py-2.5 rounded-full text-sm font-medium transition-colors min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1">{{ $filter['label'] }}</button>

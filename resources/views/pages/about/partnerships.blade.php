@@ -5,7 +5,7 @@
     <x-waggies.page-header :eyebrow="$hero['eyebrow']" :title="$hero['title']" :description="$hero['description']" alignment="center" />
 
     <section class="section-pad bg-white">
-        <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-12">
+        <div class="page-container">
             <x-waggies.section-heading :eyebrow="$typesHeading['eyebrow']" :title="$typesHeading['title']" :subtitle="$typesHeading['subtitle']" />
             <div class="mt-10 grid grid-cols-1 gap-0 divide-y divide-primary/12 sm:grid-cols-2 sm:gap-x-10 sm:divide-y-0 lg:grid-cols-3">
                 @foreach($types as $type)
