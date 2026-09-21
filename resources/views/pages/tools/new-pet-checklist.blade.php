@@ -22,7 +22,7 @@
                     <div class="h-full rounded-full bg-primary transition-[width] duration-300" :style="`width: ${percentage()}%`" role="progressbar" :aria-valuenow="completed()" aria-valuemin="0" :aria-valuemax="total()" :aria-label="`${completed()} of ${total()} items completed`"></div>
                 </div>
                 <p class="mt-2 text-xs text-primary-dark/60">Progress is saved in your browser&apos;s local storage.</p>
-                <div class="mt-5 print-hidden" data-print-hide><button type="button" @click="window.print()" aria-label="Print this checklist" class="w-cta w-cta--secondary"><x-waggies.icon name="print" size="18" aria-hidden="true" />Print checklist</button></div>
+                <div class="mt-5 print-hidden" data-print-hide><x-waggies.button type="button" variant="secondary" @click="window.print()" aria-label="Print this checklist"><x-waggies.icon name="print" size="18" aria-hidden="true" />Print checklist</x-waggies.button></div>
             </div>
 
             @foreach($checklist as $category)

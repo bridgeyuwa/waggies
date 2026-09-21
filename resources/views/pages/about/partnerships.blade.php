@@ -15,6 +15,6 @@
         </div>
     </section>
 
-    <section class="section-pad border-t border-primary/10 bg-surface-purple"><div class="max-w-3xl mx-auto px-4 text-center"><h2 class="font-serif text-3xl font-bold text-primary-dark mb-3">{{ $cta['heading'] }}</h2><p class="text-primary-dark/60 mb-6">{{ $cta['body'] }}</p><a href="{{ route($cta['ctaRoute'], $cta['ctaParams'] ?? []) }}" class="w-cta w-cta--primary">{{ $cta['ctaLabel'] }} <x-waggies.icon name="{{ $cta['ctaIcon'] }}" size="18" /></a></div></section>
+    <section class="section-pad border-t border-primary/10 bg-surface-purple"><div class="max-w-3xl mx-auto px-4 text-center"><h2 class="font-serif text-3xl font-bold text-primary-dark mb-3">{{ $cta['heading'] }}</h2><p class="text-primary-dark/60 mb-6">{{ $cta['body'] }}</p><x-waggies.button href="{{ route($cta['ctaRoute'], $cta['ctaParams'] ?? []) }}">{{ $cta['ctaLabel'] }} <x-waggies.icon name="{{ $cta['ctaIcon'] }}" size="18" /></x-waggies.button></div></section>
 
 @endsection

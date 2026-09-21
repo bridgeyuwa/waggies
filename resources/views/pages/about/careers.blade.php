@@ -26,7 +26,7 @@
                 @foreach($openRoles as $role)
                     <div class="flex flex-col justify-between gap-5 rounded-2xl border border-primary/12 bg-white p-6 shadow-sm transition-[border-color,box-shadow,transform] duration-[180ms] hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-soft sm:flex-row sm:items-center">
                         <div><h3 class="font-semibold text-primary-dark">{{ $role['role'] }}</h3><p class="text-sm text-primary-dark/50">{{ $role['dept'] }} · {{ $role['type'] }}</p></div>
-                        <a href="{{ route($role['applyRoute'], $role['applyParams'] ?? []) }}" class="w-cta w-cta--secondary shrink-0">{{ $role['applyLabel'] }} <x-waggies.icon name="arrow-forward" size="17" /></a>
+                        <x-waggies.button href="{{ route($role['applyRoute'], $role['applyParams'] ?? []) }}" variant="secondary" class="shrink-0">{{ $role['applyLabel'] }} <x-waggies.icon name="arrow-forward" size="17" /></x-waggies.button>
                     </div>
                 @endforeach
             </div>

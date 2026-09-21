@@ -51,7 +51,7 @@
                     @endforeach
 
                     <div x-show="selectedSymptoms.length > 0" x-cloak class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-                        <button type="button" @click="checkSymptoms()" class="w-cta w-cta--primary w-full gap-2 sm:w-auto"><x-waggies.icon name="search" size="20" />Check Symptoms (<span x-text="selectedSymptoms.length"></span> selected)</button>
+                        <x-waggies.button type="button" @click="checkSymptoms()" class="w-full gap-2 sm:w-auto"><x-waggies.icon name="search" size="20" />Check Symptoms (<span x-text="selectedSymptoms.length"></span> selected)</x-waggies.button>
                         <button type="button" @click="clearSelection()" class="inline-flex min-h-[44px] items-center text-sm font-semibold text-primary hover:text-primary-dark">Clear selection</button>
                     </div>
                 </div>

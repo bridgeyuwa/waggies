@@ -150,8 +150,8 @@
 
                 <div class="flex items-center justify-between gap-3 pt-4">
                     <button type="button" @click="back" :disabled="stepIndex === 0 || submitting" class="inline-flex min-h-11 items-center gap-1 rounded-full px-4 py-3 text-primary-dark hover:bg-surface-purple/60 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"><x-waggies.icon name="arrow-back" size="16" aria-hidden="true" />Back</button>
-                    <x-waggies.button x-show="stepIndex < 2" type="button" @click="next" class="w-cta w-cta--primary">Continue <x-waggies.icon name="arrow-forward" size="16" aria-hidden="true" /></x-waggies.button>
-                    <x-waggies.button x-show="stepIndex === 2" type="submit" x-bind:disabled="submitting" x-bind:aria-busy="submitting" class="w-cta w-cta--primary"><span x-show="!submitting" class="inline-flex items-center gap-2"><x-waggies.icon name="send" size="16" aria-hidden="true" />Submit Testimonial</span><span x-show="submitting" aria-hidden="true">Submitting...</span></x-waggies.button>
+                    <x-waggies.button x-show="stepIndex < 2" type="button" @click="next">Continue <x-waggies.icon name="arrow-forward" size="16" aria-hidden="true" /></x-waggies.button>
+                    <x-waggies.button x-show="stepIndex === 2" type="submit" x-bind:disabled="submitting" x-bind:aria-busy="submitting"><span x-show="!submitting" class="inline-flex items-center gap-2"><x-waggies.icon name="send" size="16" aria-hidden="true" />Submit Testimonial</span><span x-show="submitting" aria-hidden="true">Submitting...</span></x-waggies.button>
                 </div>
             </form>
         </div>

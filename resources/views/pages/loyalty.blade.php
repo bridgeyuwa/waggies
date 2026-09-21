@@ -72,10 +72,10 @@
         <div class="mx-auto max-w-3xl px-4 text-center">
             <h2 class="mb-3 font-serif text-3xl font-bold text-primary-dark">{{ $page['startEarningCta']['heading'] }}</h2>
             <p class="mb-6 text-primary-dark/60">{{ $page['startEarningCta']['body'] }}</p>
-            <a href="{{ route($page['startEarningCta']['ctaRoute']) }}" class="w-cta w-cta--primary">
+            <x-waggies.button href="{{ route($page['startEarningCta']['ctaRoute']) }}">
                 {{ $page['startEarningCta']['ctaLabel'] }}
                 <x-waggies.icon name="{{ $page['startEarningCta']['ctaIcon'] }}" size="16" />
-            </a>
+            </x-waggies.button>
         </div>
     </section>
 
