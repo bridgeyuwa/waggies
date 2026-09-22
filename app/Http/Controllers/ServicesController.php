@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Faq;
 use Illuminate\View\View;
 use LogicException;
 use Spatie\SchemaOrg\Schema;
@@ -39,7 +40,7 @@ final class ServicesController extends Controller
 
         return view('pages.services.boarding.index', $metadata + [
             'navSection' => 'services', 'page' => $page,
-            'faqs' => array_values(array_filter(config('waggies_faqs'), fn (array $faq): bool => $faq['category'] === 'boarding' && empty($faq['subcategory'] ?? null))),
+            'faqs' => $this->publishedFaqs('boarding', onlyGeneral: true),
         ]);
     }
 
@@ -47,7 +48,7 @@ final class ServicesController extends Controller
     {
         abort_unless(array_key_exists($species, config('waggies_boarding.species')), 404);
         $page = config("waggies_boarding.species.{$species}");
-        $faqs = array_values(array_filter(config('waggies_faqs'), fn (array $faq): bool => $faq['category'] === 'boarding' && in_array($faq['subcategory'] ?? null, [null, $species], true)));
+        $faqs = $this->publishedFaqs('boarding', $species);
         $metadata = ['title' => $page['title'], 'description' => $page['description'], 'canonical' => route('services.boarding.species', ['species' => $species]), 'ogTitle' => $page['title'].' Abuja - Waggies', 'ogDescription' => $page['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($page['title'].' Abuja - Waggies', $metadata)]);
 
@@ -75,7 +76,7 @@ final class ServicesController extends Controller
     private function serviceDetail(string $service): View
     {
         $page = $this->withCanonicalPackagePricing($service, config("waggies_service_details.{$service}"));
-        $faqs = array_values(array_filter(config('waggies_faqs'), fn (array $faq): bool => $faq['category'] === $service));
+        $faqs = $this->publishedFaqs($service);
         $metadata = ['title' => $page['meta']['title'].' - Waggies', 'description' => $page['meta']['description'], 'canonical' => route("services.{$service}"), 'ogTitle' => $page['meta']['title'].' - Waggies', 'ogDescription' => $page['meta']['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($metadata['ogTitle'], $metadata)]);
 
@@ -177,14 +178,34 @@ final class ServicesController extends Controller
 
     private function serviceIndexFaqs(): array
     {
-        return [
-            ['question' => 'How do I know which service my pet needs?', 'answer' => "If you're unsure, start with a consultation or contact us. Our team will recommend the right service based on your pet’s age, health, and behavior."],
-            ['question' => 'Are all services safe for my pet?', 'answer' => 'Yes. Every service follows strict vet-supervised safety standards and trained handlers. Safety is built into every part of our system.'],
-            ['question' => 'Can I switch or combine services later?', 'answer' => 'Yes. Many clients combine grooming, boarding, and vet care depending on their pet’s needs. We can adjust plans anytime.'],
-            ['question' => 'Do I need a consultation before booking?', 'answer' => 'Not always. Some services can be booked directly, but consultations help us recommend the safest and most effective care plan.'],
-            ['question' => 'How do I get updates about my pet?', 'answer' => 'You receive regular updates including photos and status reports depending on the service you choose.'],
-            ['question' => 'What happens after I book a service?', 'answer' => 'Our team contacts you to confirm details, prepare your pet’s care plan, and guide you through the next steps.'],
-        ];
+        return $this->publishedFaqs('services');
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function publishedFaqs(string $category, ?string $subcategory = null, bool $onlyGeneral = false): array
+    {
+        $query = Faq::query()
+            ->published()
+            ->where('category', $category);
+
+        if ($onlyGeneral) {
+            $query->whereNull('subcategory');
+        } elseif ($subcategory !== null) {
+            $query->where(function ($query) use ($subcategory): void {
+                $query
+                    ->whereNull('subcategory')
+                    ->orWhere('subcategory', $subcategory);
+            });
+        }
+
+        return $query
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (Faq $faq): array => $faq->toPublicArray())
+            ->all();
     }
 
     private function serviceSchema(string $name, array $metadata): array

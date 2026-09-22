@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 final class LoyaltyPageTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_loyalty_page_renders_reference_sections_and_metadata(): void
     {
         $response = $this->get(route('loyalty'));

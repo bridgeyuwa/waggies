@@ -2,7 +2,7 @@
 
 return [
     'grooming' => [
-        'title' => 'Pet Grooming Spa', 'eyebrow' => 'Grooming Spa · Abuja', 'ctaText' => 'Request Grooming', 'ctaRoute' => 'contact', 'ctaParams' => ['intent' => 'service', 'service' => 'grooming'],
+        'title' => 'Pet Grooming Spa', 'eyebrow' => 'Grooming Spa · Abuja', 'ctaText' => 'Request Grooming', 'ctaRoute' => 'book', 'ctaParams' => ['service' => 'grooming'],
         'description' => 'Our groomers use gentle handling and non-toxic, pet-safe products in a peaceful setting designed to keep your pet relaxed from drop-off to pickup.',
         'hero' => ['imageSrc' => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=1200&h=600&fit=crop&q=80', 'imageAlt' => 'Pet grooming spa at Waggies Abuja', 'description' => 'Breed-specific treatments, baths, and precision styling by experienced groomers in a calm, purpose-built spa.'],
         'features' => ['Bath with breed-specific shampoo and conditioner', 'Professional blow-dry and brush-out for a flawless finish', 'Breed-standard precision cut and styling by experienced groomers', 'Deep de-shed treatment to dramatically reduce loose fur', 'Gentle facial wash, eye cleaning, and ear inspection', 'Safe nail trim and grind to a comfortable length', 'Teeth brushing with pet-safe enzymatic toothpaste', 'Light cologne spritz and bandana finishing touch', 'Anal gland expression (upon request)', 'Sanitary trim and paw pad tidy-up', 'Flea and tick bath treatment available', 'Blueberry facial for tear stain removal'],
@@ -17,7 +17,7 @@ return [
         'meta' => ['title' => 'Pet Grooming Spa', 'description' => 'Breed-specific pet grooming in Abuja: baths, precision styling, nail trims, and de-shed treatments by experienced groomers.'],
     ],
     'training' => [
-        'title' => 'Dog Training', 'eyebrow' => 'Dog Training · Abuja', 'ctaText' => 'Request Training', 'ctaRoute' => 'contact', 'ctaParams' => ['intent' => 'service', 'service' => 'training'],
+        'title' => 'Dog Training', 'eyebrow' => 'Dog Training · Abuja', 'ctaText' => 'Request Training', 'ctaRoute' => 'book', 'ctaParams' => ['service' => 'training'],
         'description' => "Our trainers use only reward-based, force-free methods. Whether you're starting with a new puppy or working through behavioural challenges, we design a programme that fits your dog's temperament and your goals.",
         'hero' => ['imageSrc' => 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=1200&h=600&fit=crop&q=80', 'imageAlt' => 'Dog training session at Waggies Abuja', 'description' => 'Science-based, positive-reinforcement training programmes for puppies and adult dogs — building confidence, manners, and a stronger bond.'],
         'features' => ['Puppy socialisation, recall, and bite inhibition (8-16 weeks)', 'Basic obedience — sit, stay, come, heel, and leash manners', 'Advanced obedience — off-lead reliability and distance commands', 'Behaviour modification for reactivity, anxiety, and aggression', 'Small group classes for socialisation and real-world practice', "1-to-1 private sessions tailored to your dog's specific needs", 'Clicker training and marker-based positive reinforcement', 'Loose-lead walking and polite greeting training', 'Separation anxiety management programmes', 'Trick training for mental stimulation and fun', 'Follow-up sessions and progress tracking included', 'Written training plan and homework for between sessions'],
@@ -28,7 +28,7 @@ return [
         'meta' => ['title' => 'Dog Training', 'description' => 'Science-based, positive-reinforcement dog training in Abuja for puppies and adults - obedience, behaviour modification, and group classes.'],
     ],
     'vet-care' => [
-        'title' => 'Veterinary Care', 'eyebrow' => 'On-Site Vet Care · Abuja', 'ctaText' => 'Request Appointment', 'ctaRoute' => 'contact', 'ctaParams' => ['intent' => 'veterinary', 'service' => 'vet-care'],
+        'title' => 'Veterinary Care', 'eyebrow' => 'On-Site Vet Care · Abuja', 'ctaText' => 'Request Appointment', 'ctaRoute' => 'book', 'ctaParams' => ['service' => 'vet-care'],
         'description' => 'Having a veterinarian on-site every day gives pet parents total confidence. Whether your pet needs a routine check-up, vaccination booster, or medical attention while boarding, our care team is ready.',
         'hero' => ['imageSrc' => 'https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?w=1200&h=600&fit=crop&q=80', 'imageAlt' => 'Veterinary care at Waggies Abuja', 'description' => 'Consultations, vaccinations, wellness checks, and minor treatments — delivered by our on-site veterinarian every day of the week.'],
         'features' => ['Full nose-to-tail wellness examinations and health consultations', 'Core and non-core vaccinations on a personalised schedule', 'Routine wellness check-ups to catch issues early', 'Diagnosis, prescriptions, and minor treatment for common conditions', 'Flea, tick, and worm treatments and prevention advice', 'In-clinic diagnostic tests and external lab coordination', 'Dental examination, scaling, and minor dental procedures', 'Microchipping for permanent pet identification', 'Pre-travel health certificates and documentation', 'Weight monitoring and nutritional counselling', 'Spay/neuter consultations and scheduling', 'Emergency first aid and stabilisation'],

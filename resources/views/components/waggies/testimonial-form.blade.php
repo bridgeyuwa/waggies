@@ -29,6 +29,10 @@
 
             <form x-show="!submitted" x-cloak @submit.prevent="submit($event)" enctype="multipart/form-data" :aria-busy="submitting" class="space-y-5" aria-describedby="testimonial-form-help">
                 @csrf
+                <div class="hidden" aria-hidden="true">
+                    <label for="testimonial-website">Leave this field empty</label>
+                    <input id="testimonial-website" name="website" type="text" tabindex="-1" autocomplete="off">
+                </div>
                 <p id="testimonial-form-help" class="sr-only">Required fields are marked. The form has three steps.</p>
                 <input type="hidden" name="rating" :value="data.rating">
 

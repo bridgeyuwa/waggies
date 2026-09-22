@@ -61,7 +61,7 @@ const waggiesNavbar = () => ({
     updateMegaOffset(menu) { const panel = document.querySelector(`#desktop-menu-${menu}`), trigger = document.querySelector(`[data-nav-trigger="${menu}"]`), nav = this.$refs.nav; if (!panel || !trigger || !nav) return; const triggerRect = trigger.getBoundingClientRect(), navRect = nav.getBoundingClientRect(); panel.style.setProperty('--mega-offset', `${navRect.left + navRect.width / 2 - (triggerRect.left + triggerRect.width / 2)}px`); },
     openAndFocus(menu) { this.updateMegaOffset(menu); this.desktopMenu = menu; this.$nextTick(() => { document.querySelector(`#desktop-menu-${menu} a`)?.focus(); }); },
     closeDesktop() { this.cancelClose(); this.pinnedMenu = null; this.desktopMenu = null; },
-    openMobile() { this.lastFocus = document.activeElement; this.mobileOpen = true; }, closeMobile() { this.mobileOpen = false; },
+    openMobile() { this.lastFocus = document.activeElement; this.mobileOpen = true; }, closeMobile() { this.mobileOpen = false; this.$nextTick(() => { if (this.lastFocus?.isConnected) this.lastFocus.focus(); this.lastFocus = null; }); },
     escape() { if (this.mobileOpen) this.closeMobile(); else this.closeDesktop(); },
 });
 const waggiesDialog = () => ({

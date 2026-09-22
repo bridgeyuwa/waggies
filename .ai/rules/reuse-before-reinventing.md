@@ -10,6 +10,7 @@ paths:
   - 'public/**'
   - composer.json
   - package.json
+  - config/waggies_pricing.php
 ---
 
 # Waggies Laravel — Reuse Before Reinventing
@@ -749,3 +750,6 @@ After the conversion gate has passed, the current standalone Laravel implementat
 
 ## Audit before consolidation
 Standardize genuine semantic and behavioral responsibilities, but do not consolidate merely because implementations look similar. Before merging or abstracting, establish responsibility, usage, variation, dependencies, edge cases, and API requirements; then choose a shared implementation, deliberate variant, primitive/composition, or separate implementation. Avoid mega-components and boolean-branch-heavy abstractions.
+
+## Keep service pricing configuration-backed
+Do not move Waggies service pricing into Filament/CMS merely because staff-editable prices are technically possible. Pricing inputs participate in application-owned calculations and relationships; keep service pricing in version-controlled configuration unless a future product requirement materially changes this architecture.

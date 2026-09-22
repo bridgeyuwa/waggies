@@ -1,0 +1,40 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('contact_enquiries', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->string('name', 120)->nullable();
+            $table->string('email')->nullable();
+            $table->string('phone', 40)->nullable();
+            $table->string('subject', 160);
+            $table->string('service', 80)->nullable();
+            $table->string('intent', 80)->nullable();
+            $table->text('message');
+            $table->string('reference', 40)->nullable();
+            $table->string('status', 20)->default('new');
+            $table->timestamp('received_at')->nullable();
+            $table->timestamps();
+
+            $table->index(['status', 'created_at']);
+            $table->index('email');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('contact_enquiries');
+    }
+};

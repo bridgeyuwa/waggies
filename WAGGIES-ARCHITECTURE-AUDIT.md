@@ -1,583 +1,503 @@
-# Waggies Laravel Architecture, Design-System, and Product-Readiness Audit
+# Waggies Batch 10 Architecture Audit
 
-**Audit date:** 2026-09-20  
-**Scope:** standalone Laravel application in `C:\Users\Bridges\Herd\waggies`  
-**Method:** repository inventory, route/controller/config/view inspection, package/version inspection, static searches, browser inspection of representative live pages, Debugbar request/query inspection, PHPUnit, and PHPStan.  
-**Change policy:** application code, routes, dependencies, migrations, and generated assets were not changed. This report is the only artifact created by this audit.
+Audit date: 2026-09-22
+Project root: `C:\Users\Bridges\Herd\waggies`
+Audit mode: whole-system architecture, runtime, product, accessibility, testing, and public/admin reconciliation
+Starting revision: `3e2e3320ec1b19ea08531f833e437988e03604f5`
 
-Labels used below:
+This file retains historical audit context and the current Batch 30 reconciliation below. The current product is a hybrid application: config/code owns Services, Relocation, and service pricing; database records own Guides, Knowledge Base, FAQs, Gallery, Products, BookingRequests, ContactEnquiries, Testimonials, and NewsletterSubscribers; Blade/Alpine owns the public surface; and Filament/Livewire owns justified admin resources.
 
-- **Observed** — directly evidenced in the repository or running application.
-- **Recommendation** — proposed implementation direction.
-- **Optional** — useful idea, but not required for the next consolidation pass.
+## 1. Git state
 
-## 1. Executive summary
+- Branch: `main`.
+- `HEAD`: `3e2e3320ec1b19ea08531f833e437988e03604f5` (`Standardize Waggies content and list patterns`).
+- The expected Batch 10 starting revision was present.
+- The working tree was clean before the audit.
+- No implementation files, dependencies, migrations, routes, or database records were changed during the audit.
+- This report file is the only intended artifact update for Batch 10; no commit or push was made.
 
-**Observed:** Waggies is a coherent Laravel 13 server-rendered application with Blade pages, Alpine.js interactions, Tailwind CSS v4, configuration-backed content, a centralized SEO/head layer, a reusable component directory, and a working public route surface. It is not a generic starter anymore, but several starter/tooling residues remain.
+Recent context confirms that the current code is the result of the preceding standardization batches, including primitive APIs, hero/page-header compositions, service compositions, forms/public interactions, and content/list patterns. The earlier version of this report predated those batches and was therefore not treated as current evidence.
 
-**Strengths:**
+## 2. Executive architecture assessment
 
-- 38 page views, 40 Waggies Blade components, 17 controllers, and 69 registered routes are already organized into recognizable public domains.
-- Public pages are largely composed from components rather than enormous page templates.
-- `Controller::setPageHead()` and `AppServiceProvider::Head::defaults()` give metadata and schema a sensible ownership boundary.
-- The public navigation, skip link, heading hierarchy, semantic landmarks, form labels, and 404 experience are strong in the inspected browser states.
-- Representative successful pages had no browser console warnings/errors and no Debugbar exceptions.
-- PHPUnit passes: **21 tests, 161 assertions**.
-- Debugbar query inspection found **no N+1 groups, duplicate query groups, or failed queries** on the inspected successful pages.
+The application is structurally coherent and is not in need of a broad rewrite. Its strongest architectural decision is the clear separation between:
 
-**Highest-priority findings:**
+1. config-backed editorial and catalogue content;
+2. controllers that resolve page context, request schemas, metadata, and server-owned values;
+3. Blade components that own semantic markup and reusable visual primitives; and
+4. Alpine factories that own local browser interaction.
 
-1. **Newsletter and testimonial submission are presented as successful without a durable server-side destination.** `NewsletterController` validates and flashes success but does not persist, dispatch, or send anything (`app/Http/Controllers/NewsletterController.php:10-15`). The testimonial flow is client-only (`resources/js/app.js:624-635`).
-2. **The cost calculator owns hard-coded rates in JavaScript** while pricing also exists in configuration (`resources/js/tools-calculators.js:95-108`; `config/waggies_pricing.php`). This creates a business-rule drift risk.
-3. **Placeholder/stock-photo markers are visible in production-facing content**, including `client photo required` alt text (`config/waggies_boarding.php:7`, `app/Http/Controllers/ServicesController.php:17`).
-4. **The UI system has converged in spirit but not in API.** Semantic utility classes, raw Tailwind utilities, inline styles, raw `w-cta` classes, and several one-off component variants coexist.
-5. **Hero and service-detail responsibilities have clear duplication.** `legacy-image-hero` is used once and substantially overlaps a branch of `cover-hero`; `service-detail` and `service-page-enhanced` share the same service-page spine.
-6. **PHPStan reports three existing findings** in `FaqController` and `RelocationController`; the test suite does not cover static-analysis correctness.
-7. **Local Debugbar measured several slow requests**, up to 8.76 seconds for `/`, while the database work was only a few milliseconds and two or three queries. This points first to local/dev instrumentation, view rendering, browser asset loading, or environment overhead—not an identified database bottleneck.
+The current test suite, static analysis, build, and targeted browser checks all pass. Service pricing is now intentionally owned by version-controlled configuration plus application-owned calculation rules; the Batch 26 database/CMS pricing authority has been rolled back. The principal systemic accessibility risk is the global search/cart dialog lifecycle, which opens and closes overlays without a shared focus-trap and return-focus contract. A current, reproducible runtime warning affects knowledge-base numbered pagination because one Alpine `x-for` iteration has multiple sibling roots.
 
-**Readiness decision:** The application is ready for a controlled standardization/consolidation implementation in bounded batches. A few product contracts should be decided first: what newsletter and testimonial “submit” mean, whether configuration remains the editorial source of truth, which pricing source is canonical, how real media will be supplied, and whether the current Alpine-first interaction model remains the public-site default.
+The remaining issues are bounded maintenance concerns rather than evidence for a new framework, CMS, repository layer, global JavaScript rewrite, or wholesale component migration.
 
-## 2. Current architecture
+## 3. Current architecture map
 
-**Observed:** The application is a conventional Laravel monolith with a public web surface and a Filament admin foundation.
+```text
+routes/web.php
+  -> invokable/resource-shaped controllers
+  -> config-backed Services/Relocation/pricing plus persisted domain records
+  -> Blade layouts, pages, and x-waggies components
+  -> Alpine factories in resources/js/app.js
+  -> Vite/Tailwind assets in the browser
 
-| Layer | Current shape | Audit assessment |
-| --- | --- | --- |
-| Framework | Laravel 13.31.0, PHP 8.5.10 | Current and appropriate |
-| Routing | `routes/web.php`; no application API routes file | Appropriate for a server-rendered public site; `/api/*` is currently browser-facing form/search plumbing |
-| Controllers | Resource-oriented public controllers; several invokable controllers; `ToolsController` owns 11 tool actions | Understandable, but the tools/config boundary should be made explicit |
-| Domain models | Only `App\Models\User` is present | Intentional for config-backed content today; not CMS-ready without a domain model decision |
-| Content | PHP config arrays under `config/waggies_*.php` plus controller-owned page data | Fast and deterministic, but editorially difficult to maintain at scale |
-| Views | Blade layout, page views, `components/waggies/*` | Good foundation; component APIs need standardization |
-| Interactivity | Alpine registered from `resources/js/app.js`; two calculator modules | Capable, but `app.js` is a large global registry and several behaviors are client-only |
-| Styling | Tailwind v4 plus a 1,155-line CSS layer of tokens and semantic utilities | Strong design intent, mixed adoption |
-| Admin | Filament provider exists; no domain resource inventory was found | Future CMS/admin foundation, not an active content back office yet |
-| Persistence | SQLite framework tables for sessions/cache/jobs/users; no Waggies domain schema | Fine for static prototype; insufficient for submissions, editorial content, media, or audit history |
+Filament /admin
+  -> app/Providers/Filament/AdminPanelProvider.php
+  -> Filament's Livewire infrastructure
 
-**Observed:** The app is served by Herd at `https://waggies.test` during browser inspection, while `php artisan about` reports `laravel.test` as the configured application URL. This environment/canonical URL mismatch should be verified before production deployment because canonical URLs, sitemap URLs, and generated links depend on the resolved URL configuration.
+Public submissions
+  -> NewsletterController -> NewsletterSubscriber (newsletter_subscriptions)
+  -> TestimonialController -> Testimonial (pending moderation)
 
-## 3. Design-system inventory
+Publication metadata
+  -> Controller::setPageHead
+  -> AppServiceProvider::boot defaults/errors
+  -> PublicUrlCatalog -> sitemap.xml
+```
 
-**Observed:** The design system is real, not absent. Its source of truth is distributed across `resources/css/app.css`, Blade component classes, Tailwind utilities, config content, and inline styles.
+The public application is Blade-first and Alpine-first. No application-owned Livewire components were found under `app/Livewire`; Livewire is present for Filament and is also bootstrapped in the public layout, which is recorded as a bounded deferred concern below.
 
-Current inventory:
+## 4. Project structure findings
 
-- Brand tokens in `resources/css/app.css:25-115`.
-- Generic/semantic token aliases in `resources/css/app.css:117-207`.
-- Typography, card, navigation, form, and shell utilities in the component layer beginning around `resources/css/app.css:265`.
-- CTA contract around `resources/css/app.css:906-970`.
-- Reduced-motion, forced-colors, and print handling around `resources/css/app.css:1080-1155`.
-- Blade component primitives: `button`, `input`, `select`, `icon`, `section-heading`, `page-header`, `cover-hero`, `faq-accordion`, `article-card`, `service-card`, `shop-product-card`, and related composites.
-- Raw utility classes remain common: `text-sm` appears approximately 297 times, `px-4` approximately 196 times, `rounded-full` approximately 146 times, and `max-w-7xl` approximately 94 times across Blade templates.
+The directory structure is understandable for the current scope:
 
-**Assessment:** The next step is not to invent a new visual language. It is to make the existing language internally consistent and give it a small, documented set of canonical APIs.
+- `app/Http/Controllers` contains 18 controllers organized around public resource/page families.
+- `app/Models` contains the two persisted public submission models plus `User`.
+- `app/Support` contains focused cross-cutting helpers such as `PublicUrlCatalog` and `ArticleBodyProcessor`.
+- `resources/views/components/waggies` contains the reusable semantic component vocabulary, including buttons, fields, headings, cards, heroes, service detail, article/shop/testimonial cards, navigation, and interaction shells.
+- `resources/views/pages` contains page compositions rather than a second competing component system.
+- `resources/js` contains a global Alpine registry plus focused calculator modules.
+- `tests/Feature` and `tests/Unit` cover routes, SEO, submission contracts, component semantics, and public interactions.
 
-## 4. Typography
+The largest files are not automatically architectural defects. `ContactController` is large because it is the request-intent and form-schema gateway; `resources/js/app.js` is large because it is the application-wide Alpine registry; several page files are large because they compose content-rich pages. The useful follow-up is bounded extraction by responsibility, not splitting based on byte count alone.
 
-**Observed:** `resources/css/app.css:1` imports Cormorant Garamond and DM Sans. The system uses serif display/headline styling and sans-serif body/UI styling, which suits a premium pet-care brand.
+## 5. Controller and route findings
 
-Current semantic classes include `text-display`, `text-h1`, `text-h2`, `text-h3`, `text-body`, `text-eyebrow`, `text-label`, and `text-meta`. They coexist with raw combinations such as `font-serif text-3xl font-bold`, `text-lg`, and arbitrary sizes such as `lg:text-[3.25rem]`.
+### Coherent boundaries
 
-**Recommendation:** Keep the type pairing. Define a short scale with explicit roles:
+- `ServicesController` composes service index, boarding/species, grooming, training, and vet-care pages from config and shared views.
+- `GuidesController` and `KnowledgeBaseController` remain separate because they represent different content families, even though both use `ArticleBodyProcessor`.
+- `ToolsController` contains the tools catalogue and its static tool actions. This is an intentional static catalogue boundary, not a reason to create one controller per page.
+- `AboutPagesController` and `LegalController` group static page actions by public resource family.
+- `NewsletterController` and `TestimonialController` are thin persistence gateways with validation and response contracts.
+- `Controller::setPageHead` provides a shared metadata/schema entry point without hiding page-specific SEO decisions.
 
-- Display/hero title
-- Page title
-- Section title
-- Card title
-- Body/lead/body-small
-- Eyebrow/label/meta
+### Findings
 
-Then migrate repeated public-facing headings to those roles gradually. Do not ban raw Tailwind typography where it expresses a genuinely local composition; ban only unexplained deviations in shared components.
+1. **Pricing is intentionally split by responsibility, not ownership.** `config/waggies_pricing.php` owns commercial inputs for services, ranges, transport bands, and surcharges. `ServicesController`, the calculators, and the transport estimator own presentation and calculation semantics. `waggies_boarding`, `waggies_service_details`, and `waggies.php` retain non-commercial service composition and editorial labels only.
 
-**Risk:** The same semantic role can currently render through several class recipes, so a token change will not reliably propagate to the full site.
+2. **`/api/newsletter`, `/api/testimonials`, and `/api/search` live in `routes/web.php`.** They are browser-facing endpoints used by the current public application and share the web middleware/session conventions. This is intentional for the current product, but the convention should be documented if more endpoints are added so that an accidental second API architecture does not emerge.
 
-## 5. Color
+3. **`ShopController::show` uses published database-backed `Product` slug binding.** The public catalogue remains intentionally bounded: there is no order, checkout, payment, inventory, fulfilment, or customer-account domain.
 
-**Observed:** The palette is strongly defined around purple primary tones, warm beige secondary tones, white/surface variants, dark ink, muted text, semantic status colors, and gold/silver/bronze accents. Tokens use OKLCH and are mapped into Tailwind-compatible names.
+## 6. Blade and component findings
 
-Important token ownership is in `resources/css/app.css:25-207`. However, raw values remain in Blade and PHP/JS, including `#25D366` for WhatsApp, `#6B2C91` in schema configuration, raw `rgba(0,0,0,...)` hero overlays, and arbitrary OKLCH shadow values.
+The component vocabulary is coherent and is actively used. The generic `card` is a low-level shell; semantic components such as `service-card`, `article-card`, `shop-product-card`, `pricing-tier-card`, and `testimonials-grid` carry domain meaning. Form primitives (`input`, `select`, `field-error`, `alert`) are present, and page-level compositions remain readable.
 
-**Recommendation:** Preserve the existing palette and brand beige. Consolidate only duplicate/near-duplicate semantic names, and introduce explicit tokens for:
+The main adoption issue is partial rather than broken: direct utility composition and raw values remain alongside semantic classes and component APIs. Examples include direct `w-cta` usage, page-specific arbitrary values, and local layout classes. These are valid for unique geometry and responsive composition; the risk is that repeated visual decisions may gradually fork from the primitive vocabulary. This is recorded as design-system adoption drift, not a request for global tokenization.
 
-- Hero scrim and image overlay strength
-- Surface elevation levels
-- Focus ring and error/success states
-- Fixed-layer/z-index tiers
-- External-brand exceptions such as WhatsApp
+The knowledge-base pagination template is a concrete correctness exception. In `resources/views/pages/knowledge-base/index.blade.php`, the desktop numbered-page `x-for` contains sibling conditional templates for the active and inactive page states. Alpine requires a single root for each `x-for` iteration, and the browser currently reports:
 
-**Do not standardize:** Do not force every external brand color or image overlay into the purple palette. Those are legitimate exceptions when named and scoped.
+```text
+Alpine Warning: x-for templates require a single root element, additional elements will be ignored.
+```
 
-## 6. Spacing
+The current effect is that previous/next navigation remains available, while the desktop numbered links are ignored. This is a small, well-contained P2 fix.
 
-**Observed:** The system repeatedly uses `py-20`, `py-16`, `py-12`, `py-24`, `px-4`, `md:px-10`, and `lg:px-12`. This is a useful implicit rhythm. `section-pad` also exists in CSS (`resources/css/app.css:399-410`).
+## 7. Design-system findings
 
-The issue is not arbitrary spacing everywhere; it is that the same section role is sometimes implemented with the shared class and sometimes with hand-written padding. Radius and shadow usage are similarly broad: `rounded-full`, `rounded-2xl`, and `rounded-xl` dominate, while `shadow-sm` and `shadow-soft` are common but supplemented by arbitrary shadows.
+### Established strengths
 
-**Recommendation:** Keep the current rhythm and document a small section scale, card scale, and control scale. Adopt shared section/container primitives only where they reduce repeated shell markup.
+- `resources/css/app.css` defines semantic tokens, component-layer styles, CTA conventions, reduced-motion behavior, forced-colors handling, and print behavior.
+- `x-waggies.button`, `x-waggies.page-header`, `x-waggies.cover-hero`, `x-waggies.card`, `x-waggies.input`, and `x-waggies.select` establish a recognizable API.
+- Existing tests protect several primitive semantics and rendered contracts.
+- Hero geometry, card family, service detail, form fields, and page headings have meaningful boundaries rather than one universal component with many unrelated flags.
 
-## 7. Container and layout system
+### Adoption drift
 
-**Observed:** The dominant public container is `max-w-7xl` with `px-4 md:px-10 lg:px-12`. Narrow reading columns use `max-w-2xl`, `max-w-3xl`, and `max-w-prose`; these are appropriate distinctions.
+The component API is not yet the exclusive route for repeated UI decisions. Measured usage confirms meaningful adoption but not full convergence: button/page-header/card/field primitives coexist with direct utility strings and page-local styling across `resources/views/pages` and components. This is maintenance debt only where the same decision is repeated and independently editable.
 
-The site uses a good mix of one-column mobile layouts, two-column content, 12-column desktop grids, cards, comparison tables, sticky table columns, and full-bleed escapes.
+Recommended direction: define a small boundary between canonical semantic primitives and legitimate page-specific composition, then migrate repeated cases opportunistically. Do not run a global utility-to-component conversion in this project phase.
 
-**Recommendation:** Establish three named layout contracts:
+## 8. Card, hero, and service architecture findings
 
-1. `page-container`: site-wide maximum width and horizontal gutters.
-2. `content-column`: readable text width.
-3. `section-shell`: vertical rhythm and surface/border behavior.
+### Cards
 
-Implement these as classes or small Blade primitives only after confirming that they preserve the current page snapshots. Do not replace every `mx-auto max-w-* px-*` expression automatically.
+The card family is coherent. `resources/views/components/waggies/card.blade.php` provides the shell, while domain cards own their content and interaction contracts. `shop-product-card` keeps the product link and cart action as separate controls without nested interactive elements. `WaggiesCardSemanticsTest` provides regression coverage.
 
-## 8. Positioning and layout problems
+### Heroes
 
-**Observed:** Several patterns are structurally fragile or expensive to reason about:
+`cover-hero` and `page-header` represent two real visual/content modes: image-led cover content and text-led page framing. `hero-actions` centralizes action rendering. Treating them as one component would obscure the distinction and increase conditional complexity. `WaggiesHeroComponentsTest` covers the current contract.
 
-- `cover-hero` contains three rendering branches with repeated absolute layers and multiple height contracts (`resources/views/components/waggies/cover-hero.blade.php:28-87`).
-- `legacy-image-hero` reproduces the bottom-aligned background-hero pattern (`resources/views/components/waggies/legacy-image-hero.blade.php:3-16`).
-- `tool-cta` uses a full-bleed `left-1/2 w-[100vw] -translate-x-1/2` escape. This can be correct, but it should be a named layout primitive rather than an unexplained local trick.
-- The custom select component positions a fixed listbox from `getBoundingClientRect()` in `resources/js/app.js`; this needs keyboard, zoom, scroll, and viewport-edge QA.
-- Fixed overlays use several literal z-index tiers: search, cart, toast, mobile navigation, and floating actions. There is no visible z-index contract.
-- Hero and page sections use many bespoke minimum heights such as 390, 420, 428, 449, 454, 480, 560, and `80vh`.
+### Services
 
-**Recommendation:** Consolidate the layering and image-position contracts first. Treat bespoke heights as intentional content contracts until page-by-page visual QA proves otherwise.
+`service-detail` is the shared composition for the ordinary grooming/training/vet-care detail spine. Boarding/species and relocation have materially different content and interaction needs, so they retain specialized compositions. This is a legitimate exception to maximal reuse, not component duplication requiring immediate consolidation.
 
-## 9. Hero and page-header inventory
+## 9. Forms and interaction findings
 
-Current hero/header families:
+The public form architecture is substantially coherent:
 
-| Component | Uses | Assessment |
-| --- | --- | --- |
-| `cover-hero` | Main service/about/relocation/public image heroes | Canonical candidate, but over-configured and branch-heavy |
-| `legacy-image-hero` | Careers only | Duplicate responsibility; clear migration candidate |
-| `page-header` | Static page headers such as pricing/gallery/partnerships | Reasonable separate composition for non-image pages |
-| `tool-hero` | Tool pages | Tool-specific framing is defensible; compare with `page-header` before merging |
-| Home hero | Inline in `pages/home.blade.php` | Should share the same image/scrim/title/CTA primitives without forcing the home composition into a generic component |
+- `ContactController` resolves the request intent and serializes server-owned pricing/schema data.
+- `resources/views/components/waggies/testimonial-form.blade.php` owns the testimonial submission UI and validation display contract.
+- Newsletter and testimonial submissions persist through dedicated controllers and models.
+- The current tests cover normalization, duplicate newsletter behavior, invalid input, pending testimonial moderation, and invalid photo handling.
+- Browser checks confirmed contact intent selection, FAQ disclosure, shop add-to-cart behavior, and public page rendering.
 
-**Recommendation:** Create one deliberate image-hero contract with small, named variants for alignment, content density, and image technique. The implementation may keep a separate `ImageHero` and `BackgroundHero` primitive if the loading/accessibility contracts differ. Remove `legacy-image-hero` only after migrating its one caller and visually checking careers.
+The pricing calculator correctly receives serialized server data instead of owning a second independent rate table in JavaScript. The outstanding problem is upstream configuration duplication, not the transport mechanism from PHP to JavaScript.
 
-**Important accessibility note:** The canonical image branch uses an actual `<img>` with alt text, while background-image branches use a visually hidden alt string. Prefer the real-image contract for meaningful hero images; use decorative backgrounds only when the image is genuinely non-content.
+The global dialog behavior is the main interaction-system gap. In `resources/views/layouts/app.blade.php`, search and cart dialogs expose `x-show` and `aria-modal`, but they do not share a focus-trap and trigger-return contract. `resources/js/app.js` closes them by changing state; the navbar has a separate last-focus mechanism. This can leave keyboard users without a reliable return point and should be addressed as one focused accessibility batch, not through unrelated interaction refactoring.
 
-## 10. Component inventory
+## 10. Data and business-logic findings
 
-**Observed:** The component library is substantial and mostly well named. It includes:
+The current persistence boundary matches the product:
 
-- Shell: `navbar`, `footer`, `mobile-bottom-nav`, `floating-actions`, `skip-link`.
-- Navigation/content: `breadcrumb-strip`, `section-heading`, `page-header`, `article-toc`, `share-row`.
-- Content cards: `service-card`, `article-card`, `shop-product-card`, `pricing-tier-card`, `testimonial*`, `feature-band`, `proof-band`, `process-steps`, `service-standards`, `service-comparison`.
-- Form/control primitives: `button`, `input`, `select`, `field-error`, `alert`.
-- Hero/media: `cover-hero`, `legacy-image-hero`, `tool-hero`, `gallery-lightbox`, `icon`, `brand-icon`.
-- Service/detail composites: `service-detail`, `service-page-enhanced`, `service-feature-grid`, `related-tools`, `tool-cta`.
+- `NewsletterSubscriber` stores a normalized email in the historical `newsletter_subscriptions` table and protects duplicate subscription behavior. `NewsletterSubscription` remains only as a deprecated compatibility alias and is not a runtime authority.
+- `Testimonial` stores submitted content and a pending/approved/rejected/archived moderation state. The public query uses the approved scope.
+- No domain-table expansion is justified by the current config-backed catalogue.
+- Native uploaded-file storage in `TestimonialController` is a deliberate simple implementation for the current submission flow; the presence of `spatie/laravel-medialibrary` does not by itself require migration.
+- `ArticleBodyProcessor` is a focused deterministic service and is reused by article-like content without introducing a repository layer.
 
-**Assessment:** Reuse exists, but adoption is uneven. The most important issue is not component count; it is that raw markup often bypasses canonical components. A component vocabulary should be established around roles and composition boundaries, not around every visual variation.
+Pricing is a deliberate application boundary: configuration owns commercial inputs while controllers and calculator modules own formatting and calculation rules. No pricing repository, generic settings editor, or CMS resource is justified by the current product.
 
-## 11. Blade structure
+## 11. SEO and publication findings
 
-**Observed:** There are 38 page Blade views. Public pages generally extend `layouts.app` and define one content section. No page view is over 100 lines; the three largest are roughly 75 lines. This is a good baseline.
+The publication architecture is coherent and tested:
 
-The main layout centralizes head rendering, Vite, Livewire bootstrapping, navigation, footer, mobile navigation, global search, cart, and toast surfaces (`resources/views/layouts/app.blade.php:1-100`).
+- `AppServiceProvider::boot` establishes safe defaults and error-page handling through Laravel Head.
+- `Controller::setPageHead` handles page-specific titles, descriptions, canonical URLs, robots directives, Open Graph/Twitter values, and schemas.
+- `PublicUrlCatalog::urls()` is the explicit publication inventory used by the sitemap route.
+- `routes/web.php` exposes `sitemap.xml` and `robots.txt` without introducing a competing publication mechanism.
+- `WaggiesBreadcrumb` and page-level schema helpers provide structured navigation/schema output.
+- `SeoSearchSitemapTest` and related route tests protect key contracts.
 
-Nine page views contain local PHP/logic, and two contain direct `config()` access. Some long one-line sections reduce reviewability even when the semantic structure is sound.
+The catalogue is deliberately distributed between explicit static route entries and published database-backed Guide/Knowledge Article/Product loops. That is a maintainable choice for the current publication model. There is no evidence here for a URL redesign, automatic crawl discovery, or CMS migration. A future content-publication batch could consider richer publication metadata such as `lastmod`, but that is deferred and not a current defect.
 
-**Recommendation:** Keep page views as page composition files. Move repeated data shaping into controllers/support objects only when it improves ownership. Avoid turning every small block into a component; the current page-level composition is a strength.
+## 12. Dependency findings
 
-## 12. Alpine and JavaScript architecture
+The installed direct dependencies include Laravel 13.31, Filament 5.8.2, Livewire 4.4.4, Pest 4.7.8, PHPUnit 12.5.33, Larastan 3.12.1, Pint 1.32.1, Head, sitemap, breadcrumbs, schema.org, Debugbar, and several Spatie packages.
 
-**Observed:** `resources/js/app.js` is a global registration module of approximately 759 lines, with Alpine data components for navigation, search, cart, product pages, recently viewed products, toasts, sharing, contact requests, FAQs, testimonials, gallery lightbox, guides, knowledge-base, article TOC, and the testimonial form. Calculator concerns are split into `pricing-calculator.js` and `tools-calculators.js`.
+Clearly evidenced usage includes Laravel/framework, Head, schema.org, sitemap, breadcrumbs, Filament, Livewire through Filament infrastructure, Pest/PHPUnit, Larastan, Pint, Debugbar, Vite, and Tailwind.
 
-The current global behaviors are understandable, but the module now has several independent product areas. `waggiesTransportEstimate` is exposed globally (`resources/js/app.js:381-405`) and calculator registration is centralized at `resources/js/app.js:721-741`.
+The following packages have no clear application-owned usage in the current scan beyond composer metadata or generated guidance: webpush notification channels, activitylog, backup, data, health, medialibrary, model-states, permission, sluggable, and tags. This is an inventory signal, not permission to uninstall packages. Some may be planned admin/infrastructure capabilities, and removing them can have configuration or future-product consequences.
 
-**Recommendation:** Split by responsibility in a future pass:
+Recommended control: perform one dependency inventory before production hardening, classify each package as active, infrastructure-required, planned, or verified-unused, and remove only verified-unused packages in a separately tested batch. Do not combine package removal with pricing, focus, or UI changes.
 
-- shell: navigation, search, cart, toasts
-- public forms: contact/request, newsletter, testimonial
-- commerce: shop/product/recently viewed
-- content: FAQ, gallery, article TOC, guides/knowledge base
-- tools/calculators
+## 13. Testing findings
 
-Keep Alpine as the public-site interaction model unless a product decision requires server-side component state. Do not migrate everything to Livewire merely because Livewire is installed.
+The current baseline is healthy:
 
-**Correctness concern:** `waggiesToasts` defines a `listen()` method but no `init()` call is visible (`resources/js/app.js:379`). The layout uses the Alpine component, so the event listener should be verified; as written, a dispatched toast may not be observed by the global toast surface.
+- `php artisan test --compact`: 43 passed, 893 assertions.
+- `vendor/bin/phpstan analyse --memory-limit=1G`: no errors across 25 files.
+- `vendor/bin/pint --dirty --format agent`: passed.
+- `npm run build`: passed with Vite 7.3.6 and Tailwind 4.3.3.
+- Waggies-owned PHP lint for `app`, `bootstrap`, `config`, `database`, `routes`, and `tests`: passed.
+- `php artisan view:cache`: passed.
+- `git diff --check`: passed.
 
-## 13. Forms and interaction architecture
+The suite uses Pest as the runner but contains both PHPUnit-style class tests and Pest function tests. This is valid and currently green. A wholesale PHPUnit-to-Pest migration would create churn without improving the current regression signal. Prefer opportunistic migration only when a touched test benefits from it.
 
-**Observed:** The contact flow is a deliberate client-side request builder that stores a draft in session storage and routes the final request to WhatsApp. The inspected detailed contact state includes labeled fields, custom comboboxes, conditional sections, and a disabled review action until the required inputs are complete.
+Coverage is strongest for route contracts, SEO/search/sitemap, component semantics, submission behavior, and selected public interactions. There are no browser/Dusk tests and no JavaScript unit tests. That is acceptable for the current scope; the knowledge-base pagination warning and future dialog focus batch should receive targeted browser or interaction assertions if the team decides those behaviors warrant end-to-end protection.
 
-**Observed:** The shop uses local storage for cart and recently viewed state. The legal controller documents local/session storage keys, including `waggies-cart` and `waggies-request-draft`.
+## 14. Accessibility architecture findings
 
-**Observed:** Newsletter and testimonials look like real submission workflows but currently do not have corresponding persistence or outbound integration. This is a product-contract issue before it is a frontend framework issue.
+The application has good systemic foundations:
 
-**Recommendation:** Define each form as one of:
+- skip-link support;
+- semantic headings and lists;
+- labels and field-error relationships;
+- alert/status patterns;
+- card links and buttons with meaningful controls;
+- reduced-motion and forced-colors CSS handling;
+- native disclosure behavior for FAQ-style content.
 
-- local-only utility
-- WhatsApp handoff
-- server-persisted lead/submission
-- external integration
+Targeted browser accessibility snapshots showed valid landmarks, headings, labels, buttons, and links on home, services, contact, FAQ, shop, and knowledge-base pages. The FAQ disclosure interaction expanded correctly and kept focus on its trigger.
 
-Then make copy, success state, retry state, privacy notice, and tests match that contract.
+The global search/cart focus lifecycle remains the high-value exception. Record it separately from the knowledge-base template warning because the scope and remediation are different: one is a single template structure defect; the other is a shared overlay interaction contract.
 
-## 14. Responsive behavior
+## 15. Responsive and design consistency findings
 
-**Observed:** The public site has mobile navigation, responsive grids, stacked forms, responsive service cards, mobile-friendly comparison overflow, and a 656px-ish browser inspection that remained structurally usable. The main CSS breakpoint is 768px, with a custom 1153px navigation split (`resources/css/app.css:869-884`); templates also use `sm`, `md`, and `lg` utilities.
+Responsive composition is mostly consistent. Pages repeatedly use the same max-width and horizontal-padding vocabulary, mobile/desktop variants are explicit, and Tailwind’s default breakpoint naming is not competing with a second breakpoint system.
 
-**Risks:**
+Direct utility classes and arbitrary values remain in page compositions. Most observed cases are legitimate for hero geometry, icons, image treatment, or local responsive exceptions. The actionable concern is repeated styling decisions that bypass the semantic primitive API; this is the same bounded design-system adoption drift recorded in Section 7, not a general responsiveness failure.
 
-- The custom select listbox is position-dependent and needs viewport-edge testing.
-- Hero minimum heights are numerous and may create excessive vertical space on short mobile screens.
-- Fixed mobile navigation, floating actions, modal layers, and Debugbar can compete for viewport space.
-- Long comparison tables and wide CTA groups need explicit narrow-width tests.
+## 16. Naming and vocabulary findings
 
-**Recommendation:** Define a small responsive QA matrix: 360px, 390px, 768px, 1024px, and desktop wide. Test keyboard and zoom separately from CSS width.
+The vocabulary is mostly clear. `title` and `heading` are used in different contracts, and `service` versus `resolvedService` distinguishes a selected/normalized service from an input concept. These are intentional distinctions.
 
-## 15. Icons, images, and assets
+There is one lower-severity component API inconsistency: action arrays use both `route` and `href`. For example, `HomeController` hero actions use route-shaped values, while `ServicesController` and some config-backed actions use `href` or a mixed shape. `hero-actions.blade.php` currently accommodates the difference. This works, but it means callers must know an implicit union contract.
 
-**Observed:** Public assets include a Waggies logo, favicon, three local service hero images, approximately 185 Material Symbols outlined SVGs, and seven brand SVGs. The public tree is approximately 201 files and 5.1 MB by file size measurement.
+Recommended future cleanup: choose one normalized action shape at the controller/component boundary, retain support for external URLs if needed, and add a focused contract test. This is P2/P3 maintenance work, not a reason to rewrite current pages.
 
-Static searches found approximately 94 Unsplash references, 21 server-rendered `<img>` tags, 13 lazy-loading hints, five `fetchpriority` hints, and two intentionally empty alt attributes. Many editorial image URLs are remote Unsplash URLs in configuration.
+## 17. `.ai/rules` and agent guidance
 
-**Risks:**
+`.ai/rules/index.md` is discoverable and maps the relevant path globs to current rules. The loaded rules accurately describe:
 
-- Remote image availability, privacy, cache headers, and layout stability are outside the app’s control.
-- There is no current evidence of a Waggies-owned media pipeline in public page rendering.
-- `php artisan about` reports `public/storage` as not linked; this is not a current bug while images are config/remote-based, but it matters before uploads or Media Library use.
-- The same remote image IDs are repeated in several configuration files.
+- focused Cruddy-by-Design controllers;
+- Blade-first and Alpine-first public interactions;
+- Livewire only where server state materially benefits;
+- config-backed pricing as the authority serialized to JavaScript;
+- semantic card and component reuse;
+- avoiding speculative abstractions.
 
-**Recommendation:** Decide whether production media will be remote editorial URLs, versioned local assets, or Media Library-backed assets. Do not migrate images to CMS storage until the media ownership and replacement workflow is decided.
+No direct contradiction was found between the path-scoped rules and the current implementation. The generated `AGENTS.md`/`CLAUDE.md` guidance does contain a test-instruction ambiguity: it describes the project in PHPUnit terms while the project also treats Pest as the runner and current convention. The underlying PHPUnit engine remains valid, so this is documentation clarity debt rather than a test failure.
 
-## 16. SEO and metadata
+Do not record new `.ai/rules` during this audit. A durable rule should be recorded only after the team explicitly decides that the pricing authority or action-shape convention is settled.
 
-**Observed:** Metadata is centrally shaped in `app/Http/Controllers/Controller.php:18-53`, rendered through `@head` in the layout, and supplemented by organization/local-business schema defaults in `app/Providers/AppServiceProvider.php:27-70`. Sitemap/robots handling and an explicit `PublicUrlCatalog` exist.
+## 18. Documentation findings
 
-This is a strong foundation. Route-level controllers still carry repeated metadata arrays, but that is acceptable while pages own their metadata.
+`README.md` still begins with the generic Laravel starter framing and generic Laravel learning/contributing material. Waggies-specific sections exist later in the file, including pricing/request contracts and primitive vocabulary, but the document does not yet present the current application architecture, test command, static-analysis command, Pint/build workflow, or the current config-backed publication model as the primary onboarding path.
 
-**Recommendations:**
+This is a P2 documentation gap with a small/medium scope. The next documentation update should be focused: replace stale starter framing, document the authoritative config boundaries, list the verification commands, and point contributors to `.ai/rules/index.md`. Do not create a second architecture guide or duplicate every rule file.
 
-- Verify `APP_URL`/Herd host alignment before trusting canonical and sitemap URLs.
-- Add regression assertions for title, description, canonical, robots, and key JSON-LD types on representative page families.
-- Preserve noindex behavior for 404 responses and non-public paths.
-- Treat rich HTML article content as a future sanitization boundary before any CMS/editor source is introduced.
+The existing audit artifact is being updated by this report rather than preserved as a second stale snapshot.
 
-## 17. Route and URL architecture
+## 19. Legitimate exceptions and intentional choices
 
-**Observed:** `routes/web.php` contains named public routes for home, about, services, pricing, relocation, FAQ, legal, contact, loyalty, shop, guides, knowledge base, tools, newsletter, search, sitemap, and robots. The route list contains 69 total entries including Filament, Livewire, and framework-generated routes.
+The following should not be “fixed” merely to make the code look more uniform:
 
-The public URL structure is coherent: `/services/*`, `/services/relocation/*`, `/guides/{slug}`, `/knowledge-base/{slug}`, `/tools/*`, `/shop/{id}`. `PublicUrlCatalog` is an appropriate explicit catalog for static/config-backed URLs.
+- `ToolsController` grouping a static tools catalogue.
+- `ContactController` owning request-intent resolution and form-schema generation.
+- `AboutPagesController` and `LegalController` grouping related static pages.
+- Guides and knowledge base remaining separate content domains.
+- `cover-hero` and `page-header` remaining separate hero modes.
+- Domain-specific card components coexisting with a generic card shell.
+- Shared service-detail composition coexisting with specialized boarding and relocation pages.
+- Config-backed editorial content remaining outside a CMS.
+- Browser-facing `/api` endpoints remaining in the web route file while they use the current public form/search contract.
+- Filament/Livewire remaining an admin/infrastructure dependency even though public pages are Blade/Alpine-first.
+- Page-specific raw CSS/utility values for unique geometry, imagery, or responsive behavior.
+- Mixed PHPUnit-style and Pest-style tests while the suite is green; migrate gradually only when useful.
+- Native testimonial photo storage until a deliberate media-library policy is chosen.
 
-**Recommendation:** Treat these URLs and route names as a public contract. Standardization should not rename or flatten them without a migration/redirect plan. Validate all config-backed slugs against route generation in tests.
+## 20. Architectural debt register
 
-## 18. Controllers and application structure
+| ID | Severity | Status | Evidence and why it matters | Recommended remediation | Scope |
+| --- | --- | --- | --- | --- | --- |
+| B10-01 | P1 | `RESOLVED IN R26` | Service commercial inputs are restored to `config/waggies_pricing.php`; public consumers read that configuration and application code owns display/calculation semantics. | Preserve the configuration/application boundary. Do not recreate database-backed pricing or a pricing CMS without a materially different product requirement. | Complete |
+| B10-02 | P1 / high P2 | `RECORDED; DO NOT FIX IN BATCH 10` | `resources/views/layouts/app.blade.php` and `resources/js/app.js` close global search/cart dialogs without a shared trap and trigger-return lifecycle. Keyboard context can be lost across every page. | One focused dialog accessibility batch: establish open/close/focus/escape/outside-click/reduced-motion behavior, then add targeted interaction coverage. | Medium |
+| B10-03 | P2 | `READY FOR SMALL FIX` | `resources/views/pages/knowledge-base/index.blade.php` has multiple sibling roots inside an Alpine `x-for`; current browser logs reproduce the warning and numbered pagination is absent from the accessibility tree. | Give each iteration one root and verify desktop numbered navigation plus previous/next behavior. | Small |
+| B10-04 | P2 | `OPPORTUNISTIC` | Semantic component APIs are adopted but coexist with repeated direct utility/raw values across `resources/views/pages` and components. Repeated decisions may fork. | Define the primitive-versus-page-composition boundary and migrate repeated cases only when touched. | Medium, incremental |
+| B10-05 | P2 | `DEFERRED` | `resources/js/app.js` is an 813-line global Alpine registry and event surface. It is coherent today but increases shared-bundle coupling as features grow. | Extract bounded behavior/domain modules without changing Alpine or introducing a state library; pair extraction with focused tests. | Medium/large |
+| B10-06 | P2 | `DEFERRED` | Public `layouts/app.blade.php` includes Livewire styles/config and `app.js` starts Livewire, while no application-owned public Livewire components exist. Filament still needs Livewire. | Verify Filament asset isolation, then either remove unnecessary public bootstrap or document the compatibility boundary. Do not remove Livewire/Filament. | Small/medium |
+| B10-07 | P2 / P3 | `DEFERRED` | Action contracts use both `route` and `href`; `hero-actions.blade.php` carries an implicit union. | Normalize the action shape at one boundary and add a focused component contract test. | Small |
+| B10-08 | P2 | `DEFERRED` | `README.md` retains Laravel starter framing and omits current Waggies verification/onboarding guidance. | Replace stale framing with concise Waggies architecture, commands, config ownership, and rules entry points. | Small/medium |
+| B10-09 | P2 / P3 | `DEFERRED INVENTORY` | Several direct runtime packages have no current application-owned usage evidence. Removing them blindly could break planned infrastructure. | Classify packages as active, infrastructure-required, planned, or verified-unused; remove only verified-unused packages in an isolated batch. | Medium |
+| B10-10 | P3 | `OPPORTUNISTIC` | Tests run under Pest but mix class-based PHPUnit syntax and Pest functions; generated guidance also uses PHPUnit-centric wording. | Clarify runner/engine language; migrate individual tests only when touched. | Small, incremental |
 
-**Observed:** Controllers are generally resource-oriented. `AboutPagesController` groups related about pages; `ServicesController` groups service family pages; `RelocationController` groups relocation pages; `ToolsController` groups tool pages. This is consistent with the project’s Cruddy-by-Design rule.
+## 21. Remediation roadmap
 
-**Recommendation:** Keep controllers grouped by resource family until a controller becomes difficult to navigate or violates a real boundary. Do not split or merge controllers solely to reduce file count.
+### Immediate
 
-**Static-analysis findings:** PHPStan reports:
+- Keep the current green baseline intact.
+- Preserve the R26 pricing authority boundary.
+- Keep B10-02 dialog focus work separate and explicitly out of that batch.
 
-- `app/Http/Controllers/FaqController.php:49`: schema `mainEntity()` receives `array<array<string,mixed>>` instead of the package’s contract type.
-- `app/Http/Controllers/RelocationController.php:42`: same schema type issue.
-- `app/Http/Controllers/RelocationController.php:84`: null coalescing on an offset PHPStan believes is always present.
+### Next controlled batches
 
-These should be handled in a dedicated correctness pass, not hidden with ignores or casts.
+1. A focused dialog focus lifecycle/accessibility batch covering the global search and cart overlays.
+2. A small knowledge-base pagination fix with browser/render verification.
 
-## 19. Configuration, content, and business rules
+### Opportunistic
 
-**Observed:** Waggies content is primarily configuration-backed. Files include `waggies_about_pages.php`, `waggies_boarding.php`, `waggies_faqs.php`, `waggies_guides.php`, `waggies_knowledge_base.php`, `waggies_loyalty.php`, `waggies_pricing.php`, `waggies_relocation.php`, `waggies_service_details.php`, `waggies_shop.php`, and a large `waggies_tool_data.php` of approximately 6,482 lines.
+- Normalize `route`/`href` action contracts when hero/action components are next touched.
+- Migrate repeated direct utility patterns to semantic primitives only where repetition is proven.
+- Improve README onboarding while touching related documentation.
+- Convert individual class-style tests only when a test is already being edited.
 
-This gives deterministic builds, easy code review, and no migration overhead. It also creates three risks:
+### Deferred
 
-- large associative arrays are difficult to validate structurally;
-- editorial content, presentation data, and business rules are mixed;
-- the same business rules can be copied into JavaScript, as with calculator rates.
+- Global Alpine registry extraction.
+- Public Livewire bootstrap decision after Filament asset-isolation verification.
+- Dependency inventory and any package removals.
+- Media-library policy for testimonial uploads.
+- Any CMS, search redesign, URL redesign, or database expansion.
 
-**Recommendation:** Keep static configuration for stable reference data, but introduce typed data objects or validation boundaries before the config corpus grows. Establish one canonical pricing source and pass derived values to Alpine rather than re-encoding rates in JavaScript.
+## 22. Historical Batch 11 pricing authority recommendation (completed)
 
-## 20. Content structure and editorial readiness
+This was the previously recommended controlled pricing batch. It was implemented in the active repository before Batch 26 and is retained as the implementation baseline for R26.
 
-**Observed:** Guides and knowledge-base entries are structured arrays with slugs, image data, metadata, and HTML body content. `ArticleBodyProcessor` extracts only simple `<h2>`/`<h3>` patterns and adds deterministic IDs (`app/Support/ArticleBodyProcessor.php:13-41`). Views render processed content as HTML.
+**Batch 11 — Reconcile pricing authority and derived public displays.**
 
-**Recommendation:** For current project-controlled config content, the implementation is serviceable. Before CMS content is allowed, add a sanitization/allowlist boundary, richer heading parsing, link/image validation, and an editorial preview/test strategy.
+### Scope
 
-## 21. Dependency inventory and rationalization
+- Confirm `config/waggies_pricing.php` as the canonical structured commercial source, or record a deliberate alternative if product ownership requires it.
+- Map every displayed boarding, grooming, training, vet-care, relocation, and calculator value to that authority.
+- Remove or replace duplicated commercial values in `config/waggies_boarding.php`, `config/waggies_service_details.php`, and `config/waggies.php` where they represent the same rate.
+- Preserve editorial “from” labels only where they are intentionally not exact tier prices, and make that distinction explicit in the data shape.
+- Keep server-side serialization through `ContactController`/the existing calculator contract.
+- Add focused tests for structured pricing, public display values, calculator input, and the important mismatch/failure cases.
+- Run the existing test, PHPStan, Pint, build, view-cache, and diff checks.
 
-Direct package versions were inspected with Composer and `package.json`.
+### Explicit exclusions
 
-| Dependency | Version | Evidence/role | Decision |
-| --- | ---: | --- | --- |
-| Laravel framework | 13.31.0 | Application foundation | Keep |
-| Filament | 5.8.2 | Admin panel provider/routes | Keep for admin/CMS foundation |
-| Livewire | 4.4.4 | Global boot plus Filament ecosystem; no public app Livewire components found | Keep until Filament/public strategy is decided; do not expand usage automatically |
-| Laravel Head | 0.2.2 | Central metadata/schema layer | Keep |
-| Breadcrumbs | 10.1.0 | Breadcrumb route/component usage | Keep |
-| Schema.org | 5.0.1 | Organization/FAQ/local-business schema | Keep |
-| Sitemap | 8.2.0 | Sitemap route | Keep |
-| Debugbar | 4.4.3 dev | Active local profiling | Keep dev-only; verify production disabled |
-| Spatie Activitylog, Backup, Data, Health, Media Library, Model States, Permission, Sluggable, Tags | installed | No meaningful public app usage found in current inventory, except package setup/future foundation | Do not remove during this audit; re-evaluate from actual ownership needs before production/CMS work |
-| Webpush | 13.0.1 | No public app usage found | Re-evaluate with evidence |
-| Tailwind CSS | 4.x | Vite/Tailwind styling | Keep |
-| Vite | 7.x | CSS/JS build | Keep |
+- No URL or route changes.
+- No database schema or CMS changes.
+- No search redesign.
+- No dialog focus remediation.
+- No global Alpine refactor.
+- No dependency removal.
+- No broad component migration or design-token rewrite.
 
-**Observed:** The project contains a Filament foundation and many Spatie packages ahead of current domain usage. This is acceptable as a prepared foundation, but the dependency surface should not be treated as proof that corresponding product features exist.
+The work was completed as one controlled pricing contract change, with the public amounts reconciled against the version-controlled pricing source. R26 then removed the later database/CMS authority and preserved this configuration/application boundary.
 
-## 22. Accessibility
+## 25. Batch 29 media architecture audit
 
-**Positive observed signals:**
+Batch 29 re-audited the active repository, development database, and development filesystem rather than relying on earlier reports.
 
-- Skip link and `main` landmark are present.
-- Navigation, footer, content lists, headings, labels, and buttons appear in the accessibility tree.
-- Images generally have descriptive alt text; decorative image grids use empty alt plus hidden semantics intentionally.
-- Focus-visible CSS, reduced-motion CSS, forced-colors CSS, and print CSS exist.
-- FAQ, custom selects, gallery lightbox, and contact controls expose semantic roles in the inspected states.
-- The 404 page has a clear heading, recovery links, and a search action.
+### Inventory and ownership
 
-**Risks requiring targeted QA:**
+- Developer-owned static assets are limited to the application logo, favicon, icons, and three local boarding service hero JPEGs under `public/`.
+- Waggies-owned managed-content candidates are persisted Products, Gallery Items, Guides, Knowledge Articles, and Testimonials. All five models now implement Media Library ownership with intentional collections and conversions. Guide and Knowledge Article rich-editor attachments are separately owned in `content-attachments`.
+- Service, relocation, home, about, FAQ, and legacy catalogue imagery remains config/controller-backed remote imagery. The audit found Unsplash references across those surfaces and in the imported legacy image fields. No safe owned source was present for re-hosting, so none was falsely migrated.
+- The development `media` table currently contains zero rows. Existing database records therefore still use their legacy remote image fields until staff uploads an owned replacement.
 
-- Custom listbox/combobox keyboard behavior and screen-reader announcements.
-- Background-image heroes and the relationship between the visual image and hidden alt text.
-- Disabled review/submit controls and error focus/announcement behavior.
-- Fixed overlays and focus trapping in search/cart/assistant/lightbox modals.
-- Color contrast of muted text, translucent hero copy, and hover-only affordances.
+### Storage and lifecycle
 
-**Assessment:** Good semantic intent; not an accessibility sign-off. Run automated and manual checks after each component consolidation batch.
+Media Library is configured for the `public` disk, whose root is `storage/app/public` and whose public URL is `/storage`. The default application filesystem remains `local`; private application storage remains `storage/app/private`. Managed collections use the public disk because their content is intentionally public. Rich-editor content attachments are also public because their URLs are embedded in public HTML.
 
-## 23. Performance
+Single-file collections, `clearMediaCollection()`, and the Media Library model deletion hook provide the replacement, removal, and owning-record deletion semantics. Batch 29 adds focused tests that prove the old original and conversions disappear on replacement, collection clearing, and owner deletion, and that responsive detail media is rendered publicly.
 
-Debugbar request records from the inspected local browser run:
+### Orphan findings
 
-| Route | Debugbar duration | Queries | Memory | Exceptions | View templates |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `/` | 8.76s | 3 | 5 MB | 0 | not sampled in final summary |
-| `/services` | 4.56s | 2 | 6 MB | 0 | 259 |
-| `/services/grooming` | 3.12s | 2 | 5 MB | 0 | not sampled in final summary |
-| `/tools/symptom-checker` | 7.57s | 2 | 6 MB | 0 | 146 |
-| `/shop` | 1.68s | 2 | 5 MB | 0 | 114 |
-| `/guides/preparing-pet-boarding` | 2.07s | 2 | 5 MB | 0 | 99 |
+- No orphan Media DB rows were found because the actual `media` table is empty.
+- Media Library dry-run identified one unowned `storage/app/public/1` directory. It was preserved in the pre-change backup before safe cleanup. The existing `storage/media-library/temp` directories are temporary conversion/upload output, not domain-owned media records; they remain outside the public managed-media contract and are not treated as migrated content.
+- The repository contains an intentional Batch 27 private backup under `storage/app/private`; it was not touched.
 
-**Observed:** Query analysis for the inspected successful pages reported no failed queries, duplicate query groups, or N+1 groups. Query time was approximately 20–31ms in the sampled requests, so the slow durations are not currently explained by database access.
+### Filament preview hardening
 
-**Likely areas to measure next:** local Debugbar overhead, Blade/view instrumentation, remote image loading, Vite/dev asset delivery, icon component repetition, and production-like response timings. The symptom-checker request rendered 121 `icon` component instances according to Debugbar’s view collector; that is a useful optimization measurement, not proof of a defect.
+Products, Gallery, Guides, Knowledge Articles, and Testimonials now expose compact thumbnails in their Filament tables. Their resources eager-load media. Their edit forms already use the installed `SpatieMediaLibraryFileUpload`; legacy remote records additionally receive a current-image preview so staff do not have to infer the image from a URL or filename.
 
-**Recommendation:** Establish production-like performance baselines before changing architecture. Do not optimize by deleting repeated components or moving everything to client rendering without measurements.
+### Scope
 
-## 24. Naming and API consistency
+No generic media manager, DAM, CDN migration, new image package, custom upload abstraction, or unrelated business-domain feature was introduced. Existing public fallbacks remain explicitly unresolved legacy dependencies until safe owned source images are supplied.
 
-**Observed:** Naming is mostly clear but mixed across layers:
+## 23. R26 pricing architecture rollback
 
-- `cover-hero`, `legacy-image-hero`, `page-header`, and `tool-hero` describe related presentation roles with different naming eras.
-- CSS uses `w-cta`, `text-h2`, `text-h2-feature`, and raw Tailwind classes.
-- Some data keys use `description`, others `descriptionBlock`; some hero calls use `primaryCta`, others `cta`.
-- Service content is passed as `$page`, while route-specific page shapes differ.
+R26 intentionally reverses Batch 26. The runtime authority is:
 
-**Recommendation:** Standardize data contracts around semantic names, not implementation history. Prefer `title`, `eyebrow`, `description`, `image`, `actions`, `features`, `benefits`, and explicit optional sections. Add PHPDoc array shapes or typed data objects at boundaries before CMS migration.
+```text
+version-controlled config/waggies_pricing.php
+        + application-owned pricing rules/calculations
+        = service pricing authority
+```
 
-## 25. Dead, residual, or transitional structure
+`config/waggies_pricing.php` contains the developer-owned commercial inputs for service tiers, estimate ranges, packages, transport distance bands, and transport surcharges. `ServicesController`, the cost/pricing calculators, and the transport estimator determine how those inputs are formatted, combined, multiplied, or treated as quote-only. Configuration contains no executable pricing rules.
 
-**Observed candidates:**
+The `ServicePrice` model, `PricingCatalog`, Service Prices Filament resource, Batch 26 enums/factory, and their runtime tests were removed. The applied Batch 26 create migration remains as historical migration history, and a forward migration removes `service_prices` from existing and fresh databases. The table is not runtime-authoritative and no pricing settings UI exists.
 
-- `legacy-image-hero` has one caller: `resources/views/pages/about/careers.blade.php:5`.
-- `waggiesToasts.listen()` appears not to be wired through Alpine initialization (`resources/js/app.js:379`).
-- `waggies-recent-searches` is documented in legal/storage copy, but no corresponding JavaScript use was found in the application scan.
-- Livewire is globally loaded in the layout, but no application Livewire component or `wire:` directive was found outside package/admin foundations.
-- Several installed Spatie packages do not have current application references.
-- `.agents/skills` and `.claude/skills` contain overlapping guidance copies; this is tooling upkeep rather than runtime dead code.
-- `composer.json` still describes the generic `laravel/laravel` skeleton, despite the app being Waggies.
-- `README.md` contains both Waggies material and generic Laravel/Boost starter material.
-- `public/storage` is not linked in the current local environment.
+BookingRequest remains intact and resolves service options from the developer-controlled service configuration. Shop/Product pricing remains database-backed as a separate commerce/catalogue boundary. Guides, Knowledge Base, FAQs, Gallery, Contact Enquiries, Testimonials, Newsletter, and other preserved vertical slices are outside this rollback.
 
-**Recommendation:** Confirm each item through ownership before removal. Remove only after a usage search, route/browser check, and package/admin dependency check.
+Future-agent guardrail: **Do not move Waggies service pricing into Filament/CMS merely because staff-editable prices are technically possible. Pricing inputs participate in application-owned calculations and relationships; keep service pricing in version-controlled configuration unless a future product requirement materially changes this architecture.**
 
-## 26. Tests and quality gates
+## 24. Batch 10 historical changes
 
-**Observed:** `php artisan test --compact` passed with **21 tests and 161 assertions** in 46.71 seconds. Existing feature coverage includes about pages, contact, loyalty, pricing, relocation routes, SEO/search/sitemap, and examples.
+- Updated `WAGGIES-ARCHITECTURE-AUDIT.md` with this current, evidence-based Batch 10 report.
+- Made no application-code changes.
+- Made no dependency changes.
+- Made no route, URL, database, CMS, search, or public interaction changes.
+- Recorded the global dialog focus lifecycle as a separate systemic accessibility finding and did not fix it in this batch.
+- Verified the current application baseline with the passing checks listed in Section 13.
 
-**Observed:** `vendor/bin/phpstan analyse --no-progress` failed with the three findings listed in Section 18.
+## Batch 30 current evidence report
 
-**Coverage gaps:**
+The sections below supersede stale historical statements above where they describe the pre-Batch-30 runtime.
 
-- No evidence of JavaScript/component interaction tests for custom selects, cart, contact draft, calculators, testimonial flow, gallery, or toasts.
-- No regression test proves newsletter persistence/integration because there is currently no persistence/integration behavior.
-- No test confirms a submitted testimonial reaches a review queue or admin destination.
-- No browser-level performance or accessibility budget is established.
+## 1. Overall result
 
-**Recommendation:** Add tests only when behavior contracts are decided. Do not add tests for purely stylistic consolidation, but do add regression coverage for forms, canonical URLs, calculator source-of-truth, and any component API migration.
+The current Waggies slices form one coherent hybrid application after reconciliation. Services, Relocation, and service pricing remain config/application-owned; persisted content, product catalogue, operational intake, booking requests, and managed media use their established database/package authorities. No new business domain or generic CMS was introduced.
 
-## 27. Project-guideline and AI-guidance audit
+## 2. Runtime authority matrix
 
-**Observed:** `AGENTS.md` and `CLAUDE.md` provide detailed Laravel/Boost rules. `.ai/rules` exists with controller-boundary and reuse-before-reinventing guidance, but `.ai/rules/index.md` is missing even though project instructions expect it to map applicable rule files.
+| Domain | Runtime authority | Admin-managed? | Public? |
+| --- | --- | :---: | :---: |
+| Services | Config/code page families | No | Yes |
+| Relocation | Config/code page families | No | Yes |
+| Service pricing | `config/waggies_pricing.php` + application logic | No | Yes |
+| Guides | `guides` database records | Yes | Yes |
+| Knowledge Base | `knowledge_articles` database records | Yes | Yes |
+| FAQs | `faqs` database records | Yes | Yes |
+| Gallery | `gallery_items` + Media Library where owned media exists | Yes | Yes |
+| Contact | `contact_enquiries` database records | Yes | Submit publicly; records private |
+| Testimonials | `testimonials` database records with approval gate | Yes | Approved records only |
+| Newsletter | `newsletter_subscriptions` via `NewsletterSubscriber` | Yes | Submit publicly; records private |
+| Products | `products` database records | Yes | Published records only |
+| Booking | `booking_requests` via `BookingRequest` | Yes | Submit publicly; records private |
 
-**Observed:** `boost.json` enables Laravel Boost guidance/MCP and lists relevant skills. The project also contains overlapping `.agents/skills` and `.claude/skills` trees.
+## 3. Concrete issues found
 
-**Recommendation:** Repair the rule index and document the canonical source of agent guidance in a separate tooling-maintenance change. Do not duplicate or broaden rules during UI/application standardization.
+- FAQ structured data used the complete public FAQ payload even on a category URL. Impact: a Boarding canonical page advertised Grooming, Vet Care, and other questions in `FAQPage` schema. Fix: category schema now uses a separate filtered set while the all-category Alpine payload remains intact; a regression test covers it.
+- Global search advertised products and FAQs but indexed only selected pages, tools, Guides, and Knowledge Articles. Impact: public DB-backed content was undiscoverable through the global search contract. Fix: published Products and non-services FAQs are now projected into the existing ranked endpoint; no new engine was introduced.
+- Newsletter and testimonial intake lacked the contact/booking paths’ named rate limits and honeypots. Impact: weaker abuse resistance and inconsistent form contracts. Fix: added named throttles, server-side `website` honeypot validation, hidden fields, and focused tests.
+- Architecture documentation still described the shop as config-backed and the newsletter model as the runtime authority. Fix: updated the CMS target and audit documents to reflect DB-backed Products, `NewsletterSubscriber`, BookingRequest, search, publication, and media boundaries.
+- Media conversion temp directories were untracked runtime residue. Fix: added `/storage/media-library/` to `.gitignore`; ambiguous existing files were preserved.
 
-## 28. Proposed canonical design system
+## 4. Runtime reconciliation
 
-**Recommendation:** Preserve the existing Waggies visual direction and formalize it as:
+The applied runtime has no `service_prices` table and no Pricing Catalog/Service Price Filament resource. `config/waggies_shop.php` is absent from the current tree; Products are read from `products`. The old `NewsletterSubscription` class remains only as a deprecated compatibility alias and is not used by application paths. FAQ config remains migration/parity input, not the public read authority. No Services or Relocation CMS, generic Page resource, generic Settings pricing, or generic Media Manager exists.
 
-- **Brand:** deep purple primary, warm beige secondary, calm light surfaces, dark purple ink.
-- **Type:** Cormorant Garamond for editorial/display emphasis; DM Sans for body, labels, controls, and metadata.
-- **Shape:** rounded-xl/2xl cards, pill tags/controls, restrained borders, soft elevation.
-- **Layout:** one site container, one readable content column, one full-bleed escape primitive, explicit section rhythm.
-- **Controls:** one button contract, one input contract, one select/combobox contract, one field/error contract.
-- **Motion:** short transform/opacity transitions, reduced-motion fallback, no motion required for comprehension.
-- **Layers:** named shell, dropdown, modal, toast, and mobile-navigation tiers.
-- **Media:** explicit loading priority, meaningful alt ownership, decorative-image contract, and image aspect-ratio contract.
+## 5. Route / URL reconciliation
 
-## 29. Proposed component vocabulary
+The route inventory contains 75 non-vendor routes. The important public contracts remain `/shop`, `/shop/{product:slug}`, GET/POST `/book`, `/faq` without standalone FAQ detail URLs, `/about/gallery` without Gallery item URLs, slug-only Guides and Knowledge Base routes, and their historical slug redirects. No stale Pricing CMS, Services CMS, or Relocation CMS routes were found. The change in this batch was middleware on the existing newsletter/testimonial POST routes; no public URL redesign was made. Product slugs are included in `PublicUrlCatalog`; operational records are not.
 
-**Recommendation:** Canonical vocabulary for future work:
+## 6. SEO/search reconciliation
 
-**Primitives:** `icon`, `brand-icon`, `button`, `field`, `input`, `select`, `textarea`, `field-error`, `badge`, `divider`.  
-**Layout:** `page-container`, `content-column`, `section`, `stack`, `cluster`, `responsive-grid`, `full-bleed`.  
-**Headers:** `page-header`, `image-hero`, `tool-header` (only if tool-specific semantics remain).  
-**Content:** `section-heading`, `card`, `article-card`, `service-card`, `pricing-card`, `faq-accordion`, `article-toc`, `share-row`.  
-**Shell:** `navbar`, `footer`, `mobile-bottom-nav`, `floating-actions`, `search-dialog`, `cart-drawer`, `toast-region`.  
-**Domain composites:** `service-detail-layout`, `contact-request`, `testimonial-submission`, `gallery-lightbox`, `calculator-shell`.
+The existing canonical, robots, sitemap, breadcrumb, and structured-data infrastructure remains in place. The concrete SEO correction was category-scoped FAQPage schema. Search remains a noindex JSON endpoint and now intentionally covers selected pages/services/tools plus published Guides, Knowledge Articles, Products, and FAQs. Draft, archived, future, and operational records are excluded. Sitemap tests and search tests pass.
 
-This vocabulary intentionally does not create a universal “everything component.”
+## 7. Filament reconciliation
 
-## 30. Consolidation matrix
+Nine justified resources were audited: Booking Requests, Contact Enquiries, FAQs, Gallery Items, Guides, Knowledge Articles, Newsletter Subscribers, Products, and Testimonials. Tables/forms use their persisted models and the current publication/moderation/media semantics. Product, Gallery, Guide, Knowledge Article, and Testimonial resources expose media previews where applicable. There is no Pricing, Services, Relocation, generic CMS, Page Builder, or generic Settings resource. Feature tests verify representative authenticated resource routes; authenticated browser editing was not completed because credentials were not available in the current context.
 
-| Current structure | Evidence | Proposed action | Priority |
-| --- | --- | --- | --- |
-| `legacy-image-hero` + `cover-hero` bottom/background branches | One career caller; same scrim/title/CTA structure | Migrate career to the canonical image-hero contract; then delete legacy component if visual QA passes | P1 |
-| `service-detail` + `service-page-enhanced` | Same description/features/benefits/packages/FAQ/CTA spine; transport adds package semantics and process sections | Share one service-detail spine with explicit package presentation and optional slots | P1 |
-| Raw headings + `section-heading` | Canonical component exists but adoption is mixed | Standardize shared section heading roles; leave genuinely bespoke editorial headings local | P1 |
-| Raw CTA classes + `button` component | `w-cta` appears widely outside the component | Define button API and migrate high-traffic shells/forms first | P1 |
-| `input`/`select` + hand-built form controls | Primitives exist; forms still duplicate markup | Introduce `field` wrapper and migrate form surfaces incrementally | P1 |
-| `page-header` + `tool-hero` | Related heading responsibilities, but tools have special framing | Compare contracts; merge only shared anatomy, keep tool-specific composition if needed | P2 |
-| Global `app.js` | Several independent domains in one module | Split by responsibility without changing Alpine behavior | P2 |
-| Static config arrays + JavaScript copies | Cost rates duplicated | Establish one canonical data source and serialize it to the client | P1 |
+## 8. Form/customer journey reconciliation
 
-## 31. Standardization matrix
+Public browser journeys verified rendering and navigation for Home → Services → Booking, Home → Services → Contact, Home → Shop → Product, Home → Guides/Knowledge Base, Home → Gallery/Testimonials, and the FAQ path. Feature tests verify booking/contact validation and persistence, newsletter normalization/duplicate handling/honeypot rejection, testimonial pending moderation/photo validation/honeypot rejection, and public approved-only rendering. Booking/contact success and WhatsApp continuation are covered by the existing request contracts; no new scheduling or checkout behaviour was added.
 
-| Area | Current drift | Standardize toward |
-| --- | --- | --- |
-| Containers | repeated `max-w-7xl px-4 md:px-10 lg:px-12` | named container contract |
-| Typography | semantic classes plus raw recipes | documented role classes with local exceptions |
-| Colors | tokens plus raw hex/rgba/OKLCH | semantic tokens plus named external exceptions |
-| CTA | component and raw `w-cta` variants | component/API with state and icon slots |
-| Forms | mixed heights and wrappers | field/control/error contract with 44px minimum interactive target |
-| Heroes | multiple image techniques and heights | explicit image/background variants and height contracts |
-| Cards | repeated radius, border, shadow recipes | small card/elevation vocabulary |
-| Layers | literal z-index values | named layer tokens |
-| Icons | central SVG component plus inline/masked references | one icon registry contract, preserving brand SVG exceptions |
-| Image loading | some lazy/fetchpriority hints, remote URLs | explicit above-fold/lazy/remote/local policy |
-| Data contracts | `$page`, `descriptionBlock`, `cta` variants | typed, documented page-shape contracts |
+## 9. Database proof
 
-## 32. Correctness and product bug list
+The live SQLite database has 21 tables. Relevant row counts at audit time: Guides 4, Knowledge Articles 10, FAQs 52, Gallery Items 23, Contact Enquiries 1, Newsletter Subscriptions 1, Testimonials 14, Products 10, Booking Requests 0, Media 0. The persisted domain audit found UUIDv7 values across the established records, with no non-UUIDv7 values in the checked domain tables. `service_prices` is absent. No orphan Media rows were found; the single existing Contact enquiry was preserved because its ownership was ambiguous rather than clearly synthetic.
 
-| Priority | Finding | Evidence | Impact |
-| --- | --- | --- | --- |
-| P1 | Newsletter claims subscription without durable side effect | `NewsletterController.php:10-15` | Users may believe they subscribed when no record or message exists |
-| P1 | Testimonials claim submission without server/admin destination | `app.js:624-635`; testimonial page exposes multi-step submit UI | User content and consent are discarded; trust/compliance risk |
-| P1 | Cost calculator rates are duplicated in JS | `tools-calculators.js:95-108` vs `config/waggies_pricing.php` | Estimates can silently diverge from commercial pricing |
-| P1 | Placeholder image copy is public | `waggies_boarding.php:7`; `ServicesController.php:17` | Brand/content quality issue |
-| P2 | Toast listener may not initialize | `app.js:379` defines `listen()` but no visible `init()` | Global toasts may not render dispatched events |
-| P2 | PHPStan schema/type issues | Faq/Relocation controllers | Incorrect contracts can hide real runtime problems |
-| P2 | Canonical URL environment mismatch needs verification | Artisan reports `laravel.test`; Herd serves `waggies.test` | SEO links/sitemap may be wrong outside the browser host |
-| P2 | Article HTML processor is not a sanitization boundary | `ArticleBodyProcessor.php:28-35` and processed HTML rendering | Future CMS content could create XSS risk if trusted-content assumptions change |
-| P3 | Stale/unused storage key documentation | `waggies-recent-searches` appears documented but not implemented | Maintenance confusion |
+## 10. Media proof
 
-## 33. CMS readiness
+Managed collections are owned by Product, GalleryItem, Guide, KnowledgeArticle, and Testimonial models, using the public disk with the established image/cover/photo/content-attachment collections and conversions. The live `media` table has 0 rows, so no Waggies-owned managed media lifecycle could honestly be claimed in this development dataset. Legacy remote image fields remain on 4 Guides, 10 Knowledge Articles, 23 Gallery Items, and 10 Products; they were not silently re-hosted. Media architecture tests passed. Twelve temporary conversion/upload directories remain under `storage/media-library/temp`; they were preserved as ambiguous runtime residue and are now ignored.
 
-**Current status:** **Not CMS-ready, but intentionally prepared for a future CMS.**
+## 11. Browser proof
 
-**Observed:** Filament, Media Library, Activitylog, Backup, Permission, Sluggable, Tags, Health, and related packages are installed or configured as foundations, but the public app has no domain models/resources for guides, knowledge-base articles, services, testimonials, products, or media workflows.
+### Authenticated Filament
 
-Before CMS work, decide:
+Anonymous `/admin` access redirected to `/admin/login`. Authenticated route coverage passed in the feature suite for the current resources. Browser edit/save workflows for Guides, Knowledge Base, FAQs, Gallery, Testimonials, Products, Booking, Contact, and Newsletter were not verified because usable local credentials were not present in the current context.
 
-- Which content becomes editable and which stays code-owned configuration.
-- Whether slugs are immutable, redirectable, or self-healing.
-- Whether testimonials require moderation, identity verification, and media review.
-- Whether pricing is editorial content, business data, or a quote engine.
-- Who owns media storage and replacement rights.
-- Which actions require activity logs and which require backups/health checks.
-- Whether public content uses draft/published/archived states.
+### Public
 
-**Recommendation:** Do not build a generic CMS schema yet. First define the editorial boundary and canonical data contracts; then create only the domain resources that support a real workflow.
+The local browser rendered Home, Services, Pricing, Booking, Contact, Shop, Product detail, Guide detail, Knowledge Base detail, FAQ, Gallery, and Testimonials. Browser console/error logs were empty after the view cache was rebuilt. The first Testimonials navigation collided with concurrent compiled-view file activity and returned a transient Windows `rename(...): Access is denied`; clearing/rebuilding the view cache and reloading rendered the page successfully with no logs.
 
-## 34. Recommended implementation order
+### Not verified
 
-1. Decide the five product contracts: newsletter, testimonials, pricing source, media ownership, and Alpine/Livewire boundary.
-2. Resolve the existing P1 correctness issues and PHPStan findings with focused tests.
-3. Freeze current URLs, metadata expectations, and representative page screenshots/AX checks.
-4. Formalize tokens/layers/type/container contracts without changing brand direction.
-5. Standardize primitive APIs: button, field, select, section heading, card, and image.
-6. Consolidate image heroes and the service-detail spine.
-7. Split `app.js` by responsibility while retaining behavior.
-8. Establish image/media loading policy and replace placeholder content.
-9. Add browser regression coverage for forms, custom selects, modals, and responsive breakpoints.
-10. Re-measure production-like performance; only then optimize view/component or asset delivery.
-11. Decide and implement CMS boundaries as a separate product/architecture phase.
+Authenticated Filament mutation workflows and real disposable browser media upload/replacement/deletion were not verified. No credentials or safe managed media fixture were available, and no real content was altered to manufacture proof.
 
-## 35. Candidate `.ai/rules`
+## 12. Tests
 
-These are candidates only; no rules were recorded during this audit.
+- Focused remediation tests: FAQ/SEO 11 passed (122 assertions); intake/public interaction 11 passed (51 assertions).
+- Full Pest suite: 113 passed, 1,413 assertions, using `php -d memory_limit=512M vendor/bin/pest --compact` because the existing GD/media suite exceeds the default CLI memory limit.
+- PHPStan: passed, 92 files, no errors.
+- Pint: passed with `vendor/bin/pint --dirty --format agent`.
+- PHP lint: passed for 183 PHP files.
+- Blade cache: passed.
+- Vite production build: passed with Vite 7.3.6.
+- Composer audit: no security vulnerability advisories found.
+- Fresh schema: all 22 migrations completed successfully in an isolated in-memory SQLite database; the final schema omitted `service_prices`.
+- `git diff --check`: passed.
 
-- `resources/views/components/waggies/**`: canonical component API and composition boundaries.
-- `resources/css/app.css`: token ownership, permitted raw-value exceptions, and layer naming.
-- `config/waggies_*.php`: config content vs business-rule ownership and shape validation.
-- `resources/js/**`: Alpine ownership, storage keys, side-effect contracts, and module boundaries.
-- `routes/web.php`: public URL stability and redirect requirements.
-- `app/Http/Controllers/**`: metadata ownership and resource-controller boundaries.
+## 13. Documentation
 
-## 36. Candidate project guidelines
+Updated `WAGGIES-ARCHITECTURE-AUDIT.md` with this current evidence report and reconciled stale runtime statements. Updated `WAGGIES-CMS-TARGET-ARCHITECTURE.md` to describe DB-backed Products/FAQs, published Product sitemap/search behaviour, the bounded catalogue boundary, and the current CMS/media boundary. Added `/storage/media-library/` to `.gitignore`.
 
-**Optional:** If the team wants persistent implementation guidance, document:
+## 14. Remaining legitimate limitations
 
-- one canonical source for pricing and calculator data;
-- the required server-side destination for any UI that says “submitted,” “subscribed,” or “booked”;
-- the distinction between WhatsApp handoff and application persistence;
-- the public-site default of Alpine unless server-side state is required;
-- image alt/loading/ownership rules;
-- the rule that component consolidation must preserve URLs, semantics, and responsive behavior.
+The development database currently has no managed Media Library rows, so real upload/replacement/deletion proof remains unverified. Authenticated Filament browser workflows remain unverified for lack of available local credentials. Remote legacy imagery remains where no safe Waggies-owned source exists. Granular role/policy authorization is not implemented; the current architecture relies on protected Filament authentication rather than inventing an RBAC system in this batch. The existing global dialog focus lifecycle and any future operational scheduling/commerce/account requirements remain outside this reconciliation.
 
-## 37. Candidate custom skills
+## 15. Files changed
 
-**Optional:** Future agent skills could make repeated Waggies work safer:
+Batch-30-specific changes are in `app/Http/Controllers/FaqController.php`, `app/Http/Controllers/SearchController.php`, `app/Providers/AppServiceProvider.php`, `app/Http/Controllers/NewsletterController.php`, `app/Http/Controllers/TestimonialController.php`, `routes/web.php`, the footer/testimonial form Blade components, their focused Feature tests, `.gitignore`, and the two architecture documents. The working tree also contains intentional accumulated Batch 25–29 changes and new CMS/migration files; they were preserved. A recoverable pre-change backup exists at `C:\Users\Bridges\Herd\waggies-batch30-prechange-20260922`.
 
-- `waggies-ui-conventions`: inspect and apply the canonical tokens/components.
-- `waggies-content-contracts`: validate config-backed content shapes, slugs, metadata, and HTML boundaries.
-- `waggies-public-flow-audit`: exercise contact, newsletter, testimonial, cart, calculator, and WhatsApp handoff flows.
-- `waggies-media-audit`: check remote/local media, alt text, loading priority, replacement status, and storage ownership.
+## 16. Scope discipline
 
-These should only be created if the team expects repeated work in those domains.
-
-## 38. Explicit do-not-change list
-
-During standardization/consolidation, do not change without a separate product decision:
-
-- Public route paths, route names, slugs, or URL hierarchy.
-- Current brand palette, font pairing, or overall editorial visual direction.
-- WhatsApp handoff behavior in the contact flow.
-- The fact that content is currently config-backed.
-- Existing page information architecture or service taxonomy.
-- Filament/Spatie dependencies solely because current public pages do not use every installed capability.
-- The excluded legacy/external codebase; this audit is for the standalone Laravel application only.
-
-## 39. Explicit do-not-standardize list
-
-Do not:
-
-- Create one universal mega-component for every hero, section, card, or page.
-- Merge all controllers into a single controller.
-- Migrate every Alpine behavior to Livewire by default.
-- Replace all raw Tailwind utilities with custom CSS classes without a role-based reason.
-- Treat every repeated class as a component candidate.
-- Force external brand colors into the Waggies token palette.
-- Convert every image to CMS media before the editorial/media workflow is decided.
-- Remove installed packages without checking Filament, providers, config, and future ownership.
-- Solve local Debugbar timings by deleting component composition before production-like measurement.
-- Add documentation/rules/skills merely to describe this audit; create them only when they will be maintained and used.
-
-## 40. Final recommended next step
-
-The application is ready for a **controlled standardization/consolidation implementation**, but not for an unconstrained rewrite. The unresolved questions are narrow and architectural rather than foundational:
-
-1. What does newsletter subscription persist to or notify?
-2. What is the moderation/storage destination for testimonials and photos?
-3. Which source is canonical for pricing and calculator estimates?
-4. What is the approved production media strategy?
-5. Is Alpine the public interaction default, with Livewire reserved for admin or genuinely server-stateful flows?
-
-Once those are answered, the safest first implementation batch is: fix the two fake-success flows and PHPStan findings, freeze current route/SEO behavior, formalize tokens and primitive APIs, then consolidate the legacy hero and shared service-detail spine with targeted browser and PHPUnit regression coverage.
-
+No scheduling system, payment system, checkout, inventory, CRM, customer accounts, generic CMS, Page Builder, generic Settings, pricing CMS, Services CMS, Relocation CMS, or Media Manager was introduced.

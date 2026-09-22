@@ -95,7 +95,7 @@ HTML,
             'excerpt' => "Whether you're moving across Abuja or booking door-to-door service, here's what to expect from professional pet transport and how to prepare your pet for the journey.",
             'category' => 'General',
             'image' => 'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?w=800&h=500&fit=crop&q=80',
-            'imageAlt' => 'Pet receiving attentive grooming care',
+            'imageAlt' => null,
             'readTime' => null,
             'content' => <<<'HTML'
 <h2>How Pet Transport Works</h2>

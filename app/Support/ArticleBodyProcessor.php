@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Str;
+
 final class ArticleBodyProcessor
 {
     /**
@@ -14,23 +16,25 @@ final class ArticleBodyProcessor
     {
         $headings = [];
         $headingIndex = 0;
-        preg_match_all('/<h([23])>([^<]+)<\/h[23]>/', $content, $matches, PREG_SET_ORDER);
+        $content = Str::sanitizeHtml($content);
+        preg_match_all('/<h([23])\b[^>]*>(.*?)<\/h\1>/is', $content, $matches, PREG_SET_ORDER);
 
         foreach ($matches as $match) {
             $headings[] = [
                 'level' => (int) $match[1],
-                'text' => $match[2],
+                'text' => trim(strip_tags(html_entity_decode($match[2], ENT_QUOTES | ENT_HTML5, 'UTF-8'))),
                 'id' => 'heading-'.$headingIndex++,
             ];
         }
 
         $headingIndex = 0;
         $processedContent = preg_replace_callback(
-            '/<(h[23])>([^<]+)<\/\1>/',
+            '/<(?<tag>h[23])(?<attributes>[^>]*)>(?<body>.*?)<\/(?P=tag)>/is',
             static function (array $match) use (&$headingIndex): string {
                 $id = 'heading-'.$headingIndex++;
+                $attributes = preg_replace('/\s+id=(?:"[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $match['attributes']) ?? $match['attributes'];
 
-                return sprintf('<%s id="%s" class="scroll-mt-24">%s</%s>', $match[1], $id, $match[2], $match[1]);
+                return sprintf('<%s id="%s" class="scroll-mt-24"%s>%s</%s>', $match['tag'], $id, $attributes, $match['body'], $match['tag']);
             },
             $content,
         ) ?? $content;

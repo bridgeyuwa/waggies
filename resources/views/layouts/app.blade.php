@@ -3,13 +3,14 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         @head($headStatus ?? null)
         @stack('head')
         {{-- Livewire's bundled ESM export provides Alpine for the public bundle; this guard prevents its automatic Livewire boot. --}}
         <script>window.livewireScriptConfig = window.livewireScriptConfig ?? {};</script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-surface text-primary-dark antialiased" data-contact-url="{{ route('contact') }}" data-search-url="{{ route('search') }}" data-boarding-url="{{ route('services.boarding') }}" data-grooming-url="{{ route('services.grooming') }}" data-pricing-url="{{ route('services.pricing') }}" data-vet-care-url="{{ route('services.vet-care') }}" data-training-url="{{ route('services.training') }}" data-relocation-hub="{{ route('services.relocation') }}" data-relocation-transport="{{ route('relocation.transport') }}">
+    <body class="min-h-screen bg-surface text-primary-dark antialiased" data-contact-url="{{ route('contact') }}" data-contact-enquiry-url="{{ route('contact-enquiries.store') }}" data-search-url="{{ route('search') }}" data-boarding-url="{{ route('services.boarding') }}" data-grooming-url="{{ route('services.grooming') }}" data-pricing-url="{{ route('services.pricing') }}" data-vet-care-url="{{ route('services.vet-care') }}" data-training-url="{{ route('services.training') }}" data-relocation-hub="{{ route('services.relocation') }}" data-relocation-transport="{{ route('relocation.transport') }}">
         <div data-navigation-progress hidden class="navigation-progress" role="status" aria-label="Loading page"></div>
         <x-waggies.skip-link />
         <x-waggies.navbar :nav-section="$navSection ?? ''" />
@@ -64,8 +65,8 @@
                         </div>
                         <div class="flex flex-col gap-4 border-t border-primary/5 px-6 py-5">
                             <div class="flex items-center justify-between"><span class="text-sm font-medium text-primary-dark/60">Subtotal</span><span class="text-lg font-bold text-primary-dark" x-text="formatPrice(subtotal())"></span></div>
-                            <p class="text-xs text-primary-dark/60">Shipping and taxes confirmed by Waggies.</p>
-                            <x-waggies.button href="{{ route('contact', ['intent' => 'cart-order']) }}" @click="close()" class="w-full">Checkout via WhatsApp</x-waggies.button>
+                            <p class="text-xs text-primary-dark/60">Availability and final pricing confirmed by Waggies.</p>
+                            <x-waggies.button href="{{ route('contact', ['intent' => 'cart-order']) }}" @click="close()" class="w-full">Ask about these products</x-waggies.button>
                             <button type="button" @click="clearCart()" class="w-full py-1 text-center text-xs font-medium text-primary-dark/60 transition-colors hover:text-primary-dark/70">Clear cart</button>
                         </div>
                     </div>

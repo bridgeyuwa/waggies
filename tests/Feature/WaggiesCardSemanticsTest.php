@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use DOMDocument;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 final class WaggiesCardSemanticsTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_product_card_separates_navigation_from_add_to_cart_action(): void
     {
         $view = $this->blade(

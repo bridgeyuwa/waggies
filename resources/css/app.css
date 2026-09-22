@@ -6,6 +6,11 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* Keep Alpine-managed closed UI hidden until Alpine removes x-cloak. */
+[x-cloak] {
+    display: none !important;
+}
+
 /* ════════════════════════════════════════════════════════════════════════════
    WAGGIES DESIGN SYSTEM v2
    ────────────────────────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Testimonial;
 use Illuminate\View\View;
 use Spatie\SchemaOrg\Schema;
 
@@ -34,7 +35,7 @@ final class HomeController extends Controller
                 'imageSrc' => 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&h=600&fit=crop',
                 'imageAlt' => 'Happy dog sitting with their owner outdoors',
                 'actions' => [
-                    ['label' => 'Book Now', 'route' => 'contact', 'params' => ['intent' => 'booking']],
+                    ['label' => 'Request a booking', 'route' => 'book'],
                     ['label' => 'View Services', 'route' => 'services.index', 'iconBefore' => 'pets'],
                 ],
             ],
@@ -51,11 +52,14 @@ final class HomeController extends Controller
                 ['title' => 'Daily Updates', 'description' => 'Receive photos and updates on your pet every day.'],
                 ['title' => 'Individual Care', 'description' => 'Every suite, meal, and exercise routine is structured around individual care requirements.'],
             ],
-            'homeTestimonials' => [
-                ['service' => 'Dog Boarding', 'quote' => 'Waggies is the only place I would trust with my dog. The daily updates give me real peace of mind.', 'initial' => 'A', 'name' => 'Adaeze O.', 'subtitle' => 'Dog owner, Maitama'],
-                ['service' => 'Cat Grooming', 'quote' => 'The grooming team transformed my Persian cat. She looked like she had come straight from a pet show.', 'initial' => 'E', 'name' => 'Emeka N.', 'subtitle' => 'Cat owner, Wuse II'],
-                ['service' => 'Pet Relocation', 'quote' => 'Our relocation from London was well-organised. Every document was sorted, zero stress on our end.', 'initial' => 'F', 'name' => 'Fatima M.', 'subtitle' => 'Relocation client, Asokoro'],
-            ],
+            'homeTestimonials' => Testimonial::query()
+                ->published()
+                ->orderBy('sort_order')
+                ->orderBy('created_at')
+                ->limit(3)
+                ->get()
+                ->map(fn (Testimonial $testimonial): array => $testimonial->toHomeArray())
+                ->all(),
         ]);
     }
 }

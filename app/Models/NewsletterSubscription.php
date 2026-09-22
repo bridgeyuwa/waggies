@@ -2,11 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class NewsletterSubscription extends Model
-{
-    protected $fillable = [
-        'email',
-    ];
-}
+/**
+ * @deprecated Use NewsletterSubscriber for new code.
+ */
+class NewsletterSubscription extends NewsletterSubscriber {}

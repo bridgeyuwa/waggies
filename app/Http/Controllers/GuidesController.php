@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Guide;
+use App\Models\GuideSlugHistory;
 use App\Support\ArticleBodyProcessor;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Spatie\SchemaOrg\Schema;
@@ -11,8 +14,14 @@ final class GuidesController extends Controller
 {
     public function index(Request $request): View
     {
-        $items = config('waggies_guides.items', []);
-        $categories = config('waggies_guides.categories', []);
+        $items = Guide::query()
+            ->with('media')
+            ->published()
+            ->orderBy('id')
+            ->get()
+            ->map(static fn (Guide $guide): array => $guide->toPublicArray())
+            ->all();
+        $categories = array_values(array_unique(array_column($items, 'category')));
         $requestedCategory = $request->string('category')->toString();
         $category = in_array($requestedCategory, $categories, true) ? $requestedCategory : null;
         $filteredItems = $category === null
@@ -49,34 +58,69 @@ final class GuidesController extends Controller
         ]);
     }
 
-    public function show(string $slug): View
+    public function show(Request $request, string $slug): View|RedirectResponse
     {
-        $guide = collect(config('waggies_guides.items', []))
-            ->first(static fn (array $item): bool => $item['slug'] === $slug);
+        $guideRecord = Guide::query()
+            ->with('media')
+            ->published()
+            ->where('slug', $slug)
+            ->first();
 
-        abort_if($guide === null, 404);
+        if ($guideRecord === null) {
+            $slugHistory = GuideSlugHistory::query()
+                ->where('slug', $slug)
+                ->first();
+
+            if ($slugHistory !== null) {
+                $guideRecord = Guide::query()
+                    ->with('media')
+                    ->published()
+                    ->whereKey($slugHistory->guide_id)
+                    ->first();
+            }
+
+            if ($guideRecord === null) {
+                abort(404);
+            }
+
+            $canonical = route('guides.show', ['slug' => $guideRecord->slug]);
+
+            if ($request->getQueryString() !== null) {
+                $canonical .= '?'.$request->getQueryString();
+            }
+
+            return redirect()->to($canonical, 308);
+        }
+        $guide = $guideRecord->toPublicArray();
 
         $articleBody = ArticleBodyProcessor::process($guide['content']);
+        $isIndexable = $guideRecord->isIndexable();
+        $canonical = $isIndexable ? route('guides.show', ['slug' => $guideRecord->slug]) : null;
+        $title = $guideRecord->seo_title ?: $guideRecord->title.' - Waggies Guides - Waggies';
+        $description = $guideRecord->seo_description ?: $guideRecord->excerpt;
 
         $metadata = [
-            'title' => $guide['title'].' - Waggies Guides - Waggies',
-            'description' => $guide['excerpt'],
-            'canonical' => route('guides.show', ['slug' => $guide['slug']]),
-            'ogTitle' => $guide['title'],
-            'ogDescription' => $guide['excerpt'],
+            'title' => $title,
+            'description' => $description,
+            'canonical' => $canonical,
+            'robots' => $isIndexable ? ['index', 'follow'] : ['noindex', 'follow'],
+            'ogTitle' => $guideRecord->seo_title ?: $guideRecord->title,
+            'ogDescription' => $description,
             'ogImage' => $guide['image'],
             'ogType' => 'article',
         ];
-        $article = Schema::article()
-            ->headline($guide['title'])
-            ->description($guide['excerpt'])
-            ->url($metadata['canonical'])
-            ->publisher(Schema::organization()->name('Waggies')->url(route('home')))
-            ->image($guide['image']);
-        if (! empty($guide['date'])) {
-            $article->datePublished($guide['date']);
+        $schemas = [];
+
+        if ($isIndexable) {
+            $schemas[] = Schema::article()
+                ->headline($guideRecord->title)
+                ->description($description)
+                ->url($canonical)
+                ->publisher(Schema::organization()->name('Waggies')->url(route('home')))
+                ->image($guide['image'])
+                ->toArray();
         }
-        $this->setPageHead($metadata, [$article->toArray()]);
+        $this->setPageHead($metadata, $schemas);
 
         return view('pages.guides.show', $metadata + [
             'navSection' => 'resources',

@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\NewsletterSubscription;
+use App\Models\NewsletterSubscriber;
 use App\Models\Testimonial;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -28,7 +28,7 @@ class SubmissionContractsTest extends TestCase
         $this->post(route('newsletter.store'), $payload);
         $this->post(route('newsletter.store'), $payload);
 
-        $this->assertSame(1, NewsletterSubscription::query()->where('email', $payload['email'])->count());
+        $this->assertSame(1, NewsletterSubscriber::query()->where('email', $payload['email'])->count());
     }
 
     public function test_invalid_newsletter_subscription_is_rejected(): void
@@ -47,7 +47,7 @@ class SubmissionContractsTest extends TestCase
         $response->assertCreated()
             ->assertJsonPath('message', "Thank you! Your testimonial has been submitted. We'll review it and share it with the Waggies community soon.");
 
-        $testimonial = Testimonial::query()->firstOrFail();
+        $testimonial = Testimonial::query()->where('title', 'A lovely stay')->firstOrFail();
 
         $this->assertSame(Testimonial::STATUS_PENDING, $testimonial->status);
         $this->assertNotNull($testimonial->consented_at);
@@ -68,14 +68,14 @@ class SubmissionContractsTest extends TestCase
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['story', 'consent']);
 
-        $this->assertDatabaseCount('testimonials', 0);
+        $this->assertDatabaseMissing('testimonials', ['title' => 'Too short']);
     }
 
     public function test_pending_testimonials_are_excluded_from_public_publication_scope(): void
     {
         $this->postJson(route('testimonials.store'), $this->testimonial_payload());
 
-        $testimonial = Testimonial::query()->firstOrFail();
+        $testimonial = Testimonial::query()->where('title', 'A lovely stay')->firstOrFail();
 
         $this->assertFalse(Testimonial::published()->whereKey($testimonial)->exists());
         $this->get(route('about.testimonials'))->assertDontSee('A lovely stay');

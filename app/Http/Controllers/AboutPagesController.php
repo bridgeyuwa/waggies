@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GalleryItem;
+use App\Models\Testimonial;
 use Illuminate\View\View;
 use Spatie\SchemaOrg\Schema;
 
@@ -10,25 +12,41 @@ final class AboutPagesController extends Controller
     public function testimonials(): View
     {
         $page = config('waggies_about_pages.testimonials');
+        $items = Testimonial::query()
+            ->published()
+            ->orderBy('sort_order')
+            ->orderBy('created_at')
+            ->get()
+            ->map(fn (Testimonial $testimonial): array => $testimonial->toPublicArray())
+            ->all();
         $metadata = ['title' => 'Client Testimonials', 'description' => 'Read what pet owners across Abuja share about their Waggies boarding, grooming, vet care, training and relocation experience.', 'canonical' => route('about.testimonials'), 'ogTitle' => 'Client Testimonials - Waggies Pet Care Abuja', 'ogDescription' => 'Read what pet owners across Abuja share about their Waggies boarding, grooming, vet care, training and relocation experience.'];
         $this->setPageHead($metadata, [$this->webPageSchema($metadata)]);
 
         return view('pages.about.testimonials', $metadata + [
             'navSection' => 'about',
             ...$page,
+            'items' => $items,
         ]);
     }
 
     public function gallery(): View
     {
         $page = config('waggies_about_pages.gallery');
+        $images = GalleryItem::query()
+            ->published()
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (GalleryItem $item): array => $item->toPublicArray())
+            ->all();
         $metadata = ['title' => 'Photo Gallery', 'description' => "Browse Waggies' boarding suites, grooming spa, veterinary clinic, training grounds, and happy guest photos.", 'canonical' => route('about.gallery'), 'ogTitle' => 'Photo Gallery - Waggies Pet Care Abuja', 'ogDescription' => "Browse Waggies' boarding suites, grooming spa, veterinary clinic, training grounds, and happy guest photos."];
         $this->setPageHead($metadata, [$this->webPageSchema($metadata)]);
 
         return view('pages.about.gallery', $metadata + [
             'navSection' => 'about',
             ...$page,
-            'categories' => collect($page['images'])->pluck('category')->unique()->values()->all(),
+            'images' => $images,
+            'categories' => collect($images)->pluck('category')->unique()->values()->all(),
         ]);
     }
 

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\NewsletterSubscription;
+use App\Models\NewsletterSubscriber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -12,9 +12,19 @@ class NewsletterController extends Controller
     {
         $email = strtolower(trim($request->string('email')->toString()));
         $request->merge(['email' => $email]);
-        $request->validate(['email' => ['required', 'email', 'max:255']]);
+        $request->validate([
+            'email' => ['required', 'email', 'max:255'],
+            'website' => ['nullable', 'string', 'max:0'],
+        ]);
 
-        NewsletterSubscription::firstOrCreate(['email' => $email]);
+        NewsletterSubscriber::query()->updateOrCreate(
+            ['email' => NewsletterSubscriber::normalizeEmail($email)],
+            [
+                'status' => NewsletterSubscriber::STATUS_SUBSCRIBED,
+                'subscribed_at' => now(),
+                'unsubscribed_at' => null,
+            ],
+        );
 
         return back()->with('newsletter_status', 'Thanks — you are subscribed to Waggies updates.');
     }

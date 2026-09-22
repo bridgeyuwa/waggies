@@ -151,10 +151,10 @@ class ContactController extends Controller
             $usesPets = false;
             $fields = [['name' => 'productName', 'label' => 'Product', 'type' => 'text', 'required' => true, 'placeholder' => $authoritative ?: 'e.g. Royal Canin Puppy Food', 'defaultValue' => $authoritative, 'helperText' => $authoritative ? 'Pre-filled from the product page — edit if needed.' : ($ctx['productId'] ? 'Product not found — please specify the product you’re asking about.' : null)], ['name' => 'question', 'label' => 'Your question', 'type' => 'textarea', 'required' => true, 'placeholder' => 'e.g. Is this suitable for a 3-month-old puppy?'], ['name' => 'quantity', 'label' => 'Quantity (if relevant)', 'type' => 'number', 'required' => false, 'min' => 1, 'step' => 1]];
         } elseif ($intent === 'CART_ORDER') {
-            $title = 'Checkout';
-            $description = 'Review your cart and continue to WhatsApp to confirm availability and final pricing.';
+            $title = 'Product enquiry';
+            $description = 'Ask about the selected products and Waggies will confirm availability and final pricing with you.';
             $usesPets = false;
-            $fields = [['name' => 'deliveryLocation', 'label' => 'Delivery location', 'type' => 'text', 'required' => true, 'placeholder' => 'e.g. Wuse 2, Abuja'], ['name' => 'preferredDeliveryTiming', 'label' => 'Preferred delivery time', 'type' => 'text', 'required' => false, 'placeholder' => 'e.g. Weekday evenings'], ['name' => 'additionalNotes', 'label' => 'Order notes', 'type' => 'textarea', 'required' => false, 'placeholder' => 'Any special instructions for your order...']];
+            $fields = [['name' => 'additionalNotes', 'label' => 'Questions or notes (optional)', 'type' => 'textarea', 'required' => false, 'placeholder' => 'What would you like to know about these products?']];
         } else {
             $usesPets = false;
             $supportsMultiService = false;

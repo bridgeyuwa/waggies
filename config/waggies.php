@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'phone' => '0908 081 1902',
-    'phone_international' => '+234 908 081 1902',
-    'whatsapp' => 'https://wa.me/2349080811902',
+    'phone' => env('WAGGIES_PHONE', '0908 081 1902'),
+    'phone_international' => env('WAGGIES_PHONE_INTERNATIONAL', '+234 908 081 1902'),
+    'whatsapp' => env('WAGGIES_WHATSAPP', 'https://wa.me/2349080811902'),
     'address' => [
         'street' => 'Life Camp, Efab City Estate, 65 1st Ave',
         'city' => 'Abuja',

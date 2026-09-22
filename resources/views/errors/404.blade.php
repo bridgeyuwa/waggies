@@ -8,7 +8,7 @@
             ['href' => route('about'), 'label' => 'About', 'icon' => 'info'],
             ['href' => route('contact'), 'label' => 'Contact', 'icon' => 'email'],
             ['href' => route('faq'), 'label' => 'FAQ', 'icon' => 'help'],
-            ['href' => route('contact', ['intent' => 'booking']), 'label' => 'Book Appointment', 'icon' => 'calendar'],
+            ['href' => route('book'), 'label' => 'Request a booking', 'icon' => 'calendar'],
         ];
         $quickServiceLinks = [
             ['href' => route('services.grooming'), 'label' => 'Grooming'],

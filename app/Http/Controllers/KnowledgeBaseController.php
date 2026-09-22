@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KnowledgeArticle;
+use App\Models\KnowledgeArticleSlugHistory;
 use App\Support\ArticleBodyProcessor;
+use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Spatie\SchemaOrg\Schema;
@@ -11,8 +15,15 @@ final class KnowledgeBaseController extends Controller
 {
     public function index(Request $request): View
     {
-        $items = config('waggies_knowledge_base.items', []);
-        $categories = config('waggies_knowledge_base.categories', []);
+        $items = KnowledgeArticle::query()
+            ->with('media')
+            ->published()
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->map(static fn (KnowledgeArticle $article): array => $article->toPublicArray())
+            ->all();
+        $categories = array_values(array_unique(array_column($items, 'category')));
         $requestedCategory = $request->string('category')->toString();
         $category = in_array($requestedCategory, $categories, true) ? $requestedCategory : 'All';
         $requestedPage = max(1, $request->integer('page', 1));
@@ -42,43 +53,87 @@ final class KnowledgeBaseController extends Controller
         ]);
     }
 
-    public function show(string $slug): View
+    public function show(Request $request, string $slug): View|RedirectResponse
     {
-        $article = collect(config('waggies_knowledge_base.items', []))
-            ->first(static fn (array $item): bool => $item['slug'] === $slug);
+        $articleRecord = KnowledgeArticle::query()
+            ->with('media')
+            ->published()
+            ->where('slug', $slug)
+            ->first();
 
-        abort_if($article === null, 404);
+        if ($articleRecord === null) {
+            $slugHistory = KnowledgeArticleSlugHistory::query()
+                ->where('slug', $slug)
+                ->first();
+
+            if ($slugHistory !== null) {
+                $articleRecord = KnowledgeArticle::query()
+                    ->with('media')
+                    ->published()
+                    ->whereKey($slugHistory->knowledge_article_id)
+                    ->first();
+            }
+
+            if ($articleRecord === null) {
+                abort(404);
+            }
+
+            $canonical = route('knowledge-base.show', ['slug' => $articleRecord->slug]);
+
+            if ($request->getQueryString() !== null) {
+                $canonical .= '?'.$request->getQueryString();
+            }
+
+            return redirect()->to($canonical, 308);
+        }
+        $article = $articleRecord->toPublicArray();
 
         $articleBody = ArticleBodyProcessor::process($article['content']);
 
-        $related = collect(config('waggies_knowledge_base.items', []))
-            ->filter(static fn (array $candidate): bool => $candidate['category'] === $article['category'] && $candidate['id'] !== $article['id'])
+        $related = KnowledgeArticle::query()
+            ->with('media')
+            ->published()
+            ->where('category', $articleRecord->category)
+            ->where('id', '!=', $articleRecord->getKey())
+            ->orderBy('sort_order')
+            ->orderBy('id')
             ->take(3)
-            ->values()
+            ->get()
+            ->map(static fn (KnowledgeArticle $relatedArticle): array => $relatedArticle->toPublicArray())
             ->all();
 
+        $isIndexable = $articleRecord->isIndexable();
+        $canonical = $isIndexable ? route('knowledge-base.show', ['slug' => $articleRecord->slug]) : null;
+        $description = $articleRecord->seo_description ?: $articleRecord->excerpt;
         $metadata = [
-            'title' => $article['title'].' - Waggies Knowledge Base - Waggies',
-            'description' => $article['excerpt'],
-            'canonical' => route('knowledge-base.show', ['slug' => $article['slug']]),
-            'ogTitle' => $article['title'],
-            'ogDescription' => $article['excerpt'],
+            'title' => $articleRecord->seo_title ?: $articleRecord->title.' - Waggies Knowledge Base - Waggies',
+            'description' => $description,
+            'canonical' => $canonical,
+            'robots' => $isIndexable ? ['index', 'follow'] : ['noindex', 'follow'],
+            'ogTitle' => $articleRecord->seo_title ?: $articleRecord->title,
+            'ogDescription' => $description,
             'ogImage' => $article['image'],
             'ogType' => 'article',
         ];
-        $articleSchema = Schema::article()
-            ->headline($article['title'])
-            ->description($article['excerpt'])
-            ->url($metadata['canonical'])
-            ->publisher(Schema::organization()->name('Waggies')->url(route('home')))
-            ->image($article['image']);
-        if (! empty($article['author'])) {
-            $articleSchema->author(Schema::person()->name($article['author']));
+
+        $schemas = [];
+
+        if ($isIndexable) {
+            $articleSchema = Schema::article()
+                ->headline($articleRecord->title)
+                ->description($description)
+                ->url($canonical)
+                ->publisher(Schema::organization()->name('Waggies')->url(route('home')))
+                ->image($article['image']);
+            if (! empty($articleRecord->author)) {
+                $articleSchema->author(Schema::person()->name($articleRecord->author));
+            }
+            if ($articleRecord->published_at !== null) {
+                $articleSchema->datePublished(Carbon::parse($articleRecord->published_at));
+            }
+            $schemas[] = $articleSchema->toArray();
         }
-        if (! empty($article['date'])) {
-            $articleSchema->datePublished($article['date']);
-        }
-        $this->setPageHead($metadata, [$articleSchema->toArray()]);
+        $this->setPageHead($metadata, $schemas);
 
         return view('pages.knowledge-base.show', $metadata + [
             'navSection' => 'resources',

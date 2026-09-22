@@ -2,10 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Models\BookingRequest;
+use App\Models\ContactEnquiry;
+use App\Models\NewsletterSubscriber;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class SeoSearchSitemapTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_homepage_renders_package_owned_head_metadata_and_schema(): void
     {
         $response = $this->get('/');
@@ -40,6 +46,34 @@ class SeoSearchSitemapTest extends TestCase
             ->assertOk()
             ->assertJsonFragment(['href' => route('services.relocation')])
             ->assertJsonMissing(['href' => $siteUrl.'/relocation']);
+    }
+
+    public function test_search_indexes_published_products_and_faqs(): void
+    {
+        $this->get('/api/search?q=Royal+Canin')
+            ->assertOk()
+            ->assertJsonFragment(['href' => route('shop.show', ['product' => 'royal-canin-puppy'])]);
+
+        $this->get('/api/search?q=check-in')
+            ->assertOk()
+            ->assertJsonFragment(['category' => 'FAQ']);
+    }
+
+    public function test_search_does_not_index_private_operational_records(): void
+    {
+        ContactEnquiry::factory()->create([
+            'name' => 'privatebatch30needle',
+            'message' => 'Private contact content.',
+        ]);
+        BookingRequest::factory()->create([
+            'name' => 'privatebatch30needle',
+            'message' => 'Private booking content.',
+        ]);
+        NewsletterSubscriber::factory()->create(['email' => 'privatebatch30needle@example.com']);
+
+        $this->get('/api/search?q=privatebatch30needle')
+            ->assertOk()
+            ->assertJsonPath('results', []);
     }
 
     public function test_sitemap_and_robots_publish_only_canonical_public_urls(): void

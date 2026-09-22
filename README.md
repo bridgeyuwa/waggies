@@ -23,6 +23,8 @@ Laravel is accessible, powerful, and provides tools required for large, robust a
 
 ## Current Pricing and Request Contract
 
+Production deployment, environment, backup, restore, rollback, and smoke-test instructions live in [`DEPLOYMENT.md`](DEPLOYMENT.md).
+
 For the migrated application, pricing is owned by [`config/waggies_pricing.php`](config/waggies_pricing.php). Its canonical shape is a top-level `currency`, `services` keyed by service identifier, and `transport` data containing product-to-tier mappings, rate-card rules, and customer messages. `ServicesController` passes this configuration to the Pricing page, and `ContactController` passes the same configuration to the Contact request schema.
 
 Transport estimates remain intentionally client-side presentation estimates. Both consumers call `window.waggiesTransportEstimate` from `resources/js/app.js` with `productId`, `pickup`, `dropoff`, `tripType`, `distanceKm`, `petCount`, `petSpecies`, `additionalPetSafe`, `specialRequirements`, `waitingMinutes`, `stopCount`, `stopsWithinCorridor`, `transportUrgency`, `afterHours`, and `airportDetails`. The result is a state of `MISSING_INPUTS`, `ESTIMATE`, `QUOTE_ONLY`, or `UNAVAILABLE_ROUTE`, plus `currency`, `productId`, `amount` when calculated, `missingInputs`, `reason`, and `customerMessage`.

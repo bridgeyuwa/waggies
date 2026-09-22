@@ -1,10 +1,12 @@
 @php
     $errors = $errors ?? new \Illuminate\Support\ViewErrorBag();
+    $phoneHref = 'tel:'.preg_replace('/\D+/', '', config('waggies.phone_international'));
+    $whatsappHref = config('waggies.whatsapp');
     $footerColumns = [
         'Services' => [['Boarding', route('services.boarding')], ['Grooming', route('services.grooming')], ['Veterinary Care', route('services.vet-care')], ['Training', route('services.training')], ['Relocation', route('services.relocation')]],
         'Company' => [['About', route('about')], ['Testimonials', route('about.testimonials')], ['Gallery', route('about.gallery')], ['Careers', route('about.careers')], ['Partnerships', route('about.partnerships')]],
         'Resources' => [['FAQ', route('faq')], ['Guides', route('guides.index')], ['Knowledge Base', route('knowledge-base.index')], ['Tools', route('tools.index')]],
-        'Support' => [['Contact', route('contact')], ['Book Appointment', route('contact', ['intent' => 'booking'])], ['Phone', 'tel:+2349080811902'], ['WhatsApp', 'https://wa.me/2349080811902']],
+        'Support' => [['Contact', route('contact')], ['Request a booking', route('book')], ['Phone', $phoneHref], ['WhatsApp', $whatsappHref]],
         'Legal' => [['Privacy Policy', route('privacy-policy')], ['Terms of Service', route('terms-of-service')], ['Cookies Policy', route('cookies-policy')]],
     ];
     $socials = [['Instagram', 'instagram'], ['Facebook', 'facebook'], ['X (Twitter)', 'x'], ['LinkedIn', 'linkedin'], ['TikTok', 'tiktok'], ['YouTube', 'youtube']];
@@ -17,6 +19,10 @@
                 <div><h3 class="font-serif text-2xl font-bold text-white text-balance sm:text-[1.75rem]">Pet care tips, <span class="text-secondary italic">monthly.</span></h3><p class="mt-2 max-w-md text-sm text-white/65 sm:text-base">Pet care tips and updates from Waggies. No spam, unsubscribe anytime.</p></div>
                 <form action="{{ route('newsletter.store') }}" method="post" class="flex flex-col gap-3 sm:flex-row">
                     @csrf
+                    <div class="hidden" aria-hidden="true">
+                        <label for="newsletter-website">Leave this field empty</label>
+                        <input id="newsletter-website" name="website" type="text" tabindex="-1" autocomplete="off">
+                    </div>
                     <div class="relative flex-1">
                         <label class="sr-only" for="footer-email">Email address</label>
                         <x-waggies.icon name="email" size="20" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />

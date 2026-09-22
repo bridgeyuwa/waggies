@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 final class AboutPagesTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_about_child_pages_render_with_page_metadata(): void
     {
         $pages = [

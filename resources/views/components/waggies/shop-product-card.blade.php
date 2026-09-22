@@ -11,7 +11,7 @@
 
 <article data-shop-product-category="{{ $product['category'] }}" @if($visibility) x-show="{{ $visibility }}" @endif @if($visibility) x-cloak @endif {{ $attributes }}>
     <x-waggies.card hover class="group flex h-full flex-col overflow-hidden border border-primary/5 p-0">
-        <a href="{{ route('shop.show', ['id' => $product['id']]) }}" class="flex flex-1 flex-col">
+        <a href="{{ route('shop.show', ['product' => $product['id']]) }}" class="flex flex-1 flex-col">
             <div class="relative aspect-square overflow-hidden bg-surface">
                 <x-waggies.image src="{{ $product['image'] }}" alt="{{ $product['alt'] }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025] motion-reduce:transition-none motion-reduce:transform-none" />
                 @if($product['badge'])

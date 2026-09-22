@@ -18,7 +18,28 @@ it('renders accessible testimonial controls with required field contracts', func
         ->assertSee('name="author_name"', false)
         ->assertSee('name="author_location"', false)
         ->assertSee('name="pet_type"', false)
+        ->assertSee('name="website"', false)
         ->assertSee('name="consent"', false);
+});
+
+it('rejects testimonial submissions that trip the honeypot', function (): void {
+    $payload = [
+        'website' => 'https://spam.example.test',
+        'rating' => 5,
+        'service' => 'Boarding',
+        'title' => 'A lovely stay',
+        'story' => 'This submission should be rejected before it can become a testimonial record.',
+        'author_name' => 'Bot Owner',
+        'author_location' => 'Abuja',
+        'pet_type' => 'Dog',
+        'consent' => true,
+    ];
+
+    $this->postJson(route('testimonials.store'), $payload)
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['website']);
+
+    $this->assertDatabaseMissing('testimonials', ['title' => 'A lovely stay']);
 });
 
 it('rejects testimonial photos outside the supported image types', function (): void {
@@ -38,11 +59,11 @@ it('rejects testimonial photos outside the supported image types', function (): 
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['photo']);
 
-    $this->assertDatabaseCount('testimonials', 0);
+    $this->assertDatabaseMissing('testimonials', ['title' => 'A lovely stay']);
 });
 
 it('stores an accepted testimonial photo with the pending submission', function (): void {
-    Storage::fake('local');
+    Storage::fake('public');
 
     $payload = [
         'rating' => 5,
@@ -58,10 +79,12 @@ it('stores an accepted testimonial photo with the pending submission', function 
 
     $this->postJson(route('testimonials.store'), $payload)->assertCreated();
 
-    $testimonial = Testimonial::query()->firstOrFail();
+    $testimonial = Testimonial::query()->where('title', 'A lovely stay')->firstOrFail();
 
     expect($testimonial->status)->toBe(Testimonial::STATUS_PENDING)
-        ->and($testimonial->photo_path)->not->toBeNull();
+        ->and($testimonial->getFirstMedia('photo'))->not->toBeNull();
 
-    Storage::disk('local')->assertExists($testimonial->photo_path);
+    $media = $testimonial->getFirstMedia('photo');
+
+    Storage::disk('public')->assertExists($media->getPathRelativeToRoot());
 });

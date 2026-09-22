@@ -2,6 +2,10 @@
 
 namespace App\Support;
 
+use App\Models\Guide;
+use App\Models\KnowledgeArticle;
+use App\Models\Product;
+
 final class PublicUrlCatalog
 {
     /**
@@ -20,7 +24,7 @@ final class PublicUrlCatalog
             'knowledge-base.index', 'tools.index', 'tools.symptom-checker', 'tools.pet-age',
             'tools.vaccination', 'tools.cost', 'tools.medication', 'tools.nutrition',
             'tools.emergency', 'tools.new-pet-checklist', 'tools.parasite', 'tools.behavior-tips',
-            'tools.breed-finder', 'faq', 'shop.index', 'contact', 'loyalty', 'privacy-policy',
+            'tools.breed-finder', 'faq', 'shop.index', 'contact', 'book', 'loyalty', 'privacy-policy',
             'terms-of-service', 'cookies-policy',
         ];
 
@@ -30,16 +34,16 @@ final class PublicUrlCatalog
             $urls[] = route('services.boarding.species', ['species' => $species]);
         }
 
-        foreach (config('waggies_guides.items', []) as $guide) {
-            $urls[] = route('guides.show', ['slug' => $guide['slug']]);
+        foreach (Guide::query()->sitemapEligible()->pluck('slug') as $slug) {
+            $urls[] = route('guides.show', ['slug' => $slug]);
         }
 
-        foreach (config('waggies_knowledge_base.items', []) as $article) {
-            $urls[] = route('knowledge-base.show', ['slug' => $article['slug']]);
+        foreach (KnowledgeArticle::query()->sitemapEligible()->orderBy('sort_order')->pluck('slug') as $slug) {
+            $urls[] = route('knowledge-base.show', ['slug' => $slug]);
         }
 
-        foreach (array_values(config('waggies_shop.products', [])) as $product) {
-            $urls[] = route('shop.show', ['id' => $product['id']]);
+        foreach (Product::query()->published()->orderBy('sort_order')->pluck('slug') as $slug) {
+            $urls[] = route('shop.show', ['product' => $slug]);
         }
 
         return array_values(array_unique($urls));

@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AboutPagesController;
+use App\Http\Controllers\BookingRequestsController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ContactEnquiryController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\GuidesController;
 use App\Http\Controllers\HomeController;
@@ -12,14 +14,14 @@ use App\Http\Controllers\LoyaltyController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PricingController;
 use App\Http\Controllers\RelocationController;
+use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\ToolsController;
-use App\Support\PublicUrlCatalog;
 use Illuminate\Support\Facades\Route;
-use Spatie\Sitemap\Sitemap;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/about', AboutController::class)->name('about');
@@ -50,9 +52,16 @@ Route::get('/privacy-policy', [LegalController::class, 'privacy'])->name('privac
 Route::get('/terms-of-service', [LegalController::class, 'terms'])->name('terms-of-service');
 Route::get('/cookies-policy', [LegalController::class, 'cookies'])->name('cookies-policy');
 Route::get('/contact', ContactController::class)->name('contact');
+
+Route::controller(BookingRequestsController::class)->group(function (): void {
+    Route::get('/book', 'create')->name('book');
+    Route::post('/book', 'store')
+        ->middleware('throttle:booking-requests')
+        ->name('booking-requests.store');
+});
 Route::get('/loyalty', LoyaltyController::class)->name('loyalty');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
-Route::get('/shop/{id}', [ShopController::class, 'show'])->where('id', '[a-z0-9-]+')->name('shop.show');
+Route::get('/shop/{product:slug}', [ShopController::class, 'show'])->where('product', '[a-z0-9-]+')->name('shop.show');
 Route::get('/guides', [GuidesController::class, 'index'])->name('guides.index');
 Route::get('/guides/{slug}', [GuidesController::class, 'show'])->name('guides.show');
 Route::get('/knowledge-base', [KnowledgeBaseController::class, 'index'])->name('knowledge-base.index');
@@ -71,10 +80,15 @@ Route::controller(ToolsController::class)->group(function (): void {
     Route::get('/tools/behavior-tips', 'behaviorTips')->name('tools.behavior-tips');
     Route::get('/tools/new-pet-checklist', 'newPetChecklist')->name('tools.new-pet-checklist');
 });
-Route::post('/api/newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');
-Route::post('/api/testimonials', [TestimonialController::class, 'store'])->name('testimonials.store');
+Route::post('/api/newsletter', [NewsletterController::class, 'store'])
+    ->middleware('throttle:newsletter-subscriptions')
+    ->name('newsletter.store');
+Route::post('/api/testimonials', [TestimonialController::class, 'store'])
+    ->middleware('throttle:testimonials')
+    ->name('testimonials.store');
+Route::post('/api/contact-enquiries', [ContactEnquiryController::class, 'store'])
+    ->middleware('throttle:contact-enquiries')
+    ->name('contact-enquiries.store');
 Route::get('/api/search', SearchController::class)->name('search');
-Route::get('/sitemap.xml', fn (): Sitemap => Sitemap::create()->add((new PublicUrlCatalog)->urls()))->name('sitemap');
-Route::get('/robots.txt', function () {
-    return response("User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nSitemap: ".route('sitemap')."\n", 200, ['Content-Type' => 'text/plain']);
-})->name('robots');
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('/robots.txt', RobotsController::class)->name('robots');

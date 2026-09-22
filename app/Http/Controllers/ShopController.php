@@ -2,15 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Spatie\SchemaOrg\Schema;
 
 class ShopController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $products = array_values(config('waggies_shop.products', []));
-        $categories = config('waggies_shop.categories', []);
+        $publishedProducts = Product::query()
+            ->published()
+            ->with('media')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+        $products = $publishedProducts->map->toPublicArray()->all();
+        $categories = $publishedProducts
+            ->pluck('category')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
         $category = $request->query('category');
         $activeCategory = in_array($category, $categories, true) ? $category : 'All';
 
@@ -29,27 +43,47 @@ class ShopController extends Controller
         ]);
     }
 
-    public function show(string $id)
+    public function show(Product $product): View
     {
-        $products = config('waggies_shop.products', []);
-        abort_unless(isset($products[$id]), 404);
+        abort_unless($product->isPublished(), 404);
 
-        $product = $products[$id];
-        $relatedProducts = array_values(array_filter($products, static fn (array $item): bool => $item['id'] !== $id && $item['category'] === $product['category']));
+        $product->loadMissing('media');
+        $productData = $product->toPublicArray();
+        $relatedProducts = Product::query()
+            ->published()
+            ->with('media')
+            ->where('category', $product->category)
+            ->where('id', '!=', $product->getKey())
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get()
+            ->map
+            ->toPublicArray()
+            ->take(3)
+            ->all();
+        $recentProducts = Product::query()
+            ->published()
+            ->with('media')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get()
+            ->map
+            ->toPublicArray()
+            ->all();
 
-        $metadata = ['title' => $product['name'].' - Waggies Shop', 'description' => $product['description'], 'canonical' => route('shop.show', ['id' => $product['id']]), 'ogTitle' => $product['name'].' - Waggies Shop', 'ogDescription' => $product['description'], 'ogImage' => $product['image']];
+        $metadata = ['title' => $productData['name'].' - Waggies Shop', 'description' => $productData['description'], 'canonical' => route('shop.show', ['product' => $product]), 'ogTitle' => $productData['name'].' - Waggies Shop', 'ogDescription' => $productData['description'], 'ogImage' => $productData['image']];
         $productSchema = Schema::product()
-            ->name($product['name'])
-            ->description($product['description'])
-            ->image($product['image'])
+            ->name($productData['name'])
+            ->description($productData['description'])
+            ->image($productData['image'])
             ->url($metadata['canonical'])
-            ->offers(Schema::offer()->price($product['price'])->priceCurrency('NGN')->url($metadata['canonical']));
+            ->offers(Schema::offer()->price($productData['price'])->priceCurrency($productData['currency'])->url($metadata['canonical']));
         $this->setPageHead($metadata, [$productSchema->toArray()]);
 
         return view('pages.shop.show', $metadata + [
-            'product' => $product,
-            'relatedProducts' => array_slice($relatedProducts, 0, 3),
-            'recentProducts' => array_values($products),
+            'product' => $productData,
+            'relatedProducts' => $relatedProducts,
+            'recentProducts' => $recentProducts,
             'navSection' => 'shop',
         ]);
     }

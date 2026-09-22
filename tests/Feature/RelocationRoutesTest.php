@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class RelocationRoutesTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_relocation_service_routes_use_the_canonical_services_hierarchy(): void
     {
         $routes = [

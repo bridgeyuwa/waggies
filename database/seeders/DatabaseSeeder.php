@@ -15,7 +15,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        if (! in_array(config('app.env'), ['local', 'testing'], true)) {
+            $this->command?->warn('Database seeding is limited to local and testing environments.');
+
+            return;
+        }
 
         User::factory()->create([
             'name' => 'Test User',

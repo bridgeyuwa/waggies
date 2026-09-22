@@ -6479,5 +6479,5 @@ return [
   ]
 }
 JSON
-    , true, 512, JSON_THROW_ON_ERROR),
+        , true, 512, JSON_THROW_ON_ERROR),
 ];

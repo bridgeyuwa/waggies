@@ -29,7 +29,7 @@ window.waggiesTransportEstimate = (inputs, pricing) => {
 };
 
 const contactRequest = (schema, context, whatsapp) => ({
-    schema, context, whatsapp, step: window.location.hash === "#review" ? "review" : "form", values: {}, pets: [], serviceBlocks: [], servicePicker: false, cartItems: [], cartEmpty: true, reference: "WGX-" + Math.random().toString(36).slice(2, 6).toUpperCase() + "-" + Math.random().toString(36).slice(2, 6).toUpperCase(),
+    schema, context, whatsapp, step: window.location.hash === "#review" ? "review" : "form", values: {}, pets: [], serviceBlocks: [], servicePicker: false, cartItems: [], cartEmpty: true, reference: "WGX-" + Math.random().toString(36).slice(2, 6).toUpperCase() + "-" + Math.random().toString(36).slice(2, 6).toUpperCase(), submitting: false, serverError: '', savedMessage: '',
     init() {
         const contextKey = JSON.stringify([this.context.intent, this.context.service, this.context.variant, this.context.tier, this.context.productId, this.context.productName, this.context.transportProduct, this.context.transportRoute]);
         const initialHash = this.step === "review" ? "#review" : "#form";
@@ -156,7 +156,7 @@ const contactRequest = (schema, context, whatsapp) => ({
         if (intent === "SERVICE_REQUEST" || intent === "BOOKING_REQUEST") lines.push("I'd like to request " + this.serviceName(this.context.service) + " for my pet.");
         else if (intent === "QUOTE_REQUEST") lines.push("I'd like to request a quote for " + this.serviceName(this.context.service) + ".");
         else if (intent === "PRODUCT_INQUIRY") lines.push("I have a question about: " + (v.productName || "a product") + ".");
-        else if (intent === "CART_ORDER") lines.push("I'd like to place the following order:");
+        else if (intent === "CART_ORDER") lines.push("I'd like to ask about the following shop products:");
         else if (intent === "RELOCATION_REQUEST") lines.push("I'd like help with pet relocation.");
         else if (intent === "TRANSPORT_REQUEST") lines.push("I'd like to request local pet transport.");
         else if (intent === "VETERINARY_REQUEST") lines.push("I'd like to request a veterinary appointment.");
@@ -182,7 +182,7 @@ const contactRequest = (schema, context, whatsapp) => ({
         if (v.reasonForVisit) lines.push("Reason for visit: " + v.reasonForVisit); if (v.urgency) lines.push("Urgency: " + v.urgency); if (v.reasonForVisit) lines.push("");
         if (v.trainingConcern) lines.push("Training concern: " + v.trainingConcern); if (v.desiredOutcome) lines.push("Desired outcome: " + v.desiredOutcome); if (v.trainingConcern) lines.push("");
         if (v.boardingPackage || v.groomingPackage) { lines.push("Package: " + (v.boardingPackage || v.groomingPackage)); lines.push(""); }
-        if (this.context.intent === "CART_ORDER" && this.cartItems.length) { lines.push("Order:"); this.cartItems.forEach(item => lines.push("  " + item.name + " × " + item.quantity)); const total = this.cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0); if (total) lines.push("Estimated cart total: ₦" + total.toLocaleString()); if (v.deliveryLocation) lines.push("Delivery location: " + v.deliveryLocation); if (v.preferredDeliveryTiming) lines.push("Preferred delivery timing: " + v.preferredDeliveryTiming); lines.push(""); }
+        if (this.context.intent === "CART_ORDER" && this.cartItems.length) { lines.push("Selected products:"); this.cartItems.forEach(item => lines.push("  " + item.name + " × " + item.quantity)); lines.push(""); }
         const estimate = this.estimate();
         if (this.schema.pricingMode === "QUOTE_REQUIRED") lines.push("Pricing: To be confirmed by Waggies."); else if (estimate.status === "calculated") lines.push("Pricing: " + estimate.display + " (" + (this.schema.pricingMode === "FIXED" ? "fixed" : "estimated") + ")");
         if (estimate.status === "calculated" && estimate.customerWording) lines.push("Pricing note: " + estimate.customerWording); if (this.schema.pricingMode === "QUOTE_REQUIRED" || estimate.status === "calculated") lines.push("");
@@ -192,6 +192,60 @@ const contactRequest = (schema, context, whatsapp) => ({
         lines.push("---", "Reference: " + this.reference); return lines.join("\n");
     },
     whatsappUrl() { return this.whatsapp + "?text=" + encodeURIComponent(this.requestMessageCanonical()); },
+    async saveAndContinue(event) {
+        event.preventDefault();
+        if (this.submitting) return;
+
+        this.submitting = true;
+        this.serverError = '';
+        this.savedMessage = '';
+        const popup = window.open('about:blank', '_blank');
+
+        try {
+            const response = await fetch(document.body.dataset.contactEnquiryUrl, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                },
+                body: JSON.stringify({
+                    name: this.values.customerName || null,
+                    phone: this.values.whatsappNumber || null,
+                    subject: this.schema.title,
+                    service: this.context.service || null,
+                    intent: this.schema.intent,
+                    message: this.requestMessageCanonical(),
+                    reference: this.reference,
+                    website: '',
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                popup?.close();
+                this.serverError = payload.message || 'We could not save your request. Please try again.';
+
+                return;
+            }
+
+            this.savedMessage = payload.message || 'Your request has been saved.';
+            this.clearDraft();
+            const url = this.whatsappUrl();
+
+            if (popup) {
+                popup.location = url;
+            } else {
+                window.location.href = url;
+            }
+        } catch {
+            popup?.close();
+            this.serverError = 'We could not save your request. Please check your connection and try again.';
+        } finally {
+            this.submitting = false;
+        }
+    },
     clearDraft() { sessionStorage.removeItem("waggies-request-draft"); },
 });
 

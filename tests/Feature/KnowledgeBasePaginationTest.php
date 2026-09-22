@@ -1,5 +1,9 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
 test('knowledge base pagination keeps one Alpine root for each numbered page iteration', function (): void {
     $response = $this->get(route('knowledge-base.index', ['page' => 2]));
 
