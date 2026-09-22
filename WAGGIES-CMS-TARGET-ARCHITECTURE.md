@@ -1,7 +1,7 @@
 # Waggies CMS Target Architecture
 
-**Status:** Verified implementation contract for the current CMS foundation  
-**Date:** 22 September 2026  
+**Status:** Verified implementation contract for the current CMS foundation
+**Date:** 22 September 2026
 **Authority:** The current standalone Laravel repository is authoritative. `WAGGIES-ARCHITECTURE-AUDIT.md` is architectural evidence. `WAGGIES-PROTOTYPE-DISCOVERY.md` is product/design discovery only.
 
 ## 1. Executive Summary

@@ -2,9 +2,9 @@
 
 > This document analyzes the historical Waggies Google Stitch prototype archive for inspiration and product discovery. It is not an implementation specification and does not override the current Waggies Laravel application.
 
-**Snapshot:** 21 September 2026  
-**Current-project baseline:** `93e3c3a` (`Refine Waggies public frontend runtime architecture`)  
-**Archive inspected:** `C:\Users\Bridges\Herd\waggies-claude-design`  
+**Snapshot:** 21 September 2026
+**Current-project baseline:** `93e3c3a` (`Refine Waggies public frontend runtime architecture`)
+**Archive inspected:** `C:\Users\Bridges\Herd\waggies-claude-design`
 **Current project inspected:** `C:\Users\Bridges\Herd\waggies`
 
 ## 1. Purpose and authority
