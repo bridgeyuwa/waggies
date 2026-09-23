@@ -39,6 +39,7 @@ final class AboutPagesController extends Controller
             ->orderBy('id')
             ->get()
             ->map(fn (GalleryItem $item): array => $item->toPublicArray())
+            ->filter(fn (array $image): bool => filled($image['src'] ?? null))
             ->all();
         $metadata = ['title' => 'Photo Gallery', 'description' => "Browse Waggies' boarding suites, grooming spa, veterinary clinic, training grounds, and happy guest photos.", 'canonical' => route('about.gallery'), 'ogTitle' => 'Photo Gallery - Waggies Pet Care Abuja', 'ogDescription' => "Browse Waggies' boarding suites, grooming spa, veterinary clinic, training grounds, and happy guest photos."];
         $this->setPageHead($metadata, [$this->webPageSchema($metadata)]);

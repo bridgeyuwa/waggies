@@ -42,6 +42,21 @@ it('renders published gallery records from the database and hides drafts', funct
         ->assertDontSee($draft->image_alt);
 });
 
+it('does not render published gallery records that have no usable image', function (): void {
+    $item = GalleryItem::factory()->create([
+        'image' => null,
+        'image_alt' => 'Gallery item without an image',
+        'status' => GalleryItem::STATUS_PUBLISHED,
+    ]);
+
+    $response = $this->get(route('about.gallery'))
+        ->assertOk();
+
+    expect($response->getContent())->not->toContain('Gallery item without an image')
+        ->not->toContain('src="'.route('about.gallery').'"')
+        ->and($item->toPublicArray()['src'])->toBe('');
+});
+
 it('attaches gallery media to the local public disk and exposes it publicly', function (): void {
     Storage::fake('public');
 
