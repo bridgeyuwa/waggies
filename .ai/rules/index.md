@@ -7,3 +7,4 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Http/Controllers/**, routes/** | .ai/rules/controllers.md |
 | app/**, bootstrap/**, config/**, database/**, resources/**, routes/**, tests/**, public/**, composer.json, package.json, config/waggies_pricing.php | .ai/rules/reuse-before-reinventing.md |
 | app/Http/Controllers/**, app/Models/**, config/waggies_pricing.php, database/**, resources/js/**, resources/views/**, routes/**, tests/** | .ai/rules/views.md |
+| Local Filament/admin browser verification | .ai/rules/local-filament-testing.md |
