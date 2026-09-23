@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\ClinicalContents;
 
-use App\Filament\Resources\ClinicalContents\Pages\CreateClinicalContent;
 use App\Filament\Resources\ClinicalContents\Pages\EditClinicalContent;
 use App\Filament\Resources\ClinicalContents\Pages\ListClinicalContents;
 use App\Filament\Resources\ClinicalContents\Schemas\ClinicalContentForm;
@@ -17,6 +16,8 @@ use Filament\Tables\Table;
 class ClinicalContentResource extends Resource
 {
     protected static ?string $model = ClinicalContent::class;
+
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -41,7 +42,6 @@ class ClinicalContentResource extends Resource
     {
         return [
             'index' => ListClinicalContents::route('/'),
-            'create' => CreateClinicalContent::route('/create'),
             'edit' => EditClinicalContent::route('/{record}/edit'),
         ];
     }

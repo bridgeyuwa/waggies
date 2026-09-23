@@ -25,11 +25,7 @@ final class OperationalStatsWidget extends StatsOverviewWidget
         $pendingTestimonials = Testimonial::query()
             ->where('status', Testimonial::STATUS_PENDING)
             ->count();
-        $clinicalReviewQueue = ClinicalContent::query()
-            ->whereIn('clinical_status', ['pending_review', 'changes_requested'])
-            ->count();
-
-        return [
+        $stats = [
             Stat::make('New booking requests', $newBookings)
                 ->description('Review and respond')
                 ->descriptionIcon('heroicon-m-calendar-days')
@@ -45,11 +41,20 @@ final class OperationalStatsWidget extends StatsOverviewWidget
                 ->descriptionIcon('heroicon-m-chat-bubble-left-right')
                 ->color('gray')
                 ->url(route('filament.admin.resources.testimonials.index')),
-            Stat::make('Clinical items in review', $clinicalReviewQueue)
+        ];
+
+        if (auth()->user()?->is_clinical_reviewer === true) {
+            $clinicalReviewQueue = ClinicalContent::query()
+                ->whereIn('clinical_status', ['pending_review', 'changes_requested'])
+                ->count();
+
+            $stats[] = Stat::make('Clinical items in review', $clinicalReviewQueue)
                 ->description('Approval remains gated')
                 ->descriptionIcon('heroicon-m-shield-check')
                 ->color('danger')
-                ->url(route('filament.admin.resources.clinical-contents.index')),
-        ];
+                ->url(route('filament.admin.resources.clinical-contents.index'));
+        }
+
+        return $stats;
     }
 }

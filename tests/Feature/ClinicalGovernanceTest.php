@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\ClinicalContentWorkflow;
 use App\Enums\ClinicalContentStatus;
 use App\Enums\ClinicalPublicationStatus;
 use App\Models\ClinicalContent;
@@ -89,6 +90,73 @@ class ClinicalGovernanceTest extends TestCase
 
         expect(app(ClinicalPublicationGate::class)->allows($content->fresh()))->toBeTrue();
         expect($content->fresh()->isPubliclyEligible())->toBeTrue();
+    }
+
+    public function test_clinical_workflow_creates_approval_review_before_publication(): void
+    {
+        $reviewer = User::factory()->create(['is_clinical_reviewer' => true]);
+        $source = ClinicalSource::create([
+            'title' => 'Workflow source',
+            'organization' => 'Evidence authority',
+            'source_type' => 'clinical_guideline',
+            'reference' => 'https://example.test/workflow-source',
+            'jurisdiction' => 'Global',
+            'status' => 'active',
+            'version' => '1',
+        ]);
+        $content = ClinicalContent::create([
+            'content_key' => 'workflow-content',
+            'content_type' => 'clinical',
+            'clinical_status' => 'pending_review',
+            'publication_status' => 'unpublished',
+            'risk_level' => 'moderate',
+            'jurisdiction' => 'Global',
+            'version' => 1,
+        ]);
+        $content->sources()->attach($source, ['source_version' => '1']);
+
+        $review = app(ClinicalContentWorkflow::class)->approve($content, $reviewer);
+
+        $this->assertDatabaseHas('clinical_reviews', [
+            'id' => $review->id,
+            'clinical_content_id' => $content->id,
+            'reviewer_id' => $reviewer->id,
+            'decision' => 'approved',
+            'content_version' => 1,
+        ]);
+        $this->assertDatabaseHas('clinical_contents', [
+            'id' => $content->id,
+            'clinical_status' => 'approved',
+            'publication_status' => 'unpublished',
+        ]);
+
+        app(ClinicalContentWorkflow::class)->publish($content->fresh());
+
+        $this->assertDatabaseHas('clinical_contents', [
+            'id' => $content->id,
+            'clinical_status' => 'approved',
+            'publication_status' => 'published',
+        ]);
+    }
+
+    public function test_ordinary_staff_cannot_open_internal_clinical_resources(): void
+    {
+        $this->actingAs(User::factory()->create(['is_clinical_reviewer' => false]));
+
+        $this->get('/admin/clinical-contents')->assertForbidden();
+        $this->get('/admin/clinical-reviews')->assertForbidden();
+        $this->get('/admin/clinical-sources')->assertForbidden();
+        $this->get('/admin/clinical-tool-reviews')->assertForbidden();
+    }
+
+    public function test_clinical_reviewer_can_open_governance_records_but_not_tool_reviews(): void
+    {
+        $this->actingAs(User::factory()->create(['is_clinical_reviewer' => true]));
+
+        $this->get('/admin/clinical-contents')->assertOk();
+        $this->get('/admin/clinical-reviews')->assertOk();
+        $this->get('/admin/clinical-sources')->assertOk();
+        $this->get('/admin/clinical-tool-reviews')->assertForbidden();
     }
 
     public function test_source_conflict_and_withdrawal_remove_public_eligibility(): void

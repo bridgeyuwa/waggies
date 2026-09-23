@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\ClinicalReviews;
 
-use App\Filament\Resources\ClinicalReviews\Pages\CreateClinicalReview;
-use App\Filament\Resources\ClinicalReviews\Pages\EditClinicalReview;
 use App\Filament\Resources\ClinicalReviews\Pages\ListClinicalReviews;
 use App\Filament\Resources\ClinicalReviews\Schemas\ClinicalReviewForm;
 use App\Filament\Resources\ClinicalReviews\Tables\ClinicalReviewsTable;
@@ -17,6 +15,8 @@ use Filament\Tables\Table;
 class ClinicalReviewResource extends Resource
 {
     protected static ?string $model = ClinicalReview::class;
+
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -41,8 +41,6 @@ class ClinicalReviewResource extends Resource
     {
         return [
             'index' => ListClinicalReviews::route('/'),
-            'create' => CreateClinicalReview::route('/create'),
-            'edit' => EditClinicalReview::route('/{record}/edit'),
         ];
     }
 }
