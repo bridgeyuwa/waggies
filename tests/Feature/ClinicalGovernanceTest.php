@@ -154,7 +154,9 @@ class ClinicalGovernanceTest extends TestCase
         $this->actingAs(User::factory()->create(['is_clinical_reviewer' => true]));
 
         $this->get('/admin/clinical-contents')->assertOk();
-        $this->get('/admin/clinical-reviews')->assertOk();
+        $this->get('/admin/clinical-reviews')
+            ->assertOk()
+            ->assertDontSee('Create clinical review');
         $this->get('/admin/clinical-sources')->assertOk();
         $this->get('/admin/clinical-tool-reviews')->assertForbidden();
     }
