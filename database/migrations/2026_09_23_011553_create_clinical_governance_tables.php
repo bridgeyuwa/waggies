@@ -36,7 +36,7 @@ return new class extends Migration
         Schema::create('clinical_contents', function (Blueprint $table): void {
             $table->id();
             $table->string('content_key')->unique();
-            $table->nullableMorphs('contentable');
+            $table->nullableUuidMorphs('contentable');
             $table->string('content_type', 30)->default('clinical');
             $table->string('clinical_status', 40)->default('draft');
             $table->string('publication_status', 40)->default('unpublished');

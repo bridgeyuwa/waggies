@@ -25,6 +25,17 @@ Laravel is accessible, powerful, and provides tools required for large, robust a
 
 Production deployment, environment, backup, restore, rollback, and smoke-test instructions live in [`DEPLOYMENT.md`](DEPLOYMENT.md). Static editorial image provenance and replacement guidance live in [`MEDIA-PROVENANCE.md`](MEDIA-PROVENANCE.md).
 
+## Local database
+
+Windows development uses PostgreSQL 18.6 with pgvector through Docker Compose. Laravel runs on the host and connects to `127.0.0.1:5432` using the `waggies` database and `waggies` user without a password.
+
+```bash
+docker compose up -d --build
+php artisan migrate
+```
+
+The Compose setup uses a named Docker volume and creates an isolated `waggies_test` database for the test suite. PostgreSQL trust authentication is bound to localhost and is for local development only; never copy this passwordless configuration into production.
+
 For the migrated application, pricing is owned by [`config/waggies_pricing.php`](config/waggies_pricing.php). Its canonical shape is a top-level `currency`, `services` keyed by service identifier, and `transport` data containing product-to-tier mappings, rate-card rules, and customer messages. `ServicesController` passes this configuration to the Pricing page, and `ContactController` passes the same configuration to the Contact request schema.
 
 Transport estimates remain intentionally client-side presentation estimates. Both consumers call `window.waggiesTransportEstimate` from `resources/js/app.js` with `productId`, `pickup`, `dropoff`, `tripType`, `distanceKm`, `petCount`, `petSpecies`, `additionalPetSafe`, `specialRequirements`, `waitingMinutes`, `stopCount`, `stopsWithinCorridor`, `transportUrgency`, `afterHours`, and `airportDetails`. The result is a state of `MISSING_INPUTS`, `ESTIMATE`, `QUOTE_ONLY`, or `UNAVAILABLE_ROUTE`, plus `currency`, `productId`, `amount` when calculated, `missingInputs`, `reason`, and `customerMessage`.

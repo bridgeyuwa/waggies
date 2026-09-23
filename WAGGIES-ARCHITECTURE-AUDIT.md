@@ -7,6 +7,12 @@ Starting revision: `3e2e3320ec1b19ea08531f833e437988e03604f5`
 
 This file retains historical audit context and the current Batch 30 reconciliation below. The current product is a hybrid application: config/code owns Services, Relocation, and service pricing; database records own Guides, Knowledge Base, FAQs, Gallery, Products, BookingRequests, ContactEnquiries, Testimonials, and NewsletterSubscribers; Blade/Alpine owns the public surface; and Filament/Livewire owns justified admin resources.
 
+## Current local database baseline — 2026-09-23
+
+Local Windows development now uses PostgreSQL 18.6 with pgvector through Docker Compose. Laravel connects through the default pgsql connection to 127.0.0.1:5432, database waggies, as waggies with no password. The Compose service binds PostgreSQL to localhost only and persists its data in the named waggies-postgres-data volume. Trust authentication is local-development-only and must not be used in production.
+
+The original SQLite database is preserved as corrupt evidence and is not a migration source. The new PostgreSQL database is reconstructed from migrations and legitimate configuration-owned seed data; unrecoverable SQLite records are not represented as migrated data.
+
 ## Batch 1 implementation reconciliation — 2026-09-23
 
 The current implementation extends that boundary with persisted booking-request lifecycle/context fields, canonical `BusinessProfile` and `BusinessHour` records, `JobOpening` records for careers, product availability/search/sort and multiple media, and testimonial CRM/identity/customer-relationship verification metadata. `/book` remains request intake only: it does not schedule, allocate capacity, take payment, or confirm an appointment. `/services/pricing` is the canonical pricing surface; the legacy cost-calculator URL redirects there and is not navigated from the public Tools catalogue.
@@ -459,7 +465,7 @@ Public browser journeys verified rendering and navigation for Home → Services 
 
 ## 9. Database proof
 
-The live SQLite database has 21 tables. Relevant row counts at audit time: Guides 4, Knowledge Articles 10, FAQs 52, Gallery Items 23, Contact Enquiries 1, Newsletter Subscriptions 1, Testimonials 14, Products 10, Booking Requests 0, Media 0. The persisted domain audit found UUIDv7 values across the established records, with no non-UUIDv7 values in the checked domain tables. `service_prices` is absent. No orphan Media rows were found; the single existing Contact enquiry was preserved because its ownership was ambiguous rather than clearly synthetic.
+The previous live SQLite database had 21 tables at audit time. Relevant row counts were: Guides 4, Knowledge Articles 10, FAQs 52, Gallery Items 23, Contact Enquiries 1, Newsletter Subscriptions 1, Testimonials 14, Products 10, Booking Requests 0, and Media 0. That file is now treated as corrupt, preserved evidence rather than a migration source. The current PostgreSQL schema is reconstructed from migrations and legitimate configuration-owned seed data; no unrecovered SQLite records are claimed as migrated.
 
 ## 10. Media proof
 
@@ -489,7 +495,7 @@ Authenticated Filament mutation workflows and real disposable browser media uplo
 - Blade cache: passed.
 - Vite production build: passed with Vite 7.3.6.
 - Composer audit: no security vulnerability advisories found.
-- Fresh schema: all 22 migrations completed successfully in an isolated in-memory SQLite database; the final schema omitted `service_prices`.
+- Fresh schema: the migration suite is intended to run against PostgreSQL 18.6, with the pgvector extension enabled by `2026_09_23_115837_enable_pgvector_extension`; the final schema omits `service_prices`.
 - `git diff --check`: passed.
 
 ## 13. Documentation
@@ -512,7 +518,7 @@ No scheduling system, payment system, checkout, inventory, CRM, customer account
 
 The public search contract remains `GET /api/search`, but its source of truth is now a `search_documents` projection. Static public routes and tools are owned by `SearchCatalog`; published Guides, Knowledge Articles, Products, FAQs, and open Job Openings are synchronized by `SearchContentObserver` and can be rebuilt with `php artisan waggies:search-rebuild`. The endpoint uses Laravel Scout's database engine, filters unpublished rows at query time, caps results at eight, returns opaque result keys, and retains `X-Robots-Tag: noindex, nofollow`.
 
-The local SQLite implementation deliberately uses Scout's database engine because it requires no external service and provides a clean migration path. It is substring matching rather than relevance-ranked full-text search. PostgreSQL full-text/trigram search is the next low-operations option for production; Meilisearch or Typesense are stronger candidates if typo tolerance, prefix ranking, facets, and larger catalogues become important. Algolia adds managed relevance and analytics at a higher vendor/cost boundary. Turbopuffer is a possible vector-search complement, not a replacement for the public keyword index. The open production decision is whether expected catalogue/content volume justifies an external engine after measuring real query logs.
+The local PostgreSQL implementation deliberately uses Scout's database engine because it requires no external service. It remains substring matching rather than relevance-ranked full-text search; PostgreSQL full-text/trigram search is a future optimization, not part of this migration. The pgvector extension is now available in the same server as a foundation for future application-managed semantic retrieval, but no local embedding/chunk/similarity path is claimed yet. Turbopuffer, Typesense, Meilisearch, and Algolia are not part of the Waggies local architecture.
 
 The assistant uses the Laravel AI SDK behind `POST /api/assistant` and `POST /api/assistant/stream`. It has no write tools, no customer-record access, bounded message/history input, named rate limits, explicit medical/emergency guardrails, and a safe 503 response until a provider is configured. Public content is written to a local knowledge manifest with `php artisan waggies:knowledge-sync`; an optional approved-only provider vector store can be enabled with `WAGGIES_AI_VECTOR_STORE_ID` or created deliberately through configuration. Provider keys remain environment-only. The assistant must not be treated as a booking, diagnostic, or authoritative availability system.
 

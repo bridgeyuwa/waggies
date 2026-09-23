@@ -4,13 +4,24 @@ This document describes the deployable boundary of the current Waggies applicati
 
 ## Runtime inventory
 
-- PHP 8.5 with `bcmath`, `ctype`, `curl`, `dom`, `exif`, `fileinfo`, `gd`, `intl`, `mbstring`, `openssl`, `pdo_mysql` or `pdo_pgsql` for the selected production database, `pdo_sqlite` for local verification, `zip`, and `zlib`.
+- PHP 8.5 with `bcmath`, `ctype`, `curl`, `dom`, `exif`, `fileinfo`, `gd`, `intl`, `mbstring`, `openssl`, `pdo_mysql` or `pdo_pgsql` for the selected database, `zip`, and `zlib`. The supported local PostgreSQL setup requires `pdo_pgsql`.
 - Laravel 13.33, Filament 5.8, Livewire 4.4, Spatie Media Library 11.23, Backup 10.3, and Health 1.40 are installed. Versions are locked in `composer.lock`.
 - Node.js and npm are required only to build Vite assets. The deployed web process serves the generated `public/build` assets.
 - The web server must point its document root at `public/`. The repository root must not be web-accessible.
 - `storage/` and `bootstrap/cache/` must be writable by the application process. The rest of the repository should remain read-only. `public/storage` is the link created by `php artisan storage:link`.
 
 The current application uses a database-backed editorial and operational model. Services, relocation content, and service pricing remain code/configuration-owned; pricing is authoritative in `config/waggies_pricing.php`. Guides, Knowledge Base, FAQ, Gallery, Testimonials, Products, Contact, Newsletter, Booking, Job Opening, Business Profile, and Business Hours data are database-managed. Gallery and editorial media include both `media` rows and files under the configured Media Library disk.
+
+## Local Windows development database
+
+The supported local setup is PostgreSQL 18.6 with pgvector through compose.yaml. Laravel runs under Herd on Windows and connects through the host-published loopback port; it does not use the Compose service hostname.
+
+```bash
+docker compose up -d --build
+php artisan migrate
+```
+
+The development connection is pgsql to 127.0.0.1:5432, database waggies, user waggies, with an empty password. The Compose service persists data in the named waggies-postgres-data volume and creates the isolated waggies_test database used by PHPUnit/Pest. POSTGRES_HOST_AUTH_METHOD=trust is intentionally limited to this localhost-bound development database and is not suitable for production.
 
 ## Environment
 
@@ -19,7 +30,7 @@ Copy `.env.example` to the deployment environment and supply secrets through the
 Required production values:
 
 - `APP_ENV=production`, `APP_DEBUG=false`, a real HTTPS `APP_URL`, and a stable `APP_KEY` kept outside source control.
-- A production `DB_CONNECTION` and its connection variables. MySQL/MariaDB or PostgreSQL are the intended server database choices; SQLite is suitable for local development and small isolated deployments only.
+- A production `DB_CONNECTION` and its connection variables. MySQL/MariaDB or PostgreSQL are the intended server database choices. The local development baseline is PostgreSQL; SQLite is only an explicitly isolated fallback for tooling that requires it.
 - `FILESYSTEM_DISK` and `MEDIA_DISK`. Keep public media on a public disk only when it is intended to be public. Private operational files must remain on a private disk.
 - `CACHE_STORE` and `SESSION_DRIVER` backed by the same production database or an explicitly provisioned alternative. Redis is optional and is not required by the current application.
 - `MAIL_MAILER`, `MAIL_FROM_ADDRESS`, and the provider-specific variables only when production email delivery is enabled. Development uses `log`; no provider or credentials are selected here.
@@ -61,7 +72,7 @@ After the release is live, check `/up`, the public smoke-test paths below, `/sit
 
 ## CI versus deployment
 
-GitHub Actions verifies the source tree with PHP 8.5, Node 22, Composer/npm dependency installation, Composer and npm audits, SQLite migrations, Pint, Larastan, the Pest suite at the measured 512 MB CLI memory limit, Laravel configuration/route/view/event caches, and the Vite build. It does not deploy, configure a web server, provide production secrets, verify HTTPS proxy headers, deliver mail, reach WhatsApp, write to production object storage, or prove a production backup/restore.
+GitHub Actions verifies the source tree with PHP 8.5, Node 22, Composer/npm dependency installation, Composer and npm audits, PostgreSQL 18.6 + pgvector migrations, Pint, Larastan, the Pest suite at the measured 512 MB CLI memory limit, Laravel configuration/route/view/event caches, and the Vite build. It does not deploy, configure a web server, provide production secrets, verify HTTPS proxy headers, deliver mail, reach WhatsApp, write to production object storage, or prove a production backup/restore.
 
 The server/operator performs the deployment sequence above. A clean release directory or archive assembled from the checked-out source is the release artifact; `vendor`, `node_modules`, `.env`, local databases, caches, and backup archives are not release source.
 
@@ -79,8 +90,8 @@ Backups are operational maintenance, not an application scheduler requirement. R
 Spatie Laravel Backup is already installed and configured in `config/backup.php`.
 
 - A backup contains a database dump and application files, including Media Library originals and conversions under the configured storage path.
-- Vendor, node modules, framework caches, logs, the local SQLite file, backup archives, and `.env` are excluded. The database dump and the deployment environment are the restore authorities.
-- Local development writes to the private `backups` disk. Production should use a separate encrypted/retained destination such as S3 by setting `BACKUP_DISK=s3` and its existing AWS variables.
+- Vendor, node modules, framework caches, logs, local database runtime state, backup archives, and `.env` are excluded. The database dump and the deployment environment are the restore authorities.
+- Local development writes to the private `backups` disk. PostgreSQL backups require the matching `pg_dump` tooling. Production should use a separate encrypted/retained destination such as S3 by setting `BACKUP_DISK=s3` and its existing AWS variables.
 - Database backups delegate to the selected engine's native CLI (`sqlite3`, `mysqldump`, or `pg_dump` as applicable). Install and verify the matching dump and restore tools on the production host before enabling the backup cadence.
 - Archive verification is enabled. Set `BACKUP_ARCHIVE_PASSWORD` in production if archive encryption is required, and protect the destination with provider/server access controls.
 - Backup notifications are intentionally disabled until a real notification destination is configured. The notification classes remain explicitly mapped to empty channel lists so a failed backup reports its actual dump error instead of raising a secondary notification configuration error.
@@ -95,7 +106,7 @@ php artisan backup:clean
 php artisan backup:monitor
 ```
 
-The first command requires the selected engine's native dump binary. On local SQLite, the PHP `pdo_sqlite` extension is not sufficient: `sqlite3` must also be installed. Restore the database dump from a selected archive into a disposable database using the engine's native restore tooling, then run `php artisan migrate:status` and the smoke tests. Restore the matching media files from the same archive or storage snapshot. A database-only restore is incomplete for Gallery, editorial cover images, product images, and testimonial photos. The repository does not claim a production restore until a real destination and engine have been tested.
+The first command requires the selected engine's native dump binary, including `pg_dump` for the local PostgreSQL setup. Restore the database dump from a selected archive into a disposable database using the engine's native restore tooling, then run `php artisan migrate:status` and the smoke tests. Restore the matching media files from the same archive or storage snapshot. A database-only restore is incomplete for Gallery, editorial cover images, product images, and testimonial photos. The repository does not claim a production restore until a real destination and engine have been tested.
 
 ## Migration and compatibility limits
 

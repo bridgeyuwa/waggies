@@ -18,7 +18,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
-          extensions: bcmath, curl, dom, exif, gd, intl, mbstring, pdo_sqlite, zip
+          extensions: bcmath, curl, dom, exif, gd, intl, mbstring, pdo_pgsql, zip
           coverage: none
 
       - uses: actions/setup-node@v4
@@ -33,7 +33,9 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate --force --no-interaction
-          touch database/database.sqlite
+
+      - name: Start PostgreSQL 18.6 with pgvector
+        run: docker compose up -d --build --wait postgres
 
       - name: Verify Composer dependencies
         run: composer audit --no-interaction
