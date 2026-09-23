@@ -1,6 +1,11 @@
 ---
 paths:
-  - '.ai/**'
+  - app/Filament/**
+  - app/Providers/Filament/**
+  - database/seeders/**
+  - resources/views/**
+  - routes/**
+  - tests/**
 ---
 
 # Local Filament Browser Verification
