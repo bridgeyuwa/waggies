@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('pet_type', 40);
             $table->string('location', 255)->nullable();
             $table->text('message')->nullable();
-            $table->string('status', 20)->default('new');
+            $table->string('status', 30)->default('pending');
             $table->timestamps();
 
             $table->index(['status', 'created_at']);

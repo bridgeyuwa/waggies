@@ -6364,8 +6364,8 @@ return [
   "behavior": [
     {
       "stableId": "behavior-dog-barking",
-      "status": "SEED_CONTENT",
-      "review": "REQUIRES_CLINICAL_REVIEW",
+      "status": "pending_review",
+      "review": "clinical_review_required",
       "cmsReplaceable": true,
       "lastReviewed": null,
       "species": "dog",
@@ -6383,8 +6383,8 @@ return [
     },
     {
       "stableId": "behavior-dog-separation",
-      "status": "SEED_CONTENT",
-      "review": "REQUIRES_CLINICAL_REVIEW",
+      "status": "pending_review",
+      "review": "clinical_review_required",
       "cmsReplaceable": true,
       "lastReviewed": null,
       "species": "dog",
@@ -6402,8 +6402,8 @@ return [
     },
     {
       "stableId": "behavior-dog-house-training",
-      "status": "SEED_CONTENT",
-      "review": "REQUIRES_CLINICAL_REVIEW",
+      "status": "pending_review",
+      "review": "clinical_review_required",
       "cmsReplaceable": true,
       "lastReviewed": null,
       "species": "dog",
@@ -6421,8 +6421,8 @@ return [
     },
     {
       "stableId": "behavior-cat-scratching",
-      "status": "SEED_CONTENT",
-      "review": "REQUIRES_CLINICAL_REVIEW",
+      "status": "pending_review",
+      "review": "clinical_review_required",
       "cmsReplaceable": true,
       "lastReviewed": null,
       "species": "cat",
@@ -6440,8 +6440,8 @@ return [
     },
     {
       "stableId": "behavior-cat-litter",
-      "status": "SEED_CONTENT",
-      "review": "REQUIRES_CLINICAL_REVIEW",
+      "status": "pending_review",
+      "review": "clinical_review_required",
       "cmsReplaceable": true,
       "lastReviewed": null,
       "species": "cat",
@@ -6459,8 +6459,8 @@ return [
     },
     {
       "stableId": "behavior-cat-introduction",
-      "status": "SEED_CONTENT",
-      "review": "REQUIRES_CLINICAL_REVIEW",
+      "status": "pending_review",
+      "review": "clinical_review_required",
       "cmsReplaceable": true,
       "lastReviewed": null,
       "species": "cat",

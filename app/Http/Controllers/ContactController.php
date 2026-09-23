@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BusinessHour;
+use App\Models\BusinessProfile;
+use App\Support\ContactContextResolver;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Spatie\SchemaOrg\Schema;
@@ -10,24 +13,16 @@ class ContactController extends Controller
 {
     public function __invoke(Request $request): View
     {
-        $rawIntent = trim((string) $request->query('intent', ''));
-        $service = trim((string) $request->query('service', '')) ?: null;
-        $variant = trim((string) $request->query('variant', '')) ?: null;
-        $tier = trim((string) $request->query('tier', '')) ?: null;
-        $resolvedService = $this->resolveService($service, $tier);
-        $intent = $this->resolveIntent($rawIntent, $resolvedService);
+        $context = app(ContactContextResolver::class)->resolve($request);
+        $rawIntent = $context['rawIntent'];
+        $service = $context['service'];
+        $variant = $context['variant'];
+        $tier = $context['tier'];
+        $resolvedService = $context['resolvedService'];
+        $intent = $context['intent'];
         $mode = $rawIntent === '' ? 'gateway' : ($rawIntent === 'booking' && ! $service ? 'booking' : 'form');
-        $productId = trim((string) $request->query('product', '')) ?: null;
-        $productName = trim((string) $request->query('productName', '')) ?: null;
-        $product = $this->products()[$productId] ?? null;
-
-        $context = [
-            'rawIntent' => $rawIntent, 'intent' => $intent, 'service' => $service, 'resolvedService' => $resolvedService,
-            'variant' => $variant, 'tier' => $tier, 'productId' => $productId, 'productName' => $product['name'] ?? $productName,
-            'transportProduct' => trim((string) $request->query('transportProduct', '')) ?: null,
-            'transportRoute' => trim((string) $request->query('transportRoute', '')) ?: null,
-            'source' => trim((string) $request->query('source', '')) ?: 'contact-direct',
-        ];
+        $product = $context['product'];
+        unset($context['product']);
 
         $metadata = [
             'title' => 'Contact Us — Waggies Pet Care Abuja',
@@ -49,34 +44,22 @@ class ContactController extends Controller
         return view('pages.contact', $metadata + [
             'navSection' => 'contact', 'mode' => $mode, 'context' => $context,
             'schema' => $mode === 'form' ? $this->schema($context, $product) : null,
-            'business' => ['name' => 'Waggies', 'phoneLocal' => config('waggies.phone'), 'phoneHref' => 'tel:'.preg_replace('/\D+/', '', config('waggies.phone_international')), 'email' => 'hello@waggies.ng', 'whatsapp' => config('waggies.whatsapp'), 'address' => 'Life Camp, Efab City Estate, 65 1st Ave, Abuja 900108, Federal Capital Territory, Nigeria', 'hours' => [['day' => 'Mon - Fri', 'hours' => '9:00 AM - 5:00 PM'], ['day' => 'Saturday', 'hours' => '10:00 AM - 2:00 PM'], ['day' => 'Sunday', 'hours' => '10:00 AM - 2:00 PM']]],
+            'business' => $this->businessData(),
         ]);
     }
 
-    private function resolveIntent(string $raw, ?string $service): string
+    /**
+     * @return array<string, mixed>
+     */
+    private function businessData(): array
     {
-        $map = ['service' => 'SERVICE_REQUEST', 'booking' => 'BOOKING_REQUEST', 'quote' => 'QUOTE_REQUEST', 'veterinary' => 'VETERINARY_REQUEST', 'transport' => 'TRANSPORT_REQUEST', 'relocation' => 'RELOCATION_REQUEST', 'product-inquiry' => 'PRODUCT_INQUIRY', 'cart-order' => 'CART_ORDER', 'contact' => 'CONTACT_REQUEST', 'general' => 'GENERAL_INQUIRY', 'tool-assistance' => 'TOOL_ASSISTANCE'];
-        if (in_array($raw, ['book', 'save', 'consult'], true)) {
-            return $this->canonicalIntent($service);
-        }
+        $profile = BusinessProfile::current();
 
-        return $map[$raw] ?? 'GENERAL_INQUIRY';
-    }
-
-    private function canonicalIntent(?string $service): string
-    {
-        return match ($this->resolveService($service, null)) {
-            'vet-care' => 'VETERINARY_REQUEST', 'relocation' => 'QUOTE_REQUEST', 'local-transport', 'transport' => 'TRANSPORT_REQUEST', 'grooming', 'training' => 'SERVICE_REQUEST', default => 'BOOKING_REQUEST',
-        };
-    }
-
-    private function resolveService(?string $service, ?string $tier): ?string
-    {
-        if ($service === 'relocation' && $tier === 'local') {
-            return 'local-transport';
-        }
-
-        return ['boarding-dogs' => 'boarding', 'boarding-cats' => 'boarding', 'boarding-exotic' => 'boarding', 'vet' => 'vet-care', 'transport' => 'local-transport'][$service] ?? $service;
+        return $profile->toPublicArray() + [
+            'phoneLocal' => $profile->phone,
+            'email' => $profile->primary_email,
+            'hours' => BusinessHour::publicSchedule(),
+        ];
     }
 
     private function variant(?string $service, ?string $variant): ?string
@@ -177,11 +160,6 @@ class ContactController extends Controller
         $tiers = $variants[$variant]['tiers'] ?? $variants['dogs']['tiers'];
 
         return collect($tiers)->map(fn (array $tier, string $key): array => ['value' => $key, 'label' => $tier['label']])->values()->all();
-    }
-
-    private function products(): array
-    {
-        return ['royal-canin-puppy' => ['name' => 'Royal Canin Puppy Dry Food'], 'whiskas-cat-food' => ['name' => 'Whiskas Adult Cat Food'], 'chew-rope-toy' => ['name' => 'Indestructible Chew Rope Toy'], 'interactive-puzzle-feeder' => ['name' => 'Interactive Puzzle Feeder'], 'oatmeal-shampoo' => ['name' => 'Oatmeal Soothing Pet Shampoo'], 'deshedding-brush' => ['name' => 'Professional Deshedding Brush'], 'tick-flea-collar' => ['name' => 'Tick and Flea Prevention Collar'], 'pet-first-aid-kit' => ['name' => 'Pet First Aid Kit'], 'padded-dog-harness' => ['name' => 'Padded No-Pull Dog Harness'], 'raised-pet-bowl' => ['name' => 'Elevated Stainless Steel Pet Bowl']];
     }
 
     private function serviceName(?string $service): string

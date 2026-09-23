@@ -32,7 +32,7 @@ final class HomeController extends Controller
                 'eyebrow' => "ABUJA'S TRUSTED PET CARE",
                 'title' => "Your Pet's Home Away From Home",
                 'description' => 'Boarding, grooming, vet care, training, relocation and local transport — all in one place, right here in Abuja.',
-                'imageSrc' => 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&h=600&fit=crop',
+                'imageSrc' => '/media/editorial/photo-1587300003388-59208cc962cb.jpg',
                 'imageAlt' => 'Happy dog sitting with their owner outdoors',
                 'actions' => [
                     ['label' => 'Request a booking', 'route' => 'book'],
@@ -40,11 +40,11 @@ final class HomeController extends Controller
                 ],
             ],
             'homeServiceCards' => [
-                ['title' => 'Boarding', 'description' => 'Overnight stays in spacious, climate-controlled suites with 24/7 care.', 'route' => 'services.boarding', 'imageSrc' => 'https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&auto=format&fit=crop&q=60', 'icon' => 'boarding'],
-                ['title' => 'Grooming', 'description' => 'Breed-specific treatments, baths, and styling by experienced groomers.', 'route' => 'services.grooming', 'imageSrc' => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=600&h=400&fit=crop&q=80', 'icon' => 'grooming'],
-                ['title' => 'Vet Care', 'description' => 'On-site veterinary consultations, vaccinations, and wellness check-ups.', 'route' => 'services.vet-care', 'imageSrc' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&h=400&fit=crop&q=80', 'icon' => 'veterinary-care'],
-                ['title' => 'Training', 'description' => 'Positive-reinforcement training programmes for puppies and adult dogs.', 'route' => 'services.training', 'imageSrc' => 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=400&fit=crop&q=80', 'icon' => 'training'],
-                ['title' => 'Pet Relocation', 'description' => 'International pet moves with full documentation, import, export, and local transport.', 'route' => 'services.relocation', 'imageSrc' => 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&h=400&fit=crop&q=80', 'icon' => 'airport-departure'],
+                ['title' => 'Boarding', 'description' => 'Overnight stays in spacious, climate-controlled suites with 24/7 care.', 'route' => 'services.boarding', 'imageSrc' => '/media/editorial/photo-1544568100-847a948585b9.jpg', 'icon' => 'boarding'],
+                ['title' => 'Grooming', 'description' => 'Breed-specific treatments, baths, and styling by experienced groomers.', 'route' => 'services.grooming', 'imageSrc' => '/media/editorial/photo-1516734212186-a967f81ad0d7.jpg', 'icon' => 'grooming'],
+                ['title' => 'Vet Care', 'description' => 'On-site veterinary consultations, vaccinations, and wellness check-ups.', 'route' => 'services.vet-care', 'imageSrc' => '/media/editorial/photo-1514888286974-6c03e2ca1dba.jpg', 'icon' => 'veterinary-care'],
+                ['title' => 'Training', 'description' => 'Positive-reinforcement training programmes for puppies and adult dogs.', 'route' => 'services.training', 'imageSrc' => '/media/editorial/photo-1583511655857-d19b40a7a54e.jpg', 'icon' => 'training'],
+                ['title' => 'Pet Relocation', 'description' => 'International pet moves with full documentation, import, export, and local transport.', 'route' => 'services.relocation', 'imageSrc' => '/media/editorial/photo-1436491865332-7a61a109cc05.jpg', 'icon' => 'airport-departure'],
             ],
             'careStandardRows' => [
                 ['title' => '24/7 Supervision', 'description' => 'Your pets are monitored around the clock, never left alone.'],

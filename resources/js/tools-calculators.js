@@ -261,10 +261,10 @@ const symptomChecker = (data) => ({
     },
     checkSymptoms() {
         if (!this.selectedArea || this.selectedSymptoms.length === 0) return;
-        const count = this.selectedSymptoms.length;
-        const hasHigh = this.selectedSymptoms.some((id) => this.data.high_severity_ids.includes(id));
-        const severity = hasHigh || count >= 4 ? 'high' : count >= 2 ? 'moderate' : 'low';
-        this.guidance = { severity, ...this.data.guidance[severity] };
+        const speciesFlags = this.data.species_red_flag_ids?.[this.petType] ?? [];
+        const hasRedFlag = this.selectedSymptoms.some((id) => this.data.red_flag_ids.includes(id) || speciesFlags.includes(id));
+        const urgency = hasRedFlag ? 'emergency' : this.selectedSymptoms.length >= 2 ? 'prompt' : 'routine';
+        this.guidance = { urgency, ...this.data.guidance[urgency] };
     },
     clearSelection() {
         this.selectedSymptoms = [];

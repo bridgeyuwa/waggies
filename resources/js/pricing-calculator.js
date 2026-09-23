@@ -1,4 +1,4 @@
-const pricingCalculator = (data, initial = {}, contactUrl) => ({
+const pricingCalculator = (data, initial = {}, contactUrl, bookingUrl) => ({
     services: data.services,
     pricing: data,
     service: initial.service || '',
@@ -114,8 +114,8 @@ const pricingCalculator = (data, initial = {}, contactUrl) => ({
             display += ` <span class="text-base font-normal text-primary-dark/50">(${quantity} × ${this.naira(item.amount)})</span>`;
         }
 
-        const params = new URLSearchParams({ intent: item.type === 'quote' ? 'consult' : 'booking', service: this.service, ...(this.variant ? { variant: this.variant } : {}), tier: item.key });
-        this.result = { display, service: this.current.label + (this.variant ? ` - ${this.current.variants[this.variant].label}` : ''), tier: item.label, features: item.features || [], cta: item.type === 'quote' ? 'Request Consultation' : 'Book Now', href: `${contactUrl}?${params}`, notice: '' };
+        const params = new URLSearchParams({ intent: item.type === 'quote' ? 'quote' : 'booking', service: this.service, source: 'pricing', ...(this.variant ? { variant: this.variant } : {}), tier: item.key });
+        this.result = { display, service: this.current.label + (this.variant ? ` - ${this.current.variants[this.variant].label}` : ''), tier: item.label, features: item.features || [], cta: item.type === 'quote' ? 'Request a Quote' : 'Request Booking', href: `${item.type === 'quote' ? contactUrl : bookingUrl}?${params}`, notice: '' };
         this.step = 'result';
     },
     reset() {

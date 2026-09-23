@@ -86,8 +86,8 @@ class SubmissionContractsTest extends TestCase
         $rates = config('waggies_pricing.cost_calculator.rates');
 
         $this->get(route('tools.cost'))
-            ->assertOk()
-            ->assertSee((string) $rates['boarding']['small'][0]);
+            ->assertMovedPermanently()
+            ->assertRedirect(route('services.pricing'));
     }
 
     /**
@@ -102,6 +102,8 @@ class SubmissionContractsTest extends TestCase
             'story' => 'The Waggies team took wonderful care of our dog and kept us updated every day.',
             'author_name' => 'Adaeze O.',
             'author_location' => 'Maitama, Abuja',
+            'contact_method' => 'phone',
+            'contact_value' => '0808 081 1902',
             'pet_name' => 'Bruno',
             'pet_type' => 'Dog',
             'consent' => true,

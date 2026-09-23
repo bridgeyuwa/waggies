@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\Conversions\Manipulations;
 use Spatie\MediaLibrary\HasMedia;
@@ -21,12 +22,19 @@ final class Product extends Model implements HasMedia
     use HasSlug;
     use HasUuids;
     use InteractsWithMedia;
+    use Searchable;
 
     public const string STATUS_DRAFT = 'draft';
 
     public const string STATUS_PUBLISHED = 'published';
 
     public const string STATUS_ARCHIVED = 'archived';
+
+    public const string AVAILABILITY_AVAILABLE = 'available';
+
+    public const string AVAILABILITY_LIMITED = 'limited';
+
+    public const string AVAILABILITY_UNAVAILABLE = 'unavailable';
 
     protected $attributes = [
         'currency' => 'NGN',
@@ -46,8 +54,11 @@ final class Product extends Model implements HasMedia
         'badge',
         'features',
         'status',
+        'availability',
         'sort_order',
         'published_at',
+        'seo_title',
+        'seo_description',
     ];
 
     protected static function booted(): void
@@ -74,6 +85,7 @@ final class Product extends Model implements HasMedia
             'price' => 'integer',
             'sort_order' => 'integer',
             'published_at' => 'datetime',
+            'availability' => 'string',
         ];
     }
 
@@ -113,6 +125,26 @@ final class Product extends Model implements HasMedia
             && ($publishedAt === null || Carbon::parse($publishedAt)->isPast());
     }
 
+    public function shouldBeSearchable(): bool
+    {
+        return $this->isPublished();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'name' => $this->name,
+            'description' => $this->description,
+            'category' => $this->category,
+            'features' => collect((array) $this->getAttribute('features'))->map(function (mixed $feature): string {
+                return is_array($feature) ? (string) ($feature['label'] ?? '') : (string) $feature;
+            })->filter()->implode(', '),
+        ];
+    }
+
     /**
      * @return array<string, string>
      */
@@ -137,11 +169,27 @@ final class Product extends Model implements HasMedia
             ->all();
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public static function availabilityOptions(): array
+    {
+        return [
+            self::AVAILABILITY_AVAILABLE => 'Available',
+            self::AVAILABILITY_LIMITED => 'Limited availability',
+            self::AVAILABILITY_UNAVAILABLE => 'Currently unavailable',
+        ];
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('image')
             ->singleFile()
             ->useDisk('public');
+
+        $this->addMediaCollection('images')
+            ->useDisk('public')
+            ->withResponsiveImages();
     }
 
     public function registerMediaConversions(?Media $media = null): void
@@ -152,7 +200,7 @@ final class Product extends Model implements HasMedia
                 $manipulations->fit(Fit::Crop, 800, 800);
             }
         );
-        $thumb->performOnCollections('image')->nonQueued();
+        $thumb->performOnCollections('image', 'images')->nonQueued();
 
         $detail = $this->addMediaConversion('detail');
         $detail->setManipulations(
@@ -160,7 +208,7 @@ final class Product extends Model implements HasMedia
                 $manipulations->fit(Fit::Max, 1600, 1600);
             }
         );
-        $detail->performOnCollections('image')->withResponsiveImages()->nonQueued();
+        $detail->performOnCollections('image', 'images')->withResponsiveImages()->nonQueued();
     }
 
     public function publicImageUrl(string $conversion = 'detail'): string
@@ -176,6 +224,12 @@ final class Product extends Model implements HasMedia
     public function toPublicArray(): array
     {
         $media = $this->getFirstMedia('image');
+        $gallery = $this->getMedia('images');
+        $primaryImage = $this->publicImageUrl();
+
+        if ($gallery->isNotEmpty()) {
+            $primaryImage = $gallery->first()->getUrl('detail');
+        }
 
         return [
             'id' => $this->slug,
@@ -184,11 +238,18 @@ final class Product extends Model implements HasMedia
             'price' => $this->price,
             'currency' => $this->currency,
             'category' => $this->category,
-            'image' => $this->publicImageUrl(),
+            'image' => $primaryImage,
             'imageSrcset' => $media?->getSrcset('detail'),
             'alt' => $this->image_alt ?: $this->name,
             'badge' => $this->badge,
             'features' => $this->features ?? [],
+            'availability' => $this->availability ?: self::AVAILABILITY_AVAILABLE,
+            'availabilityLabel' => self::availabilityOptions()[$this->availability] ?? 'Availability to be confirmed',
+            'gallery' => $gallery->map(fn (Media $item): array => [
+                'url' => $item->getUrl('detail'),
+                'thumb' => $item->getUrl('thumb'),
+                'alt' => $item->getCustomProperty('alt') ?: $this->image_alt ?: $this->name,
+            ])->values()->all(),
         ];
     }
 }

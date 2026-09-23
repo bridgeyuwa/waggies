@@ -39,6 +39,9 @@
 
                     <form action="{{ route('booking-requests.store') }}" method="post" class="flex flex-col gap-8" x-data="{ submitting: false }" @submit="if (submitting) { $event.preventDefault(); return; } submitting = true">
                         @csrf
+                        <input type="hidden" name="service_variant" value="{{ old('service_variant', $selectedVariant) }}">
+                        <input type="hidden" name="pricing_tier" value="{{ old('pricing_tier', $selectedTier) }}">
+                        <input type="hidden" name="source" value="{{ old('source', $source) }}">
                         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                             <x-waggies.field id="booking-name" label="Your name" :error="$errors->first('name')" required>
                                 <input id="booking-name" name="name" type="text" value="{{ old('name') }}" autocomplete="name" maxlength="120" required aria-describedby="booking-name-help{{ $errors->has('name') ? ' booking-name-error' : '' }}" @if($errors->has('name')) aria-invalid="true" @endif class="contact-input">

@@ -29,6 +29,13 @@ class TestimonialFactory extends Factory
             'photo_path' => null,
             'status' => Testimonial::STATUS_PENDING,
             'consented_at' => now(),
+            'contact_method' => 'phone',
+            'contact_value' => '0808 081 1902',
+            'crm_match_status' => Testimonial::CRM_MATCHED,
+            'identity_verification_status' => Testimonial::VERIFICATION_VERIFIED,
+            'customer_relationship_status' => Testimonial::VERIFICATION_VERIFIED,
+            'verification_method' => 'manual_phone',
+            'verified_at' => now(),
             'published_at' => null,
             'sort_order' => 0,
         ];

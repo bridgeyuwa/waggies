@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AboutPagesController;
+use App\Http\Controllers\AssistantController;
+use App\Http\Controllers\AssistantStreamController;
 use App\Http\Controllers\BookingRequestsController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContactEnquiryController;
@@ -89,6 +91,8 @@ Route::post('/api/testimonials', [TestimonialController::class, 'store'])
 Route::post('/api/contact-enquiries', [ContactEnquiryController::class, 'store'])
     ->middleware('throttle:contact-enquiries')
     ->name('contact-enquiries.store');
-Route::get('/api/search', SearchController::class)->name('search');
+Route::get('/api/search', SearchController::class)->middleware('throttle:search')->name('search');
+Route::post('/api/assistant', [AssistantController::class, 'store'])->middleware('throttle:ai-assistant')->name('assistant.store');
+Route::post('/api/assistant/stream', [AssistantStreamController::class, 'store'])->middleware('throttle:ai-assistant')->name('assistant.stream');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/robots.txt', RobotsController::class)->name('robots');

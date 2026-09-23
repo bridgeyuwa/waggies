@@ -23,14 +23,20 @@
         <div class="page-container">
             <x-waggies.section-heading :eyebrow="$openRolesHeading['eyebrow']" :title="$openRolesHeading['title']" />
             <div class="mt-10 grid gap-4 lg:grid-cols-2">
-                @foreach($openRoles as $role)
+                @forelse($openRoles as $role)
                     <div class="flex flex-col justify-between gap-5 rounded-2xl border border-primary/12 bg-white p-6 shadow-sm transition-[border-color,box-shadow,transform] duration-[180ms] hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-soft sm:flex-row sm:items-center">
-                        <div><h3 class="font-semibold text-primary-dark">{{ $role['role'] }}</h3><p class="text-sm text-primary-dark/50">{{ $role['dept'] }} · {{ $role['type'] }}</p></div>
-                        <x-waggies.button href="{{ route($role['applyRoute'], $role['applyParams'] ?? []) }}" variant="secondary" class="shrink-0">{{ $role['applyLabel'] }} <x-waggies.icon name="arrow-forward" size="17" /></x-waggies.button>
+                        <div><h3 class="font-semibold text-primary-dark">{{ $role->title }}</h3><p class="text-sm text-primary-dark/50">{{ collect([$role->department, $role->employment_type, $role->location])->filter()->implode(' · ') }}</p>@if($role->summary)<p class="mt-2 text-sm leading-relaxed text-primary-dark/60">{{ $role->summary }}</p>@endif</div>
+                        <x-waggies.button href="{{ route('contact', ['intent' => 'careers', 'source' => 'job-opening', 'job' => $role->id]) }}" variant="secondary" class="shrink-0">Ask about this role <x-waggies.icon name="arrow-forward" size="17" /></x-waggies.button>
                     </div>
-                @endforeach
+                @empty
+                    <div class="rounded-2xl border border-dashed border-primary/20 bg-white p-8 text-center lg:col-span-2">
+                        <x-waggies.icon name="career" size="32" class="mx-auto text-primary/50" />
+                        <h3 class="mt-4 font-serif text-xl font-bold text-primary-dark">No current openings</h3>
+                        <p class="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-primary-dark/60">We are not advertising an active vacancy at the moment. Please check back later for genuine opportunities with the Waggies team.</p>
+                    </div>
+                @endforelse
             </div>
-            <p class="mt-8 text-sm text-primary-dark/50">{{ $speculativeNote }}</p>
+            @if($hasOpenRoles)<p class="mt-8 text-sm text-primary-dark/50">Applications are reviewed by the Waggies team. Contact us if you need more information about an open role.</p>@endif
         </div>
     </section>
 

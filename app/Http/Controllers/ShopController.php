@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Spatie\SchemaOrg\Schema;
@@ -11,16 +12,21 @@ class ShopController extends Controller
 {
     public function index(Request $request): View
     {
-        $publishedProducts = Product::query()
+        $search = trim((string) $request->query('q', ''));
+        $sort = (string) $request->query('sort', 'featured');
+        $sortOptions = [
+            'featured' => ['sort_order', 'asc'],
+            'newest' => ['created_at', 'desc'],
+            'name' => ['name', 'asc'],
+            'price_asc' => ['price', 'asc'],
+            'price_desc' => ['price', 'desc'],
+        ];
+        $sort = array_key_exists($sort, $sortOptions) ? $sort : 'featured';
+
+        $categories = Product::query()
             ->published()
-            ->with('media')
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get();
-        $products = $publishedProducts->map->toPublicArray()->all();
-        $categories = $publishedProducts
+            ->whereNotNull('category')
             ->pluck('category')
-            ->filter()
             ->unique()
             ->sort()
             ->values()
@@ -28,6 +34,27 @@ class ShopController extends Controller
         $category = $request->query('category');
         $activeCategory = in_array($category, $categories, true) ? $category : 'All';
 
+        if ($search !== '') {
+            $productQuery = Product::search($search)
+                ->query(static fn (Builder $query): Builder => $query
+                    ->where('status', Product::STATUS_PUBLISHED)
+                    ->where(function (Builder $query): void {
+                        $query->whereNull('published_at')->orWhere('published_at', '<=', now());
+                    })
+                    ->with('media'));
+        } else {
+            $productQuery = Product::query()->published()->with('media');
+        }
+
+        if ($activeCategory !== 'All') {
+            $productQuery->where('category', $activeCategory);
+        }
+
+        $publishedProducts = $productQuery
+            ->orderBy($sortOptions[$sort][0], $sortOptions[$sort][1])
+            ->when($sort !== 'name', fn ($query) => $query->orderBy('name'))
+            ->get();
+        $products = $publishedProducts->map->toPublicArray()->all();
         $metadata = [
             'title' => 'Pet Shop - Supplies & Products', 'description' => 'Browse pet food, toys, grooming supplies, health products, and accessories at the Waggies pet shop in Abuja, Nigeria.',
             'canonical' => route('shop.index'), 'ogTitle' => 'Pet Shop - Supplies & Products | Waggies', 'ogDescription' => 'Pet food, toys, grooming supplies, health products, and accessories in Abuja.',
@@ -39,6 +66,15 @@ class ShopController extends Controller
             'products' => $products,
             'categories' => $categories,
             'activeCategory' => $activeCategory,
+            'search' => $search,
+            'sort' => $sort,
+            'sortOptions' => [
+                'featured' => 'Featured',
+                'newest' => 'Newest',
+                'name' => 'Name',
+                'price_asc' => 'Price: low to high',
+                'price_desc' => 'Price: high to low',
+            ],
             'navSection' => 'shop',
         ]);
     }

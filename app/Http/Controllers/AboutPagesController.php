@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\GalleryItem;
+use App\Models\JobOpening;
 use App\Models\Testimonial;
 use Illuminate\View\View;
 use Spatie\SchemaOrg\Schema;
@@ -53,12 +54,26 @@ final class AboutPagesController extends Controller
     public function careers(): View
     {
         $page = config('waggies_about_pages.careers');
-        $metadata = ['title' => 'Careers at Waggies', 'description' => 'Join the Waggies team in Abuja. We are hiring passionate pet care professionals - view current vacancies and apply today.', 'canonical' => route('about.careers'), 'ogTitle' => 'Careers at Waggies - Join Our Pet Care Team in Abuja', 'ogDescription' => 'Join the Waggies team in Abuja. We are hiring passionate pet care professionals - view current vacancies and apply today.'];
+        $openRoles = JobOpening::query()->open()->orderBy('sort_order')->orderBy('title')->get();
+        $hasOpenRoles = $openRoles->isNotEmpty();
+        $metadata = [
+            'title' => 'Careers at Waggies',
+            'description' => $hasOpenRoles
+                ? 'Explore current opportunities with the Waggies pet care team in Abuja.'
+                : 'Learn about working at Waggies and check back when new pet care opportunities open.',
+            'canonical' => route('about.careers'),
+            'ogTitle' => 'Careers at Waggies',
+            'ogDescription' => $hasOpenRoles
+                ? 'Explore current opportunities with the Waggies pet care team in Abuja.'
+                : 'There are no current openings at Waggies right now.',
+        ];
         $this->setPageHead($metadata, [$this->webPageSchema($metadata)]);
 
         return view('pages.about.careers', $metadata + [
             'navSection' => 'about',
             ...$page,
+            'openRoles' => $openRoles,
+            'hasOpenRoles' => $hasOpenRoles,
         ]);
     }
 

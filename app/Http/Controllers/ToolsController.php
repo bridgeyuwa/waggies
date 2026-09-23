@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Medication;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 final class ToolsController extends Controller
@@ -13,14 +16,14 @@ final class ToolsController extends Controller
 
     public function symptomChecker(): View
     {
-        return view('pages.tools.symptom-checker', $this->meta('Pet Symptom Checker - Waggies', "Check your pet's symptoms and get guidance on next steps. Our free symptom checker helps you understand what might be going on with your dog, cat, or other pet.", 'Pet Symptom Checker - Waggies', 'Check your pet\'s symptoms and get guidance on next steps.') + [
+        return view('pages.tools.symptom-checker', $this->meta('Pet Symptom Triage - Waggies', "Use a safety-focused triage aid for your dog's or cat's signs. It does not diagnose conditions.", 'Pet Symptom Triage - Waggies', 'Safety-focused next-step guidance for pet symptoms.') + [
             'symptomChecker' => config('waggies_tools.symptom_checker'),
         ]);
     }
 
     public function vaccination(): View
     {
-        return view('pages.tools.vaccination-schedule', $this->meta('Vaccination Schedule - Waggies', 'Track recommended vaccinations for your dog or cat. Our vaccination schedule shows core and non-core vaccines by age.', 'Vaccination Schedule - Waggies', 'Track recommended vaccinations for your dog or cat.') + [
+        return view('pages.tools.vaccination-schedule', $this->meta('Vaccination Planning Guide - Waggies', 'Plan the questions that shape a dog or cat vaccination discussion. Product, records, lifestyle, local risk, and veterinary assessment matter.', 'Vaccination Planning Guide - Waggies', 'Educational vaccination planning information for dogs and cats.') + [
             'schedules' => config('waggies_tools.vaccination'),
         ]);
     }
@@ -37,7 +40,9 @@ final class ToolsController extends Controller
 
     public function medication(): View
     {
-        return view('pages.tools.medication-dosage-guide', $this->meta('Medication Dosage Guide - Waggies - Waggies', 'Veterinary-reviewed medication reference guide for common pet medications, dosage guidelines, and safety notes. Coming soon from Waggies.', 'Medication Dosage Guide - Waggies', 'Veterinary-reviewed pet medication reference. Dosage guidelines and safety notes.'));
+        return view('pages.tools.medication-dosage-guide', $this->meta('Medication & OTC Safety Guide - Waggies', 'Safety-first pet medication information. Product-specific dosage is withheld unless the source, formulation, species, jurisdiction, and clinical review are complete.', 'Medication & OTC Safety Guide - Waggies', 'Safety-first medication and OTC guidance for pet owners.') + [
+            'medications' => Medication::query()->public()->with(['formulations', 'jurisdictions'])->get(),
+        ]);
     }
 
     public function petAge(): View
@@ -45,11 +50,9 @@ final class ToolsController extends Controller
         return view('pages.tools.pet-age-calculator', $this->meta('Pet Age Calculator', "Convert your dog or cat's age to human years. Our pet age calculator uses standard conversion tables based on your pet's size.", 'Pet Age Calculator - Waggies', "Convert your pet's age to human years with our free calculator."));
     }
 
-    public function cost(): View
+    public function cost(Request $request): RedirectResponse
     {
-        return view('pages.tools.cost-calculator', $this->meta('Cost Calculator', "Estimate costs for Waggies pet services including boarding, grooming, vet care, and training. Get a quick price range for your pet's needs.", 'Cost Calculator - Waggies', 'Estimate costs for Waggies pet services.') + [
-            'costCalculator' => config('waggies_pricing.cost_calculator'),
-        ]);
+        return redirect()->to(route('services.pricing', $request->query()), 301);
     }
 
     public function nutrition(): View

@@ -24,6 +24,7 @@ class StoreBookingRequest extends FormRequest
             'name' => $this->filled('name') ? trim((string) $this->input('name')) : null,
             'email' => $this->filled('email') ? Str::lower(trim((string) $this->input('email'))) : null,
             'phone' => $this->filled('phone') ? trim((string) $this->input('phone')) : null,
+            'preferred_contact_method' => $this->filled('preferred_contact_method') ? trim((string) $this->input('preferred_contact_method')) : null,
             'service_key' => $this->filled('service_key') ? trim((string) $this->input('service_key')) : null,
             'requested_date' => $this->filled('requested_date') ? trim((string) $this->input('requested_date')) : null,
             'requested_time' => $this->filled('requested_time') ? trim((string) $this->input('requested_time')) : null,
@@ -31,6 +32,9 @@ class StoreBookingRequest extends FormRequest
             'pet_type' => $this->filled('pet_type') ? trim((string) $this->input('pet_type')) : null,
             'location' => $this->filled('location') ? trim((string) $this->input('location')) : null,
             'message' => $this->filled('message') ? trim((string) $this->input('message')) : null,
+            'source' => $this->filled('source') ? trim((string) $this->input('source')) : null,
+            'service_variant' => $this->filled('service_variant') ? trim((string) $this->input('service_variant')) : null,
+            'pricing_tier' => $this->filled('pricing_tier') ? trim((string) $this->input('pricing_tier')) : null,
         ]);
     }
 
@@ -45,6 +49,7 @@ class StoreBookingRequest extends FormRequest
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['required', 'string', 'max:40'],
+            'preferred_contact_method' => ['nullable', 'string', Rule::in(['phone', 'email', 'whatsapp'])],
             'service_key' => ['required', 'string', Rule::in(array_keys(BookingRequest::serviceOptions()))],
             'requested_date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'requested_time' => ['nullable', 'date_format:H:i'],
@@ -52,6 +57,9 @@ class StoreBookingRequest extends FormRequest
             'pet_type' => ['required', 'string', Rule::in(['dog', 'cat', 'bird', 'rabbit', 'reptile', 'other'])],
             'location' => ['nullable', 'string', 'max:255'],
             'message' => ['nullable', 'string', 'max:2000'],
+            'service_variant' => ['nullable', 'string', 'max:80'],
+            'pricing_tier' => ['nullable', 'string', 'max:80'],
+            'source' => ['nullable', 'string', 'max:120'],
             'website' => ['nullable', 'max:0'],
         ];
     }

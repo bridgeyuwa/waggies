@@ -2,7 +2,17 @@
 
 namespace App\Providers;
 
+use App\Models\BusinessHour;
+use App\Models\BusinessProfile;
+use App\Models\ClinicalContent;
+use App\Models\Faq;
+use App\Models\Guide;
+use App\Models\JobOpening;
+use App\Models\KnowledgeArticle;
+use App\Models\Product;
 use App\Models\Testimonial;
+use App\Observers\ClinicalContentObserver;
+use App\Observers\SearchContentObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Events\DiagnosingHealth;
@@ -57,6 +67,20 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(3)->by($request->ip() ?: 'unknown');
         });
 
+        RateLimiter::for('search', static function (Request $request): Limit {
+            return Limit::perMinute(60)->by($request->ip() ?: 'unknown');
+        });
+
+        RateLimiter::for('ai-assistant', static function (Request $request): Limit {
+            return Limit::perMinute(10)->by($request->ip() ?: 'unknown');
+        });
+
+        foreach ([Guide::class, KnowledgeArticle::class, Product::class, Faq::class, JobOpening::class] as $model) {
+            $model::observe(SearchContentObserver::class);
+        }
+
+        ClinicalContent::observe(ClinicalContentObserver::class);
+
         View::composer('components.waggies.proof-band', static function (\Illuminate\View\View $view): void {
             $serviceOptions = Testimonial::serviceOptions();
             $hrefs = [
@@ -101,30 +125,39 @@ class AppServiceProvider extends ServiceProvider
             $view->with('testimonials', $testimonials);
         });
 
+        View::composer('components.waggies.footer', static function (\Illuminate\View\View $view): void {
+            $view->with('businessProfile', BusinessProfile::current())
+                ->with('businessHours', BusinessHour::publicSchedule());
+        });
+
         $businessDescription = 'Pet boarding, grooming, vet care, training, relocation and local transport in Abuja, Nigeria.';
 
         Head::defaults(function (HeadBuilder $head) use ($businessDescription): void {
             $siteUrl = app('router')->has('home')
                 ? rtrim(route('home'), '/')
                 : rtrim(url('/'), '/');
+            $businessProfile = BusinessProfile::current();
             $organization = Schema::organization()
-                ->name('Waggies')
+                ->name($businessProfile->business_name)
                 ->description($businessDescription)
                 ->url($siteUrl)
                 ->toArray();
 
             $address = Schema::postalAddress()
-                ->streetAddress(config('waggies.address.street'))
-                ->addressLocality(config('waggies.address.city'))
-                ->postalCode(config('waggies.address.postal_code'))
-                ->addressRegion(config('waggies.address.state'))
-                ->addressCountry(config('waggies.address.country'));
+                ->streetAddress($businessProfile->address_street)
+                ->addressLocality($businessProfile->address_city)
+                ->postalCode($businessProfile->address_postal_code)
+                ->addressRegion($businessProfile->address_state)
+                ->addressCountry($businessProfile->address_country);
 
             $localBusiness = Schema::localBusiness()
-                ->name('Waggies')
+                ->name($businessProfile->business_name)
                 ->description($businessDescription)
                 ->url($siteUrl)
+                ->telephone($businessProfile->phone_international ?: $businessProfile->phone)
+                ->email($businessProfile->primary_email)
                 ->address($address)
+                ->sameAs(array_values($businessProfile->socialLinks()))
                 ->toArray();
 
             $head->title('Waggies - Pet Care, Abuja', exact: true)

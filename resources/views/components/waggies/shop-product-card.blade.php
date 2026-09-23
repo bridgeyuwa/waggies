@@ -28,9 +28,9 @@
         </a>
 
         <div class="flex justify-end p-5 pt-0">
-            <x-waggies.button type="button" @click="window.dispatchEvent(new CustomEvent('waggies:add-item', { detail: {{ Js::from($cartItem) }} }))" aria-label="Add {{ $product['name'] }} to cart" class="px-3 py-2 text-sm">
+            <x-waggies.button type="button" @click="window.dispatchEvent(new CustomEvent('waggies:add-item', { detail: {{ Js::from($cartItem) }} }))" aria-label="Save {{ $product['name'] }} for enquiry" class="px-3 py-2 text-sm">
                 <x-waggies.icon name="add-to-cart" size="16" />
-                Add to Cart
+                Save for enquiry
             </x-waggies.button>
         </div>
     </x-waggies.card>

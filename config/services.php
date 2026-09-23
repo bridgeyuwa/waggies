@@ -35,4 +35,21 @@ return [
         ],
     ],
 
+    'suitecrm' => [
+        'base_url' => env('SUITECRM_BASE_URL'),
+        'token' => env('SUITECRM_TOKEN'),
+        'timeout' => env('SUITECRM_TIMEOUT', 10),
+    ],
+
+    'waggies_ai' => [
+        'enabled' => env('WAGGIES_AI_ENABLED', true),
+        'provider' => env('WAGGIES_AI_PROVIDER', 'openai'),
+        'model' => env('WAGGIES_AI_MODEL', 'gpt-4o-mini'),
+        'vector_store_id' => env('WAGGIES_AI_VECTOR_STORE_ID'),
+        'create_vector_store' => env('WAGGIES_AI_CREATE_VECTOR_STORE', false),
+        'sync_provider' => env('WAGGIES_AI_SYNC_PROVIDER'),
+        'max_message_chars' => 1200,
+        'max_history_messages' => 8,
+    ],
+
 ];

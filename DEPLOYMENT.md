@@ -1,16 +1,16 @@
 # Waggies production deployment
 
-This document describes the deployable boundary of the current Waggies application. It does not add checkout, payments, inventory, scheduling, customer accounts, a pricing CMS, or a second search engine.
+This document describes the deployable boundary of the current Waggies application. It does not add checkout, payments, inventory, scheduling, customer accounts, a pricing CMS, or a second search engine. Public booking is request intake only; it does not reserve capacity or confirm an appointment.
 
 ## Runtime inventory
 
 - PHP 8.5 with `bcmath`, `ctype`, `curl`, `dom`, `exif`, `fileinfo`, `gd`, `intl`, `mbstring`, `openssl`, `pdo_mysql` or `pdo_pgsql` for the selected production database, `pdo_sqlite` for local verification, `zip`, and `zlib`.
-- Laravel 13.32, Filament 5.8, Livewire 4.4, Spatie Media Library 11.23, Backup 10.3, and Health 1.40 are installed. Versions are locked in `composer.lock`.
+- Laravel 13.33, Filament 5.8, Livewire 4.4, Spatie Media Library 11.23, Backup 10.3, and Health 1.40 are installed. Versions are locked in `composer.lock`.
 - Node.js and npm are required only to build Vite assets. The deployed web process serves the generated `public/build` assets.
 - The web server must point its document root at `public/`. The repository root must not be web-accessible.
 - `storage/` and `bootstrap/cache/` must be writable by the application process. The rest of the repository should remain read-only. `public/storage` is the link created by `php artisan storage:link`.
 
-The current application uses a database-backed editorial and operational model. Services, relocation content, and service pricing remain code/configuration-owned; pricing is authoritative in `config/waggies_pricing.php`. Guides, Knowledge Base, FAQ, Gallery, Testimonials, Products, Contact, Newsletter, and Booking data are database-managed. Gallery and editorial media include both `media` rows and files under the configured Media Library disk.
+The current application uses a database-backed editorial and operational model. Services, relocation content, and service pricing remain code/configuration-owned; pricing is authoritative in `config/waggies_pricing.php`. Guides, Knowledge Base, FAQ, Gallery, Testimonials, Products, Contact, Newsletter, Booking, Job Opening, Business Profile, and Business Hours data are database-managed. Gallery and editorial media include both `media` rows and files under the configured Media Library disk.
 
 ## Environment
 
@@ -25,6 +25,7 @@ Required production values:
 - `MAIL_MAILER`, `MAIL_FROM_ADDRESS`, and the provider-specific variables only when production email delivery is enabled. Development uses `log`; no provider or credentials are selected here.
 - `SESSION_SECURE_COOKIE=true`, `SESSION_HTTP_ONLY=true`, and `SESSION_SAME_SITE=lax` for the HTTPS deployment. Do not change local development to HTTPS-only cookies unless the local site is HTTPS.
 - `WAGGIES_PHONE`, `WAGGIES_PHONE_INTERNATIONAL`, and `WAGGIES_WHATSAPP` when the public business contact details differ from the safe values in `.env.example`.
+- `SUITECRM_BASE_URL`, `SUITECRM_TOKEN`, and `SUITECRM_TIMEOUT` only when the testimonial verification boundary is connected to a real SuiteCRM endpoint. Verification fails closed when these values are absent or the endpoint cannot be reached.
 
 `APP_KEY` is a release-independent production secret. Generate it once before the first deployment, store it in the host secret manager, and reuse it for every release. Do not commit it or regenerate it during deployment: changing it invalidates encrypted session data and other encrypted values.
 
@@ -122,7 +123,7 @@ The application adds `X-Content-Type-Options`, `Referrer-Policy`, and `Permissio
 
 The application does not currently trust arbitrary reverse proxies. If the chosen host terminates TLS upstream, configure Laravel's trusted proxy addresses and forwarded-protocol headers for that known infrastructure before expecting secure URL generation or HSTS. Do not use a wildcard proxy trust setting without an infrastructure decision. The web server must also enforce the canonical host; `APP_URL` controls generated canonical, sitemap, robots, asset, and WhatsApp-adjacent links but is not a substitute for host configuration.
 
-Public Booking, Contact, Newsletter, and Testimonial submissions use CSRF where applicable, validation, honeypots, and named rate limiters. Testimonial and admin uploads are image-constrained and Media Library rejects dangerous filename extensions; public media is stored on the public disk by explicit collection policy. Filament is protected by its authentication middleware. Operational records are not rendered on public pages.
+Public Booking, Contact, Newsletter, and Testimonial submissions use CSRF where applicable, validation, honeypots, and named rate limiters. Testimonial publication requires moderation, consent, a CRM customer match, identity verification, and customer-relationship verification; CRM failures do not publish a testimonial. Testimonial and admin uploads are image-constrained and Media Library rejects dangerous filename extensions; public media is stored on the public disk by explicit collection policy. Filament is protected by its authentication middleware. Operational records are not rendered on public pages.
 
 WhatsApp is a handoff URL from the `WAGGIES_WHATSAPP` value in `config/waggies.php`; it is not an API integration and does not provide delivery confirmation. The current search, canonical URLs, robots, and sitemap use the configured `APP_URL`; staging must use a staging `APP_URL` and must not be indexed. In-process search reads database/config content and has no rebuild or search service deployment step.
 
@@ -131,7 +132,7 @@ WhatsApp is a handoff URL from the `WAGGIES_WHATSAPP` value in `config/waggies.p
 Run after every production deployment:
 
 - `GET /up` returns success without diagnostics.
-- Homepage, Services, Booking, Contact, Shop, one product detail, Guides, Knowledge Base, FAQ, Gallery, and the existing search endpoint load.
+- Homepage, Services, Pricing, Booking, Contact, Shop, one product detail, Guides, Knowledge Base, FAQ, Gallery, Careers, Loyalty, and the existing search endpoint load.
 - `/sitemap.xml` returns canonical URLs for the current `APP_URL`; `/robots.txt` disallows `/admin/` and `/api/`.
 - Booking, Contact, Newsletter, and Testimonial forms reject invalid input and keep the documented request boundary.
 - A guest request to `/admin` redirects to authentication; an authenticated staff check is performed separately with real local/staging credentials.
@@ -143,5 +144,5 @@ Do not treat a local production-like run as proof of a real web server, HTTPS pr
 
 - No production credentials or development Filament password may be generated or committed.
 - No production `db:seed`, schema downgrade, destructive data deletion, or media purge is part of deployment.
-- No automatic checkout, payment, inventory, scheduling, calendar sync, customer accounts, CRM, generic Settings, pricing CMS, Services CMS, Relocation CMS, new search engine, or monitoring platform is introduced by deployment tooling.
+- No automatic checkout, payment, inventory, scheduling, calendar sync, customer accounts, CRM synchronisation, generic Settings, pricing CMS, Services CMS, Relocation CMS, new search engine, or monitoring platform is introduced by deployment tooling.
 - No backup is considered successful merely because a command exists; inspect destination, archive verification, retention, and restore evidence.

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use InvalidArgumentException;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\Conversions\Manipulations;
@@ -118,6 +119,14 @@ final class KnowledgeArticle extends Model implements HasMedia, HasRichContent
     public function slugHistories(): HasMany
     {
         return $this->hasMany(KnowledgeArticleSlugHistory::class);
+    }
+
+    /**
+     * @return MorphOne<ClinicalContent, $this>
+     */
+    public function clinicalContent(): MorphOne
+    {
+        return $this->morphOne(ClinicalContent::class, 'contentable');
     }
 
     public function setUpRichContent(): void
@@ -231,7 +240,7 @@ final class KnowledgeArticle extends Model implements HasMedia, HasRichContent
 
     public function isIndexable(): bool
     {
-        return $this->is_indexable && $this->isPublished();
+        return $this->is_indexable && $this->isPublished() && ($this->clinicalContent()->first()?->isPubliclyEligible() ?? true);
     }
 
     public function isPublished(): bool

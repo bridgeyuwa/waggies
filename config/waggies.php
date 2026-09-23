@@ -60,8 +60,7 @@ return [
                 ['label' => 'Breed Info Finder', 'route' => 'tools.breed-finder', 'description' => 'Explore dog & cat breeds', 'icon' => 'search'],
             ]],
             ['label' => 'Planning', 'items' => [
-                ['label' => 'Cost Calculator', 'route' => 'tools.cost', 'description' => 'Estimate service costs', 'icon' => 'calculator'],
-                ['label' => 'Medication Dosage Guide', 'route' => 'tools.medication', 'description' => 'Veterinary-reviewed reference', 'icon' => 'medication'],
+                ['label' => 'Medication & OTC Safety Guide', 'route' => 'tools.medication', 'description' => 'Safety-first medication information', 'icon' => 'medication'],
                 ['label' => 'New Pet Checklist', 'route' => 'tools.new-pet-checklist', 'description' => 'Everything for a new pet', 'icon' => 'checklist'],
             ]],
         ]],
@@ -88,8 +87,7 @@ return [
             ['label' => 'Group Sessions', 'supported' => ['training']],
             ['label' => 'Pickup & Dropoff', 'supported' => ['transport', 'relocation']],
             ['label' => 'Daily Updates', 'supported' => ['boarding', 'grooming']],
-            ['label' => 'Online Booking', 'supported' => ['boarding', 'grooming', 'vet-care', 'training', 'relocation', 'transport']],
-            ['label' => 'Loyalty Points', 'supported' => ['boarding', 'grooming', 'vet-care', 'training', 'relocation', 'transport']],
+            ['label' => 'Booking Request', 'supported' => ['boarding', 'grooming', 'vet-care', 'training', 'relocation', 'transport']],
         ],
     ],
 ];

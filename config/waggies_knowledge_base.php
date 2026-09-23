@@ -10,9 +10,9 @@ return [
             'title' => 'Understanding Common Dog Illnesses in Nigeria',
             'excerpt' => 'From tick-borne diseases to heat exhaustion, Nigerian pet owners face unique health challenges. Learn to recognise early warning signs and when to seek veterinary care.',
             'category' => 'Health',
-            'author' => 'Dr. Amina Okonkwo',
+            'author' => 'Waggies Editorial Team',
             'date' => '2025-12-15',
-            'image' => 'https://images.unsplash.com/photo-1560807707-8cc77767d783?w=800&h=500&fit=crop&q=80',
+            'image' => '/media/editorial/photo-1560807707-8cc77767d783.jpg',
             'readTime' => '4 min read',
             'content' => <<<'HTML'
 <h2>Why Awareness Matters</h2>
@@ -35,7 +35,7 @@ HTML,
             'category' => 'Nutrition',
             'author' => 'Chioma Adeyemi',
             'date' => '2025-11-28',
-            'image' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&h=500&fit=crop&q=80',
+            'image' => '/media/editorial/photo-1514888286974-6c03e2ca1dba.jpg',
             'readTime' => '5 min read',
             'content' => <<<'HTML'
 <h2>Building a Balanced Diet</h2>
@@ -56,9 +56,9 @@ HTML,
             'title' => 'Helping Your Dog Overcome Separation Anxiety',
             'excerpt' => 'Does your dog become destructive or overly vocal when left alone? Learn proven techniques to ease separation anxiety and build your pet\'s confidence.',
             'category' => 'Behaviour',
-            'author' => 'Dr. Amina Okonkwo',
+            'author' => 'Waggies Editorial Team',
             'date' => '2025-11-10',
-            'image' => 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=800&h=500&fit=crop&q=80',
+            'image' => '/media/editorial/photo-1518717758536-85ae29035b6d.jpg',
             'readTime' => '5 min read',
             'content' => <<<'HTML'
 <h2>Recognising the Signs</h2>
@@ -81,7 +81,7 @@ HTML,
             'category' => 'Care Tips',
             'author' => 'Chioma Adeyemi',
             'date' => '2025-10-22',
-            'image' => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&h=500&fit=crop&q=80',
+            'image' => '/media/editorial/photo-1548199973-03cce0bbc87b.jpg',
             'readTime' => '4 min read',
             'content' => <<<'HTML'
 <h2>Why Home Grooming Matters</h2>
@@ -102,9 +102,9 @@ HTML,
             'title' => 'Cat Care Essentials for First-Time Owners in Nigeria',
             'excerpt' => "Thinking about getting a cat? Here's everything you need to know about keeping your feline companion happy and healthy in a Nigerian home.",
             'category' => 'Care Tips',
-            'author' => 'Dr. Amina Okonkwo',
+            'author' => 'Waggies Editorial Team',
             'date' => '2025-10-05',
-            'image' => 'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=800&h=500&fit=crop&q=80',
+            'image' => '/media/editorial/photo-1526336024174-e58f5cdd8e13.jpg',
             'readTime' => '5 min read',
             'content' => <<<'HTML'
 <h2>Preparing Your Home</h2>
@@ -114,7 +114,7 @@ HTML,
 <h2>Litter Training</h2>
 <p>Most cats instinctively use a litter tray, but you should still show them where it is immediately after arrival. Place the tray in a quiet, accessible location and scoop waste daily. A general rule is one litter tray per cat, plus one extra. Avoid strongly scented litters—cats prefer unscented, fine-clumping varieties. If your cat stops using the tray, it's often a sign of stress or a medical issue, so consult your vet.</p>
 <h2>Health Care</h2>
-<p>Schedule a vet check within the first week of bringing your cat home. Core vaccinations protect against feline panleukopenia, calicivirus, and rhinotracheitis. Regular deworming is essential, especially for cats that may hunt insects or lizards, which are common in Nigerian homes. Spaying or neutering is strongly recommended—it prevents unwanted litters, reduces the risk of certain cancers, and can decrease behavioural issues like spraying and roaming.</p>
+<p>Arrange an initial veterinary assessment and take any existing records. Vaccination, parasite prevention, and reproductive-care decisions depend on species, age, health, lifestyle, local risk, and available products; ask a veterinarian for an individual plan rather than following a fixed online schedule.</p>
 <h2>Indoor vs Outdoor</h2>
 <p>In Abuja's busy urban environment, keeping your cat indoors is generally safer. Indoor cats live significantly longer on average—up to three times longer—because they're protected from traffic, fights with other animals, and infectious diseases. Provide enrichment through vertical spaces (cat trees, shelves), interactive toys, and window perches so your cat can observe the outside world safely.</p>
 HTML,
@@ -125,17 +125,17 @@ HTML,
             'title' => 'The Complete Pet Vaccination Guide for Nigerian Pets',
             'excerpt' => 'Vaccinations protect your pet from serious and potentially fatal diseases. Here is a clear, practical vaccination schedule for dogs and cats in Nigeria.',
             'category' => 'Health',
-            'author' => 'Dr. Amina Okonkwo',
+            'author' => 'Waggies Editorial Team',
             'date' => '2025-09-18',
-            'image' => 'https://images.unsplash.com/photo-1560807707-8cc77767d783?w=800&h=500&fit=crop&q=80',
+            'image' => '/media/editorial/photo-1560807707-8cc77767d783.jpg',
             'readTime' => '4 min read',
             'content' => <<<'HTML'
 <h2>Why Vaccination Matters</h2>
 <p>Vaccination is one of the most important things you can do to protect your pet's health. In Nigeria, where access to emergency veterinary care can be limited and certain diseases are more prevalent, prevention through vaccination is even more critical. Vaccines work by stimulating your pet's immune system to recognise and fight specific disease-causing organisms without actually causing the disease.</p>
-<h2>Puppy Vaccination Schedule</h2>
-<p>Puppies should begin their vaccination course at six to eight weeks of age. The core vaccine (often called the "5-in-1" or DHPP) protects against distemper, hepatitis, parainfluenza, parvovirus, and leptospirosis. The typical schedule is: first dose at 6–8 weeks, second dose at 10–12 weeks, third dose at 14–16 weeks, and a booster at 12 months. Rabies vaccination is given at 12–16 weeks of age and is legally required in many Nigerian states.</p>
-<h2>Kitten Vaccination Schedule</h2>
-<p>Kittens receive their first vaccination at eight to nine weeks (FVRCP: feline viral rhinotracheitis, calicivirus, and panleukopenia), a second dose at 12 weeks, and a third at 16 weeks. Rabies vaccination follows at 16 weeks. After the initial series, adult cats need annual boosters to maintain immunity.</p>
+<h2>Puppy Vaccination Planning</h2>
+<p>Puppies need a veterinarian-led initial vaccination plan. The product, timing, number of doses, rabies context, and any travel or public-health requirement must be confirmed against current product information and applicable Nigerian authority guidance; this article does not establish a universal calendar or legal requirement.</p>
+<h2>Kitten Vaccination Planning</h2>
+<p>Kittens need a veterinarian-led initial vaccination plan based on age, health, exposure, local risk, and the selected product. Adult booster timing is not universal; keep the record and ask a veterinarian to review it.</p>
 <h2>Non-Core Vaccines</h2>
 <p>Depending on your pet's lifestyle and risk factors, your vet may recommend additional vaccines. For dogs, these can include Bordetella (kennel cough)—especially important if your dog frequents boarding facilities or dog parks—and canine coronavirus. Discuss your pet's specific risk profile with your veterinarian to create a tailored vaccination plan.</p>
 <h2>Keeping Records</h2>
@@ -148,7 +148,7 @@ HTML,
             'title' => 'The Essential New Pet Checklist',
             'excerpt' => 'Bringing a new pet home? This step-by-step checklist covers everything you need to prepare, from supplies and vet visits to creating a safe and welcoming environment.',
             'category' => 'Getting Started',
-            'image' => 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800&h=500&fit=crop&q=80',
+            'image' => '/media/editorial/photo-1601758228041-f3b2795255f1.jpg',
             'readTime' => '6 min read',
             'content' => <<<'HTML'
 <h2>Before Your Pet Arrives</h2>
@@ -171,7 +171,7 @@ HTML,
             'title' => 'Basic Dog Training: A Practical Guide for Beginners',
             'excerpt' => 'From sit and stay to loose-lead walking, master the fundamental training techniques that every dog owner should know using positive reinforcement methods.',
             'category' => 'Training',
-            'image' => 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&h=500&fit=crop&q=80',
+            'image' => '/media/editorial/photo-1583511655857-d19b40a7a54e.jpg',
             'readTime' => '7 min read',
             'content' => <<<'HTML'
 <h2>The Principles of Positive Reinforcement</h2>
@@ -194,7 +194,7 @@ HTML,
             'title' => "Seasonal Pet Care Guide for Nigeria's Climate",
             'excerpt' => "Nigeria's distinct wet and dry seasons each bring unique challenges for pet owners. Learn how to keep your pet comfortable and healthy year-round.",
             'category' => 'Pet Care',
-            'image' => 'https://images.unsplash.com/photo-1535294435445-d7249524ef2e?w=800&h=500&fit=crop&q=80',
+            'image' => '/media/editorial/photo-1535294435445-d7249524ef2e.jpg',
             'readTime' => '5 min read',
             'content' => <<<'HTML'
 <h2>Understanding Nigeria's Seasons</h2>
@@ -213,7 +213,7 @@ HTML,
             'title' => 'When Should You Take Your Pet to the Vet?',
             'excerpt' => 'Some situations clearly require immediate veterinary attention, while others can wait. This guide helps you assess symptoms and make the right call for your pet\'s health.',
             'category' => 'Health',
-            'image' => 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=800&h=500&fit=crop&q=80',
+            'image' => '/media/editorial/photo-1573865526739-10659fec78a5.jpg',
             'content' => <<<'HTML'
 <h2>Emergency Situations</h2>
 <p>Certain symptoms always warrant an immediate trip to the vet. If your pet experiences any of the following, don't wait—seek emergency care right away: difficulty breathing, prolonged seizures, collapse or unconsciousness, severe bleeding that doesn't stop with pressure, suspected poisoning (chocolate, rat bait, human medications), obvious broken bones, or a swollen, painful abdomen. These are true emergencies where minutes can matter.</p>

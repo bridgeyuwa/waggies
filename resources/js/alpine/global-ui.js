@@ -2,52 +2,40 @@ const waggiesChat = () => ({
     showTop: false,
     chatOpen: false,
     input: '',
+    sending: false,
     messages: [{
-        role: 'bot',
-        text: 'Hi! I’m the Waggies AI assistant. I can help with information about our services, booking, and pet care. (This is a preview — for instant replies, chat with us on WhatsApp.)',
+        role: 'assistant',
+        text: 'Hi! I’m the Waggies AI assistant. I can help with services, booking, and general pet-care information.',
     }],
-    send() {
+    async send() {
         const value = this.input.trim();
-        if (!value) return;
+        if (!value || this.sending) return;
 
         this.messages.push({ role: 'user', text: value });
         this.input = '';
+        this.sending = true;
 
-        const lower = value.toLowerCase();
-        let text = 'I’d love to help with that! For detailed questions, please contact us directly at +234 908 081 1902 or visit our contact page.';
-        let link = null;
-
-        if (/^(hi|hello|hey|good morning|good afternoon|good evening|howdy)\b/.test(lower)) {
-            text = 'Hello! How can I help you today?';
-        } else if (/\b(boarding|board|overnight|stay|kennel)\b/.test(lower)) {
-            text = 'We offer comfortable boarding for dogs, cats, and exotic pets in Abuja. Our suites are climate-controlled with daily playtime and feeding.';
-            link = { text: 'View Boarding Services', href: document.body.dataset.boardingUrl };
-        } else if (/\b(groom|grooming|bath|haircut|nail|trim|wash)\b/.test(lower)) {
-            text = 'Our professional groomers provide breed-specific treatments including baths, haircuts, nail trims, and more. We use pet-safe products.';
-            link = { text: 'View Grooming Services', href: document.body.dataset.groomingUrl };
-        } else if (/\b(pric|cost|how much|rate|fee|estimate|quote)\b/.test(lower)) {
-            text = 'We have a pricing tool where you can get an estimate based on your needs.';
-            link = { text: 'View Pricing', href: document.body.dataset.pricingUrl };
-        } else if (/\b(contact|phone|whatsapp|call|reach|number|telephone)\b/.test(lower)) {
-            text = 'You can reach us at +234 908 081 1902 or chat with us on WhatsApp.';
-            link = { text: 'Contact Us', href: document.body.dataset.contactUrl };
-        } else if (/\b(hour|open|close|time|schedule|when|available)\b/.test(lower)) {
-            text = 'We’re open Mon-Fri 9am-5pm, Sat-Sun 10am-2pm. Boarding guests receive 24/7 supervision regardless of office hours.';
-        } else if (/\b(vet|veterinary|doctor|health|medical|check.?up|vaccin)\b/.test(lower)) {
-            text = 'We have on-site veterinary support for routine check-ups, vaccinations, and minor treatments.';
-            link = { text: 'View Vet Care', href: document.body.dataset.vetCareUrl };
-        } else if (/\b(train|obedience|behavio?r|puppy|class)\b/.test(lower)) {
-            text = 'We offer positive-reinforcement dog training for puppies and adult dogs.';
-            link = { text: 'View Training', href: document.body.dataset.trainingUrl };
-        } else if (/\b(relocat|move|travel|flight|import|export|international|nigeria|abroad)\b/.test(lower)) {
-            text = 'We help with international pet relocation including import, export, and document preparation.';
-            link = { text: 'View Relocation', href: document.body.dataset.relocationHub };
-        } else if (/\b(transport|pickup|drop.?off|delivery|door.?to.?door|shuttle)\b/.test(lower)) {
-            text = 'We offer door-to-door pet transport within Abuja as part of our relocation services.';
-            link = { text: 'View Local Transport', href: document.body.dataset.relocationTransport };
+        try {
+            const response = await fetch(document.body.dataset.assistantUrl, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                },
+                body: JSON.stringify({
+                    message: value,
+                    history: this.messages.slice(-8).map(message => ({ role: message.role, content: message.text })),
+                }),
+            });
+            const payload = await response.json();
+            if (!response.ok) throw new Error(payload.message || 'Assistant unavailable');
+            this.messages.push({ role: 'assistant', text: payload.message, sources: payload.sources || [] });
+        } catch (error) {
+            this.messages.push({ role: 'assistant', text: 'I’m temporarily unavailable. Please contact Waggies directly or continue on WhatsApp.' });
+        } finally {
+            this.sending = false;
         }
-
-        this.messages.push({ role: 'bot', text, link });
     },
 });
 

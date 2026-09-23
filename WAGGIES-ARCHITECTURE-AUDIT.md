@@ -7,6 +7,12 @@ Starting revision: `3e2e3320ec1b19ea08531f833e437988e03604f5`
 
 This file retains historical audit context and the current Batch 30 reconciliation below. The current product is a hybrid application: config/code owns Services, Relocation, and service pricing; database records own Guides, Knowledge Base, FAQs, Gallery, Products, BookingRequests, ContactEnquiries, Testimonials, and NewsletterSubscribers; Blade/Alpine owns the public surface; and Filament/Livewire owns justified admin resources.
 
+## Batch 1 implementation reconciliation — 2026-09-23
+
+The current implementation extends that boundary with persisted booking-request lifecycle/context fields, canonical `BusinessProfile` and `BusinessHour` records, `JobOpening` records for careers, product availability/search/sort and multiple media, and testimonial CRM/identity/customer-relationship verification metadata. `/book` remains request intake only: it does not schedule, allocate capacity, take payment, or confirm an appointment. `/services/pricing` is the canonical pricing surface; the legacy cost-calculator URL redirects there and is not navigated from the public Tools catalogue.
+
+Contact enquiries and booking requests remain separate persisted records. Loyalty remains manual handoff content with no points, account, tier, referral, or redemption runtime. SuiteCRM is an optional verification boundary only; absent configuration or failed requests fail closed. The public shop remains a catalogue and saved-for-enquiry flow, with no order, checkout, payment, inventory, or fulfilment domain.
+
 ## 1. Git state
 
 - Branch: `main`.
@@ -501,3 +507,23 @@ Batch-30-specific changes are in `app/Http/Controllers/FaqController.php`, `app/
 ## 16. Scope discipline
 
 No scheduling system, payment system, checkout, inventory, CRM, customer accounts, generic CMS, Page Builder, generic Settings, pricing CMS, Services CMS, Relocation CMS, or Media Manager was introduced.
+
+## 17. Batch 2 search and assistant architecture
+
+The public search contract remains `GET /api/search`, but its source of truth is now a `search_documents` projection. Static public routes and tools are owned by `SearchCatalog`; published Guides, Knowledge Articles, Products, FAQs, and open Job Openings are synchronized by `SearchContentObserver` and can be rebuilt with `php artisan waggies:search-rebuild`. The endpoint uses Laravel Scout's database engine, filters unpublished rows at query time, caps results at eight, returns opaque result keys, and retains `X-Robots-Tag: noindex, nofollow`.
+
+The local SQLite implementation deliberately uses Scout's database engine because it requires no external service and provides a clean migration path. It is substring matching rather than relevance-ranked full-text search. PostgreSQL full-text/trigram search is the next low-operations option for production; Meilisearch or Typesense are stronger candidates if typo tolerance, prefix ranking, facets, and larger catalogues become important. Algolia adds managed relevance and analytics at a higher vendor/cost boundary. Turbopuffer is a possible vector-search complement, not a replacement for the public keyword index. The open production decision is whether expected catalogue/content volume justifies an external engine after measuring real query logs.
+
+The assistant uses the Laravel AI SDK behind `POST /api/assistant` and `POST /api/assistant/stream`. It has no write tools, no customer-record access, bounded message/history input, named rate limits, explicit medical/emergency guardrails, and a safe 503 response until a provider is configured. Public content is written to a local knowledge manifest with `php artisan waggies:knowledge-sync`; an optional approved-only provider vector store can be enabled with `WAGGIES_AI_VECTOR_STORE_ID` or created deliberately through configuration. Provider keys remain environment-only. The assistant must not be treated as a booking, diagnostic, or authoritative availability system.
+
+## Batch 3 clinical governance
+
+Clinical publication is a separate, fail-closed domain. `clinical_sources` stores bibliographic provenance, source type, jurisdiction, version, evidence level, status, hashes, and conflict flags. `clinical_contents` separates clinical type, clinical review lifecycle, public publication state, risk level, jurisdiction, version, review due date, source conflicts, and withdrawal metadata. Sources, review decisions, current-version approvals, and snapshots are retained through the pivot, `clinical_reviews`, and `clinical_content_versions` tables.
+
+The publication gate requires an active non-conflicted source, an approval review for the current content version, approved clinical state, published state, no withdrawal, and a current review date. Clinical content cannot be approved or published by simply changing a CMS status. `User::is_clinical_reviewer` is false by default; no reviewer identity or veterinary credential is seeded. Withdrawal hides content from public rendering and search while retaining review history.
+
+Medication data is structured by medication, formulation, jurisdiction, active ingredients, strength/concentration, indication, route, restrictions, and safety fields. Dose display is disabled unless a formulation is linked to eligible clinical content and has explicit source-backed dose data. NAFDAC registration is product information, not clinical suitability or Waggies endorsement. The public guide therefore defaults to human-medication warnings and veterinary escalation rather than a generic OTC dose table.
+
+The symptom tool is triage-only and prioritizes configured red flags and species context; it does not diagnose or assign urgency from raw symptom count. Vaccination and parasite tools distinguish risk-based planning from legal requirements and avoid fixed unsupported schedules. The nutrition calculator labels RER/MER output as an estimate, not a prescription. Existing Guides and Knowledge Base records remain editorial content unless explicitly linked to governed clinical metadata; once linked as clinical or mixed, their public/search eligibility follows the clinical gate.
+
+Search synchronization checks governed content through the same public eligibility rule. The assistant has a deterministic high-risk safety boundary for poisoning, dangerous medication ingestion, dose requests, diagnosis requests, seizures, breathing difficulty, collapse, bleeding, urinary obstruction, and major trauma. Remaining clinical sources, reviewers, Nigerian legal/product facts, local epidemiology, and product-specific dosage records must be supplied and approved by the business and a real qualified reviewer before publication.

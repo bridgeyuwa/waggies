@@ -36,6 +36,11 @@ class ProductsTable
                 TextColumn::make('status')
                     ->badge()
                     ->sortable(),
+                TextColumn::make('availability')
+                    ->label('Availability')
+                    ->formatStateUsing(fn (?string $state): string => Product::availabilityOptions()[$state] ?? (string) $state)
+                    ->badge()
+                    ->sortable(),
                 TextColumn::make('sort_order')
                     ->label('Order')
                     ->sortable(),
@@ -45,6 +50,8 @@ class ProductsTable
                     ->options(Product::statusOptions()),
                 SelectFilter::make('category')
                     ->options(fn (): array => Product::categoryOptions()),
+                SelectFilter::make('availability')
+                    ->options(Product::availabilityOptions()),
             ])
             ->defaultSort('sort_order')
             ->reorderable('sort_order')

@@ -23,15 +23,17 @@ Laravel is accessible, powerful, and provides tools required for large, robust a
 
 ## Current Pricing and Request Contract
 
-Production deployment, environment, backup, restore, rollback, and smoke-test instructions live in [`DEPLOYMENT.md`](DEPLOYMENT.md).
+Production deployment, environment, backup, restore, rollback, and smoke-test instructions live in [`DEPLOYMENT.md`](DEPLOYMENT.md). Static editorial image provenance and replacement guidance live in [`MEDIA-PROVENANCE.md`](MEDIA-PROVENANCE.md).
 
 For the migrated application, pricing is owned by [`config/waggies_pricing.php`](config/waggies_pricing.php). Its canonical shape is a top-level `currency`, `services` keyed by service identifier, and `transport` data containing product-to-tier mappings, rate-card rules, and customer messages. `ServicesController` passes this configuration to the Pricing page, and `ContactController` passes the same configuration to the Contact request schema.
 
 Transport estimates remain intentionally client-side presentation estimates. Both consumers call `window.waggiesTransportEstimate` from `resources/js/app.js` with `productId`, `pickup`, `dropoff`, `tripType`, `distanceKm`, `petCount`, `petSpecies`, `additionalPetSafe`, `specialRequirements`, `waitingMinutes`, `stopCount`, `stopsWithinCorridor`, `transportUrgency`, `afterHours`, and `airportDetails`. The result is a state of `MISSING_INPUTS`, `ESTIMATE`, `QUOTE_ONLY`, or `UNAVAILABLE_ROUTE`, plus `currency`, `productId`, `amount` when calculated, `missingInputs`, `reason`, and `customerMessage`.
 
-Contact keeps the current request gateway and query compatibility: `service`, `booking`, `quote`, `veterinary`, `transport`, `relocation`, `product-inquiry`, `cart-order`, `contact`, `general`, and `tool-assistance`; legacy `book`, `save`, and `consult` intents; service aliases such as `boarding-dogs`, `boarding-cats`, `boarding-exotic`, `vet`, and `transport`; `relocation` with `tier=local`; and transport context through `transportProduct` and the JSON `transportRoute` query parameter. Existing client-side draft/cart storage, review state, and WhatsApp serialization remain unchanged.
+Contact keeps the current request gateway and query compatibility: `service`, `booking`, `quote`, `veterinary`, `transport`, `relocation`, `product-inquiry`, `cart-order`, `contact`, `general`, `partnership`, `careers`, `loyalty`, and `tool-assistance`; legacy `book`, `save`, and `consult` intents; service aliases such as `boarding-dogs`, `boarding-cats`, `boarding-exotic`, `vet`, and `transport`; `relocation` with `tier=local`; and transport context through `transportProduct` and the JSON `transportRoute` query parameter. Existing client-side draft/saved-list storage, review state, and WhatsApp serialization remain unchanged.
 
-The eventual pricing domain, authoritative server-side quoting, availability, booking, payment, inventory, and database-backed pricing are deferred to the later domain phase.
+`/book` is a persisted booking-request intake, not a scheduling or payment system. Requests carry service context, source, preferred contact method, and an explicit operational status lifecycle; staff review and confirm arrangements outside the public form. The legacy `/tools/cost-calculator` URL permanently redirects to `/services/pricing` and is not part of primary navigation. Pricing remains config-backed and authoritative in `config/waggies_pricing.php`.
+
+Batch 1 also establishes canonical database-backed business profile and hours records, a real `JobOpening` catalogue for careers, a fail-closed testimonial verification boundary for CRM/identity/customer relationship checks, and a searchable/sortable product catalogue. The public shop remains catalogue and enquiry only: there is no order, checkout, payment, inventory, or fulfilment domain. Loyalty remains explanatory content with a manual “ask our team” handoff; it has no account, points ledger, tiers, or redemption engine.
 
 ## Waggies UI Primitive Vocabulary
 
@@ -72,6 +74,7 @@ The HTTP layer follows the Cruddy by Design resource vocabulary without changing
 | `NewsletterController` | Newsletter subscription capture (`store`) | `POST /api/newsletter` |
 | `SearchController` | Search projection (`__invoke`) | `GET /api/search` |
 | `ContactController` | Contact/request gateway (`__invoke`) | `/contact` |
+| `BookingRequestsController` | Booking request intake (`create`, `store`) | `GET|POST /book` |
 
 `RelocationController`, `PricingController`, and `FaqController` were split from `ServicesController` because they represent independently navigated resources. Relocation is a coherent resource family, so `RelocationController` owns the canonical `/services/relocation` hub and its import, export, transport, and checklist pages.
 

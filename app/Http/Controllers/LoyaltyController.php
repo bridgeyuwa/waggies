@@ -13,10 +13,10 @@ final class LoyaltyController extends Controller
 
         $metadata = [
             'title' => 'Loyalty Programme - Waggies',
-            'description' => 'Earn points on every Waggies visit and redeem them for free services, discounts, and exclusive member perks.',
+            'description' => 'Learn how Waggies manages customer loyalty benefits through a manual team-led programme.',
             'canonical' => route('loyalty'),
             'ogTitle' => 'Loyalty Programme - Waggies Pet Care',
-            'ogDescription' => 'Earn points on every Waggies visit and redeem them for free services, discounts, and exclusive member perks.',
+            'ogDescription' => 'Learn how Waggies manages customer loyalty benefits through a manual team-led programme.',
         ];
         $this->setPageHead($metadata, [Schema::webPage()->name('Loyalty Programme - Waggies Pet Care')->description($metadata['description'])->url($metadata['canonical'])->toArray()]);
 

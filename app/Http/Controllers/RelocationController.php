@@ -16,11 +16,11 @@ final class RelocationController extends Controller
 
         return view('pages.services.relocation', $metadata + [
             'navSection' => 'services',
-            'hero' => ['imageSrc' => 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&auto=format&fit=crop&q=80', 'imageAlt' => 'International pet relocation service by Waggies'],
+            'hero' => ['imageSrc' => '/media/editorial/photo-1436491865332-7a61a109cc05.jpg', 'imageAlt' => 'International pet relocation service by Waggies'],
             'cards' => [
-                ['title' => 'Pet Import to Nigeria', 'description' => 'Full-service pet import into Nigeria including Ministry import permits, rabies titer verification, veterinary health clearance, and Abuja airport pickup.', 'route' => 'relocation.import', 'imageSrc' => 'https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&h=400&fit=crop&q=80', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
-                ['title' => 'Pet Export from Nigeria', 'description' => 'Seamless international pet export matching UK, EU, US, and global destination requirements — export permits, rabies titers, IATA crates, and flight bookings.', 'route' => 'relocation.export', 'imageSrc' => 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&h=400&fit=crop&q=80', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
-                ['title' => 'Local Pet Transport', 'description' => 'Air-conditioned, door-to-door pet taxi service across Abuja with trained animal handlers, IATA-approved crates, and live GPS tracking.', 'route' => 'relocation.transport', 'imageSrc' => 'https://images.unsplash.com/photo-1606567595334-d39972c85dbe?w=600&h=400&fit=crop&q=80', 'imageAlt' => 'Pet transport service', 'icon' => 'transport'],
+                ['title' => 'Pet Import to Nigeria', 'description' => 'Full-service pet import into Nigeria including Ministry import permits, rabies titer verification, veterinary health clearance, and Abuja airport pickup.', 'route' => 'relocation.import', 'imageSrc' => '/media/editorial/photo-1544568100-847a948585b9.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
+                ['title' => 'Pet Export from Nigeria', 'description' => 'Seamless international pet export matching UK, EU, US, and global destination requirements — export permits, rabies titers, IATA crates, and flight bookings.', 'route' => 'relocation.export', 'imageSrc' => '/media/editorial/photo-1436491865332-7a61a109cc05.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
+                ['title' => 'Local Pet Transport', 'description' => 'Air-conditioned, door-to-door pet taxi service across Abuja with trained animal handlers, IATA-approved crates, and live GPS tracking.', 'route' => 'relocation.transport', 'imageSrc' => '/media/editorial/photo-1606567595334-d39972c85dbe.jpg', 'imageAlt' => 'Pet transport service', 'icon' => 'transport'],
             ],
             'faqs' => $this->serviceFaqs(),
         ]);

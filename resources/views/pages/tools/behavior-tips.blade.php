@@ -19,7 +19,7 @@
                 </label>
             </div>
 
-            <p class="mt-6 text-sm text-primary-dark/60" role="status">Showing <span x-text="filteredTips().length"></span> <span x-text="species"></span> tips. These are educational seed records and need clinical review.</p>
+            <p class="mt-6 text-sm text-primary-dark/60" role="status">Showing <span x-text="filteredTips().length"></span> <span x-text="species"></span> tips. This is general educational guidance; sudden or concerning changes should be discussed with a veterinarian.</p>
             <div x-show="filteredTips().length === 0" x-cloak class="mt-6 rounded-2xl border border-dashed border-primary/25 bg-white p-8 text-center">
                 <p class="font-serif text-xl font-semibold text-primary-dark">No tips match that search.</p>
                 <p class="mt-2 text-sm text-primary-dark/60">Try a broader term or clear the search.</p>

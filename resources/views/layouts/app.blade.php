@@ -10,7 +10,7 @@
         <script>window.livewireScriptConfig = window.livewireScriptConfig ?? {};</script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-surface text-primary-dark antialiased" data-contact-url="{{ route('contact') }}" data-contact-enquiry-url="{{ route('contact-enquiries.store') }}" data-search-url="{{ route('search') }}" data-boarding-url="{{ route('services.boarding') }}" data-grooming-url="{{ route('services.grooming') }}" data-pricing-url="{{ route('services.pricing') }}" data-vet-care-url="{{ route('services.vet-care') }}" data-training-url="{{ route('services.training') }}" data-relocation-hub="{{ route('services.relocation') }}" data-relocation-transport="{{ route('relocation.transport') }}">
+    <body class="min-h-screen bg-surface text-primary-dark antialiased" data-contact-url="{{ route('contact') }}" data-contact-enquiry-url="{{ route('contact-enquiries.store') }}" data-search-url="{{ route('search') }}" data-assistant-url="{{ route('assistant.store') }}" data-boarding-url="{{ route('services.boarding') }}" data-grooming-url="{{ route('services.grooming') }}" data-pricing-url="{{ route('services.pricing') }}" data-vet-care-url="{{ route('services.vet-care') }}" data-training-url="{{ route('services.training') }}" data-relocation-hub="{{ route('services.relocation') }}" data-relocation-transport="{{ route('relocation.transport') }}">
         <div data-navigation-progress hidden class="navigation-progress" role="status" aria-label="Loading page"></div>
         <x-waggies.skip-link />
         <x-waggies.navbar :nav-section="$navSection ?? ''" />
@@ -36,11 +36,11 @@
         <div id="global-cart-dialog" x-data="waggiesCart" x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-layer-cart bg-primary-dark/40" role="dialog" aria-modal="true" aria-labelledby="cart-title" :aria-hidden="!open" @click.self="close()" @keydown="handleDialogKeydown($event)">
             <aside class="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-2xl">
                 <div class="border-b border-primary/5 px-6 pb-4 pt-6">
-                    <div class="flex items-center justify-between"><h2 id="cart-title" class="font-serif text-xl font-bold text-primary-dark">Your Cart</h2><button type="button" x-ref="closeButton" @click="close()" aria-label="Close cart" class="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-surface-purple"><x-waggies.icon name="close" size="20"/></button></div>
-                    <p class="mt-1 text-sm text-primary-dark/50" x-text="items.length === 0 ? 'Your cart is empty' : `${items.length} item${items.length === 1 ? '' : 's'} in your cart`"></p>
+                    <div class="flex items-center justify-between"><h2 id="cart-title" class="font-serif text-xl font-bold text-primary-dark">Saved for enquiry</h2><button type="button" x-ref="closeButton" @click="close()" aria-label="Close saved list" class="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-surface-purple"><x-waggies.icon name="close" size="20"/></button></div>
+                    <p class="mt-1 text-sm text-primary-dark/50" x-text="items.length === 0 ? 'Your saved list is empty' : `${items.length} item${items.length === 1 ? '' : 's'} saved for enquiry`"></p>
                 </div>
                 <div x-show="items.length === 0" class="flex flex-1 flex-col items-center justify-center gap-4 px-6">
-                    <x-waggies.icon name="shopping-cart" size="48" class="text-primary-dark/15"/><p class="text-center text-sm text-primary-dark/60">No items in your cart yet. Browse our shop to find something for your pet.</p><a href="{{ route('shop.index') }}" @click="close()" class="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-dark"><x-waggies.icon name="arrow-forward" size="16"/>Browse Shop</a>
+                    <x-waggies.icon name="shopping-cart" size="48" class="text-primary-dark/15"/><p class="text-center text-sm text-primary-dark/60">No products saved yet. Browse the catalogue to find something for your pet.</p><a href="{{ route('shop.index') }}" @click="close()" class="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-dark"><x-waggies.icon name="arrow-forward" size="16"/>Browse catalogue</a>
                 </div>
                 <template x-if="items.length > 0">
                     <div class="flex min-h-0 flex-1 flex-col">
@@ -57,7 +57,7 @@
                                                 <span class="w-8 select-none text-center text-sm font-semibold text-primary-dark" x-text="item.quantity"></span>
                                                 <button type="button" @click="updateQuantity(item.productId, item.quantity + 1)" aria-label="Increase quantity" class="flex h-11 w-11 items-center justify-center text-primary-dark transition-colors hover:bg-surface-purple focus:outline-none"><x-waggies.icon name="add" size="14"/></button>
                                             </div>
-                                            <button type="button" @click="removeItem(item.productId)" :aria-label="`Remove ${item.name} from cart`" class="rounded-lg p-3 text-primary-dark/60 transition-colors hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/60"><x-waggies.icon name="delete" size="16"/></button>
+                            <button type="button" @click="removeItem(item.productId)" :aria-label="`Remove ${item.name} from saved list`" class="rounded-lg p-3 text-primary-dark/60 transition-colors hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/60"><x-waggies.icon name="delete" size="16"/></button>
                                         </div>
                                     </div>
                                 </div>
@@ -67,7 +67,7 @@
                             <div class="flex items-center justify-between"><span class="text-sm font-medium text-primary-dark/60">Subtotal</span><span class="text-lg font-bold text-primary-dark" x-text="formatPrice(subtotal())"></span></div>
                             <p class="text-xs text-primary-dark/60">Availability and final pricing confirmed by Waggies.</p>
                             <x-waggies.button href="{{ route('contact', ['intent' => 'cart-order']) }}" @click="close()" class="w-full">Ask about these products</x-waggies.button>
-                            <button type="button" @click="clearCart()" class="w-full py-1 text-center text-xs font-medium text-primary-dark/60 transition-colors hover:text-primary-dark/70">Clear cart</button>
+                            <button type="button" @click="clearCart()" class="w-full py-1 text-center text-xs font-medium text-primary-dark/60 transition-colors hover:text-primary-dark/70">Clear saved list</button>
                         </div>
                     </div>
                 </template>

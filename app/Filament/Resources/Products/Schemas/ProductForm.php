@@ -68,6 +68,10 @@ class ProductForm
                                 ->options(Product::statusOptions())
                                 ->default(Product::STATUS_DRAFT)
                                 ->required(),
+                            Select::make('availability')
+                                ->options(Product::availabilityOptions())
+                                ->default(Product::AVAILABILITY_AVAILABLE)
+                                ->required(),
                         ]),
                     ])
                     ->columnSpanFull(),
@@ -92,10 +96,23 @@ class ProductForm
                             ->responsiveImages()
                             ->maxSize(10240)
                             ->helperText('Upload a Waggies-owned product image. Existing catalogue images remain available until replaced.'),
+                        SpatieMediaLibraryFileUpload::make('product_gallery')
+                            ->label('Additional product images')
+                            ->collection('images')
+                            ->multiple()
+                            ->reorderable()
+                            ->image()
+                            ->disk('public')
+                            ->visibility('public')
+                            ->responsiveImages()
+                            ->maxFiles(8)
+                            ->maxSize(10240),
                         TextInput::make('image_alt')
                             ->label('Alt text')
                             ->required()
                             ->maxLength(255),
+                        TextInput::make('seo_title')->maxLength(160),
+                        Textarea::make('seo_description')->maxLength(255)->columnSpanFull(),
                     ])
                     ->columnSpanFull(),
             ]);

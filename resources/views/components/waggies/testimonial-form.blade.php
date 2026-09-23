@@ -99,6 +99,21 @@
                             <p id="author-location-error" x-show="errors.authorLocation" x-text="errors.authorLocation" class="text-xs font-medium text-error" role="alert"></p>
                         </div>
                     </div>
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div class="space-y-1.5">
+                            <label for="testimonial-contact-method" class="font-semibold text-primary-dark">Best contact method <span class="text-primary" aria-hidden="true">*</span></label>
+                            <select id="testimonial-contact-method" name="contact_method" x-model="data.contactMethod" @change="clear('contactMethod')" required class="contact-input !rounded-md">
+                                <option value="">Choose one</option>
+                                <option value="phone">Phone</option>
+                                <option value="whatsapp">WhatsApp</option>
+                                <option value="email">Email</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label for="testimonial-contact-value" class="font-semibold text-primary-dark">Contact detail <span class="text-primary" aria-hidden="true">*</span></label>
+                            <input id="testimonial-contact-value" name="contact_value" x-model="data.contactValue" @input="clear('contactValue')" required maxlength="255" placeholder="Phone number, WhatsApp number or email" class="contact-input !rounded-md">
+                        </div>
+                    </div>
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div class="space-y-1.5">

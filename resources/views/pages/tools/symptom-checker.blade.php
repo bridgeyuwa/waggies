@@ -2,7 +2,7 @@
 
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Tools', 'route' => 'tools.index'], ['label' => 'Symptom Checker']]" class="border-b border-primary/5 bg-white" />
-    <x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" title="Pet Symptom Checker" description="Select your pet type, choose the affected area, and pick the symptoms you notice to get general guidance." />
+    <x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" title="Pet Symptom Triage" description="Select your pet type, choose the affected area, and pick the signs you notice to get a safety-focused next step. This tool does not diagnose." />
 
     <section class="bg-surface pb-20 md:pb-28">
         <div x-data="symptomChecker(@js($symptomChecker))" class="mx-auto max-w-3xl px-4 md:px-10">
@@ -40,7 +40,7 @@
                 <div x-show="selectedArea" x-cloak class="rounded-2xl border border-primary/10 bg-white p-6">
                     <div class="mb-5 flex items-center gap-3">
                         <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">3</span>
-                        <h3 class="font-serif text-lg font-bold text-primary-dark">Select the symptoms you notice</h3>
+                        <h3 class="font-serif text-lg font-bold text-primary-dark">Select the signs you notice</h3>
                     </div>
                     @foreach($symptomChecker['body_areas'] as $area)
                         <div x-show="selectedArea === '{{ $area['id'] }}'" x-cloak class="flex flex-wrap gap-2">
@@ -56,13 +56,13 @@
                     </div>
                 </div>
 
-                <div x-show="guidance" x-cloak class="rounded-2xl border p-6 md:p-8" :class="guidance?.severity === 'low' ? 'border-green-200 bg-green-50' : guidance?.severity === 'moderate' ? 'border-amber-200 bg-amber-50' : 'border-red-200 bg-red-50'">
+                <div x-show="guidance" x-cloak class="rounded-2xl border p-6 md:p-8" :class="guidance?.urgency === 'routine' ? 'border-green-200 bg-green-50' : guidance?.urgency === 'prompt' ? 'border-amber-200 bg-amber-50' : 'border-red-200 bg-red-50'">
                     <div class="mb-6 flex items-start gap-4">
-                        <span x-show="guidance?.severity === 'low'" class="mt-0.5 shrink-0 text-green-700"><x-waggies.icon name="check-circle" size="28" variant="filled" /></span>
-                        <span x-show="guidance?.severity === 'moderate'" class="mt-0.5 shrink-0 text-amber-700"><x-waggies.icon name="warning" size="28" variant="filled" /></span>
-                        <span x-show="guidance?.severity === 'high'" class="mt-0.5 shrink-0 text-red-700"><x-waggies.icon name="emergency" size="28" variant="filled" /></span>
+                        <span x-show="guidance?.urgency === 'routine'" class="mt-0.5 shrink-0 text-green-700"><x-waggies.icon name="check-circle" size="28" variant="filled" /></span>
+                        <span x-show="guidance?.urgency === 'prompt'" class="mt-0.5 shrink-0 text-amber-700"><x-waggies.icon name="warning" size="28" variant="filled" /></span>
+                        <span x-show="guidance?.urgency === 'urgent' || guidance?.urgency === 'emergency'" class="mt-0.5 shrink-0 text-red-700"><x-waggies.icon name="emergency" size="28" variant="filled" /></span>
                         <div>
-                            <span class="mb-2 inline-block rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider" :class="guidance?.severity === 'low' ? 'bg-green-100 text-green-800' : guidance?.severity === 'moderate' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'" x-text="guidance?.severity === 'low' ? 'Low Concern' : guidance?.severity === 'moderate' ? 'Moderate Concern' : 'High Concern'"></span>
+                            <span class="mb-2 inline-block rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider" :class="guidance?.urgency === 'routine' ? 'bg-green-100 text-green-800' : guidance?.urgency === 'prompt' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'" x-text="guidance?.urgency === 'routine' ? 'Routine advice' : guidance?.urgency === 'prompt' ? 'Prompt consultation' : guidance?.urgency === 'urgent' ? 'Urgent assessment' : 'Emergency assessment'"></span>
                             <h3 class="font-serif text-xl font-bold text-primary-dark" x-text="guidance?.title"></h3>
                         </div>
                     </div>

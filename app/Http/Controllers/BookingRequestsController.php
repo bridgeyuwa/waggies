@@ -29,13 +29,19 @@ final class BookingRequestsController extends Controller
                 ->toArray(),
         ]);
 
-        $service = (string) $request->query('service', '');
+        $service = trim((string) $request->query('service', ''));
+        $variant = trim((string) $request->query('variant', ''));
+        $tier = trim((string) $request->query('tier', ''));
+        $source = trim((string) $request->query('source', ''));
         $serviceOptions = BookingRequest::serviceOptions();
 
         return view('pages.book', $metadata + [
             'navSection' => 'contact',
             'serviceOptions' => $serviceOptions,
             'selectedService' => array_key_exists($service, $serviceOptions) ? $service : null,
+            'selectedVariant' => $variant,
+            'selectedTier' => $tier,
+            'source' => $source,
             'whatsappUrl' => config('waggies.whatsapp').'?text='.rawurlencode('Hello Waggies, I submitted a booking request and would like to continue the conversation.'),
             'minimumDate' => now()->toDateString(),
             'bookingSubmitted' => (bool) session('booking_submitted'),
@@ -44,18 +50,31 @@ final class BookingRequestsController extends Controller
 
     public function store(StoreBookingRequest $request): RedirectResponse
     {
-        BookingRequest::create($request->safe()->only([
+        $validated = $request->safe()->only([
             'name',
             'email',
             'phone',
+            'preferred_contact_method',
             'service_key',
+            'service_variant',
+            'pricing_tier',
+            'source',
             'requested_date',
             'requested_time',
             'pet_name',
             'pet_type',
             'location',
             'message',
-        ]));
+        ]);
+
+        $validated['context'] = array_filter([
+            'service' => $validated['service_key'] ?? null,
+            'variant' => $validated['service_variant'] ?? null,
+            'tier' => $validated['pricing_tier'] ?? null,
+            'source' => $validated['source'] ?? null,
+        ]);
+
+        BookingRequest::create($validated);
 
         return redirect()
             ->route('book')

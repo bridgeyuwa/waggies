@@ -3,17 +3,16 @@
     $all = collect(config('waggies_tools.catalogue'));
     $labels = ['health' => 'Health Tools', 'calculator' => 'Calculators', 'reference' => 'Reference', 'utility' => 'Utilities'];
     $relatedIds = [
-        'tools.symptom-checker' => ['emergency-guide', 'parasite-schedule', 'vaccination-schedule', 'medication-dosage-guide', 'pet-age-calculator', 'cost-calculator', 'nutrition-calculator', 'breed-finder', 'behavior-tips', 'new-pet-checklist'],
-        'tools.vaccination' => ['parasite-schedule', 'symptom-checker', 'new-pet-checklist', 'breed-finder', 'behavior-tips', 'emergency-guide', 'medication-dosage-guide', 'nutrition-calculator', 'pet-age-calculator', 'cost-calculator'],
-        'tools.parasite' => ['vaccination-schedule', 'symptom-checker', 'emergency-guide', 'medication-dosage-guide', 'nutrition-calculator', 'pet-age-calculator', 'cost-calculator', 'breed-finder', 'behavior-tips', 'new-pet-checklist'],
-        'tools.emergency' => ['symptom-checker', 'parasite-schedule', 'vaccination-schedule', 'medication-dosage-guide', 'nutrition-calculator', 'pet-age-calculator', 'cost-calculator', 'breed-finder', 'behavior-tips', 'new-pet-checklist'],
-        'tools.medication' => ['symptom-checker', 'emergency-guide', 'nutrition-calculator', 'parasite-schedule', 'vaccination-schedule', 'pet-age-calculator', 'cost-calculator', 'breed-finder', 'behavior-tips', 'new-pet-checklist'],
-        'tools.pet-age' => ['breed-finder', 'nutrition-calculator', 'behavior-tips', 'cost-calculator', 'new-pet-checklist', 'symptom-checker', 'emergency-guide', 'parasite-schedule', 'medication-dosage-guide', 'vaccination-schedule'],
-        'tools.cost' => ['new-pet-checklist', 'pet-age-calculator', 'breed-finder', 'nutrition-calculator', 'behavior-tips', 'symptom-checker', 'emergency-guide', 'parasite-schedule', 'medication-dosage-guide', 'vaccination-schedule'],
-        'tools.nutrition' => ['pet-age-calculator', 'breed-finder', 'behavior-tips', 'cost-calculator', 'symptom-checker', 'emergency-guide', 'parasite-schedule', 'medication-dosage-guide', 'vaccination-schedule', 'new-pet-checklist'],
-        'tools.breed-finder' => ['pet-age-calculator', 'behavior-tips', 'nutrition-calculator', 'vaccination-schedule', 'cost-calculator', 'new-pet-checklist', 'symptom-checker', 'emergency-guide', 'parasite-schedule', 'medication-dosage-guide'],
-        'tools.behavior-tips' => ['breed-finder', 'new-pet-checklist', 'pet-age-calculator', 'vaccination-schedule', 'cost-calculator', 'symptom-checker', 'emergency-guide', 'parasite-schedule', 'medication-dosage-guide', 'nutrition-calculator'],
-        'tools.new-pet-checklist' => ['vaccination-schedule', 'behavior-tips', 'pet-age-calculator', 'cost-calculator', 'breed-finder', 'symptom-checker', 'emergency-guide', 'parasite-schedule', 'medication-dosage-guide', 'nutrition-calculator'],
+        'tools.symptom-checker' => ['emergency-guide', 'parasite-schedule', 'vaccination-schedule', 'medication-dosage-guide', 'pet-age-calculator', 'nutrition-calculator', 'breed-finder', 'behavior-tips', 'new-pet-checklist'],
+        'tools.vaccination' => ['parasite-schedule', 'symptom-checker', 'new-pet-checklist', 'breed-finder', 'behavior-tips', 'emergency-guide', 'medication-dosage-guide', 'nutrition-calculator', 'pet-age-calculator'],
+        'tools.parasite' => ['vaccination-schedule', 'symptom-checker', 'emergency-guide', 'medication-dosage-guide', 'nutrition-calculator', 'pet-age-calculator', 'breed-finder', 'behavior-tips', 'new-pet-checklist'],
+        'tools.emergency' => ['symptom-checker', 'parasite-schedule', 'vaccination-schedule', 'medication-dosage-guide', 'nutrition-calculator', 'pet-age-calculator', 'breed-finder', 'behavior-tips', 'new-pet-checklist'],
+        'tools.medication' => ['symptom-checker', 'emergency-guide', 'nutrition-calculator', 'parasite-schedule', 'vaccination-schedule', 'pet-age-calculator', 'breed-finder', 'behavior-tips', 'new-pet-checklist'],
+        'tools.pet-age' => ['breed-finder', 'nutrition-calculator', 'behavior-tips', 'new-pet-checklist', 'symptom-checker', 'emergency-guide', 'parasite-schedule', 'medication-dosage-guide', 'vaccination-schedule'],
+        'tools.nutrition' => ['pet-age-calculator', 'breed-finder', 'behavior-tips', 'symptom-checker', 'emergency-guide', 'parasite-schedule', 'medication-dosage-guide', 'vaccination-schedule', 'new-pet-checklist'],
+        'tools.breed-finder' => ['pet-age-calculator', 'behavior-tips', 'nutrition-calculator', 'vaccination-schedule', 'new-pet-checklist', 'symptom-checker', 'emergency-guide', 'parasite-schedule', 'medication-dosage-guide'],
+        'tools.behavior-tips' => ['breed-finder', 'new-pet-checklist', 'pet-age-calculator', 'vaccination-schedule', 'symptom-checker', 'emergency-guide', 'parasite-schedule', 'medication-dosage-guide', 'nutrition-calculator'],
+        'tools.new-pet-checklist' => ['vaccination-schedule', 'behavior-tips', 'pet-age-calculator', 'breed-finder', 'symptom-checker', 'emergency-guide', 'parasite-schedule', 'medication-dosage-guide', 'nutrition-calculator'],
     ][$currentRoute] ?? [];
     $tools = collect($relatedIds)->map(fn ($id) => $all->firstWhere('id', $id))->filter();
 @endphp

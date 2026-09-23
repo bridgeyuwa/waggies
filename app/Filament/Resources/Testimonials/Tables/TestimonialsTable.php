@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Testimonials\Tables;
 
+use App\Actions\VerifyTestimonialCustomer;
 use App\Models\Testimonial;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -38,6 +40,10 @@ class TestimonialsTable
                 TextColumn::make('status')
                     ->badge()
                     ->sortable(),
+                TextColumn::make('crm_match_status')
+                    ->label('CRM match')
+                    ->formatStateUsing(fn (?string $state): string => Testimonial::crmMatchOptions()[$state] ?? (string) $state)
+                    ->badge(),
                 TextColumn::make('sort_order')
                     ->label('Order')
                     ->sortable(),
@@ -52,6 +58,12 @@ class TestimonialsTable
             ->reorderable('sort_order')
             ->recordActions([
                 EditAction::make(),
+                Action::make('verifyCustomer')
+                    ->label('Verify CRM')
+                    ->icon('heroicon-o-shield-check')
+                    ->action(function (Testimonial $record, VerifyTestimonialCustomer $verifier): void {
+                        $verifier->execute($record);
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
