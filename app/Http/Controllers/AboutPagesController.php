@@ -13,6 +13,7 @@ final class AboutPagesController extends Controller
     public function testimonials(): View
     {
         $page = config('waggies_about_pages.testimonials');
+        $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
         $items = Testimonial::query()
             ->published()
             ->orderBy('sort_order')
@@ -55,6 +56,7 @@ final class AboutPagesController extends Controller
     public function careers(): View
     {
         $page = config('waggies_about_pages.careers');
+        $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
         $openRoles = JobOpening::query()->open()->orderBy('sort_order')->orderBy('title')->get();
         $hasOpenRoles = $openRoles->isNotEmpty();
         $metadata = [

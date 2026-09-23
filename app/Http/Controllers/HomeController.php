@@ -35,8 +35,8 @@ final class HomeController extends Controller
                 'imageSrc' => '/media/editorial/photo-1587300003388-59208cc962cb.jpg',
                 'imageAlt' => 'Happy dog sitting with their owner outdoors',
                 'actions' => [
-                    ['label' => 'Request a booking', 'route' => 'book'],
-                    ['label' => 'View Services', 'route' => 'services.index', 'iconBefore' => 'pets'],
+                    ['label' => 'Request a booking', 'url' => route('book')],
+                    ['label' => 'View Services', 'url' => route('services.index'), 'iconBefore' => 'pets'],
                 ],
             ],
             'homeServiceCards' => [

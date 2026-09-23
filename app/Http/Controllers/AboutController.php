@@ -31,8 +31,8 @@ final class AboutController extends Controller
                 'title' => 'Complete Veterinary & Pet Care in Abuja',
                 'description' => 'Vet care, boarding, grooming, training, and relocation - all in one place.',
                 'actions' => [
-                    ['label' => 'Book a Free Consultation', 'href' => route('contact')],
-                    ['label' => 'Explore Services', 'href' => route('services.index')],
+                    ['label' => 'Book a Free Consultation', 'url' => route('contact')],
+                    ['label' => 'Explore Services', 'url' => route('services.index')],
                 ],
                 'imageSrc' => '/media/editorial/photo-1559839734-2b71ea197ec2.jpg',
                 'imageAlt' => 'Complete Veterinary & Pet Care in Abuja',

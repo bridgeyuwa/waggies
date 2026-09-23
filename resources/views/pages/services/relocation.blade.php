@@ -3,7 +3,7 @@
 @section('content')
 <x-waggies.breadcrumb-strip :items="[['label' => 'Services', 'route' => 'services.index'], ['label' => 'Pet Relocation', 'route' => 'services.relocation']]" />
 
-<x-waggies.cover-hero :hero="array_merge($hero, ['eyebrow' => 'International & Local Relocation', 'eyebrowIcon' => 'airport-departure', 'title' => 'Stress-Free Pet Relocation<br/>Home & Abroad', 'description' => 'End-to-end relocation management for pets moving into, out of, or across Nigeria. Permits, vet endorsements, IATA crates, and flight coordination handled with total precision.', 'actions' => [['label' => 'Request Relocation Quote', 'route' => 'contact', 'params' => ['intent' => 'quote', 'service' => 'relocation'], 'icon' => 'arrow-forward'], ['label' => 'Explore Relocation Hub', 'route' => 'services.relocation']]])" />
+<x-waggies.cover-hero :hero="array_merge($hero, ['eyebrow' => 'International & Local Relocation', 'eyebrowIcon' => 'airport-departure', 'title' => 'Stress-Free Pet Relocation<br/>Home & Abroad', 'description' => 'End-to-end relocation management for pets moving into, out of, or across Nigeria. Permits, vet endorsements, IATA crates, and flight coordination handled with total precision.', 'actions' => [['label' => 'Request Relocation Quote', 'url' => route('contact', ['intent' => 'quote', 'service' => 'relocation']), 'icon' => 'arrow-forward'], ['label' => 'Explore Relocation Hub', 'url' => route('services.relocation')]]])" />
 
 <section class="bg-white py-20">
     <div class="page-container">

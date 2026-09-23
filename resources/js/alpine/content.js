@@ -12,7 +12,13 @@ const faqPage = (faqs, categories) => ({
     tabKeydown(event) { const tabs = [...event.currentTarget.querySelectorAll('[role=tab]')]; const index = tabs.indexOf(document.activeElement); if (index < 0) return; const delta = ['ArrowRight', 'ArrowDown'].includes(event.key) ? 1 : ['ArrowLeft', 'ArrowUp'].includes(event.key) ? -1 : 0; if (delta || event.key === 'Home' || event.key === 'End') { event.preventDefault(); const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + delta + tabs.length) % tabs.length; tabs[next].focus(); tabs[next].click(); } },
 });
 const homeTestimonials = (testimonials) => ({
-    testimonials,
+    testimonials: testimonials?.length ? testimonials : [{
+        service: 'Client stories',
+        quote: 'Verified client stories will appear here as Waggies pet parents share their experience.',
+        initial: 'W',
+        name: 'Waggies pet parents',
+        subtitle: 'Verified stories coming soon',
+    }],
     active: 0,
     hovered: false,
     timer: null,

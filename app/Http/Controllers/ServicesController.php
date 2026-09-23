@@ -17,7 +17,7 @@ final class ServicesController extends Controller
 
         return view('pages.services.index', $metadata + [
             'navSection' => 'services',
-            'hero' => ['imageSrc' => '/media/editorial/photo-1548199973-03cce0bbc87b.jpg', 'imageAlt' => 'Dog outdoors', 'eyebrow' => 'Everything Your Pet Needs', 'title' => 'Pet Care Services,<br/>All Under One Roof', 'description' => 'From overnight boarding to international relocation - Waggies handles it all from one facility.', 'actions' => [['label' => 'View Our Services', 'href' => route('services.index').'#services']]],
+            'hero' => ['imageSrc' => '/media/editorial/photo-1548199973-03cce0bbc87b.jpg', 'imageAlt' => 'Dog outdoors', 'eyebrow' => 'Everything Your Pet Needs', 'title' => 'Pet Care Services,<br/>All Under One Roof', 'description' => 'From overnight boarding to international relocation - Waggies handles it all from one facility.', 'actions' => [['label' => 'View Our Services', 'url' => route('services.index').'#services']]],
             'cards' => [
                 ['title' => 'Boarding', 'description' => 'Spacious, climate-controlled suites with 24/7 supervision and daily photo updates.', 'href' => route('services.boarding'), 'imageSrc' => '/media/editorial/photo-1596492784531-6e6eb5ea9993.jpg', 'imageAlt' => 'Boarding', 'icon' => 'grooming'],
                 ['title' => 'Grooming', 'description' => 'Breed-specific cuts, baths, and styling by experienced groomers using pet-safe products.', 'href' => route('services.grooming'), 'imageSrc' => '/media/editorial/photo-1516734212186-a967f81ad0d7.jpg', 'imageAlt' => 'Pet being groomed', 'icon' => 'grooming'],
@@ -35,6 +35,7 @@ final class ServicesController extends Controller
     public function boarding(): View
     {
         $page = config('waggies_boarding.index');
+        $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
         $metadata = ['title' => $page['title'], 'description' => $page['description'], 'canonical' => route('services.boarding'), 'ogTitle' => 'Pet Boarding Abuja - Waggies', 'ogDescription' => $page['description']];
         $this->setPageHead($metadata, [$this->serviceSchema('Pet Boarding Abuja - Waggies', $metadata)]);
 
@@ -48,6 +49,7 @@ final class ServicesController extends Controller
     {
         abort_unless(array_key_exists($species, config('waggies_boarding.species')), 404);
         $page = config("waggies_boarding.species.{$species}");
+        $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
         $faqs = $this->publishedFaqs('boarding', $species);
         $metadata = ['title' => $page['title'], 'description' => $page['description'], 'canonical' => route('services.boarding.species', ['species' => $species]), 'ogTitle' => $page['title'].' Abuja - Waggies', 'ogDescription' => $page['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($page['title'].' Abuja - Waggies', $metadata)]);

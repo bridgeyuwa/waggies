@@ -4,14 +4,7 @@
 ])
 
 @php
-    $actionDestination = static function (array $action): string {
-        if (isset($action['route'])) {
-            return route($action['route'], $action['params'] ?? []);
-        }
-
-        return $action['href'];
-    };
-
+    /** @var array<int, array{label: string, url: string, icon?: string, iconBefore?: string}> $actions */
     $isImageTone = $tone === 'image';
 @endphp
 
@@ -19,7 +12,7 @@
     @foreach($actions as $index => $action)
         @php($isPrimary = $index === 0)
         <x-waggies.button
-            href="{{ $actionDestination($action) }}"
+            href="{{ $action['url'] }}"
             variant="{{ $isPrimary ? 'primary' : 'outline' }}"
             class="{{ $isPrimary && $isImageTone ? '!bg-secondary !text-primary-dark hover:!bg-secondary-hover' : '' }} {{ ! $isPrimary && $isImageTone ? 'border-white/30 bg-transparent text-white hover:bg-white/10' : '' }}"
         >

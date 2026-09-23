@@ -11,7 +11,7 @@ test('cover hero preserves semantic media and action links', function () {
                 'imageSrc' => 'https://example.test/hero.jpg',
                 'imageAlt' => 'Dog resting in a Waggies suite',
                 'actions' => [
-                    ['label' => 'Book now', 'route' => 'contact'],
+                    ['label' => 'Book now', 'url' => route('contact')],
                 ],
             ],
         ],
@@ -26,7 +26,7 @@ test('cover hero preserves semantic media and action links', function () {
 
 test('page header supports contextual identity and actions without changing its heading semantics', function () {
     $view = $this->blade(
-        '<x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" eyebrow-icon="calculator" title="Cost Calculator" description="Estimate your pet care costs."><x-slot:supporting>Reviewed by our care team</x-slot:supporting><x-slot:actions><x-waggies.hero-actions :actions="[[\'label\' => \'Start\', \'href\' => \'/start\']]" tone="light" /></x-slot:actions></x-waggies.page-header>',
+        '<x-waggies.page-header alignment="center" eyebrow="Pet Care Tool" eyebrow-icon="calculator" title="Cost Calculator" description="Estimate your pet care costs."><x-slot:supporting>Reviewed by our care team</x-slot:supporting><x-slot:actions><x-waggies.hero-actions :actions="[[\'label\' => \'Start\', \'url\' => \'/start\']]" tone="light" /></x-slot:actions></x-waggies.page-header>',
     );
 
     $view->assertSee('<h1 id="page-header-title"', false);

@@ -67,6 +67,7 @@ final class RelocationController extends Controller
     private function detail(string $type): View
     {
         $page = config("waggies_relocation.{$type}");
+        $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
         $route = "relocation.{$type}";
         $metadata = ['title' => $page['metaTitle'].' - Waggies', 'description' => $page['description'], 'canonical' => route($route), 'ogTitle' => $page['ogTitle'], 'ogDescription' => $page['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($page['ogTitle'], $metadata)]);

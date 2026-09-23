@@ -10,6 +10,7 @@ final class LoyaltyController extends Controller
     public function __invoke(): View
     {
         $page = config('waggies_loyalty');
+        $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
 
         $metadata = [
             'title' => 'Loyalty Programme - Waggies',
