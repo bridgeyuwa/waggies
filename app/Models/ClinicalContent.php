@@ -74,6 +74,11 @@ final class ClinicalContent extends Model
 
     public function scopePublic(Builder $query): Builder
     {
+        return self::constrainPublicQuery($query);
+    }
+
+    public static function constrainPublicQuery(Builder $query): Builder
+    {
         return $query->where('publication_status', 'published')->where('clinical_status', 'approved')->whereNull('withdrawn_at')->where('source_conflict', false)->where(function (Builder $query): void {
             $query->whereNull('review_due_at')->orWhere('review_due_at', '>', now());
         })->whereHas('sources', function (Builder $query): void {
@@ -81,6 +86,11 @@ final class ClinicalContent extends Model
         })->whereHas('reviews', function (Builder $query): void {
             $query->where('decision', 'approved')->whereColumn('content_version', 'clinical_contents.version');
         });
+    }
+
+    public static function applyPublicScope(Builder $query): Builder
+    {
+        return self::constrainPublicQuery($query);
     }
 
     public function isPubliclyEligible(): bool

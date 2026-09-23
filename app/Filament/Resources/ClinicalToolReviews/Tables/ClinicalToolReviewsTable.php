@@ -25,8 +25,8 @@ class ClinicalToolReviewsTable
                 TextColumn::make('version')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('clinical_source_id')
-                    ->numeric()
+                TextColumn::make('source.title')
+                    ->label('Clinical source')
                     ->sortable(),
                 TextColumn::make('reviewed_at')
                     ->dateTime()

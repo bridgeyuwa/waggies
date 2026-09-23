@@ -29,8 +29,6 @@ class BusinessProfileForm
                         TextInput::make('address_state')->maxLength(120),
                         TextInput::make('address_country')->maxLength(120),
                         TextInput::make('map_url')->url()->maxLength(500),
-                        TextInput::make('latitude')->numeric()->minValue(-90)->maxValue(90),
-                        TextInput::make('longitude')->numeric()->minValue(-180)->maxValue(180),
                     ])->columns(2)->columnSpanFull(),
                 Section::make('Social links')
                     ->description('Only configured links appear on the public site.')

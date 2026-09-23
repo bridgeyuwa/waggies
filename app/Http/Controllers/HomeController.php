@@ -59,7 +59,13 @@ final class HomeController extends Controller
                 ->limit(3)
                 ->get()
                 ->map(fn (Testimonial $testimonial): array => $testimonial->toHomeArray())
-                ->all(),
+                ->all() ?: [[
+                    'service' => 'Client stories',
+                    'quote' => 'Verified client stories will appear here as Waggies pet parents share their experience.',
+                    'initial' => 'W',
+                    'name' => 'Waggies pet parents',
+                    'subtitle' => 'Verified stories coming soon',
+                ]],
         ]);
     }
 }

@@ -4,6 +4,7 @@ return [
     'phone' => env('WAGGIES_PHONE', '0908 081 1902'),
     'phone_international' => env('WAGGIES_PHONE_INTERNATIONAL', '+234 908 081 1902'),
     'whatsapp' => env('WAGGIES_WHATSAPP', 'https://wa.me/2349080811902'),
+    'map_url' => env('WAGGIES_MAP_URL', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3939.758!2d7.4913!3d9.0579!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOcKwMDMnMzQuNCJOIDfCsDI5JzI4LjciRQ!5e0!3m2!1sen!2sng!4v1'),
     'address' => [
         'street' => 'Life Camp, Efab City Estate, 65 1st Ave',
         'city' => 'Abuja',

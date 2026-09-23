@@ -10,6 +10,19 @@ it('returns a healthy native endpoint with non-sensitive security headers', func
         ->assertHeader('Permissions-Policy', 'camera=(), geolocation=(), microphone=(), payment=()');
 });
 
+it('renders the Waggies not found page with a real 404 response', function (): void {
+    $this->get('/this-page-does-not-exist')
+        ->assertNotFound()
+        ->assertSee('Page Not Found')
+        ->assertSee('Search for services, articles, products');
+});
+
+it('renders a truthful homepage testimonial state when no stories are publishable', function (): void {
+    $this->get('/')
+        ->assertOk()
+        ->assertSee('Verified client stories will appear here as Waggies pet parents share their experience.');
+});
+
 it('redirects guests away from the protected admin panel', function (): void {
     $this->get('/admin')->assertRedirect('/admin/login');
 });

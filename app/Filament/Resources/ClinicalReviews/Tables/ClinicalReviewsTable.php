@@ -14,11 +14,11 @@ class ClinicalReviewsTable
     {
         return $table
             ->columns([
-                TextColumn::make('clinical_content_id')
-                    ->numeric()
+                TextColumn::make('content.content_key')
+                    ->label('Clinical content')
                     ->sortable(),
-                TextColumn::make('clinical_source_id')
-                    ->numeric()
+                TextColumn::make('source.title')
+                    ->label('Clinical source')
                     ->sortable(),
                 TextColumn::make('reviewer.name')
                     ->searchable(),

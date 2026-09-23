@@ -19,8 +19,6 @@ final class BusinessProfile extends Model
         'address_state',
         'address_country',
         'map_url',
-        'latitude',
-        'longitude',
         'timezone',
         'instagram_url',
         'facebook_url',
@@ -32,10 +30,7 @@ final class BusinessProfile extends Model
 
     protected function casts(): array
     {
-        return [
-            'latitude' => 'decimal:7',
-            'longitude' => 'decimal:7',
-        ];
+        return [];
     }
 
     public static function current(): self
@@ -86,9 +81,7 @@ final class BusinessProfile extends Model
             'phoneHref' => 'tel:'.preg_replace('/\D+/', '', (string) $this->phone_international),
             'whatsapp' => $this->whatsapp_url,
             'address' => $this->addressLine(),
-            'mapUrl' => $this->map_url,
-            'latitude' => $this->latitude,
-            'longitude' => $this->longitude,
+            'mapUrl' => $this->map_url ?? config('waggies.map_url'),
             'timezone' => $this->timezone,
             'socials' => $this->socialLinks(),
         ];
@@ -105,6 +98,7 @@ final class BusinessProfile extends Model
             'phone' => config('waggies.phone'),
             'phone_international' => config('waggies.phone_international'),
             'whatsapp_url' => config('waggies.whatsapp'),
+            'map_url' => config('waggies.map_url'),
             'address_street' => $address['street'] ?? null,
             'address_city' => $address['city'] ?? null,
             'address_postal_code' => $address['postal_code'] ?? null,

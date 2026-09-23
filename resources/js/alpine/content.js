@@ -17,6 +17,7 @@ const homeTestimonials = (testimonials) => ({
     hovered: false,
     timer: null,
     init() {
+        if (this.testimonials.length === 0) return;
         this.timer = setInterval(() => { if (!this.hovered) this.active = (this.active + 1) % this.testimonials.length; }, 6000);
     },
     select(index) { this.active = index; },

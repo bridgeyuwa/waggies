@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ClinicalToolReviews\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -28,8 +29,12 @@ class ClinicalToolReviewForm
                     ->required()
                     ->numeric()
                     ->default(1),
-                TextInput::make('clinical_source_id')
-                    ->numeric(),
+                Select::make('clinical_source_id')
+                    ->label('Clinical source')
+                    ->relationship('source', 'title')
+                    ->searchable()
+                    ->preload()
+                    ->nullable(),
                 DateTimePicker::make('reviewed_at'),
                 DateTimePicker::make('review_due_at'),
                 Textarea::make('notes')

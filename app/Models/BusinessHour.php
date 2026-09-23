@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -83,9 +84,20 @@ final class BusinessHour extends Model
             ];
         }
 
-        return collect(range(1, 7))->map(function (int $day) use ($dayNames): array {
-            $dayOfWeek = $day % 7;
-            $record = self::query()->weekly()->where('day_of_week', $dayOfWeek)->first();
+        $weekStart = now()->startOfWeek();
+        $weekEnd = $weekStart->copy()->addDays(6);
+        $weekly = self::query()->weekly()->get()->keyBy('day_of_week');
+        $exceptions = self::query()
+            ->exceptions()
+            ->whereBetween('date', [$weekStart->toDateString(), $weekEnd->toDateString()])
+            ->get()
+            ->filter(fn (self $record): bool => $record->date !== null)
+            ->keyBy(fn (self $record): string => CarbonImmutable::parse($record->date)->toDateString());
+
+        return collect(range(0, 6))->map(function (int $offset) use ($dayNames, $weekStart, $weekly, $exceptions): array {
+            $date = $weekStart->copy()->addDays($offset);
+            $dayOfWeek = $date->dayOfWeek;
+            $record = $exceptions->get($date->toDateString()) ?? $weekly->get($dayOfWeek);
 
             return ['day' => $dayNames[$dayOfWeek], 'hours' => $record?->displayLabel() ?? 'Closed'];
         })->all();

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\NewsletterSubscriber;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -17,14 +18,22 @@ class NewsletterController extends Controller
             'website' => ['nullable', 'string', 'max:0'],
         ]);
 
-        NewsletterSubscriber::query()->updateOrCreate(
-            ['email' => NewsletterSubscriber::normalizeEmail($email)],
-            [
-                'status' => NewsletterSubscriber::STATUS_SUBSCRIBED,
-                'subscribed_at' => now(),
-                'unsubscribed_at' => null,
-            ],
-        );
+        try {
+            NewsletterSubscriber::query()->updateOrCreate(
+                ['email' => NewsletterSubscriber::normalizeEmail($email)],
+                [
+                    'status' => NewsletterSubscriber::STATUS_SUBSCRIBED,
+                    'subscribed_at' => now(),
+                    'unsubscribed_at' => null,
+                ],
+            );
+        } catch (QueryException $exception) {
+            report($exception);
+
+            return back()
+                ->withInput()
+                ->with('newsletter_error', 'We could not complete your subscription right now. Please try again shortly.');
+        }
 
         return back()->with('newsletter_status', 'Thanks — you are subscribed to Waggies updates.');
     }

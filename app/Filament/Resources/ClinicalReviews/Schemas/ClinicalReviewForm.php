@@ -15,11 +15,18 @@ class ClinicalReviewForm
     {
         return $schema
             ->components([
-                TextInput::make('clinical_content_id')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('clinical_source_id')
-                    ->numeric(),
+                Select::make('clinical_content_id')
+                    ->label('Clinical content')
+                    ->relationship('content', 'content_key')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                Select::make('clinical_source_id')
+                    ->label('Clinical source')
+                    ->relationship('source', 'title')
+                    ->searchable()
+                    ->preload()
+                    ->nullable(),
                 Select::make('reviewer_id')
                     ->relationship('reviewer', 'name'),
                 TextInput::make('reviewer_name'),

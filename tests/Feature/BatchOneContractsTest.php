@@ -43,6 +43,25 @@ class BatchOneContractsTest extends TestCase
         $this->assertNotEmpty($profile->phone);
         $this->assertCount(7, BusinessHour::publicSchedule());
         $this->assertSame('Monday', BusinessHour::publicSchedule()[0]['day']);
+        $this->assertNotEmpty($profile->toPublicArray()['mapUrl']);
+        $this->assertArrayNotHasKey('latitude', $profile->toPublicArray());
+        $this->assertArrayNotHasKey('longitude', $profile->toPublicArray());
+    }
+
+    public function test_business_hour_exception_overrides_the_weekly_schedule_on_public_pages(): void
+    {
+        $this->travelTo('2026-09-21 12:00:00');
+
+        BusinessHour::query()->create([
+            'kind' => BusinessHour::KIND_EXCEPTION,
+            'date' => '2026-09-21',
+            'is_closed' => true,
+            'label' => 'Public holiday closure',
+        ]);
+
+        $this->get(route('contact'))
+            ->assertSee('Monday')
+            ->assertSee('Closed');
     }
 
     public function test_approved_testimonials_require_crm_and_identity_verification(): void
