@@ -19,6 +19,7 @@ Start the local database with Docker Compose:
 ```bash
 docker compose up -d
 php artisan migrate
+php artisan db:seed
 ```
 
 The host application connects to PostgreSQL at `127.0.0.1:5432` using the `waggies` database and user. Local development uses passwordless PostgreSQL trust authentication. This is local-development-only configuration and must never be copied to production.
@@ -47,6 +48,7 @@ There is no general staff-role/RBAC architecture in this application. Any future
 ```bash
 docker compose up -d
 php artisan migrate
+php artisan db:seed
 php artisan test
 vendor/bin/phpstan analyse
 vendor/bin/pint --test
