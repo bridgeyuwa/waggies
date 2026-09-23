@@ -1,130 +1,85 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Waggies
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Waggies is a Laravel application for a pet-care centre in Abuja. It contains the public Waggies website, database-backed editorial content, public request journeys, catalogue and gallery management, and a Filament administration panel for operational and clinical governance workflows.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Current Pricing and Request Contract
-
-Production deployment, environment, backup, restore, rollback, and smoke-test instructions live in [`DEPLOYMENT.md`](DEPLOYMENT.md). Static editorial image provenance and replacement guidance live in [`MEDIA-PROVENANCE.md`](MEDIA-PROVENANCE.md).
+- Laravel 13.33
+- PHP 8.5
+- Blade and Alpine
+- Livewire 4 and Filament 5 for administration
+- Tailwind CSS 4 and Vite
+- PostgreSQL 18.6 with pgvector 0.8.1
+- Docker Compose for local PostgreSQL
 
 ## Local database
 
-Windows development uses PostgreSQL 18.6 with pgvector through Docker Compose. Laravel runs on the host and connects to `127.0.0.1:5432` using the `waggies` database and `waggies` user without a password.
+Start the local database with Docker Compose:
 
 ```bash
-docker compose up -d --build
+docker compose up -d
 php artisan migrate
 ```
 
-The Compose setup uses a named Docker volume and creates an isolated `waggies_test` database for the test suite. PostgreSQL trust authentication is bound to localhost and is for local development only; never copy this passwordless configuration into production.
+The host application connects to PostgreSQL at `127.0.0.1:5432` using the `waggies` database and user. Local development uses passwordless PostgreSQL trust authentication. This is local-development-only configuration and must never be copied to production.
 
-For the migrated application, pricing is owned by [`config/waggies_pricing.php`](config/waggies_pricing.php). Its canonical shape is a top-level `currency`, `services` keyed by service identifier, and `transport` data containing product-to-tier mappings, rate-card rules, and customer messages. `ServicesController` passes this configuration to the Pricing page, and `ContactController` passes the same configuration to the Contact request schema.
+The test suite uses the isolated `waggies_test` database. Laravel Herd serves the application at `https://waggies.test`.
 
-Transport estimates remain intentionally client-side presentation estimates. Both consumers call `window.waggiesTransportEstimate` from `resources/js/app.js` with `productId`, `pickup`, `dropoff`, `tripType`, `distanceKm`, `petCount`, `petSpecies`, `additionalPetSafe`, `specialRequirements`, `waitingMinutes`, `stopCount`, `stopsWithinCorridor`, `transportUrgency`, `afterHours`, and `airportDetails`. The result is a state of `MISSING_INPUTS`, `ESTIMATE`, `QUOTE_ONLY`, or `UNAVAILABLE_ROUTE`, plus `currency`, `productId`, `amount` when calculated, `missingInputs`, `reason`, and `customerMessage`.
+## Search
 
-Contact keeps the current request gateway and query compatibility: `service`, `booking`, `quote`, `veterinary`, `transport`, `relocation`, `product-inquiry`, `cart-order`, `contact`, `general`, `partnership`, `careers`, `loyalty`, and `tool-assistance`; legacy `book`, `save`, and `consult` intents; service aliases such as `boarding-dogs`, `boarding-cats`, `boarding-exotic`, `vet`, and `transport`; `relocation` with `tier=local`; and transport context through `transportProduct` and the JSON `transportRoute` query parameter. Existing client-side draft/saved-list storage, review state, and WhatsApp serialization remain unchanged.
+Search uses Laravel Scout with its PostgreSQL database engine. It does not use Typesense, Meilisearch, Elasticsearch, Algolia, or another external search service.
 
-`/book` is a persisted booking-request intake, not a scheduling or payment system. Requests carry service context, source, preferred contact method, and an explicit operational status lifecycle; staff review and confirm arrangements outside the public form. The legacy `/tools/cost-calculator` URL permanently redirects to `/services/pricing` and is not part of primary navigation. Pricing remains config-backed and authoritative in `config/waggies_pricing.php`.
+## Public content and workflows
 
-Batch 1 also establishes canonical database-backed business profile and hours records, a real `JobOpening` catalogue for careers, a fail-closed testimonial verification boundary for CRM/identity/customer relationship checks, and a searchable/sortable product catalogue. The public shop remains catalogue and enquiry only: there is no order, checkout, payment, inventory, or fulfilment domain. Loyalty remains explanatory content with a manual “ask our team” handoff; it has no account, points ledger, tiers, or redemption engine.
+- Services and service pricing are application-owned; pricing remains in `config/waggies_pricing.php`.
+- Relocation content is configuration-backed.
+- Guides, Knowledge Articles, FAQs, Products, Gallery items, Testimonials, Newsletter subscribers, and Booking Requests are database-backed resources.
+- Gallery, editorial covers, and other managed model media use Spatie Media Library.
+- The public shop is a catalogue and enquiry journey, not checkout, payment, inventory, or fulfilment.
+- Public requests are stored with operational moderation states; staff complete arrangements outside the public form.
 
-## Waggies UI Primitive Vocabulary
+Clinical governance is internal. Guides and Knowledge Articles remain separate public content families; `ClinicalContent` is a governance wrapper and `ClinicalSource` records provenance. Clinical review history is reviewer-controlled and read-only. RAG is not implemented: pgvector is installed, but there are no local chunks, embeddings, vector columns, or similarity retrieval.
 
-Public Blade composition uses a small set of semantic primitives under `resources/views/components/waggies`:
+There is no general staff-role/RBAC architecture in this application. Any future need for one is **PERMISSION REQUIRED** and must be designed separately from the current clinical reviewer boundary.
 
-| Primitive | Responsibility |
-| --- | --- |
-| `button` | Native `<button>` for actions or `<a>` for navigation; variants are `primary`, `secondary`, `outline`, and `link`, with `sm` available for compact controls. Icons are composed in the slot. |
-| `field` | Shared label, control slot, help text, and field-error structure. `input` and `select` consume it while dynamic Alpine forms may keep their local markup. |
-| `input` / `select` | Semantic native controls with consistent IDs, required markers, help/error associations, and token-backed control styling. The enhanced select preserves the native control as its source of truth. |
-| `section-heading` / `page-header` | Section-level `h2` and page-level `h1` contracts. Article, card, and editorial headings remain local when their semantics differ. |
-| `card` | Low-level token-backed surface shell. Service, pricing, article, product, and testimonial cards remain domain-specific compositions. |
-| `icon` / `brand-icon` | Decorative icons by default; pass `label` only when the icon itself conveys meaning. Brand assets remain separate from the Material Symbols mapping. |
-| `image` | Lightweight semantic image wrapper for explicit `src`, `alt`, loading, decoding, fetch priority, and caller-supplied layout classes. Dynamic previews and hero backgrounds remain local. |
-| `alert` / `field-error` | Page or inline feedback versus validation feedback. Alerts use `alert` for errors and `status` for non-error notices by default. |
-
-Shared primitives should preserve native HTML semantics, accept attribute-bag class overrides for local composition, and expose small deliberate variants rather than unrelated modes. Domain components should consume primitives without becoming universal components.
-
-## Controller Resource Boundaries
-
-The HTTP layer follows the Cruddy by Design resource vocabulary without changing established public URLs:
-
-| Controller | Resource and actions | Routes |
-| --- | --- | --- |
-| `HomeController` | Home page (`__invoke`) | `/` |
-| `AboutController` | About page (`__invoke`) | `/about` |
-| `AboutPagesController` | About editorial pages (`testimonials`, `gallery`, `careers`, `partnerships`) | `/about/*` |
-| `ServicesController` | Service catalogue and service pages (`index`, `boarding`, `boardingSpecies`, `grooming`, `training`, `vetCare`) | `/services/*` except pricing and relocation |
-| `RelocationController` | Relocation content (`index`, `import`, `export`, `transport`, `checklist`) | `/services/relocation`, `/services/relocation/{import|export|transport|checklist}` |
-| `PricingController` | Pricing catalogue (`index`) | `/services/pricing` |
-| `FaqController` | FAQ collection (`index`) | `/faq` |
-| `GuidesController` | Guide collection (`index`, `show`) | `/guides`, `/guides/{slug}` |
-| `KnowledgeBaseController` | Knowledge-base article collection (`index`, `show`) | `/knowledge-base`, `/knowledge-base/{slug}` |
-| `ToolsController` | Tool catalogue and static tool pages (`index` plus tool page actions) | `/tools/*` |
-| `ShopController` | Product catalogue and product detail (`index`, `show`) | `/shop`, `/shop/{id}` |
-| `LegalController` | Legal pages (`privacy`, `terms`, `cookies`) | policy URLs |
-| `LoyaltyController` | Loyalty page (`__invoke`) | `/loyalty` |
-| `NewsletterController` | Newsletter subscription capture (`store`) | `POST /api/newsletter` |
-| `SearchController` | Search projection (`__invoke`) | `GET /api/search` |
-| `ContactController` | Contact/request gateway (`__invoke`) | `/contact` |
-| `BookingRequestsController` | Booking request intake (`create`, `store`) | `GET|POST /book` |
-
-`RelocationController`, `PricingController`, and `FaqController` were split from `ServicesController` because they represent independently navigated resources. Relocation is a coherent resource family, so `RelocationController` owns the canonical `/services/relocation` hub and its import, export, transport, and checklist pages.
-
-Guides and Knowledge Base remain separate editorial resources. Their controllers share only the deterministic `ArticleBodyProcessor` for extracting headings consumed by the existing TOC and injecting the existing heading IDs; filtering, metadata, related content, and search contributions remain owned by each resource. Tools remain one catalogue because the routes are static tool pages with shared presentation behavior; splitting each tool would be artificial. Contact remains a request gateway until a future `ServiceRequest` domain is introduced.
-
-The remaining non-standard public actions are presentation boundaries: `AboutPagesController` and `LegalController` expose distinct static pages; `ServicesController` exposes named service and boarding-species pages; `RelocationController` exposes the established import, export, transport, and checklist page variants; and `ToolsController` exposes the catalogue's distinct tool pages. These actions do not create, update, or destroy hidden workflow resources, so introducing generic action classes or a dispatcher would make the current resource model less clear.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Development commands
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+docker compose up -d
+php artisan migrate
+php artisan test
+vendor/bin/phpstan analyse
+vendor/bin/pint --test
+npm run build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+The project uses a Pest test suite running on PHPUnit. Pest is the test runner; PHPUnit is the underlying engine. Run one focused file during development, for example:
 
-## Contributing
+```bash
+php artisan test --compact tests/Feature/MediaArchitectureTest.php
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Rebuild Scout's database-backed projection with the project's approved search command when needed:
 
-## Code of Conduct
+```bash
+php artisan waggies:search-rebuild
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Inspect the application and routes with:
 
-## Security Vulnerabilities
+```bash
+php artisan about
+php artisan route:list
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Architecture guidance
 
-## License
+Keep the current product boundaries intact: do not move service pricing into Filament or the database, do not add a pricing CMS, do not implement RAG, do not create public medication functionality, and do not introduce general RBAC without permission. Prefer existing Laravel, Waggies, Filament, and Spatie infrastructure before creating new abstractions.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Read the load-bearing project rules before changing code:
+
+[`.ai/rules/index.md`](.ai/rules/index.md)
+
+## Local administration
+
+Filament is available under `/admin`. Local browser verification uses the existing disposable account created by `DatabaseSeeder`; obtain its credentials from the active local task context and never commit or document them.

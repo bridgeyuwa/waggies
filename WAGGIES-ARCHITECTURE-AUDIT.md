@@ -205,11 +205,18 @@ The catalogue is deliberately distributed between explicit static route entries 
 
 ## 12. Dependency findings
 
-The installed direct dependencies include Laravel 13.31, Filament 5.8.2, Livewire 4.4.4, Pest 4.7.8, PHPUnit 12.5.33, Larastan 3.12.1, Pint 1.32.1, Head, sitemap, breadcrumbs, schema.org, Debugbar, and several Spatie packages.
+The installed direct dependencies include Laravel 13.33.0, Filament 5.8.2, Livewire 4.4.6, Pest/PHPUnit, Larastan, Pint, Head, sitemap, breadcrumbs, schema.org, Debugbar, and several Spatie packages.
 
 Clearly evidenced usage includes Laravel/framework, Head, schema.org, sitemap, breadcrumbs, Filament, Livewire through Filament infrastructure, Pest/PHPUnit, Larastan, Pint, Debugbar, Vite, and Tailwind.
 
-The following packages have no clear application-owned usage in the current scan beyond composer metadata or generated guidance: webpush notification channels, activitylog, backup, data, health, medialibrary, model-states, permission, sluggable, and tags. This is an inventory signal, not permission to uninstall packages. Some may be planned admin/infrastructure capabilities, and removing them can have configuration or future-product consequences.
+The dependency inventory now classifies the remaining packages by verified role:
+
+- Active runtime: Filament, Livewire, Scout, medialibrary, permission, sluggable, schema.org, sitemap, breadcrumbs, Head, and the framework.
+- Infrastructure-required: backup (configured and covered by production-readiness checks) and health (the `/up` health route).
+- Planned or deferred: activitylog, data, model-states, and tags have no current application-owned call sites but remain installed for the product roadmap.
+- Verified unused and removed: `laravel-notification-channels/webpush` had no application, configuration, migration, route, or test usage and was removed with its lockfile-only transitive packages.
+
+This inventory is evidence for the current application boundary, not permission to remove planned or infrastructure packages without a separately tested decision.
 
 Recommended control: perform one dependency inventory before production hardening, classify each package as active, infrastructure-required, planned, or verified-unused, and remove only verified-unused packages in a separately tested batch. Do not combine package removal with pricing, focus, or UI changes.
 
@@ -217,8 +224,8 @@ Recommended control: perform one dependency inventory before production hardenin
 
 The current baseline is healthy:
 
-- `php artisan test --compact`: 43 passed, 893 assertions.
-- `vendor/bin/phpstan analyse --memory-limit=1G`: no errors across 25 files.
+- `php artisan test --compact`: 154 passed, 1,552 assertions.
+- `vendor/bin/phpstan analyse`: no errors across 193 files.
 - `vendor/bin/pint --dirty --format agent`: passed.
 - `npm run build`: passed with Vite 7.3.6 and Tailwind 4.3.3.
 - Waggies-owned PHP lint for `app`, `bootstrap`, `config`, `database`, `routes`, and `tests`: passed.
