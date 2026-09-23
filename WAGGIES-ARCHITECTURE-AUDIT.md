@@ -13,6 +13,19 @@ Local Windows development now uses PostgreSQL 18.6 with pgvector through Docker 
 
 The original SQLite database is preserved as corrupt evidence and is not a migration source. The new PostgreSQL database is reconstructed from migrations and legitimate configuration-owned seed data; unrecoverable SQLite records are not represented as migrated data.
 
+## Final verification — 2026-09-23
+
+This verification supersedes the earlier open findings below where they describe the pre-final-audit runtime. The normal local `DatabaseSeeder` was run against PostgreSQL, making the standard local admin fixture available without adding production credentials or changing the seeder's local/testing guard. The seeded account logged into `/admin`, rendered the structured dashboard and Work Queue, and signed out back to `/admin/login`.
+
+- All 17 active Filament resource classes were audited. The 13 non-clinical resources opened through the authenticated panel; clinical governance routes were checked through their authorization boundary. Empty states, populated tables, forms, relationship selectors, thumbnails/previews, publication fields, and clinical gates rendered without raw JSON, serialized data, raw Markdown, or raw HTML.
+- Ordinary staff access to ClinicalContent, ClinicalReview, ClinicalSource, and ClinicalToolReview routes returned 403. No clinical rows or medications were created; the clinical workflow remains structurally verified and permission-gated.
+- Global search and saved-list dialogs were keyboard-tested: focus enters the dialog, Tab wraps within it, Escape closes it, and focus returns to the trigger.
+- Knowledge Base pagination rendered as an accessible pagination navigation with the current page, page 2, and Next link. No Alpine pagination warning was present.
+- Public browser checks covered the route inventory, canonical/robots/structured-data contracts, 404 handling, gallery filters, key image URLs, responsive widths (375/768/1280/1440), and fresh-page console errors. No horizontal overflow or console errors were observed.
+- `waggies:search-rebuild` synchronized 99 public search documents. PostgreSQL, pgvector, migrations, routes, PHPStan, Pint, PHPUnit, and the Vite production build all passed.
+
+The remaining permission-gated limitation is deliberate: the active user model has a clinical-reviewer flag but no general staff-role/RBAC authority. Broadening admin authorization therefore requires an approved permission model and is not invented as part of this audit.
+
 ## Batch 1 implementation reconciliation — 2026-09-23
 
 The current implementation extends that boundary with persisted booking-request lifecycle/context fields, canonical `BusinessProfile` and `BusinessHour` records, `JobOpening` records for careers, product availability/search/sort and multiple media, and testimonial CRM/identity/customer-relationship verification metadata. `/book` remains request intake only: it does not schedule, allocate capacity, take payment, or confirm an appointment. `/services/pricing` is the canonical pricing surface; the legacy cost-calculator URL redirects there and is not navigated from the public Tools catalogue.
@@ -39,7 +52,7 @@ The application is structurally coherent and is not in need of a broad rewrite. 
 3. Blade components that own semantic markup and reusable visual primitives; and
 4. Alpine factories that own local browser interaction.
 
-The current test suite, static analysis, build, and targeted browser checks all pass. Service pricing is now intentionally owned by version-controlled configuration plus application-owned calculation rules; the Batch 26 database/CMS pricing authority has been rolled back. The principal systemic accessibility risk is the global search/cart dialog lifecycle, which opens and closes overlays without a shared focus-trap and return-focus contract. A current, reproducible runtime warning affects knowledge-base numbered pagination because one Alpine `x-for` iteration has multiple sibling roots.
+The current test suite, static analysis, build, and targeted browser checks all pass. Service pricing is intentionally owned by version-controlled configuration plus application-owned calculation rules. The global search/cart dialog lifecycle now uses the shared focus-trap and trigger-return behavior in the current runtime, and Knowledge Base pagination now renders numbered navigation without the historical Alpine multi-root warning. The remaining concerns are bounded maintenance and permission decisions rather than evidence for a rewrite.
 
 The remaining issues are bounded maintenance concerns rather than evidence for a new framework, CMS, repository layer, global JavaScript rewrite, or wholesale component migration.
 
@@ -108,13 +121,15 @@ The component vocabulary is coherent and is actively used. The generic `card` is
 
 The main adoption issue is partial rather than broken: direct utility composition and raw values remain alongside semantic classes and component APIs. Examples include direct `w-cta` usage, page-specific arbitrary values, and local layout classes. These are valid for unique geometry and responsive composition; the risk is that repeated visual decisions may gradually fork from the primitive vocabulary. This is recorded as design-system adoption drift, not a request for global tokenization.
 
-The knowledge-base pagination template is a concrete correctness exception. In `resources/views/pages/knowledge-base/index.blade.php`, the desktop numbered-page `x-for` contains sibling conditional templates for the active and inactive page states. Alpine requires a single root for each `x-for` iteration, and the browser currently reports:
+The following paragraph records a historical finding from the earlier runtime. It is resolved in the final verification above: `resources/views/pages/knowledge-base/index.blade.php` now gives each desktop numbered-page `x-for` iteration one root, and browser accessibility output includes the numbered pagination.
+
+The former knowledge-base pagination finding was:
 
 ```text
 Alpine Warning: x-for templates require a single root element, additional elements will be ignored.
 ```
 
-The current effect is that previous/next navigation remains available, while the desktop numbered links are ignored. This is a small, well-contained P2 fix.
+The former effect was that previous/next navigation remained available while desktop numbered links were ignored. It is retained here only as historical audit context.
 
 ## 7. Design-system findings
 
@@ -157,7 +172,11 @@ The public form architecture is substantially coherent:
 
 The pricing calculator correctly receives serialized server data instead of owning a second independent rate table in JavaScript. The outstanding problem is upstream configuration duplication, not the transport mechanism from PHP to JavaScript.
 
-The global dialog behavior is the main interaction-system gap. In `resources/views/layouts/app.blade.php`, search and cart dialogs expose `x-show` and `aria-modal`, but they do not share a focus-trap and trigger-return contract. `resources/js/app.js` closes them by changing state; the navbar has a separate last-focus mechanism. This can leave keyboard users without a reliable return point and should be addressed as one focused accessibility batch, not through unrelated interaction refactoring.
+The following paragraph records a historical finding from the earlier runtime. The current `waggiesDialog` Alpine behavior in `resources/js/alpine/global-ui.js` provides the shared focus-trap and trigger-return contract for search and saved-list dialogs; the final browser audit verified open, Tab-wrap, Escape, and return-focus behavior.
+
+The former global dialog finding was:
+
+Search and saved-list dialogs exposed `x-show` and `aria-modal` without a shared focus-trap and trigger-return contract. This could leave keyboard users without a reliable return point and was recorded for a focused accessibility batch.
 
 ## 10. Data and business-logic findings
 
@@ -286,8 +305,8 @@ The following should not be “fixed” merely to make the code look more unifor
 | ID | Severity | Status | Evidence and why it matters | Recommended remediation | Scope |
 | --- | --- | --- | --- | --- | --- |
 | B10-01 | P1 | `RESOLVED IN R26` | Service commercial inputs are restored to `config/waggies_pricing.php`; public consumers read that configuration and application code owns display/calculation semantics. | Preserve the configuration/application boundary. Do not recreate database-backed pricing or a pricing CMS without a materially different product requirement. | Complete |
-| B10-02 | P1 / high P2 | `RECORDED; DO NOT FIX IN BATCH 10` | `resources/views/layouts/app.blade.php` and `resources/js/app.js` close global search/cart dialogs without a shared trap and trigger-return lifecycle. Keyboard context can be lost across every page. | One focused dialog accessibility batch: establish open/close/focus/escape/outside-click/reduced-motion behavior, then add targeted interaction coverage. | Medium |
-| B10-03 | P2 | `READY FOR SMALL FIX` | `resources/views/pages/knowledge-base/index.blade.php` has multiple sibling roots inside an Alpine `x-for`; current browser logs reproduce the warning and numbered pagination is absent from the accessibility tree. | Give each iteration one root and verify desktop numbered navigation plus previous/next behavior. | Small |
+| B10-02 | P1 / high P2 | `RESOLVED; VERIFIED 2026-09-23` | The current shared dialog behavior traps focus, handles Escape, and restores focus to the trigger for global search and saved-list dialogs. | Preserve the shared lifecycle and keep the browser interaction check covered by future audits. | Complete |
+| B10-03 | P2 | `RESOLVED; VERIFIED 2026-09-23` | The Knowledge Base numbered-page `x-for` has one root per iteration; browser accessibility output includes page 2 and Next navigation without the historical warning. | Preserve the single-root template and pagination regression coverage. | Complete |
 | B10-04 | P2 | `OPPORTUNISTIC` | Semantic component APIs are adopted but coexist with repeated direct utility/raw values across `resources/views/pages` and components. Repeated decisions may fork. | Define the primitive-versus-page-composition boundary and migrate repeated cases only when touched. | Medium, incremental |
 | B10-05 | P2 | `DEFERRED` | `resources/js/app.js` is an 813-line global Alpine registry and event surface. It is coherent today but increases shared-bundle coupling as features grow. | Extract bounded behavior/domain modules without changing Alpine or introducing a state library; pair extraction with focused tests. | Medium/large |
 | B10-06 | P2 | `DEFERRED` | Public `layouts/app.blade.php` includes Livewire styles/config and `app.js` starts Livewire, while no application-owned public Livewire components exist. Filament still needs Livewire. | Verify Filament asset isolation, then either remove unnecessary public bootstrap or document the compatibility boundary. Do not remove Livewire/Filament. | Small/medium |
@@ -302,12 +321,11 @@ The following should not be “fixed” merely to make the code look more unifor
 
 - Keep the current green baseline intact.
 - Preserve the R26 pricing authority boundary.
-- Keep B10-02 dialog focus work separate and explicitly out of that batch.
+- Preserve the verified dialog focus lifecycle and Knowledge Base pagination behavior.
 
 ### Next controlled batches
 
-1. A focused dialog focus lifecycle/accessibility batch covering the global search and cart overlays.
-2. A small knowledge-base pagination fix with browser/render verification.
+No implementation batch is required for B10-02 or B10-03; both were verified resolved during the final audit. Future work remains subject to the existing scope and permission gates.
 
 ### Opportunistic
 
@@ -449,7 +467,7 @@ The applied runtime has no `service_prices` table and no Pricing Catalog/Service
 
 ## 5. Route / URL reconciliation
 
-The route inventory contains 75 non-vendor routes. The important public contracts remain `/shop`, `/shop/{product:slug}`, GET/POST `/book`, `/faq` without standalone FAQ detail URLs, `/about/gallery` without Gallery item URLs, slug-only Guides and Knowledge Base routes, and their historical slug redirects. No stale Pricing CMS, Services CMS, or Relocation CMS routes were found. The change in this batch was middleware on the existing newsletter/testimonial POST routes; no public URL redesign was made. Product slugs are included in `PublicUrlCatalog`; operational records are not.
+The route inventory contains 97 non-vendor routes. The important public contracts remain `/shop`, `/shop/{product:slug}`, GET/POST `/book`, `/faq` without standalone FAQ detail URLs, `/about/gallery` without Gallery item URLs, slug-only Guides and Knowledge Base routes, and their historical slug redirects. No stale Pricing CMS, Services CMS, or Relocation CMS routes were found. Product slugs are included in `PublicUrlCatalog`; operational records are not.
 
 ## 6. SEO/search reconciliation
 
@@ -457,7 +475,7 @@ The existing canonical, robots, sitemap, breadcrumb, and structured-data infrast
 
 ## 7. Filament reconciliation
 
-Nine justified resources were audited: Booking Requests, Contact Enquiries, FAQs, Gallery Items, Guides, Knowledge Articles, Newsletter Subscribers, Products, and Testimonials. Tables/forms use their persisted models and the current publication/moderation/media semantics. Product, Gallery, Guide, Knowledge Article, and Testimonial resources expose media previews where applicable. There is no Pricing, Services, Relocation, generic CMS, Page Builder, or generic Settings resource. Feature tests verify representative authenticated resource routes; authenticated browser editing was not completed because credentials were not available in the current context.
+All 17 active resource classes were audited: Booking Requests, Business Hours, Business Profile, Clinical Content, Clinical Reviews, Clinical Sources, Clinical Tool Reviews, Contact Enquiries, FAQs, Gallery Items, Guides, Job Openings, Knowledge Articles, Medication References, Newsletter Subscribers, Products, and Testimonials. Tables/forms use their persisted models and current publication, moderation, media, and clinical-policy semantics. Empty and populated states rendered in the authenticated browser; clinical routes correctly denied the ordinary seeded user. Empty ServicePrices and Services directories contain no active resource classes.
 
 ## 8. Form/customer journey reconciliation
 
@@ -465,33 +483,33 @@ Public browser journeys verified rendering and navigation for Home → Services 
 
 ## 9. Database proof
 
-The previous live SQLite database had 21 tables at audit time. Relevant row counts were: Guides 4, Knowledge Articles 10, FAQs 52, Gallery Items 23, Contact Enquiries 1, Newsletter Subscriptions 1, Testimonials 14, Products 10, Booking Requests 0, and Media 0. That file is now treated as corrupt, preserved evidence rather than a migration source. The current PostgreSQL schema is reconstructed from migrations and legitimate configuration-owned seed data; no unrecovered SQLite records are claimed as migrated.
+The current PostgreSQL schema is reconstructed from migrations and legitimate configuration-owned seed data; no unrecovered SQLite records are claimed as migrated. Current proof counts include Guides 4, Knowledge Articles 10, FAQs 52, Gallery Items 23, Testimonials 12, Products 10, Booking Requests 0, and Media 0. PostgreSQL 18.6 and pgvector 0.8.1 are active through the local development stack.
 
 ## 10. Media proof
 
-Managed collections are owned by Product, GalleryItem, Guide, KnowledgeArticle, and Testimonial models, using the public disk with the established image/cover/photo/content-attachment collections and conversions. The live `media` table has 0 rows, so no Waggies-owned managed media lifecycle could honestly be claimed in this development dataset. Legacy remote image fields remain on 4 Guides, 10 Knowledge Articles, 23 Gallery Items, and 10 Products; they were not silently re-hosted. Media architecture tests passed. Twelve temporary conversion/upload directories remain under `storage/media-library/temp`; they were preserved as ambiguous runtime residue and are now ignored.
+Managed collections are owned by Product, GalleryItem, Guide, KnowledgeArticle, and Testimonial models, using the public disk with the established image/cover/photo/content-attachment collections and conversions. The live `media` table has 0 rows, so real Waggies-owned managed-media mutation proof remains unavailable in this dataset. The 33 source-controlled editorial JPGs are all referenced by current application data or source; the current runtime contains no Unsplash CDN image URL. A stale remote URL observed in a pre-existing browser saved-list item is client-local state, not a current application asset. Key public asset checks returned HTTP 200, image alternatives were present in the audited surfaces, and media architecture tests passed.
 
 ## 11. Browser proof
 
 ### Authenticated Filament
 
-Anonymous `/admin` access redirected to `/admin/login`. Authenticated route coverage passed in the feature suite for the current resources. Browser edit/save workflows for Guides, Knowledge Base, FAQs, Gallery, Testimonials, Products, Booking, Contact, and Newsletter were not verified because usable local credentials were not present in the current context.
+Anonymous `/admin` access redirected to `/admin/login`. The local seeded account authenticated in the browser, rendered the dashboard and all active resource surfaces, and signed out successfully. Read-only form and relationship checks covered Guides, Knowledge Base, FAQs, Gallery, Testimonials, Products, Booking, Contact, Newsletter, Business Profile, Business Hours, Job Openings, and Medication References; clinical governance routes returned 403 to the ordinary user. Real content mutation and managed-media upload/replacement/deletion were not performed because the local dataset has no safe disposable media fixture.
 
 ### Public
 
 The local browser rendered Home, Services, Pricing, Booking, Contact, Shop, Product detail, Guide detail, Knowledge Base detail, FAQ, Gallery, and Testimonials. Browser console/error logs were empty after the view cache was rebuilt. The first Testimonials navigation collided with concurrent compiled-view file activity and returned a transient Windows `rename(...): Access is denied`; clearing/rebuilding the view cache and reloading rendered the page successfully with no logs.
 
-### Not verified
+### Permission-gated or not verified
 
-Authenticated Filament mutation workflows and real disposable browser media upload/replacement/deletion were not verified. No credentials or safe managed media fixture were available, and no real content was altered to manufacture proof.
+Clinical reviewer-only approval/withdrawal flows require a reviewer identity and approved clinical records, neither of which is seeded locally. Real disposable browser media upload/replacement/deletion remains unverified because the local `media` table is empty; no real content was altered to manufacture proof. General staff-role/RBAC separation remains a permission-required product decision because no active role model exists.
 
 ## 12. Tests
 
 - Focused remediation tests: FAQ/SEO 11 passed (122 assertions); intake/public interaction 11 passed (51 assertions).
-- Full Pest suite: 113 passed, 1,413 assertions, using `php -d memory_limit=512M vendor/bin/pest --compact` because the existing GD/media suite exceeds the default CLI memory limit.
-- PHPStan: passed, 92 files, no errors.
-- Pint: passed with `vendor/bin/pint --dirty --format agent`.
-- PHP lint: passed for 183 PHP files.
+- Full PHPUnit suite: 154 passed, 1,551 assertions, using `php artisan test --compact`.
+- PHPStan: passed, 193 files, no errors.
+- Pint: passed with `vendor/bin/pint --test --format agent`.
+- PHP lint: covered by the passing test/static-analysis baseline.
 - Blade cache: passed.
 - Vite production build: passed with Vite 7.3.6.
 - Composer audit: no security vulnerability advisories found.
@@ -504,7 +522,7 @@ Updated `WAGGIES-ARCHITECTURE-AUDIT.md` with this current evidence report and re
 
 ## 14. Remaining legitimate limitations
 
-The development database currently has no managed Media Library rows, so real upload/replacement/deletion proof remains unverified. Authenticated Filament browser workflows remain unverified for lack of available local credentials. Remote legacy imagery remains where no safe Waggies-owned source exists. Granular role/policy authorization is not implemented; the current architecture relies on protected Filament authentication rather than inventing an RBAC system in this batch. The existing global dialog focus lifecycle and any future operational scheduling/commerce/account requirements remain outside this reconciliation.
+The development database currently has no managed Media Library rows, so real upload/replacement/deletion proof remains unverified. Clinical reviewer workflows require a separately approved reviewer fixture and governed records. Granular general staff-role/RBAC authorization is not implemented; the current architecture relies on protected Filament authentication plus the existing clinical-reviewer policy boundary rather than inventing an RBAC system. Future operational scheduling, commerce, and account requirements remain outside this reconciliation.
 
 ## 15. Files changed
 
