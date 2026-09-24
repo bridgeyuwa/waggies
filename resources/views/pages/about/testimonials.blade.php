@@ -5,6 +5,6 @@
     <x-waggies.cover-hero :hero="$hero" />
     <x-waggies.testimonials-grid :items="$items" :filters="$filters" />
     <section class="py-20 bg-surface-purple"><div class="max-w-3xl mx-auto px-4 md:px-10 lg:px-12"><div class="text-center mb-10"><h2 class="font-serif text-3xl md:text-4xl font-bold text-primary-dark mb-3">Share Your Experience</h2><p class="text-primary-dark/60 max-w-xl mx-auto">Help other pet owners discover Waggies.</p></div><x-waggies.testimonial-form /></div></section>
-    <section class="py-20 bg-primary-dark"><div class="max-w-3xl mx-auto px-4 text-center"><h2 class="font-serif text-3xl font-bold text-white mb-3">{{ $bottomCta['heading'] }}</h2><p class="text-white/70 mb-6">{{ $bottomCta['body'] }}</p><x-waggies.button href="{{ route($bottomCta['ctaRoute'], $bottomCta['ctaParams'] ?? []) }}" class="!bg-secondary !text-primary-dark hover:!bg-secondary-hover">{{ $bottomCta['ctaLabel'] }} <x-waggies.icon name="arrow-forward" size="18" /></x-waggies.button></div></section>
+    <section class="py-20 bg-primary-dark"><div class="max-w-3xl mx-auto px-4 text-center"><h2 class="font-serif text-3xl font-bold text-white mb-3">{{ $bottomCta['heading'] }}</h2><p class="text-white/70 mb-6">{{ $bottomCta['body'] }}</p><x-waggies.button href="{{ route($bottomCta['ctaRoute'], $bottomCta['ctaParams'] ?? []) }}" class="bg-secondary! text-primary-dark! hover:bg-secondary-hover!">{{ $bottomCta['ctaLabel'] }} <x-waggies.icon name="arrow-forward" size="18" /></x-waggies.button></div></section>
 
 @endsection

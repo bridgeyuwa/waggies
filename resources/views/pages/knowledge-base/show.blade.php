@@ -23,7 +23,7 @@
                     @endif
                 </div>
 
-                <div class="relative aspect-[16/9] rounded-2xl overflow-hidden mb-10">
+                <div class="relative aspect-video rounded-2xl overflow-hidden mb-10">
                     <img src="{{ $article['image'] }}" @if(filled($article['imageSrcset'] ?? null)) srcset="{{ $article['imageSrcset'] }}" sizes="(min-width: 1024px) 800px, 100vw" @endif alt="{{ $article['imageAlt'] }}" class="absolute inset-0 h-full w-full object-cover" fetchpriority="high">
                 </div>
 

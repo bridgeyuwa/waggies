@@ -41,7 +41,7 @@ const galleryLightbox = (images, categories) => ({
     init() { if (this.activeCategory !== 'All' && !this.categories.includes(this.activeCategory)) this.activeCategory = 'All'; this.$watch('lightboxIndex', value => { document.body.style.overflow = value === null ? '' : 'hidden'; }); },
     visibleImages() { return this.activeCategory === 'All' ? this.images : this.images.filter(image => image.category === this.activeCategory); },
     isVisible(image) { return this.activeCategory === 'All' || image.category === this.activeCategory; },
-    cellAspect(index) { return ['aspect-[4/5]', 'aspect-square', 'aspect-[3/4]', 'aspect-[4/3]', 'aspect-[5/6]'][index % 5]; },
+    cellAspect(index) { return ['aspect-4/5', 'aspect-square', 'aspect-3/4', 'aspect-4/3', 'aspect-5/6'][index % 5]; },
     selectCategory(category) { this.activeCategory = category; this.lightboxIndex = null; const url = new URL(window.location.href); category === 'All' ? url.searchParams.delete('category') : url.searchParams.set('category', category); history.replaceState({}, '', url); },
     visibleIndex(index) { return this.visibleImages().findIndex(image => image === this.images[index]); },
     openAt(index) { this.lightboxIndex = this.visibleIndex(index); },

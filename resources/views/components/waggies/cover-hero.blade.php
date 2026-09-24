@@ -9,8 +9,8 @@
 
 @php
     $sizeClasses = match ($size) {
-        'compact' => 'min-h-[26.25rem] md:min-h-[28rem]',
-        default => 'min-h-[35rem]',
+        'compact' => 'min-h-105 md:min-h-112',
+        default => 'min-h-140',
     };
 
     $contentPositionClasses = match ($contentPosition) {

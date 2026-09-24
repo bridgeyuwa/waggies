@@ -51,7 +51,7 @@
             <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
                 @foreach($page['tiers'] as $tier)
                     <div class="rounded-2xl border border-surface-purple bg-white p-8 shadow-sm transition-shadow hover:shadow-soft">
-                        <x-waggies.icon name="{{ $tier['icon'] }}" variant="filled" size="36" class="text-4xl {{ $tier['color'] }} mb-3 !block" />
+                        <x-waggies.icon name="{{ $tier['icon'] }}" variant="filled" size="36" class="text-4xl {{ $tier['color'] }} mb-3 block!" />
                         <h3 class="mb-1 font-serif text-2xl font-bold text-primary-dark">{{ $tier['tier'] }}</h3>
                         <p class="mb-4 text-xs uppercase tracking-widest text-primary-dark/60">{{ $tier['threshold'] }}</p>
                         <ul class="flex flex-col gap-2">

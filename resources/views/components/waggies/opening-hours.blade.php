@@ -2,7 +2,7 @@
 
 <section
     x-data="waggiesOpeningHours({{ Illuminate\Support\Js::from($schedule) }})"
-    class="overflow-hidden rounded-[1.25rem] border border-primary/10 bg-white shadow-sm"
+    class="overflow-hidden rounded-2xl border border-primary/10 bg-white shadow-sm"
     aria-labelledby="opening-hours-title"
 >
     <div class="flex flex-col gap-4 border-b border-primary/10 px-4 py-5 sm:px-6">

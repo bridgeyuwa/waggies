@@ -9,10 +9,10 @@
     <div class="page-container">
         <form method="get" class="mb-8 grid grid-cols-1 gap-3 rounded-2xl border border-primary/10 bg-white p-4 sm:grid-cols-[1fr_auto]">
             <label class="sr-only" for="shop-search">Search products</label>
-            <input id="shop-search" name="q" value="{{ $search }}" placeholder="Search products, categories or features" class="contact-input !mt-0">
+            <input id="shop-search" name="q" value="{{ $search }}" placeholder="Search products, categories or features" class="contact-input mt-0!">
             <div class="flex gap-3">
                 <label class="sr-only" for="shop-sort">Sort products</label>
-                <select id="shop-sort" name="sort" class="contact-input !mt-0 min-w-44">
+                <select id="shop-sort" name="sort" class="contact-input mt-0! min-w-44">
                     @foreach($sortOptions as $key => $label)<option value="{{ $key }}" @selected($sort === $key)>{{ $label }}</option>@endforeach
                 </select>
                 @if($activeCategory !== 'All')<input type="hidden" name="category" value="{{ $activeCategory }}">@endif

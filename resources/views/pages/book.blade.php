@@ -92,7 +92,7 @@
                             </div>
                         </div>
 
-                        <div class="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
+                        <div class="absolute left-[-9999px] h-px w-px overflow-hidden" aria-hidden="true">
                             <label for="booking-website">Website</label>
                             <input id="booking-website" name="website" type="text" value="{{ old('website') }}" tabindex="-1" autocomplete="off">
                         </div>

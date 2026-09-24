@@ -20,7 +20,7 @@
 @endphp
 
 <header x-data="waggiesNavbar" class="sticky top-0 z-layer-navigation w-full overflow-visible border-b border-primary/10 bg-white transition-[background-color,box-shadow,border-color] duration-200" @click.outside="closeDesktop()" @keydown.escape.window="escape()">
-    <nav x-ref="nav" class="page-container flex min-h-[4.5rem] items-center justify-between overflow-visible" aria-label="Main navigation">
+    <nav x-ref="nav" class="page-container flex min-h-18 items-center justify-between overflow-visible" aria-label="Main navigation">
         <a href="{{ route('home') }}" class="-my-2 flex shrink-0 items-center gap-2.5 py-2" aria-label="Waggies - home">
             <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-sm"><x-waggies.icon name="pets" size="20" class="text-white" /></span>
             <span class="font-serif text-[1.375rem] font-bold tracking-tight text-primary-dark">Waggies</span>
@@ -85,11 +85,11 @@
                 <button x-data="waggiesCartIndicator" type="button" aria-controls="global-cart-dialog" aria-expanded="false" class="relative flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-surface-purple focus:outline-none focus:ring-2 focus:ring-primary/60" aria-label="Open saved list" :aria-label="`Open saved list${count > 0 ? `, ${count} item${count === 1 ? '' : 's'}` : ''}`" @click="$dispatch('waggies:open-cart', { trigger: $event.currentTarget })"><x-waggies.icon name="shopping-cart" size="20" class="text-primary-dark" /><span x-show="count > 0" x-cloak class="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-white" x-text="count > 99 ? '99+' : count"></span></button>
                 <button type="button" aria-controls="global-search-dialog" aria-expanded="false" class="group relative flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-surface-purple focus:outline-none focus:ring-2 focus:ring-primary/60" aria-label="Search the site" title="Search the site (⌘K / Ctrl+K)" @click="$dispatch('waggies:open-search', { trigger: $event.currentTarget })"><x-waggies.icon name="search" size="20" class="text-primary-dark transition-transform group-hover:scale-110" /></button>
             </div>
-            <x-waggies.button href="{{ route('book') }}" class="hidden !gap-1.5 px-6 py-3 text-sm lg:block">Request a booking</x-waggies.button>
+            <x-waggies.button href="{{ route('book') }}" class="hidden gap-1.5! px-6 py-3 text-sm lg:block">Request a booking</x-waggies.button>
             <button x-ref="mobileToggle" type="button" class="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-lg p-3 transition-colors hover:bg-surface-purple lg:hidden" aria-expanded="false" :aria-expanded="mobileOpen" :aria-label="mobileOpen ? 'Close navigation menu' : 'Open navigation menu'" aria-controls="mobile-menu" @click="mobileOpen ? closeMobile() : openMobile()">
                 <span class="block h-0.5 w-5 rounded-full bg-primary-dark transition-[transform,opacity] duration-300" :class="mobileOpen && 'translate-y-[7px] rotate-45'" aria-hidden="true"></span>
-                <span class="block h-0.5 w-5 rounded-full bg-primary-dark transition-[opacity] duration-300" :class="mobileOpen && 'opacity-0'" aria-hidden="true"></span>
-                <span class="block h-0.5 w-5 rounded-full bg-primary-dark transition-[transform,opacity] duration-300" :class="mobileOpen && '-translate-y-[7px] -rotate-45'" aria-hidden="true"></span>
+                <span class="block h-0.5 w-5 rounded-full bg-primary-dark transition-opacity duration-300" :class="mobileOpen && 'opacity-0'" aria-hidden="true"></span>
+                <span class="block h-0.5 w-5 rounded-full bg-primary-dark transition-[transform,opacity] duration-300" :class="mobileOpen && 'translate-y-[-7px] -rotate-45'" aria-hidden="true"></span>
             </button>
         </div>
     </nav>
@@ -154,6 +154,6 @@
             <a href="{{ route('shop.index') }}" class="mobile-nav-link {{ $navSection === 'shop' || str_starts_with($currentPath, '/shop/') ? 'bg-surface-purple text-primary' : '' }}" @click="closeMobile()" @if($navSection === 'shop' || str_starts_with($currentPath, '/shop/')) aria-current="page" @endif>Shop</a>
             <a href="{{ route('contact') }}" class="mobile-nav-link" @click="closeMobile()">Contact</a>
         </nav>
-        <div class="space-y-3 border-t border-surface-purple px-4 py-4"><x-waggies.button href="{{ route('book') }}" class="w-full !gap-1.5 px-6 py-3 text-sm" @click="closeMobile()">Request a booking</x-waggies.button></div>
+        <div class="space-y-3 border-t border-surface-purple px-4 py-4"><x-waggies.button href="{{ route('book') }}" class="w-full gap-1.5! px-6 py-3 text-sm" @click="closeMobile()">Request a booking</x-waggies.button></div>
     </aside>
 </header>

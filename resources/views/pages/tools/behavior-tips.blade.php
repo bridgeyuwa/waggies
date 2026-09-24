@@ -9,8 +9,8 @@
                 <div>
                     <p class="text-eyebrow text-primary/60">Choose a companion</p>
                     <div class="mt-3 flex flex-wrap gap-2" role="group" aria-label="Pet species">
-                        <button type="button" @click="species = 'dog'" :aria-pressed="species === 'dog'" class="min-h-[44px] rounded-full px-5 text-sm font-semibold transition-[background-color,color,box-shadow] duration-[180ms]" :class="species === 'dog' ? 'bg-primary text-white shadow-sm' : 'bg-surface-purple text-primary hover:bg-primary/10'">Dog</button>
-                        <button type="button" @click="species = 'cat'" :aria-pressed="species === 'cat'" class="min-h-[44px] rounded-full px-5 text-sm font-semibold transition-[background-color,color,box-shadow] duration-[180ms]" :class="species === 'cat' ? 'bg-primary text-white shadow-sm' : 'bg-surface-purple text-primary hover:bg-primary/10'">Cat</button>
+                        <button type="button" @click="species = 'dog'" :aria-pressed="species === 'dog'" class="min-h-[44px] rounded-full px-5 text-sm font-semibold transition-[background-color,color,box-shadow] duration-180" :class="species === 'dog' ? 'bg-primary text-white shadow-sm' : 'bg-surface-purple text-primary hover:bg-primary/10'">Dog</button>
+                        <button type="button" @click="species = 'cat'" :aria-pressed="species === 'cat'" class="min-h-[44px] rounded-full px-5 text-sm font-semibold transition-[background-color,color,box-shadow] duration-180" :class="species === 'cat' ? 'bg-primary text-white shadow-sm' : 'bg-surface-purple text-primary hover:bg-primary/10'">Cat</button>
                     </div>
                 </div>
                 <label class="w-full sm:max-w-xs">

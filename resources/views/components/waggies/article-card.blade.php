@@ -3,7 +3,7 @@
 <article {{ $attributes }}>
     <x-waggies.card hover class="group h-full overflow-hidden border border-primary/5 p-0 {{ $featured ? 'md:flex' : '' }}">
         <a href="{{ route($routeName, ['slug' => $guide['slug']]) }}" class="flex h-full flex-col {{ $featured ? 'md:flex-row' : '' }}">
-            <div class="relative overflow-hidden {{ $featured ? 'md:w-1/2 md:shrink-0' : 'aspect-[16/10]' }}">
+            <div class="relative overflow-hidden {{ $featured ? 'md:w-1/2 md:shrink-0' : 'aspect-16/10' }}">
                 <x-waggies.image src="{{ $guide['image'] }}" alt="{{ $guide['title'] }}" class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025] motion-reduce:transition-none motion-reduce:transform-none" />
             </div>
 

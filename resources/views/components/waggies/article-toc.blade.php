@@ -8,7 +8,7 @@
                 <ul class="space-y-1">
                     @foreach($headings as $heading)
                         <li>
-                            <a href="#{{ $heading['id'] }}" @click="setActive('{{ $heading['id'] }}')" class="block border-l-2 py-1 pl-3 text-sm leading-snug transition-[border-color,color] duration-[180ms] {{ $heading['level'] === 3 ? 'pl-5 text-xs' : '' }} border-transparent text-text-muted hover:border-primary/30 hover:text-primary-dark" data-toc-link="{{ $heading['id'] }}">{{ $heading['text'] }}</a>
+                            <a href="#{{ $heading['id'] }}" @click="setActive('{{ $heading['id'] }}')" class="block border-l-2 py-1 pl-3 text-sm leading-snug transition-[border-color,color] duration-180 {{ $heading['level'] === 3 ? 'pl-5 text-xs' : '' }} border-transparent text-text-muted hover:border-primary/30 hover:text-primary-dark" data-toc-link="{{ $heading['id'] }}">{{ $heading['text'] }}</a>
                         </li>
                     @endforeach
                 </ul>
@@ -22,7 +22,7 @@
                     <ul class="space-y-2">
                         @foreach($headings as $heading)
                             <li>
-                                <a href="#{{ $heading['id'] }}" @click="setActive('{{ $heading['id'] }}')" class="block border-l-2 py-1 pl-3 text-sm leading-snug transition-[border-color,color] duration-[180ms] {{ $heading['level'] === 3 ? 'pl-5 text-xs' : '' }} {{ $loop->first ? 'border-primary font-semibold text-primary' : 'border-transparent text-text-muted hover:border-primary/30 hover:text-primary-dark' }}" data-toc-link="{{ $heading['id'] }}" @if($loop->first) aria-current="location" @endif>{{ $heading['text'] }}</a>
+                                <a href="#{{ $heading['id'] }}" @click="setActive('{{ $heading['id'] }}')" class="block border-l-2 py-1 pl-3 text-sm leading-snug transition-[border-color,color] duration-180 {{ $heading['level'] === 3 ? 'pl-5 text-xs' : '' }} {{ $loop->first ? 'border-primary font-semibold text-primary' : 'border-transparent text-text-muted hover:border-primary/30 hover:text-primary-dark' }}" data-toc-link="{{ $heading['id'] }}" @if($loop->first) aria-current="location" @endif>{{ $heading['text'] }}</a>
                             </li>
                         @endforeach
                     </ul>

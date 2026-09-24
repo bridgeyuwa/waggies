@@ -194,6 +194,36 @@ class AppServiceProvider extends ServiceProvider
                     ->description('The requested Waggies page could not be found.')
                     ->robots(['noindex', 'follow']);
             });
+
+            $errors->status(403, function (HeadBuilder $head): void {
+                $head->title('Access denied - Waggies', exact: true)
+                    ->description('You do not have permission to view this Waggies page.')
+                    ->robots(['noindex', 'follow']);
+            });
+
+            $errors->status(419, function (HeadBuilder $head): void {
+                $head->title('Page expired - Waggies', exact: true)
+                    ->description('This Waggies form session has expired.')
+                    ->robots(['noindex', 'follow']);
+            });
+
+            $errors->status(429, function (HeadBuilder $head): void {
+                $head->title('Too many requests - Waggies', exact: true)
+                    ->description('Please wait a moment before trying this Waggies request again.')
+                    ->robots(['noindex', 'follow']);
+            });
+
+            $errors->status(500, function (HeadBuilder $head): void {
+                $head->title('Something went wrong - Waggies', exact: true)
+                    ->description('Waggies could not load this page because something went wrong.')
+                    ->robots(['noindex', 'follow']);
+            });
+
+            $errors->status(503, function (HeadBuilder $head): void {
+                $head->title('Temporarily unavailable - Waggies', exact: true)
+                    ->description('Waggies is temporarily unavailable.')
+                    ->robots(['noindex', 'follow']);
+            });
         });
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Models\BusinessProfile;
 use App\Models\User;
+use Illuminate\Support\Facades\Route;
 
 it('returns a healthy native endpoint with non-sensitive security headers', function (): void {
     $this->get('/up')
@@ -21,6 +22,33 @@ it('renders the Waggies not found page with a real 404 response', function (): v
         ->assertSee('Browse services')
         ->assertDontSee('Chat on WhatsApp')
         ->assertDontSee('Open Waggies AI Assistant');
+});
+
+it('renders branded fallback pages with their real HTML error status', function (): void {
+    $pages = [
+        403 => ['title' => 'Access denied', 'description' => 'You do not have permission to view this page.', 'secondary' => 'Contact Waggies'],
+        419 => ['title' => 'Page expired', 'description' => 'This form session has expired.', 'secondary' => 'Contact Waggies'],
+        429 => ['title' => 'Too many requests', 'description' => 'Please wait a moment before trying again.', 'secondary' => 'Contact Waggies'],
+        500 => ['title' => 'Something went wrong', 'description' => 'We hit a problem while loading this page.', 'secondary' => 'Return to homepage'],
+        503 => ['title' => 'Temporarily unavailable', 'description' => 'Waggies is taking a short break.', 'secondary' => 'Return to homepage'],
+    ];
+
+    foreach ($pages as $status => $page) {
+        Route::get('/__test/errors/'.$status, static function () use ($status): never {
+            abort($status);
+        });
+
+        $this->get('/__test/errors/'.$status)
+            ->assertStatus($status)
+            ->assertSee((string) $status)
+            ->assertSee($page['title'])
+            ->assertSee($page['description'])
+            ->assertSee('<title>'.$page['title'].' - Waggies</title>', false)
+            ->assertSee('Return to homepage')
+            ->assertSee($page['secondary'])
+            ->assertDontSee('Chat on WhatsApp')
+            ->assertDontSee('Open Waggies AI Assistant');
+    }
 });
 
 it('renders a truthful homepage testimonial state when no stories are publishable', function (): void {

@@ -31,7 +31,7 @@
         </div>
     @else
     <div class="mx-auto max-w-7xl px-4 pb-8 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pt-20">
-        <div class="mb-12 rounded-2xl border border-white/10 bg-white/[0.04] p-6 sm:p-8 lg:mb-14">
+        <div class="mb-12 rounded-2xl border border-white/10 bg-white/4 p-6 sm:p-8 lg:mb-14">
             <div class="grid items-center gap-6 lg:grid-cols-2 lg:gap-10">
                 <div><h3 class="font-serif text-2xl font-bold text-white text-balance sm:text-[1.75rem]">Pet care tips, <span class="text-secondary italic">monthly.</span></h3><p class="mt-2 max-w-md text-sm text-white/65 sm:text-base">Pet care tips and updates from Waggies. No spam, unsubscribe anytime.</p></div>
                 <form action="{{ route('newsletter.store') }}" method="post" class="flex flex-col gap-3 sm:flex-row" x-data="{ submitting: false }" @submit="submitting = true">
@@ -43,7 +43,7 @@
                     <div class="relative flex-1">
                         <label class="sr-only" for="footer-email">Email address</label>
                         <x-waggies.icon name="email" size="20" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
-                        <x-waggies.input id="footer-email" name="email" type="email" required placeholder="you@example.com" :value="old('email')" :error="$errors->first('email')" class="!h-11 !min-h-0 !rounded-lg !border-white/20 !bg-white/[0.08] !pl-10 !pr-3 !text-sm !text-white placeholder:!text-white/50 focus:!border-secondary/60 focus:!outline-none focus:!ring-2 focus:!ring-secondary/30" />
+                        <x-waggies.input id="footer-email" name="email" type="email" required placeholder="you@example.com" :value="old('email')" :error="$errors->first('email')" class="h-11! min-h-0! rounded-lg! border-white/20! bg-white/8! pl-10! pr-3! text-sm! text-white! placeholder:text-white/50! focus:border-secondary/60! focus:outline-none! focus:ring-2! focus:ring-secondary/30!" />
                     </div>
                     <x-waggies.button type="submit" class="h-11 w-full rounded-lg bg-secondary px-5 text-sm text-primary-dark shadow-sm hover:bg-secondary-hover sm:w-auto" aria-label="Subscribe to newsletter" x-bind:disabled="submitting" x-bind:aria-busy="submitting">
                         <span x-show="!submitting" class="inline-flex items-center gap-2"><x-waggies.icon name="send" size="16" />Subscribe</span>

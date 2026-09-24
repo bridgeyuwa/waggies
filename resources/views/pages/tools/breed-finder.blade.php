@@ -24,7 +24,7 @@
                         <label for="breed-search" class="mb-2 block text-sm font-semibold text-primary-dark">Search Breeds</label>
                         <div class="relative">
                             <x-waggies.icon name="search" size="18" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-primary-dark/40" />
-                            <x-waggies.input id="breed-search" type="search" autocomplete="off" x-model="search" placeholder="e.g. Labrador, Friendly, Active…" class="!min-h-11 !rounded-xl !border-primary/10 !bg-white !py-2.5 !pl-10 !pr-4 text-sm placeholder:!text-primary-dark/30 focus:!outline-none focus:!ring-primary/40" />
+                            <x-waggies.input id="breed-search" type="search" autocomplete="off" x-model="search" placeholder="e.g. Labrador, Friendly, Active…" class="min-h-11! rounded-xl! border-primary/10! bg-white! py-2.5! pl-10! pr-4! text-sm placeholder:text-primary-dark/30! focus:outline-none! focus:ring-primary/40!" />
                         </div>
                     </div>
 

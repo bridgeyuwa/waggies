@@ -28,7 +28,7 @@
                     @php($starts = ['lg:col-start-1', 'lg:col-start-3', 'lg:col-start-5', 'lg:col-start-2', 'lg:col-start-4'])
                     <a href="{{ route($card['route'], $card['params'] ?? []) }}"
                         class="group block h-full overflow-hidden rounded-2xl bg-white shadow-[inset_0_0_0_1px_oklch(0.196_0.108_310/0.08),0_1px_3px_oklch(0.196_0.108_310/0.05)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[inset_0_0_0_1px_oklch(0.332_0.155_305/0.16),0_16px_40px_-12px_oklch(0.196_0.108_310/0.18)] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:col-span-1 lg:col-span-2 {{ $starts[$index] }} {{ $index === 4 ? 'md:col-span-2 md:mx-auto md:max-w-md' : '' }}">
-                        <div class="relative aspect-[3/2] overflow-hidden"><img src="{{ $card['imageSrc'] }}"
+                        <div class="relative aspect-3/2 overflow-hidden"><img src="{{ $card['imageSrc'] }}"
                                 alt="{{ $card['title'] }}" loading="lazy"
                                 class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]">
                         </div>
@@ -55,7 +55,7 @@
             </div>
             <div class="mt-12 grid grid-cols-1 gap-y-10 lg:mt-16 lg:grid-cols-12 lg:gap-x-14">
                 <figure class="lg:col-span-5">
-                    <div class="relative aspect-square overflow-hidden rounded-[1.25rem] shadow-soft lg:aspect-[4/5]"><img
+                    <div class="relative aspect-square overflow-hidden rounded-2xl shadow-soft lg:aspect-4/5"><img
                             src="/media/home/care-standards.jpg"
                             alt="Puppy resting comfortably in a cozy boarding suite" loading="lazy"
                             class="h-full w-full object-cover"></div>
@@ -75,7 +75,7 @@
                     </ul>
                     <div class="border-t border-primary/10 pt-7 lg:pt-8"><x-waggies.button
                             href="{{ route('about.gallery') }}" variant="link"
-                            class="text-primary !px-0 !py-0 hover:underline">See more inside our facilities <x-waggies.icon
+                            class="text-primary px-0! py-0! hover:underline">See more inside our facilities <x-waggies.icon
                                 name="arrow-forward" size="16" /></x-waggies.button></div>
                 </div>
             </div>
@@ -160,14 +160,14 @@
     <section class="section-pad bg-surface">
         <div class="page-container">
             <div
-                class="relative overflow-hidden rounded-[1.5rem] bg-primary-dark px-8 py-16 text-center md:px-16 md:py-20">
+                class="relative overflow-hidden rounded-3xl bg-primary-dark px-8 py-16 text-center md:px-16 md:py-20">
                 <div class="pointer-events-none absolute inset-x-8 top-0 h-px bg-secondary/60 md:inset-x-16"></div>
                 <h2 class="mb-4 font-serif text-3xl font-bold text-white md:text-[2.75rem] md:leading-[1.1]">Ready to <span
                         class="italic text-secondary">book?</span></h2>
                 <p class="mx-auto mb-9 max-w-md text-white/65">Get in touch to request a visit, ask questions, or make a
                     booking request for your pet.</p>
                 <div class="flex flex-wrap justify-center gap-3"><x-waggies.button href="{{ route('contact') }}"
-                        class="!bg-secondary !text-primary-dark hover:!bg-secondary-hover">Contact Us <x-waggies.icon
+                        class="bg-secondary! text-primary-dark! hover:bg-secondary-hover!">Contact Us <x-waggies.icon
                             name="arrow-forward" size="18" /></x-waggies.button><x-waggies.button
                         href="{{ route('services.pricing') }}" variant="secondary"
                         class="border-white/30 bg-transparent text-white hover:bg-white/10">See Pricing</x-waggies.button>

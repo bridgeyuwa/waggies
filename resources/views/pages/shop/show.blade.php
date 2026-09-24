@@ -10,7 +10,7 @@
         <div x-data="waggiesProductGallery(@js($galleryImages))" @keydown="handleGalleryKeydown($event)" @keydown.window="handleLightboxKeydown($event)" class="min-w-0">
             <div class="flex flex-col gap-4 md:flex-row">
                 <div class="order-2 flex min-w-0 items-center gap-3 md:order-1 md:w-20 md:flex-col">
-                    <div x-ref="thumbnailRail" class="flex min-w-0 flex-1 gap-3 overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:none] md:max-h-[31rem] md:w-full md:flex-col md:overflow-x-hidden md:overflow-y-auto md:pb-0">
+                    <div x-ref="thumbnailRail" class="flex min-w-0 flex-1 gap-3 overflow-x-auto overscroll-x-contain pb-1 scrollbar-none md:max-h-124 md:w-full md:flex-col md:overflow-x-hidden md:overflow-y-auto md:pb-0">
                         <template x-for="(image, index) in images" :key="image.url + '-' + index">
                             <button type="button" @click="select(index)" :aria-current="activeIndex === index ? 'true' : 'false'" :aria-label="'Show image ' + (index + 1) + ': ' + image.alt" :class="activeIndex === index ? 'ring-2 ring-primary ring-offset-2' : 'ring-1 ring-primary/10 hover:ring-primary/40'" class="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:h-16 md:w-16">
                                 <img :src="image.thumb || image.url" :alt="'Thumbnail ' + (index + 1) + ': ' + image.alt" class="h-full w-full object-cover" loading="lazy" />

@@ -19,7 +19,7 @@
                     @endif
                 </div>
 
-                <div class="relative aspect-[16/9] rounded-2xl overflow-hidden mb-10">
+                <div class="relative aspect-video rounded-2xl overflow-hidden mb-10">
                     <img src="{{ $guide['image'] }}" @if(filled($guide['imageSrcset'] ?? null)) srcset="{{ $guide['imageSrcset'] }}" sizes="(min-width: 1024px) 800px, 100vw" @endif alt="{{ $guide['imageAlt'] }}" class="absolute inset-0 h-full w-full object-cover" fetchpriority="high">
                 </div>
 

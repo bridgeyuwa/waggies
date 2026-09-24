@@ -20,7 +20,7 @@
             </div>
         </div>
 
-        <div class="relative min-h-[28rem] px-6 py-8 sm:px-10 sm:py-10">
+        <div class="relative min-h-112 px-6 py-8 sm:px-10 sm:py-10">
             <div x-show="submitted" x-cloak tabindex="-1" class="flex flex-col items-center justify-center py-10 text-center" role="status" aria-live="polite">
                 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true"><circle cx="32" cy="32" r="28" stroke="#6B2C91" stroke-width="3" fill="#F5F0FA"/><path d="M20 33 L28 41 L44 24" stroke="#6B2C91" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <h3 class="mt-4 font-serif text-2xl font-bold text-primary-dark">Thank you!</h3>
@@ -59,7 +59,7 @@
 
                     <div class="space-y-1.5">
                         <label for="testimonial-service" class="font-semibold text-primary-dark">Service used <span class="text-primary" aria-hidden="true">*</span></label>
-                        <select id="testimonial-service" name="service" x-model="data.service" @change="clear('service')" required :aria-invalid="errors.service ? 'true' : null" :aria-describedby="errors.service ? 'testimonial-service-error' : null" class="contact-input !rounded-md">
+                        <select id="testimonial-service" name="service" x-model="data.service" @change="clear('service')" required :aria-invalid="errors.service ? 'true' : null" :aria-describedby="errors.service ? 'testimonial-service-error' : null" class="contact-input rounded-md!">
                             <option value="">Choose a service</option>
                             <template x-for="service in services" :key="service"><option :value="service" x-text="service"></option></template>
                         </select>
@@ -68,7 +68,7 @@
 
                     <div class="space-y-1.5">
                         <label for="testimonial-story" class="font-semibold text-primary-dark">Your story <span class="text-primary" aria-hidden="true">*</span></label>
-                        <textarea id="testimonial-story" name="story" x-model="data.story" @input="clear('story')" required maxlength="2000" rows="5" placeholder="Share what happened, how the team treated your pet, and what you loved most..." :aria-invalid="errors.story ? 'true' : null" :aria-describedby="errors.story ? 'testimonial-story-help testimonial-story-error' : 'testimonial-story-help'" class="contact-input resize-none !rounded-md"></textarea>
+                        <textarea id="testimonial-story" name="story" x-model="data.story" @input="clear('story')" required maxlength="2000" rows="5" placeholder="Share what happened, how the team treated your pet, and what you loved most..." :aria-invalid="errors.story ? 'true' : null" :aria-describedby="errors.story ? 'testimonial-story-help testimonial-story-error' : 'testimonial-story-help'" class="contact-input resize-none rounded-md!"></textarea>
                         <div id="testimonial-story-help" class="flex items-center justify-between text-[11px] text-primary-dark/60"><span>Minimum 50 characters.</span><span x-text="data.story.length + '/2000'"></span></div>
                         <p id="testimonial-story-error" x-show="errors.story" x-text="errors.story" class="text-xs font-medium text-error" role="alert"></p>
                     </div>
@@ -83,12 +83,12 @@
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div class="space-y-1.5">
                             <label for="authorName" class="font-semibold text-primary-dark">Your name <span class="text-primary" aria-hidden="true">*</span></label>
-                            <input id="authorName" name="author_name" x-model="data.authorName" @input="clear('authorName')" required maxlength="60" placeholder="e.g. Adaeze O." :aria-invalid="errors.authorName ? 'true' : null" :aria-describedby="errors.authorName ? 'author-name-error' : null" class="contact-input !rounded-md">
+                            <input id="authorName" name="author_name" x-model="data.authorName" @input="clear('authorName')" required maxlength="60" placeholder="e.g. Adaeze O." :aria-invalid="errors.authorName ? 'true' : null" :aria-describedby="errors.authorName ? 'author-name-error' : null" class="contact-input rounded-md!">
                             <p id="author-name-error" x-show="errors.authorName" x-text="errors.authorName" class="text-xs font-medium text-error" role="alert"></p>
                         </div>
                         <div class="space-y-1.5">
                             <label for="authorLocation" class="font-semibold text-primary-dark">Your area <span class="text-primary" aria-hidden="true">*</span></label>
-                            <input id="authorLocation" name="author_location" x-model="data.authorLocation" @input="clear('authorLocation')" required maxlength="80" placeholder="e.g. Maitama, Abuja" :aria-invalid="errors.authorLocation ? 'true' : null" :aria-describedby="errors.authorLocation ? 'author-location-error' : null" class="contact-input !rounded-md">
+                            <input id="authorLocation" name="author_location" x-model="data.authorLocation" @input="clear('authorLocation')" required maxlength="80" placeholder="e.g. Maitama, Abuja" :aria-invalid="errors.authorLocation ? 'true' : null" :aria-describedby="errors.authorLocation ? 'author-location-error' : null" class="contact-input rounded-md!">
                             <p id="author-location-error" x-show="errors.authorLocation" x-text="errors.authorLocation" class="text-xs font-medium text-error" role="alert"></p>
                         </div>
                     </div>
