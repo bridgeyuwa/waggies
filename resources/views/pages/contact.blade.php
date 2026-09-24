@@ -2,91 +2,742 @@
 
 @php
     $gateway = [
-        ['title' => 'SERVICE REQUESTS', 'description' => 'Book or request a Waggies service', 'primary' => true, 'items' => [['label' => 'Boarding', 'description' => 'Overnight stays for dogs, cats, and exotic pets', 'icon' => 'boarding', 'options' => [['label' => 'Dog boarding', 'href' => route('contact', ['intent' => 'booking', 'service' => 'boarding', 'variant' => 'dogs'])], ['label' => 'Cat boarding', 'href' => route('contact', ['intent' => 'booking', 'service' => 'boarding', 'variant' => 'cats'])], ['label' => 'Exotic boarding', 'href' => route('contact', ['intent' => 'service', 'service' => 'boarding', 'variant' => 'exotic'])]]], ['label' => 'Grooming', 'description' => 'Breed-specific spa treatments and styling', 'icon' => 'grooming', 'href' => route('contact', ['intent' => 'service', 'service' => 'grooming'])], ['label' => 'Veterinary Care', 'description' => 'Consultations, vaccinations, and wellness checks', 'icon' => 'veterinary-care', 'href' => route('contact', ['intent' => 'veterinary', 'service' => 'vet-care'])], ['label' => 'Training', 'description' => 'Positive-reinforcement dog training programmes', 'icon' => 'training', 'href' => route('contact', ['intent' => 'service', 'service' => 'training'])], ['label' => 'Relocation', 'description' => 'International pet import, export, and transport', 'icon' => 'airport-departure', 'options' => [['label' => 'Pet import', 'href' => route('contact', ['intent' => 'quote', 'service' => 'relocation-import'])], ['label' => 'Pet export', 'href' => route('contact', ['intent' => 'quote', 'service' => 'relocation-export'])], ['label' => 'Local transport', 'href' => route('contact', ['intent' => 'transport', 'service' => 'local-transport'])]]]]],
-        ['title' => 'SHOP & PRODUCTS', 'description' => 'Questions about catalogue products', 'items' => [['label' => 'Ask about a product', 'description' => 'Enquire about a shop product', 'icon' => 'shopping-bag', 'href' => route('contact', ['intent' => 'product-inquiry'])], ['label' => 'Ask about selected products', 'description' => 'Use your saved product list to ask about availability', 'icon' => 'shopping-cart', 'href' => route('contact', ['intent' => 'cart-order'])]]],
-        ['title' => 'GENERAL & BUSINESS', 'description' => 'General enquiries, partnerships, careers, media', 'items' => [['label' => 'General enquiry', 'description' => 'General questions or information', 'icon' => 'contact', 'href' => route('contact', ['intent' => 'general'])], ['label' => 'Partnership / business', 'description' => 'Business partnerships and collaborations', 'icon' => 'partnership', 'href' => route('contact', ['intent' => 'general', 'source' => 'partnership'])]]],
+        [
+            'title' => 'SERVICE REQUESTS',
+            'description' => 'Book or request a Waggies service',
+            'primary' => true,
+            'items' => [
+                [
+                    'label' => 'Boarding',
+                    'description' => 'Overnight stays for dogs, cats, and exotic pets',
+                    'icon' => 'boarding',
+                    'options' => [
+                        [
+                            'label' => 'Dog boarding',
+                            'href' => route('contact', [
+                                'intent' => 'booking',
+                                'service' => 'boarding',
+                                'variant' => 'dogs',
+                            ]),
+                        ],
+                        [
+                            'label' => 'Cat boarding',
+                            'href' => route('contact', [
+                                'intent' => 'booking',
+                                'service' => 'boarding',
+                                'variant' => 'cats',
+                            ]),
+                        ],
+                        [
+                            'label' => 'Exotic boarding',
+                            'href' => route('contact', [
+                                'intent' => 'service',
+                                'service' => 'boarding',
+                                'variant' => 'exotic',
+                            ]),
+                        ],
+                    ],
+                ],
+                [
+                    'label' => 'Grooming',
+                    'description' => 'Breed-specific spa treatments and styling',
+                    'icon' => 'grooming',
+                    'href' => route('contact', ['intent' => 'service', 'service' => 'grooming']),
+                ],
+                [
+                    'label' => 'Veterinary Care',
+                    'description' => 'Consultations, vaccinations, and wellness checks',
+                    'icon' => 'veterinary-care',
+                    'href' => route('contact', ['intent' => 'veterinary', 'service' => 'vet-care']),
+                ],
+                [
+                    'label' => 'Training',
+                    'description' => 'Positive-reinforcement dog training programmes',
+                    'icon' => 'training',
+                    'href' => route('contact', ['intent' => 'service', 'service' => 'training']),
+                ],
+                [
+                    'label' => 'Relocation',
+                    'description' => 'International pet import, export, and transport',
+                    'icon' => 'airport-departure',
+                    'options' => [
+                        [
+                            'label' => 'Pet import',
+                            'href' => route('contact', ['intent' => 'quote', 'service' => 'relocation-import']),
+                        ],
+                        [
+                            'label' => 'Pet export',
+                            'href' => route('contact', ['intent' => 'quote', 'service' => 'relocation-export']),
+                        ],
+                        [
+                            'label' => 'Local transport',
+                            'href' => route('contact', ['intent' => 'transport', 'service' => 'local-transport']),
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        [
+            'title' => 'SHOP & PRODUCTS',
+            'description' => 'Questions about catalogue products',
+            'items' => [
+                [
+                    'label' => 'Ask about a product',
+                    'description' => 'Enquire about a shop product',
+                    'icon' => 'shopping-bag',
+                    'href' => route('contact', ['intent' => 'product-inquiry']),
+                ],
+                [
+                    'label' => 'Ask about selected products',
+                    'description' => 'Use your saved product list to ask about availability',
+                    'icon' => 'shopping-cart',
+                    'href' => route('contact', ['intent' => 'cart-order']),
+                ],
+            ],
+        ],
+        [
+            'title' => 'GENERAL & BUSINESS',
+            'description' => 'General enquiries, partnerships, careers, media',
+            'items' => [
+                [
+                    'label' => 'General enquiry',
+                    'description' => 'General questions or information',
+                    'icon' => 'contact',
+                    'href' => route('contact', ['intent' => 'general']),
+                ],
+                [
+                    'label' => 'Partnership / business',
+                    'description' => 'Business partnerships and collaborations',
+                    'icon' => 'partnership',
+                    'href' => route('contact', ['intent' => 'general', 'source' => 'partnership']),
+                ],
+            ],
+        ],
     ];
-    $booking = [['label' => 'Boarding', 'description' => 'Overnight stays for dogs, cats, and exotic pets', 'icon' => 'boarding', 'href' => route('contact', ['intent' => 'booking', 'service' => 'boarding'])], ['label' => 'Grooming', 'description' => 'Breed-specific spa treatments and styling', 'icon' => 'grooming', 'href' => route('contact', ['intent' => 'service', 'service' => 'grooming'])], ['label' => 'Veterinary Care', 'description' => 'Consultations, vaccinations, and wellness checks', 'icon' => 'veterinary-care', 'href' => route('contact', ['intent' => 'veterinary', 'service' => 'vet-care'])], ['label' => 'Training', 'description' => 'Positive-reinforcement dog training programmes', 'icon' => 'training', 'href' => route('contact', ['intent' => 'service', 'service' => 'training'])], ['label' => 'Pet Relocation', 'description' => 'International pet import and export services', 'icon' => 'airport-departure', 'href' => route('contact', ['intent' => 'quote', 'service' => 'relocation'])], ['label' => 'Local Transport', 'description' => 'Door-to-door pet transport across Abuja', 'icon' => 'transport', 'href' => route('contact', ['intent' => 'transport', 'service' => 'local-transport'])]];
+    $booking = [
+        [
+            'label' => 'Boarding',
+            'description' => 'Overnight stays for dogs, cats, and exotic pets',
+            'icon' => 'boarding',
+            'href' => route('contact', ['intent' => 'booking', 'service' => 'boarding']),
+        ],
+        [
+            'label' => 'Grooming',
+            'description' => 'Breed-specific spa treatments and styling',
+            'icon' => 'grooming',
+            'href' => route('contact', ['intent' => 'service', 'service' => 'grooming']),
+        ],
+        [
+            'label' => 'Veterinary Care',
+            'description' => 'Consultations, vaccinations, and wellness checks',
+            'icon' => 'veterinary-care',
+            'href' => route('contact', ['intent' => 'veterinary', 'service' => 'vet-care']),
+        ],
+        [
+            'label' => 'Training',
+            'description' => 'Positive-reinforcement dog training programmes',
+            'icon' => 'training',
+            'href' => route('contact', ['intent' => 'service', 'service' => 'training']),
+        ],
+        [
+            'label' => 'Pet Relocation',
+            'description' => 'International pet import and export services',
+            'icon' => 'airport-departure',
+            'href' => route('contact', ['intent' => 'quote', 'service' => 'relocation']),
+        ],
+        [
+            'label' => 'Local Transport',
+            'description' => 'Door-to-door pet transport across Abuja',
+            'icon' => 'transport',
+            'href' => route('contact', ['intent' => 'transport', 'service' => 'local-transport']),
+        ],
+    ];
     $mapUrl = $business['mapUrl'];
 @endphp
 
 @section('content')
-<x-waggies.breadcrumb-strip :items="[['label' => 'Contact Us', 'href' => route('contact')]]" class="border-b border-primary/5 bg-white" />
-<section class="relative overflow-hidden bg-surface"><div class="relative page-container py-14 md:py-20 lg:py-24"><div class="max-w-3xl"><div class="mb-8"><span class="inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 rounded-full border border-primary/10 bg-white px-4 py-2 shadow-sm"><x-waggies.icon name="verified" size="18" variant="filled" class="shrink-0 text-primary" /><span class="whitespace-nowrap text-sm font-semibold tracking-wide text-primary-dark/80">Vet-Supervised Care <span class="mx-1.5 text-primary-dark/30">·</span></span><span class="whitespace-nowrap text-sm font-semibold tracking-wide text-primary-dark/80">On-Site Support <span class="mx-1.5 text-primary-dark/30">·</span></span><span class="whitespace-nowrap text-sm font-semibold tracking-wide text-primary-dark/80">24/7 Supervision</span></span></div><h1 class="text-display mb-7 text-primary-dark">Contact Waggies</h1><p class="max-w-2xl text-lg leading-relaxed text-primary-dark/70">Have a question, want to make a booking, or need a quote? Fill in the request form and we&rsquo;ll continue the conversation on WhatsApp.</p></div></div></section>
-
-<section class="bg-white py-16 md:py-24" aria-labelledby="contact-content-heading"><div class="page-container"><div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16"><div id="contact-form" class="order-1 lg:col-span-5"><h2 id="contact-content-heading" class="sr-only">Request Form</h2><div class="rounded-2xl border border-primary/5 bg-surface p-6 shadow-sm md:p-10 lg:sticky lg:top-24">
-@if($mode === 'gateway')
-    <div class="flex flex-col gap-6"><div class="flex flex-col gap-2"><h2 class="font-serif text-2xl font-bold leading-snug text-primary-dark">What can Waggies help you with?</h2><p class="text-sm leading-relaxed text-primary-dark/60">Choose a request type and we&rsquo;ll guide you through the rest.</p></div>@foreach($gateway as $category)<section class="flex flex-col gap-4 rounded-2xl border border-primary/10 p-6 {{ !empty($category['primary']) ? 'bg-primary/2.5' : 'bg-white' }}"><div><h3 class="mb-1 text-sm font-semibold uppercase tracking-wider text-primary-dark">{{ $category['title'] }}</h3><p class="text-xs text-primary-dark/50">{{ $category['description'] }}</p></div><div class="flex flex-col gap-3">@foreach($category['items'] as $item)<div class="flex flex-col gap-2"><a href="{{ $item['href'] ?? $item['options'][0]['href'] }}" class="group flex items-center gap-5 rounded-2xl border border-primary/10 bg-white p-6 text-left transition-[border-color,box-shadow] duration-200 hover:border-primary/30 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"><span class="flex size-14 shrink-0 items-center justify-center rounded-xl border border-primary/10 bg-primary/5 text-primary transition-colors group-hover:border-primary/20 group-hover:bg-primary/10"><x-waggies.icon name="{{ $item['icon'] }}" size="24" /></span><span class="min-w-0 flex-1"><span class="block font-serif text-lg font-bold text-primary-dark transition-colors group-hover:text-primary">{{ $item['label'] }}</span><span class="block text-sm text-primary-dark/60">{{ $item['description'] }}</span></span><x-waggies.icon name="arrow-forward" size="20" class="text-primary/30 transition-colors group-hover:text-primary" /></a>@if(!empty($item['options']))<div class="ml-14 flex flex-col gap-2">@foreach($item['options'] as $option)<a href="{{ $option['href'] }}" class="group flex items-center gap-3 rounded-xl border border-primary/5 bg-surface p-4 text-left transition-[border-color,background-color] hover:border-primary/20 hover:bg-white"><x-waggies.icon name="arrow-forward" size="14" class="text-primary/30 group-hover:text-primary" /><span class="text-sm font-medium text-primary-dark/70 group-hover:text-primary-dark">{{ $option['label'] }}</span></a>@endforeach</div>@endif</div>@endforeach</div></section>@endforeach</div>
-@elseif($mode === 'booking')
-    <div class="flex flex-col gap-8"><div class="flex flex-col gap-2"><h2 class="font-serif text-2xl font-bold leading-snug text-primary-dark">What would you like to book?</h2><p class="text-sm leading-relaxed text-primary-dark/60">Choose a service and we&rsquo;ll guide you through the booking process.</p></div><div class="flex flex-col gap-4">@foreach($booking as $item)<a href="{{ $item['href'] }}" class="group flex items-center gap-5 rounded-2xl border border-primary/10 bg-white p-6 transition-[border-color,box-shadow] duration-200 hover:border-primary/30 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"><span class="flex size-14 shrink-0 items-center justify-center rounded-xl border border-primary/10 bg-primary/5 text-primary transition-colors group-hover:border-primary/20 group-hover:bg-primary/10"><x-waggies.icon name="{{ $item['icon'] }}" size="24" /></span><span class="min-w-0 flex-1"><span class="mb-1 block font-serif text-lg font-bold text-primary-dark transition-colors group-hover:text-primary">{{ $item['label'] }}</span><span class="block text-sm leading-relaxed text-primary-dark/60">{{ $item['description'] }}</span></span><x-waggies.icon name="arrow-forward" size="20" class="text-primary/30 transition-colors group-hover:text-primary" /></a>@endforeach</div><p class="text-xs text-primary-dark/50">Not sure which service is right? <a href="{{ route('contact') }}" class="font-semibold text-primary hover:underline">Start with a general enquiry.</a></p></div>
-@else
-    <div x-data="contactRequest(@js($schema), @js($context), @js($business['whatsapp']))" x-ref="request">
-        <template x-if="schema.intent === 'CART_ORDER' && cartItems.length && step === 'form'"><div class="mb-5 rounded-xl border border-primary/10 bg-surface-purple p-4"><p class="mb-2 text-xs font-bold uppercase tracking-wider text-primary/60" x-text="`Selected products (${cartItems.length} ${cartItems.length === 1 ? 'item' : 'items'})`"></p><ul class="space-y-1"><template x-for="item in cartItems" :key="item.productId"><li class="flex justify-between gap-3 text-sm"><span class="text-primary-dark/80" x-text="`${item.name} × ${item.quantity}`"></span><span class="font-medium text-primary-dark" x-text="`₦${(item.price * item.quantity).toLocaleString()}`"></span></li></template></ul><p class="mt-2 border-t border-primary/10 pt-2 text-xs text-primary-dark/50">Catalogue prices are shown for reference; Waggies will confirm availability and final pricing.</p></div></template>
-        <template x-if="schema.unresolvedProduct"><div class="flex flex-col gap-4"><h2 class="font-serif text-xl font-bold text-primary-dark">Product not found</h2><p class="text-sm text-primary-dark/60">We couldn&rsquo;t find that product in our catalog. Browse the shop to find the right item, or send a general inquiry instead.</p><div class="flex gap-3"><x-waggies.button href="{{ route('shop.index') }}">Browse Shop <x-waggies.icon name="arrow-forward" size="18" /></x-waggies.button><x-waggies.button href="{{ route('contact') }}" variant="secondary"><x-waggies.icon name="arrow-back" size="18" />Back</x-waggies.button></div></div></template>
-        <template x-if="schema.intent === 'CART_ORDER' && cartEmpty && step === 'form'"><div class="flex flex-col gap-4"><div><h2 class="mb-1 font-serif text-xl font-bold text-primary-dark">No products selected</h2><p class="text-sm text-primary-dark/60">Add products to your saved list before asking about availability.</p></div><div class="flex gap-3"><x-waggies.button href="{{ route('shop.index') }}">Browse Shop <x-waggies.icon name="arrow-forward" size="18" /></x-waggies.button><x-waggies.button href="{{ route('contact') }}" variant="secondary"><x-waggies.icon name="arrow-back" size="18" />Back</x-waggies.button></div></div></template>
-        <template x-if="!schema.unresolvedProduct && !(schema.intent === 'CART_ORDER' && cartEmpty) && step === 'form'"><div id="request-form" class="flex flex-col gap-5"><div class="flex flex-col gap-2"><a href="{{ route('contact') }}" class="inline-flex w-fit items-center gap-1 text-xs text-primary-dark/50 hover:text-primary"><x-waggies.icon name="arrow-back" size="14" />All options</a><h2 class="font-serif text-xl font-bold text-primary-dark" x-text="schema.title"></h2><p class="text-sm leading-relaxed text-primary-dark/60" x-text="schema.description"></p></div><div x-show="schema.pricingMode === 'QUOTE_REQUIRED'" class="rounded-lg bg-surface-purple/50 p-3 text-sm text-primary-dark/70"><span class="font-semibold">Quote required</span> — Waggies will confirm pricing after reviewing your request.</div><div x-show="schema.pricingMode === 'ESTIMATED'" class="rounded-lg bg-surface-purple/50 p-3 text-sm text-primary-dark/70" aria-live="polite"><template x-if="estimate().status === 'calculated'"><div><p><span class="font-semibold" x-text="`Estimate: ${estimate().display}`"></span><span class="text-primary-dark/50" x-text="` · ${estimate().basis}`"></span></p><p class="mt-0.5 text-xs text-primary-dark/50">Final price confirmed on WhatsApp.</p></div></template><template x-if="estimate().status === 'incomplete'"><p><span class="font-semibold">Estimated pricing</span> — complete the required information to calculate your estimate.</p></template><template x-if="estimate().status === 'not_applicable'"><p><span class="font-semibold">Estimated pricing</span> — final price confirmed on WhatsApp.</p></template></div>
-        <template x-if="schema.usesPets"><div class="flex flex-col gap-4"><div class="flex items-baseline justify-between"><p class="text-xs font-bold uppercase tracking-wider text-primary/60">Pets</p><p class="text-xs text-primary-dark/40">Add one card per pet — name and type are required.</p></div><div class="flex flex-col gap-3"><template x-for="(pet, index) in pets" :key="pet.id"><div class="rounded-xl border border-primary/10 bg-white p-4"><div class="mb-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10"><x-waggies.icon name="pets" size="14" class="text-primary" /></span><p class="text-sm font-semibold text-primary-dark" x-text="`Pet ${index + 1}`"></p><span x-show="!petValid(pet)" class="text-xs text-primary-dark/40">(name + type required)</span></div><button x-show="pets.length > 1" type="button" class="inline-flex min-h-11 items-center gap-1 px-2 text-xs text-primary-dark/50 hover:text-primary" @click="removePet(index)"><x-waggies.icon name="delete" size="14" />Remove</button></div><div class="grid grid-cols-1 gap-3 sm:grid-cols-2"><div><label :for="`pet-${pet.id}-name`" class="text-sm font-medium text-primary-dark">Pet&rsquo;s name <span class="text-primary">*</span></label><input :id="`pet-${pet.id}-name`" x-model="pet.name" placeholder="e.g. Max" class="contact-input" required></div><div><label :for="`pet-${pet.id}-species`" class="text-sm font-medium text-primary-dark">Pet type <span class="text-primary">*</span></label><template x-if="lockedSpecies()"><select :id="`pet-${pet.id}-species`" x-model="pet.species" class="contact-input" required disabled><option :value="schema.allowedSpecies[0]" x-text="lockedSpeciesOptionLabel()"></option></select></template><template x-if="!lockedSpecies()"><select :id="`pet-${pet.id}-species`" x-model="pet.species" class="contact-input" required><option value="">Select...</option><option value="dog">Dog</option><option value="cat">Cat</option><option value="exotic">Exotic pet</option></select></template><p x-show="lockedSpecies()" class="mt-1 text-xs text-primary-dark/50" x-text="`This service accepts ${lockedSpeciesLabel()}s only.`"></p></div><div><label :for="`pet-${pet.id}-breed`" class="text-sm font-medium text-primary-dark">Breed (optional)</label><input :id="`pet-${pet.id}-breed`" x-model="pet.breed" placeholder="e.g. Labrador Retriever" class="contact-input"></div><div><label :for="`pet-${pet.id}-age`" class="text-sm font-medium text-primary-dark">Age (optional)</label><input :id="`pet-${pet.id}-age`" x-model="pet.age" placeholder="e.g. 2 years" class="contact-input"></div></div><template x-if="pet.species === 'exotic'"><div class="mt-3"><label :for="`pet-${pet.id}-exotic`" class="text-sm font-medium text-primary-dark">Exotic pet type</label><input :id="`pet-${pet.id}-exotic`" x-model="pet.extra.exoticPetType" placeholder="e.g. African Grey parrot, bearded dragon, rabbit" class="contact-input"><p class="mt-1 text-xs text-primary-dark/50">Tell us the species so we can prepare the right enclosure.</p></div></template><div class="mt-3"><label :for="`pet-${pet.id}-notes`" class="text-sm font-medium text-primary-dark">Notes (optional)</label><textarea :id="`pet-${pet.id}-notes`" x-model="pet.notes" placeholder="Temperament, special care, feeding, sensitivities..." rows="2" class="contact-input resize-y"></textarea></div></div></template></div><x-waggies.button type="button" variant="secondary" class="w-fit" @click="addPet()"><x-waggies.icon name="add" size="16" />Add another pet</x-waggies.button></div></template>
-        <div class="flex flex-col gap-5">
-            <template x-for="(field, fieldIndex) in visibleFields()" :key="field.name">
-                <div class="flex flex-col gap-1.5">
-                    <p x-show="field.group && (fieldIndex === 0 || visibleFields()[fieldIndex - 1].group !== field.group)" class="text-xs font-bold uppercase tracking-wider text-primary/60" x-text="field.group"></p>
-                    <label :for="`field-${field.name}`" class="text-sm font-medium text-primary-dark"><span x-text="field.label"></span><template x-if="field.required || requiredWhen(field)"><span class="ml-0.5 text-primary" aria-hidden="true">*</span></template></label>
-                    <template x-if="field.type === 'textarea'"><textarea :id="`field-${field.name}`" x-model="values[field.name]" :placeholder="field.placeholder || ''" :required="field.required || requiredWhen(field)" :aria-describedby="field.helperText ? `field-${field.name}-help` : null" rows="3" class="contact-input resize-y"></textarea></template>
-                    <template x-if="field.type === 'select'"><select :id="`field-${field.name}`" x-model="values[field.name]" :required="field.required || requiredWhen(field)" :aria-describedby="field.helperText ? `field-${field.name}-help` : null" class="contact-input"><option value="">Select...</option><template x-for="option in fieldOptions(field)" :key="option.value"><option :value="option.value" x-text="option.label"></option></template></select></template>
-                    <template x-if="field.type === 'radio'"><div class="flex flex-wrap gap-2" role="radiogroup" :aria-label="field.label" :aria-required="field.required || requiredWhen(field)" :aria-describedby="field.helperText ? `field-${field.name}-help` : null"><template x-for="option in field.options" :key="option.value"><button type="button" role="radio" :aria-checked="values[field.name] === option.value" @click="values[field.name] = option.value" class="inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-colors" :class="values[field.name] === option.value ? 'border-primary bg-surface-purple text-primary' : 'border-primary/10 bg-white text-primary-dark/70 hover:border-primary/30 hover:bg-surface-purple/50'"><template x-if="values[field.name] === option.value"><x-waggies.icon name="check-circle" size="16" class="text-primary" /></template><span x-text="option.label"></span></button></template></div></template>
-                    <template x-if="!['textarea', 'select', 'radio'].includes(field.type)"><input :id="`field-${field.name}`" :type="field.type" x-model="values[field.name]" :placeholder="field.placeholder || ''" :min="field.min" :max="field.max" :step="field.step || 1" :required="field.required || requiredWhen(field)" :aria-describedby="field.helperText ? `field-${field.name}-help` : null" class="contact-input"></template>
-                    <p x-show="field.helperText" :id="`field-${field.name}-help`" class="text-xs text-primary-dark/50" x-text="field.helperText"></p>
-                </div>
-            </template>
-        </div>
-        <template x-if="schema.supportsMultiService">
-            <div class="flex flex-col gap-3">
-                <div class="flex items-baseline justify-between"><p class="text-xs font-bold uppercase tracking-wider text-primary/60">Additional services</p><p class="text-xs text-primary-dark/40">Optional</p></div>
-                <p x-show="serviceBlocks.length === 0 && !servicePicker" class="text-sm text-primary-dark/50">Need more than one service in this request? Add another below.</p>
-                <template x-for="(block, index) in serviceBlocks" :key="block.id">
-                    <div class="rounded-xl border border-primary/15 bg-white p-4">
-                        <div class="mb-3 flex items-center justify-between"><p class="text-sm font-semibold text-primary-dark" x-text="block.title"></p><button type="button" class="inline-flex min-h-11 items-center gap-1 px-2 text-xs text-primary-dark/50 hover:text-primary" @click="serviceBlocks.splice(index, 1)"><x-waggies.icon name="delete" size="14" />Remove</button></div>
-                        <template x-for="field in block.fields" :key="field.name">
-                            <div x-show="!field.conditionalOn || block.values[field.conditionalOn.field] === field.conditionalOn.value" class="mb-3">
-                                <label :for="`additional-${block.id}-${field.name}`" class="text-sm font-medium text-primary-dark"><span x-text="field.label"></span><template x-if="field.required || (field.requiredWhen && block.values[field.requiredWhen.field] === field.requiredWhen.value)"><span class="ml-0.5 text-primary" aria-hidden="true">*</span></template></label>
-                                <template x-if="field.type === 'textarea'"><textarea :id="`additional-${block.id}-${field.name}`" x-model="block.values[field.name]" :placeholder="field.placeholder || ''" :required="field.required || (field.requiredWhen && block.values[field.requiredWhen.field] === field.requiredWhen.value)" rows="2" class="contact-input"></textarea></template>
-                                <template x-if="field.type === 'select'"><select :id="`additional-${block.id}-${field.name}`" x-model="block.values[field.name]" :required="field.required || (field.requiredWhen && block.values[field.requiredWhen.field] === field.requiredWhen.value)" class="contact-input"><option value="">Select...</option><template x-for="option in field.options || []" :key="option.value"><option :value="option.value" x-text="option.label"></option></template></select></template>
-                                <template x-if="!['textarea', 'select'].includes(field.type)"><input :id="`additional-${block.id}-${field.name}`" x-model="block.values[field.name]" :type="field.type" :placeholder="field.placeholder || ''" :min="field.min" :max="field.max" :step="field.step || 1" :required="field.required || (field.requiredWhen && block.values[field.requiredWhen.field] === field.requiredWhen.value)" class="contact-input"></template>
-                            </div>
-                        </template>
-                    </div>
-                </template>
-                <template x-if="servicePicker"><div class="rounded-xl border border-primary/20 bg-surface-purple/30 p-3"><p class="mb-2 text-xs font-semibold text-primary-dark">Choose a service to add:</p><div class="grid grid-cols-2 gap-2"><template x-for="option in serviceOptions" :key="option.value"><button type="button" class="min-h-11 rounded-lg border border-primary/15 bg-white px-4 py-3 text-sm font-medium text-primary-dark hover:border-primary/40" @click="addService(option)"><span x-text="option.label"></span></button></template></div><button type="button" class="mt-2 min-h-11 px-2 text-xs text-primary-dark/50 hover:text-primary" @click="servicePicker = false">Cancel</button></div></template>
-                <x-waggies.button x-show="!servicePicker" type="button" variant="secondary" class="w-fit" @click="servicePicker = true"><x-waggies.icon name="add" size="16" />Add another service</x-waggies.button>
+    <x-waggies.breadcrumb-strip :items="[['label' => 'Contact Us', 'href' => route('contact')]]" class="border-b border-primary/5 bg-white" />
+    <section class="relative overflow-hidden bg-surface">
+        <div class="relative page-container py-14 md:py-20 lg:py-24">
+            <div class="max-w-3xl">
+                <div class="mb-8"><span
+                        class="inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 rounded-full border border-primary/10 bg-white px-4 py-2 shadow-sm"><x-waggies.icon
+                            name="verified" size="18" variant="filled" class="shrink-0 text-primary" /><span
+                            class="whitespace-nowrap text-sm font-semibold tracking-wide text-primary-dark/80">Vet-Supervised
+                            Care <span class="mx-1.5 text-primary-dark/30">·</span></span><span
+                            class="whitespace-nowrap text-sm font-semibold tracking-wide text-primary-dark/80">On-Site
+                            Support <span class="mx-1.5 text-primary-dark/30">·</span></span><span
+                            class="whitespace-nowrap text-sm font-semibold tracking-wide text-primary-dark/80">24/7
+                            Supervision</span></span></div>
+                <h1 class="text-display mb-7 text-primary-dark">Contact Waggies</h1>
+                <p class="max-w-2xl text-lg leading-relaxed text-primary-dark/70">Have a question, want to make a booking,
+                    or need a quote? Fill in the request form and we&rsquo;ll continue the conversation on WhatsApp.</p>
             </div>
-        </template>
-        <div class="flex flex-col gap-3 pt-2"><p x-show="missingFields().length && Object.keys(values).length > 0" class="text-sm text-primary-dark/50" aria-live="polite"><span x-text="missingFields().length"></span> field<span x-show="missingFields().length !== 1">s</span> remaining: <span class="font-medium" x-text="missingFields().slice(0, 3).join(', ')"></span></p><p x-show="schema.usesPets && pets.length && !petsValid()" class="text-sm text-primary-dark/50" aria-live="polite">Complete pet information for Pet <span x-text="firstInvalidPetIndex() + 1"></span> (name + type required).</p><x-waggies.button type="button" @click="review()" ::disabled="!canContinue()" class="disabled:cursor-not-allowed disabled:opacity-50">Review Request <x-waggies.icon name="arrow-forward" size="18" /></x-waggies.button><p x-show="!canContinue()" class="text-center text-xs text-primary-dark/40">Complete the required fields to continue</p></div></div></template>
-        </template>
-        <template x-if="step === 'review'"><div id="request-review" class="flex flex-col gap-5"><div><h2 class="mb-1 font-serif text-xl font-bold text-primary-dark" tabindex="-1">Review your request</h2><p class="text-sm text-primary-dark/60">Check the details below before continuing to WhatsApp.</p></div><div class="rounded-xl border border-primary/10 bg-surface p-5"><dl class="flex flex-col gap-3"><template x-for="line in reviewLines()" :key="line.key"><div class="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-3"><dt class="shrink-0 text-xs font-bold uppercase tracking-wider text-primary/60 sm:w-32" x-text="line.label"></dt><dd class="whitespace-pre-wrap text-sm leading-relaxed text-primary-dark" x-text="line.value"></dd></div></template><template x-if="schema.pricingMode === 'ESTIMATED'"><div class="flex flex-col gap-0.5 border-t border-primary/10 pt-2 sm:flex-row sm:items-baseline sm:gap-3"><dt class="shrink-0 text-xs font-bold uppercase tracking-wider text-primary/60 sm:w-32">Estimate</dt><dd class="text-sm text-primary-dark" x-text="estimateText()"></dd></div></template><template x-if="schema.pricingMode === 'QUOTE_REQUIRED'"><div class="flex flex-col gap-0.5 border-t border-primary/10 pt-2 sm:flex-row sm:items-baseline sm:gap-3"><dt class="shrink-0 text-xs font-bold uppercase tracking-wider text-primary/60 sm:w-32">Pricing</dt><dd class="text-sm text-primary-dark">Quote required — Waggies will confirm after reviewing.</dd></div></template><div class="flex flex-col gap-0.5 border-t border-primary/10 pt-2 sm:flex-row sm:items-baseline sm:gap-3"><dt class="shrink-0 text-xs font-bold uppercase tracking-wider text-primary/60 sm:w-32">Reference</dt><dd class="font-mono text-sm text-primary-dark/70" x-text="reference + ' (provisional)'"></dd></div></dl></div><p class="text-xs leading-relaxed text-primary-dark/40">Continuing to WhatsApp does not confirm a booking or order. Waggies staff will confirm availability, pricing, and details.</p><p x-show="serverError" x-text="serverError" class="rounded-xl border border-error/40 bg-error-light/50 p-4 text-sm text-error" role="alert"></p><p x-show="savedMessage" x-text="savedMessage" class="rounded-xl border border-success/30 bg-success/10 p-4 text-sm text-success" role="status"></p><div class="flex flex-col gap-3 sm:flex-row"><x-waggies.button type="button" variant="secondary" @click="edit()" class="flex-1"><x-waggies.icon name="edit" size="18" />Edit Request</x-waggies.button><x-waggies.button x-bind:href="whatsappUrl()" target="_blank" rel="noopener noreferrer" @click="saveAndContinue($event)" class="flex-1">Save &amp; continue to WhatsApp</x-waggies.button></div></div></template>
-    </div>
-@endif
-            </div></div>
-            <div class="order-2 flex flex-col gap-7 lg:col-span-7">
-                <div>
-                    <div class="mb-3 flex items-center gap-2"><span class="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10"><x-waggies.icon name="phone" size="16" class="text-primary" /></span><h3 class="text-base font-semibold text-primary-dark">Quick Contact</h3></div>
-                    <div class="space-y-2">
-                        <a href="{{ $business['phoneHref'] }}" class="group flex min-h-[60px] items-center gap-3 rounded-lg border border-primary/10 bg-surface p-3 hover:border-primary/30 hover:bg-white hover:shadow-sm"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10"><x-waggies.icon name="phone" size="16" class="text-primary" /></span><span><span class="block text-xs font-semibold uppercase tracking-wider text-primary-dark/50">Call Us</span><span class="text-sm font-bold text-primary-dark group-hover:text-primary">{{ $business['phoneLocal'] }}</span></span></a>
-                        <a href="mailto:{{ $business['email'] }}" class="group flex min-h-[60px] items-center gap-3 rounded-lg border border-primary/10 bg-surface p-3 hover:border-primary/30 hover:bg-white hover:shadow-sm"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10"><x-waggies.icon name="email" size="16" class="text-primary" /></span><span><span class="block text-xs font-semibold uppercase tracking-wider text-primary-dark/50">Email Us</span><span class="text-sm font-bold text-primary-dark group-hover:text-primary">{{ $business['email'] }}</span></span></a>
-                        <div class="flex min-h-[60px] items-start gap-3 rounded-lg border border-primary/10 bg-surface p-3"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10"><x-waggies.icon name="location" size="16" class="text-primary" /></span><span><span class="block text-xs font-semibold uppercase tracking-wider text-primary-dark/50">Address</span><span class="text-sm leading-relaxed text-primary-dark/80">{{ $business['address'] }}</span></span></div>
+        </div>
+    </section>
+
+    <section class="bg-white py-16 md:py-24" aria-labelledby="contact-content-heading">
+        <div class="page-container">
+            <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+                <div id="contact-form" class="order-1 lg:col-span-5">
+                    <h2 id="contact-content-heading" class="sr-only">Request Form</h2>
+                    <div class="rounded-2xl border border-primary/5 bg-surface p-6 shadow-sm md:p-10 lg:sticky lg:top-24">
+                        @if ($mode === 'gateway')
+                            <div class="flex flex-col gap-6">
+                                <div class="flex flex-col gap-2">
+                                    <h2 class="font-serif text-2xl font-bold leading-snug text-primary-dark">What can
+                                        Waggies help you with?</h2>
+                                    <p class="text-sm leading-relaxed text-primary-dark/60">Choose a request type and
+                                        we&rsquo;ll guide you through the rest.</p>
+                                </div>
+                                @foreach ($gateway as $category)
+                                    <section
+                                        class="flex flex-col gap-4 rounded-2xl border border-primary/10 p-6 {{ !empty($category['primary']) ? 'bg-primary/2.5' : 'bg-white' }}">
+                                        <div>
+                                            <h3
+                                                class="mb-1 text-sm font-semibold uppercase tracking-wider text-primary-dark">
+                                                {{ $category['title'] }}</h3>
+                                            <p class="text-xs text-primary-dark/50">{{ $category['description'] }}</p>
+                                        </div>
+                                        <div class="flex flex-col gap-3">
+                                            @foreach ($category['items'] as $item)
+                                                <div class="flex flex-col gap-2"><a
+                                                        href="{{ $item['href'] ?? $item['options'][0]['href'] }}"
+                                                        class="group flex items-center gap-5 rounded-2xl border border-primary/10 bg-white p-6 text-left transition-[border-color,box-shadow] duration-200 hover:border-primary/30 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"><span
+                                                            class="flex size-14 shrink-0 items-center justify-center rounded-xl border border-primary/10 bg-primary/5 text-primary transition-colors group-hover:border-primary/20 group-hover:bg-primary/10"><x-waggies.icon
+                                                                name="{{ $item['icon'] }}" size="24" /></span><span
+                                                            class="min-w-0 flex-1"><span
+                                                                class="block font-serif text-lg font-bold text-primary-dark transition-colors group-hover:text-primary">{{ $item['label'] }}</span><span
+                                                                class="block text-sm text-primary-dark/60">{{ $item['description'] }}</span></span><x-waggies.icon
+                                                            name="arrow-forward" size="20"
+                                                            class="text-primary/30 transition-colors group-hover:text-primary" /></a>
+                                                    @if (!empty($item['options']))
+                                                        <div class="ml-14 flex flex-col gap-2">
+                                                            @foreach ($item['options'] as $option)
+                                                                <a href="{{ $option['href'] }}"
+                                                                    class="group flex items-center gap-3 rounded-xl border border-primary/5 bg-surface p-4 text-left transition-[border-color,background-color] hover:border-primary/20 hover:bg-white"><x-waggies.icon
+                                                                        name="arrow-forward" size="14"
+                                                                        class="text-primary/30 group-hover:text-primary" /><span
+                                                                        class="text-sm font-medium text-primary-dark/70 group-hover:text-primary-dark">{{ $option['label'] }}</span></a>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </section>
+                                @endforeach
+                            </div>
+                        @elseif($mode === 'booking')
+                            <div class="flex flex-col gap-8">
+                                <div class="flex flex-col gap-2">
+                                    <h2 class="font-serif text-2xl font-bold leading-snug text-primary-dark">What would you
+                                        like to book?</h2>
+                                    <p class="text-sm leading-relaxed text-primary-dark/60">Choose a service and we&rsquo;ll
+                                        guide you through the booking process.</p>
+                                </div>
+                                <div class="flex flex-col gap-4">
+                                    @foreach ($booking as $item)
+                                        <a href="{{ $item['href'] }}"
+                                            class="group flex items-center gap-5 rounded-2xl border border-primary/10 bg-white p-6 transition-[border-color,box-shadow] duration-200 hover:border-primary/30 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"><span
+                                                class="flex size-14 shrink-0 items-center justify-center rounded-xl border border-primary/10 bg-primary/5 text-primary transition-colors group-hover:border-primary/20 group-hover:bg-primary/10"><x-waggies.icon
+                                                    name="{{ $item['icon'] }}" size="24" /></span><span
+                                                class="min-w-0 flex-1"><span
+                                                    class="mb-1 block font-serif text-lg font-bold text-primary-dark transition-colors group-hover:text-primary">{{ $item['label'] }}</span><span
+                                                    class="block text-sm leading-relaxed text-primary-dark/60">{{ $item['description'] }}</span></span><x-waggies.icon
+                                                name="arrow-forward" size="20"
+                                                class="text-primary/30 transition-colors group-hover:text-primary" /></a>
+                                    @endforeach
+                                </div>
+                                <p class="text-xs text-primary-dark/50">Not sure which service is right? <a
+                                        href="{{ route('contact') }}"
+                                        class="font-semibold text-primary hover:underline">Start with a general enquiry.</a>
+                                </p>
+                            </div>
+                        @else
+                            <div x-data="contactRequest(@js($schema), @js($context), @js($business['whatsapp']))" x-ref="request">
+                                <template x-if="schema.intent === 'CART_ORDER' && cartItems.length && step === 'form'">
+                                    <div class="mb-5 rounded-xl border border-primary/10 bg-surface-purple p-4">
+                                        <p class="mb-2 text-xs font-bold uppercase tracking-wider text-primary/60"
+                                            x-text="`Selected products (${cartItems.length} ${cartItems.length === 1 ? 'item' : 'items'})`">
+                                        </p>
+                                        <ul class="space-y-1"><template x-for="item in cartItems" :key="item.productId">
+                                                <li class="flex justify-between gap-3 text-sm"><span
+                                                        class="text-primary-dark/80"
+                                                        x-text="`${item.name} × ${item.quantity}`"></span><span
+                                                        class="font-medium text-primary-dark"
+                                                        x-text="`₦${(item.price * item.quantity).toLocaleString()}`"></span>
+                                                </li>
+                                            </template></ul>
+                                        <p class="mt-2 border-t border-primary/10 pt-2 text-xs text-primary-dark/50">
+                                            Catalogue prices are shown for reference; Waggies will confirm availability and
+                                            final pricing.</p>
+                                    </div>
+                                </template>
+                                <template x-if="schema.unresolvedProduct">
+                                    <div class="flex flex-col gap-4">
+                                        <h2 class="font-serif text-xl font-bold text-primary-dark">Product not found</h2>
+                                        <p class="text-sm text-primary-dark/60">We couldn&rsquo;t find that product in our
+                                            catalog. Browse the shop to find the right item, or send a general inquiry
+                                            instead.</p>
+                                        <div class="flex gap-3"><x-waggies.button href="{{ route('shop.index') }}">Browse
+                                                Shop <x-waggies.icon name="arrow-forward"
+                                                    size="18" /></x-waggies.button><x-waggies.button
+                                                href="{{ route('contact') }}" variant="secondary"><x-waggies.icon
+                                                    name="arrow-back" size="18" />Back</x-waggies.button></div>
+                                    </div>
+                                </template>
+                                <template x-if="schema.intent === 'CART_ORDER' && cartEmpty && step === 'form'">
+                                    <div class="flex flex-col gap-4">
+                                        <div>
+                                            <h2 class="mb-1 font-serif text-xl font-bold text-primary-dark">No products
+                                                selected</h2>
+                                            <p class="text-sm text-primary-dark/60">Add products to your saved list before
+                                                asking about availability.</p>
+                                        </div>
+                                        <div class="flex gap-3"><x-waggies.button href="{{ route('shop.index') }}">Browse
+                                                Shop <x-waggies.icon name="arrow-forward"
+                                                    size="18" /></x-waggies.button><x-waggies.button
+                                                href="{{ route('contact') }}" variant="secondary"><x-waggies.icon
+                                                    name="arrow-back" size="18" />Back</x-waggies.button></div>
+                                    </div>
+                                </template>
+                                <template
+                                    x-if="!schema.unresolvedProduct && !(schema.intent === 'CART_ORDER' && cartEmpty) && step === 'form'">
+                                    <div id="request-form" class="flex flex-col gap-5">
+                                        <div class="flex flex-col gap-2"><a href="{{ route('contact') }}"
+                                                class="inline-flex w-fit items-center gap-1 text-xs text-primary-dark/50 hover:text-primary"><x-waggies.icon
+                                                    name="arrow-back" size="14" />All options</a>
+                                            <h2 class="font-serif text-xl font-bold text-primary-dark"
+                                                x-text="schema.title"></h2>
+                                            <p class="text-sm leading-relaxed text-primary-dark/60"
+                                                x-text="schema.description"></p>
+                                        </div>
+                                        <div x-show="schema.pricingMode === 'QUOTE_REQUIRED'"
+                                            class="rounded-lg bg-surface-purple/50 p-3 text-sm text-primary-dark/70"><span
+                                                class="font-semibold">Quote required</span> — Waggies will confirm pricing
+                                            after reviewing your request.</div>
+                                        <div x-show="schema.pricingMode === 'ESTIMATED'"
+                                            class="rounded-lg bg-surface-purple/50 p-3 text-sm text-primary-dark/70"
+                                            aria-live="polite"><template x-if="estimate().status === 'calculated'">
+                                                <div>
+                                                    <p><span class="font-semibold"
+                                                            x-text="`Estimate: ${estimate().display}`"></span><span
+                                                            class="text-primary-dark/50"
+                                                            x-text="` · ${estimate().basis}`"></span></p>
+                                                    <p class="mt-0.5 text-xs text-primary-dark/50">Final price confirmed on
+                                                        WhatsApp.</p>
+                                                </div>
+                                            </template><template x-if="estimate().status === 'incomplete'">
+                                                <p><span class="font-semibold">Estimated pricing</span> — complete the
+                                                    required information to calculate your estimate.</p>
+                                            </template><template x-if="estimate().status === 'not_applicable'">
+                                                <p><span class="font-semibold">Estimated pricing</span> — final price
+                                                    confirmed on WhatsApp.</p>
+                                            </template></div>
+                                        <template x-if="schema.usesPets">
+                                            <div class="flex flex-col gap-4">
+                                                <div class="flex items-baseline justify-between">
+                                                    <p class="text-xs font-bold uppercase tracking-wider text-primary/60">
+                                                        Pets</p>
+                                                    <p class="text-xs text-primary-dark/40">Add one card per pet — name and
+                                                        type are required.</p>
+                                                </div>
+                                                <div class="flex flex-col gap-3"><template x-for="(pet, index) in pets"
+                                                        :key="pet.id">
+                                                        <div class="rounded-xl border border-primary/10 bg-white p-4">
+                                                            <div class="mb-3 flex items-center justify-between">
+                                                                <div class="flex items-center gap-2"><span
+                                                                        class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10"><x-waggies.icon
+                                                                            name="pets" size="14"
+                                                                            class="text-primary" /></span>
+                                                                    <p class="text-sm font-semibold text-primary-dark"
+                                                                        x-text="`Pet ${index + 1}`"></p><span
+                                                                        x-show="!petValid(pet)"
+                                                                        class="text-xs text-primary-dark/40">(name + type
+                                                                        required)</span>
+                                                                </div><button x-show="pets.length > 1" type="button"
+                                                                    class="inline-flex min-h-11 items-center gap-1 px-2 text-xs text-primary-dark/50 hover:text-primary"
+                                                                    @click="removePet(index)"><x-waggies.icon
+                                                                        name="delete" size="14" />Remove</button>
+                                                            </div>
+                                                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                                                <div><label :for="`pet-${pet.id}-name`"
+                                                                        class="text-sm font-medium text-primary-dark">Pet&rsquo;s
+                                                                        name <span
+                                                                            class="text-primary">*</span></label><input
+                                                                        :id="`pet-${pet.id}-name`" x-model="pet.name"
+                                                                        placeholder="e.g. Max" class="contact-input"
+                                                                        required></div>
+                                                                <div><label :for="`pet-${pet.id}-species`"
+                                                                        class="text-sm font-medium text-primary-dark">Pet
+                                                                        type <span
+                                                                            class="text-primary">*</span></label><template
+                                                                        x-if="lockedSpecies()"><select
+                                                                            :id="`pet-${pet.id}-species`"
+                                                                            x-model="pet.species" class="contact-input"
+                                                                            required disabled>
+                                                                            <option :value="schema.allowedSpecies[0]"
+                                                                                x-text="lockedSpeciesOptionLabel()">
+                                                                            </option>
+                                                                        </select></template><template
+                                                                        x-if="!lockedSpecies()"><select
+                                                                            :id="`pet-${pet.id}-species`"
+                                                                            x-model="pet.species" class="contact-input"
+                                                                            required>
+                                                                            <option value="">Select...</option>
+                                                                            <option value="dog">Dog</option>
+                                                                            <option value="cat">Cat</option>
+                                                                            <option value="exotic">Exotic pet</option>
+                                                                        </select></template>
+                                                                    <p x-show="lockedSpecies()"
+                                                                        class="mt-1 text-xs text-primary-dark/50"
+                                                                        x-text="`This service accepts ${lockedSpeciesLabel()}s only.`">
+                                                                    </p>
+                                                                </div>
+                                                                <div><label :for="`pet-${pet.id}-breed`"
+                                                                        class="text-sm font-medium text-primary-dark">Breed
+                                                                        (optional)</label><input :id="`pet-${pet.id}-breed`"
+                                                                        x-model="pet.breed"
+                                                                        placeholder="e.g. Labrador Retriever"
+                                                                        class="contact-input"></div>
+                                                                <div><label :for="`pet-${pet.id}-age`"
+                                                                        class="text-sm font-medium text-primary-dark">Age
+                                                                        (optional)</label><input :id="`pet-${pet.id}-age`"
+                                                                        x-model="pet.age" placeholder="e.g. 2 years"
+                                                                        class="contact-input"></div>
+                                                            </div><template x-if="pet.species === 'exotic'">
+                                                                <div class="mt-3"><label :for="`pet-${pet.id}-exotic`"
+                                                                        class="text-sm font-medium text-primary-dark">Exotic
+                                                                        pet type</label><input :id="`pet-${pet.id}-exotic`"
+                                                                        x-model="pet.extra.exoticPetType"
+                                                                        placeholder="e.g. African Grey parrot, bearded dragon, rabbit"
+                                                                        class="contact-input">
+                                                                    <p class="mt-1 text-xs text-primary-dark/50">Tell us
+                                                                        the species so we can prepare the right enclosure.
+                                                                    </p>
+                                                                </div>
+                                                            </template>
+                                                            <div class="mt-3"><label :for="`pet-${pet.id}-notes`"
+                                                                    class="text-sm font-medium text-primary-dark">Notes
+                                                                    (optional)</label>
+                                                                <textarea :id="`pet-${pet.id}-notes`" x-model="pet.notes"
+                                                                    placeholder="Temperament, special care, feeding, sensitivities..." rows="2" class="contact-input resize-y"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </template></div><x-waggies.button type="button" variant="secondary"
+                                                    class="w-fit" @click="addPet()"><x-waggies.icon name="add"
+                                                        size="16" />Add another pet</x-waggies.button>
+                                            </div>
+                                        </template>
+                                        <div class="flex flex-col gap-5">
+                                            <template x-for="(field, fieldIndex) in visibleFields()"
+                                                :key="field.name">
+                                                <div class="flex flex-col gap-1.5">
+                                                    <p x-show="field.group && (fieldIndex === 0 || visibleFields()[fieldIndex - 1].group !== field.group)"
+                                                        class="text-xs font-bold uppercase tracking-wider text-primary/60"
+                                                        x-text="field.group"></p>
+                                                    <label :for="`field-${field.name}`"
+                                                        class="text-sm font-medium text-primary-dark"><span
+                                                            x-text="field.label"></span><template
+                                                            x-if="field.required || requiredWhen(field)"><span
+                                                                class="ml-0.5 text-primary"
+                                                                aria-hidden="true">*</span></template></label>
+                                                    <template x-if="field.type === 'textarea'">
+                                                        <textarea :id="`field-${field.name}`" x-model="values[field.name]" :placeholder="field.placeholder || ''"
+                                                            :required="field.required || requiredWhen(field)"
+                                                            :aria-describedby="field.helperText ? `field-${field.name}-help` : null" rows="3"
+                                                            class="contact-input resize-y"></textarea>
+                                                    </template>
+                                                    <template x-if="field.type === 'select'"><select
+                                                            :id="`field-${field.name}`" x-model="values[field.name]"
+                                                            :required="field.required || requiredWhen(field)"
+                                                            :aria-describedby="field.helperText ? `field-${field.name}-help` : null"
+                                                            class="contact-input">
+                                                            <option value="">Select...</option><template
+                                                                x-for="option in fieldOptions(field)"
+                                                                :key="option.value">
+                                                                <option :value="option.value" x-text="option.label">
+                                                                </option>
+                                                            </template>
+                                                        </select></template>
+                                                    <template x-if="field.type === 'radio'">
+                                                        <div class="flex flex-wrap gap-2" role="radiogroup"
+                                                            :aria-label="field.label"
+                                                            :aria-required="field.required || requiredWhen(field)"
+                                                            :aria-describedby="field.helperText ? `field-${field.name}-help` : null">
+                                                            <template x-for="option in field.options"
+                                                                :key="option.value"><button type="button"
+                                                                    role="radio"
+                                                                    :aria-checked="values[field.name] === option.value"
+                                                                    @click="values[field.name] = option.value"
+                                                                    class="inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-colors"
+                                                                    :class="values[field.name] === option.value ?
+                                                                        'border-primary bg-surface-purple text-primary' :
+                                                                        'border-primary/10 bg-white text-primary-dark/70 hover:border-primary/30 hover:bg-surface-purple/50'"><template
+                                                                        x-if="values[field.name] === option.value"><x-waggies.icon
+                                                                            name="check-circle" size="16"
+                                                                            class="text-primary" /></template><span
+                                                                        x-text="option.label"></span></button></template>
+                                                        </div>
+                                                    </template>
+                                                    <template
+                                                        x-if="!['textarea', 'select', 'radio'].includes(field.type)"><input
+                                                            :id="`field-${field.name}`" :type="field.type"
+                                                            x-model="values[field.name]"
+                                                            :placeholder="field.placeholder || ''" :min="field.min"
+                                                            :max="field.max" :step="field.step || 1"
+                                                            :required="field.required || requiredWhen(field)"
+                                                            :aria-describedby="field.helperText ? `field-${field.name}-help` : null"
+                                                            class="contact-input"></template>
+                                                    <p x-show="field.helperText" :id="`field-${field.name}-help`"
+                                                        class="text-xs text-primary-dark/50" x-text="field.helperText">
+                                                    </p>
+                                                </div>
+                                            </template>
+                                        </div>
+                                        <template x-if="schema.supportsMultiService">
+                                            <div class="flex flex-col gap-3">
+                                                <div class="flex items-baseline justify-between">
+                                                    <p class="text-xs font-bold uppercase tracking-wider text-primary/60">
+                                                        Additional services</p>
+                                                    <p class="text-xs text-primary-dark/40">Optional</p>
+                                                </div>
+                                                <p x-show="serviceBlocks.length === 0 && !servicePicker"
+                                                    class="text-sm text-primary-dark/50">Need more than one service in this
+                                                    request? Add another below.</p>
+                                                <template x-for="(block, index) in serviceBlocks" :key="block.id">
+                                                    <div class="rounded-xl border border-primary/15 bg-white p-4">
+                                                        <div class="mb-3 flex items-center justify-between">
+                                                            <p class="text-sm font-semibold text-primary-dark"
+                                                                x-text="block.title"></p><button type="button"
+                                                                class="inline-flex min-h-11 items-center gap-1 px-2 text-xs text-primary-dark/50 hover:text-primary"
+                                                                @click="serviceBlocks.splice(index, 1)"><x-waggies.icon
+                                                                    name="delete" size="14" />Remove</button>
+                                                        </div>
+                                                        <template x-for="field in block.fields" :key="field.name">
+                                                            <div x-show="!field.conditionalOn || block.values[field.conditionalOn.field] === field.conditionalOn.value"
+                                                                class="mb-3">
+                                                                <label :for="`additional-${block.id}-${field.name}`"
+                                                                    class="text-sm font-medium text-primary-dark"><span
+                                                                        x-text="field.label"></span><template
+                                                                        x-if="field.required || (field.requiredWhen && block.values[field.requiredWhen.field] === field.requiredWhen.value)"><span
+                                                                            class="ml-0.5 text-primary"
+                                                                            aria-hidden="true">*</span></template></label>
+                                                                <template x-if="field.type === 'textarea'">
+                                                                    <textarea :id="`additional-${block.id}-${field.name}`" x-model="block.values[field.name]"
+                                                                        :placeholder="field.placeholder || ''"
+                                                                        :required="field.required || (field.requiredWhen && block
+                                                                            .values[field.requiredWhen.field] ===
+                                                                            field.requiredWhen.value)"
+                                                                        rows="2" class="contact-input"></textarea>
+                                                                </template>
+                                                                <template x-if="field.type === 'select'"><select
+                                                                        :id="`additional-${block.id}-${field.name}`"
+                                                                        x-model="block.values[field.name]"
+                                                                        :required="field.required || (field.requiredWhen && block
+                                                                            .values[field.requiredWhen.field] ===
+                                                                            field.requiredWhen.value)"
+                                                                        class="contact-input">
+                                                                        <option value="">Select...</option><template
+                                                                            x-for="option in field.options || []"
+                                                                            :key="option.value">
+                                                                            <option :value="option.value"
+                                                                                x-text="option.label"></option>
+                                                                        </template>
+                                                                    </select></template>
+                                                                <template
+                                                                    x-if="!['textarea', 'select'].includes(field.type)"><input
+                                                                        :id="`additional-${block.id}-${field.name}`"
+                                                                        x-model="block.values[field.name]"
+                                                                        :type="field.type"
+                                                                        :placeholder="field.placeholder || ''"
+                                                                        :min="field.min" :max="field.max"
+                                                                        :step="field.step || 1"
+                                                                        :required="field.required || (field.requiredWhen && block
+                                                                            .values[field.requiredWhen.field] ===
+                                                                            field.requiredWhen.value)"
+                                                                        class="contact-input"></template>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                                <template x-if="servicePicker">
+                                                    <div
+                                                        class="rounded-xl border border-primary/20 bg-surface-purple/30 p-3">
+                                                        <p class="mb-2 text-xs font-semibold text-primary-dark">Choose a
+                                                            service to add:</p>
+                                                        <div class="grid grid-cols-2 gap-2"><template
+                                                                x-for="option in serviceOptions"
+                                                                :key="option.value"><button type="button"
+                                                                    class="min-h-11 rounded-lg border border-primary/15 bg-white px-4 py-3 text-sm font-medium text-primary-dark hover:border-primary/40"
+                                                                    @click="addService(option)"><span
+                                                                        x-text="option.label"></span></button></template>
+                                                        </div><button type="button"
+                                                            class="mt-2 min-h-11 px-2 text-xs text-primary-dark/50 hover:text-primary"
+                                                            @click="servicePicker = false">Cancel</button>
+                                                    </div>
+                                                </template>
+                                                <x-waggies.button x-show="!servicePicker" type="button"
+                                                    variant="secondary" class="w-fit"
+                                                    @click="servicePicker = true"><x-waggies.icon name="add"
+                                                        size="16" />Add another service</x-waggies.button>
+                                            </div>
+                                        </template>
+                                        <div class="flex flex-col gap-3 pt-2">
+                                            <p x-show="missingFields().length && Object.keys(values).length > 0"
+                                                class="text-sm text-primary-dark/50" aria-live="polite"><span
+                                                    x-text="missingFields().length"></span> field<span
+                                                    x-show="missingFields().length !== 1">s</span> remaining: <span
+                                                    class="font-medium"
+                                                    x-text="missingFields().slice(0, 3).join(', ')"></span></p>
+                                            <p x-show="schema.usesPets && pets.length && !petsValid()"
+                                                class="text-sm text-primary-dark/50" aria-live="polite">Complete pet
+                                                information for Pet <span x-text="firstInvalidPetIndex() + 1"></span> (name
+                                                + type required).</p><x-waggies.button type="button" @click="review()"
+                                                ::disabled="!canContinue()"
+                                                class="disabled:cursor-not-allowed disabled:opacity-50">Review Request
+                                                <x-waggies.icon name="arrow-forward" size="18" /></x-waggies.button>
+                                            <p x-show="!canContinue()" class="text-center text-xs text-primary-dark/40">
+                                                Complete the required fields to continue</p>
+                                        </div>
+                                    </div>
+                                </template>
+                                </template>
+                                <template x-if="step === 'review'">
+                                    <div id="request-review" class="flex flex-col gap-5">
+                                        <div>
+                                            <h2 class="mb-1 font-serif text-xl font-bold text-primary-dark"
+                                                tabindex="-1">Review your request</h2>
+                                            <p class="text-sm text-primary-dark/60">Check the details below before
+                                                continuing to WhatsApp.</p>
+                                        </div>
+                                        <div class="rounded-xl border border-primary/10 bg-surface p-5">
+                                            <dl class="flex flex-col gap-3"><template x-for="line in reviewLines()"
+                                                    :key="line.key">
+                                                    <div
+                                                        class="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-3">
+                                                        <dt class="shrink-0 text-xs font-bold uppercase tracking-wider text-primary/60 sm:w-32"
+                                                            x-text="line.label"></dt>
+                                                        <dd class="whitespace-pre-wrap text-sm leading-relaxed text-primary-dark"
+                                                            x-text="line.value"></dd>
+                                                    </div>
+                                                </template><template x-if="schema.pricingMode === 'ESTIMATED'">
+                                                    <div
+                                                        class="flex flex-col gap-0.5 border-t border-primary/10 pt-2 sm:flex-row sm:items-baseline sm:gap-3">
+                                                        <dt
+                                                            class="shrink-0 text-xs font-bold uppercase tracking-wider text-primary/60 sm:w-32">
+                                                            Estimate</dt>
+                                                        <dd class="text-sm text-primary-dark" x-text="estimateText()">
+                                                        </dd>
+                                                    </div>
+                                                </template><template x-if="schema.pricingMode === 'QUOTE_REQUIRED'">
+                                                    <div
+                                                        class="flex flex-col gap-0.5 border-t border-primary/10 pt-2 sm:flex-row sm:items-baseline sm:gap-3">
+                                                        <dt
+                                                            class="shrink-0 text-xs font-bold uppercase tracking-wider text-primary/60 sm:w-32">
+                                                            Pricing</dt>
+                                                        <dd class="text-sm text-primary-dark">Quote required — Waggies will
+                                                            confirm after reviewing.</dd>
+                                                    </div>
+                                                </template>
+                                                <div
+                                                    class="flex flex-col gap-0.5 border-t border-primary/10 pt-2 sm:flex-row sm:items-baseline sm:gap-3">
+                                                    <dt
+                                                        class="shrink-0 text-xs font-bold uppercase tracking-wider text-primary/60 sm:w-32">
+                                                        Reference</dt>
+                                                    <dd class="font-mono text-sm text-primary-dark/70"
+                                                        x-text="reference + ' (provisional)'"></dd>
+                                                </div>
+                                            </dl>
+                                        </div>
+                                        <p class="text-xs leading-relaxed text-primary-dark/40">Continuing to WhatsApp does
+                                            not confirm a booking or order. Waggies staff will confirm availability,
+                                            pricing, and details.</p>
+                                        <p x-show="serverError" x-text="serverError"
+                                            class="rounded-xl border border-error/40 bg-error-light/50 p-4 text-sm text-error"
+                                            role="alert"></p>
+                                        <p x-show="savedMessage" x-text="savedMessage"
+                                            class="rounded-xl border border-success/30 bg-success/10 p-4 text-sm text-success"
+                                            role="status"></p>
+                                        <div class="flex flex-col gap-3 sm:flex-row"><x-waggies.button type="button"
+                                                variant="secondary" @click="edit()" class="flex-1"><x-waggies.icon
+                                                    name="edit" size="18" />Edit
+                                                Request</x-waggies.button><x-waggies.button x-bind:href="whatsappUrl()"
+                                                target="_blank" rel="noopener noreferrer"
+                                                @click="saveAndContinue($event)" class="flex-1">Save &amp; continue to
+                                                WhatsApp</x-waggies.button></div>
+                                    </div>
+                                </template>
+                            </div>
+                        @endif
                     </div>
                 </div>
-                <div>
-                    <div class="mb-3 flex items-center gap-2"><span class="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10"><x-waggies.icon name="location" size="16" class="text-primary" /></span><h3 class="text-base font-semibold text-primary-dark">Find us</h3></div>
-                    <div class="overflow-hidden rounded-2xl border border-primary/12 bg-surface-purple">
-                        <div class="p-5"><p class="text-sm font-medium text-primary-dark">{{ $business['name'] }} Pet Services</p></div>
-                        <div class="aspect-video border-y border-primary/10"><iframe src="{{ $mapUrl }}" width="100%" height="100%" style="border:0" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Waggies location on Google Maps" class="h-full w-full border-0"></iframe></div>
-                        <div class="flex flex-wrap items-center justify-between gap-3 p-5"><x-waggies.button href="https://www.google.com/maps/dir/?api=1&destination={{ urlencode($business['address']) }}" size="sm" target="_blank" rel="noopener noreferrer"><x-waggies.icon name="location" size="14" />Get Directions<x-waggies.icon name="open-in-new" size="12" /></x-waggies.button><span class="text-xs font-medium text-primary-dark/55">Parking available on-site</span></div>
+                <div class="order-2 flex flex-col gap-7 lg:col-span-7">
+                    <div>
+                        <div class="mb-3 flex items-center gap-2"><span
+                                class="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10"><x-waggies.icon
+                                    name="phone" size="16" class="text-primary" /></span>
+                            <h3 class="text-base font-semibold text-primary-dark">Quick Contact</h3>
+                        </div>
+                        <div class="space-y-2">
+                            <a href="{{ $business['phoneHref'] }}"
+                                class="group flex min-h-[60px] items-center gap-3 rounded-lg border border-primary/10 bg-surface p-3 hover:border-primary/30 hover:bg-white hover:shadow-sm"><span
+                                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10"><x-waggies.icon
+                                        name="phone" size="16" class="text-primary" /></span><span><span
+                                        class="block text-xs font-semibold uppercase tracking-wider text-primary-dark/50">Call
+                                        Us</span><span
+                                        class="text-sm font-bold text-primary-dark group-hover:text-primary">{{ $business['phoneLocal'] }}</span></span></a>
+                            <a href="mailto:{{ $business['email'] }}"
+                                class="group flex min-h-[60px] items-center gap-3 rounded-lg border border-primary/10 bg-surface p-3 hover:border-primary/30 hover:bg-white hover:shadow-sm"><span
+                                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10"><x-waggies.icon
+                                        name="email" size="16" class="text-primary" /></span><span><span
+                                        class="block text-xs font-semibold uppercase tracking-wider text-primary-dark/50">Email
+                                        Us</span><span
+                                        class="text-sm font-bold text-primary-dark group-hover:text-primary">{{ $business['email'] }}</span></span></a>
+                            <div
+                                class="flex min-h-[60px] items-start gap-3 rounded-lg border border-primary/10 bg-surface p-3">
+                                <span
+                                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10"><x-waggies.icon
+                                        name="location" size="16" class="text-primary" /></span><span><span
+                                        class="block text-xs font-semibold uppercase tracking-wider text-primary-dark/50">Address</span><span
+                                        class="text-sm leading-relaxed text-primary-dark/80">{{ $business['address'] }}</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="mb-3 flex items-center gap-2"><span
+                                class="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10"><x-waggies.icon
+                                    name="location" size="16" class="text-primary" /></span>
+                            <h3 class="text-base font-semibold text-primary-dark">Find us</h3>
+                        </div>
+                        <div class="overflow-hidden rounded-2xl border border-primary/12 bg-surface-purple">
+                            <div class="p-5">
+                                <p class="text-sm font-medium text-primary-dark">{{ $business['name'] }} Pet Services</p>
+                            </div>
+                            <div class="aspect-video border-y border-primary/10"><iframe src="{{ $mapUrl }}"
+                                    width="100%" height="100%" style="border:0" allowfullscreen loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade" title="Waggies location on Google Maps"
+                                    class="h-full w-full border-0"></iframe></div>
+                            <div class="flex flex-wrap items-center justify-between gap-3 p-5"><x-waggies.button
+                                    href="https://www.google.com/maps/dir/?api=1&destination={{ urlencode($business['address']) }}"
+                                    size="sm" target="_blank" rel="noopener noreferrer"><x-waggies.icon
+                                        name="location" size="14" />Get Directions<x-waggies.icon name="open-in-new"
+                                        size="12" /></x-waggies.button><span
+                                    class="text-xs font-medium text-primary-dark/55">Parking available on-site</span></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="mb-3 flex items-center gap-2"><span
+                                class="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10"><x-waggies.icon
+                                    name="hours" size="16" class="text-primary" /></span>
+                            <h3 class="text-base font-semibold text-primary-dark">Opening Hours</h3>
+                        </div>
+                        <x-waggies.opening-hours :schedule="$business['openingHours']" />
+                        <p class="mt-2 text-xs leading-relaxed text-primary-dark/50">Boarding guests receive 24/7
+                            supervision regardless of office hours.</p>
                     </div>
                 </div>
-                <div>
-                    <div class="mb-3 flex items-center gap-2"><span class="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10"><x-waggies.icon name="hours" size="16" class="text-primary" /></span><h3 class="text-base font-semibold text-primary-dark">Opening Hours</h3></div>
-                    <x-waggies.opening-hours :schedule="$business['openingHours']" />
-                    <p class="mt-2 text-xs leading-relaxed text-primary-dark/50">Boarding guests receive 24/7 supervision regardless of office hours.</p>
-                </div>
-            </div></div></section>
+            </div>
+    </section>
 @endsection
