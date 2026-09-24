@@ -1,7 +1,6 @@
 @props(['compact' => false])
 
 @php
-    $businessHours = $businessHours ?? \App\Models\BusinessHour::publicSchedule();
     $errors = $errors ?? new \Illuminate\Support\ViewErrorBag();
     $phoneHref = $businessProfile->toPublicArray()['phoneHref'];
     $whatsappHref = $businessProfile->whatsapp_url;
@@ -50,18 +49,22 @@
 
 <footer class="mt-auto border-t border-white/10 bg-primary-dark">
     @if ($compact)
-        <div class="page-container flex flex-col gap-5 py-8 sm:flex-row sm:items-center sm:justify-between">
-            <a href="{{ route('home') }}" class="flex items-center gap-2" aria-label="Waggies - home">
-                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary"><x-waggies.icon
-                        name="pets" size="20" class="text-white" /></span>
-                <span class="font-serif text-xl font-bold text-white">Waggies</span>
-            </a>
+        <div class="page-container flex flex-col gap-6 py-8">
+            <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <a href="{{ route('home') }}" class="flex items-center gap-2" aria-label="Waggies - home">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary"><x-waggies.icon
+                            name="pets" size="20" class="text-white" /></span>
+                    <span class="font-serif text-xl font-bold text-white">Waggies</span>
+                </a>
 
-            <nav aria-label="Footer" class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-                <a href="{{ route('services.index') }}" class="text-white/70 hover:text-white">Services</a>
-                <a href="{{ route('shop.index') }}" class="text-white/70 hover:text-white">Shop</a>
-                <a href="{{ route('contact') }}" class="text-white/70 hover:text-white">Contact</a>
-            </nav>
+                <nav aria-label="Footer" class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm sm:justify-end">
+                    <a href="{{ route('services.index') }}" class="text-white/70 hover:text-white">Services</a>
+                    <a href="{{ route('shop.index') }}" class="text-white/70 hover:text-white">Shop</a>
+                    <a href="{{ route('contact') }}" class="text-white/70 hover:text-white">Contact</a>
+                </nav>
+            </div>
+
+            <x-waggies.footer-business-hours :schedule="$businessSchedule" compact />
         </div>
     @else
         <div class="mx-auto max-w-7xl px-4 pb-8 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pt-20">
@@ -115,31 +118,33 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6"><a href="{{ route('home') }}"
-                        class="flex items-center gap-2"><span
-                            class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary"><x-waggies.icon
-                                name="pets" size="20" class="text-white" /></span><span
-                            class="font-serif text-xl font-bold text-white">Waggies</span></a>
-                    <p class="max-w-md text-sm text-white/70">Pet boarding, grooming, vet care, training, and relocation
-                        services in Abuja, Nigeria.</p>
-                </div>
-                <div class="flex flex-wrap items-center gap-4"><span
-                        class="text-label whitespace-nowrap text-secondary">Follow Us</span>
-                    <div class="flex flex-wrap gap-3">
-                        @foreach ($socials as [$label, $icon])
-                            @php($socialHref = $businessProfile->socialLinks()[$icon] ?? null) @if ($socialHref)
-                                <a href="{{ $socialHref }}" target="_blank" rel="noopener noreferrer"
-                                    class="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/70 transition-colors hover:border-primary hover:bg-primary hover:text-white"
-                                    aria-label="{{ $label }}"><x-waggies.brand-icon name="{{ $icon }}"
-                                        size="18" /></a>
-                            @endif
-                        @endforeach
+            <div class="flex flex-col gap-6 lg:gap-8">
+                <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6"><a href="{{ route('home') }}"
+                            class="flex items-center gap-2"><span
+                                class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary"><x-waggies.icon
+                                    name="pets" size="20" class="text-white" /></span><span
+                                class="font-serif text-xl font-bold text-white">Waggies</span></a>
+                        <p class="max-w-md text-sm text-white/70">Pet boarding, grooming, vet care, training, and relocation
+                            services in Abuja, Nigeria.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-4"><span
+                            class="text-label whitespace-nowrap text-secondary">Follow Us</span>
+                        <div class="flex flex-wrap gap-3">
+                            @foreach ($socials as [$label, $icon])
+                                @php($socialHref = $businessProfile->socialLinks()[$icon] ?? null) @if ($socialHref)
+                                    <a href="{{ $socialHref }}" target="_blank" rel="noopener noreferrer"
+                                        class="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/70 transition-colors hover:border-primary hover:bg-primary hover:text-white"
+                                        aria-label="{{ $label }}"><x-waggies.brand-icon name="{{ $icon }}"
+                                            size="18" /></a>
+                                @endif
+                            @endforeach
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="my-10 border-t border-white/10 lg:my-12"></div>
+                <x-waggies.footer-business-hours :schedule="$businessSchedule" />
+            </div>
             <div class="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5 lg:gap-6">
                 @foreach ($footerColumns as $heading => $links)
                     <div>
@@ -153,14 +158,6 @@
                                 </li>
                             @endforeach
                         </ul>
-                        @if ($heading === 'Support')
-                            <div class="mt-5 space-y-1.5 border-t border-white/10 pt-4 text-xs text-white/55">
-                                @foreach ($businessHours as $hours)
-                                    <p><span class="font-medium text-white/70">{{ $hours['day'] }}:</span>
-                                        {{ $hours['hours'] }}</p>
-                                @endforeach
-                            </div>
-                        @endif
                     </div>
                 @endforeach
             </div>

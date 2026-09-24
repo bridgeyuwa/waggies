@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:wght@400;500;600;700&display=swap');
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+:root {
+    --font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+    --serif-font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    --mono-font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Keep the admin shell recognisably Waggies without overriding Filament's
+   component states or accessibility-focused interaction styles. */
+.fi-logo {
+    color: var(--color-primary-700);
+    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    letter-spacing: 0.01em;
+}
+
+.fi-sidebar {
+    border-inline-end: 1px solid color-mix(in oklab, var(--color-primary-700) 10%, transparent);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background: color-mix(in oklab, var(--color-primary-500) 12%, transparent);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label,
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon {
+    color: var(--color-primary-700);
+}

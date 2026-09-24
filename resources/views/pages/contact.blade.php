@@ -160,15 +160,15 @@
     <section class="relative overflow-hidden bg-surface">
         <div class="relative page-container py-14 md:py-20 lg:py-24">
             <div class="max-w-3xl">
-                <div class="mb-8"><span
-                        class="inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 rounded-full border border-primary/10 bg-white px-4 py-2 shadow-sm"><x-waggies.icon
-                            name="verified" size="18" variant="filled" class="shrink-0 text-primary" /><span
-                            class="whitespace-nowrap text-sm font-semibold tracking-wide text-primary-dark/80">Vet-Supervised
-                            Care <span class="mx-1.5 text-primary-dark/30">·</span></span><span
-                            class="whitespace-nowrap text-sm font-semibold tracking-wide text-primary-dark/80">On-Site
-                            Support <span class="mx-1.5 text-primary-dark/30">·</span></span><span
-                            class="whitespace-nowrap text-sm font-semibold tracking-wide text-primary-dark/80">24/7
-                            Supervision</span></span></div>
+                <div class="mb-6">
+                    <span
+                        class="inline-flex max-w-full items-center gap-2 rounded-full border border-primary/10 bg-white px-3.5 py-1.5 shadow-sm">
+                        <x-waggies.icon name="pets" size="16" class="shrink-0 text-primary" />
+                        <span class="whitespace-nowrap text-xs font-semibold tracking-wide text-primary-dark/80 sm:text-sm">
+                            Whatever your pet needs, start here.
+                        </span>
+                    </span>
+                </div>
                 <h1 class="text-display mb-7 text-primary-dark">Contact Waggies</h1>
                 <p class="max-w-2xl text-lg leading-relaxed text-primary-dark/70">Have a question, want to make a booking,
                     or need a quote? Fill in the request form and we&rsquo;ll continue the conversation on WhatsApp.</p>

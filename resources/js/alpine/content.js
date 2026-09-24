@@ -14,19 +14,110 @@ const faqPage = (faqs, categories) => ({
 const homeTestimonials = (testimonials) => ({
     testimonials: testimonials?.length ? testimonials : [{
         service: 'Client stories',
+        stars: null,
         quote: 'Verified client stories will appear here as Waggies pet parents share their experience.',
         initial: 'W',
         name: 'Waggies pet parents',
         subtitle: 'Verified stories coming soon',
     }],
     active: 0,
+    batch: 0,
+    batchSize: 3,
     hovered: false,
+    focused: false,
+    autoplayDelay: 4000,
     timer: null,
+    transitionTimer: null,
+    transitioning: false,
     init() {
-        if (this.testimonials.length === 0) return;
-        this.timer = setInterval(() => { if (!this.hovered) this.active = (this.active + 1) % this.testimonials.length; }, 6000);
+        this.startTimer();
     },
-    select(index) { this.active = index; },
+    startTimer() {
+        this.stopTimer();
+
+        if (this.testimonials.length <= 1) return;
+
+        this.timer = setTimeout(() => {
+            if (!this.hovered && !this.focused) this.advance();
+            this.startTimer();
+        }, this.autoplayDelay);
+    },
+    stopTimer() {
+        clearTimeout(this.timer);
+        this.timer = null;
+    },
+    restartTimer() {
+        this.startTimer();
+    },
+    advance() {
+        const nextIndex = this.active + 1;
+
+        if (nextIndex < this.batchStart() + this.currentBatchSize()) {
+            this.transitionTo(nextIndex);
+
+            return;
+        }
+
+        this.nextBatch();
+    },
+    batchCount() {
+        return Math.ceil(this.testimonials.length / this.batchSize);
+    },
+    batchStart() {
+        return this.batch * this.batchSize;
+    },
+    currentBatchSize() {
+        return Math.min(this.batchSize, this.testimonials.length - this.batchStart());
+    },
+    ratingLabel() {
+        const rating = Number(this.testimonials[this.active]?.stars || 0);
+
+        return rating > 0 ? `${rating} out of 5 stars` : 'No rating provided';
+    },
+    isVisible(index) {
+        return index >= this.batchStart() && index < this.batchStart() + this.currentBatchSize();
+    },
+    transitionTo(index) {
+        if (index === this.active && !this.transitioning) return;
+
+        clearTimeout(this.transitionTimer);
+        this.transitioning = true;
+        this.transitionTimer = setTimeout(() => {
+            this.active = index;
+            this.batch = Math.floor(index / this.batchSize);
+
+            requestAnimationFrame(() => {
+                this.transitioning = false;
+            });
+        }, 60);
+    },
+    nextBatch(event = null) {
+        if (this.batchCount() <= 1) return;
+
+        if (event?.detail > 0) this.focused = false;
+
+        const nextBatch = (this.batch + 1) % this.batchCount();
+        this.transitionTo(nextBatch * this.batchSize);
+        this.restartTimer();
+    },
+    previousBatch(event = null) {
+        if (this.batchCount() <= 1) return;
+
+        if (event?.detail > 0) this.focused = false;
+
+        const previousBatch = (this.batch - 1 + this.batchCount()) % this.batchCount();
+        this.transitionTo(previousBatch * this.batchSize);
+        this.restartTimer();
+    },
+    select(index, event = null) {
+        this.transitionTo(index);
+        if (event?.detail > 0) this.focused = false;
+        this.restartTimer();
+    },
+    destroy() {
+        this.stopTimer();
+        clearTimeout(this.transitionTimer);
+    },
 });
 
 const testimonialsGrid = (items) => ({

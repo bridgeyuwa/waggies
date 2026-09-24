@@ -4,16 +4,11 @@
     <x-waggies.cover-hero :hero="$homeHero" title-id="home-cover-hero-title">
         <x-slot:supporting>
             <span
-                class="inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 rounded-full border border-primary/10 bg-white px-4 py-2 shadow-sm">
-                <x-waggies.icon name="verified" size="18" variant="filled" class="text-primary" />
-                @foreach (['Vet-Supervised Care', 'On-Site Support', '24/7 Supervision'] as $index => $trust)
-                    <span class="whitespace-nowrap text-sm font-semibold tracking-wide text-primary-dark/80">
-                        {{ $trust }}
-                        @if ($index < 2)
-                            <span class="mx-1.5 text-primary-dark/30" aria-hidden="true">·</span>
-                        @endif
-                    </span>
-                @endforeach
+                class="inline-flex max-w-full items-center gap-2 rounded-full border border-primary/10 bg-white px-3.5 py-1.5 shadow-sm">
+                <x-waggies.icon name="verified" size="18" variant="filled" class="shrink-0 text-primary" />
+                <span class="whitespace-nowrap text-xs font-semibold tracking-wide text-primary-dark/80 sm:text-sm">
+                    Five services. One trusted team.
+                </span>
             </span>
         </x-slot:supporting>
     </x-waggies.cover-hero>
@@ -83,7 +78,8 @@
     </section>
 
     <section x-data="homeTestimonials(@js($homeTestimonials))" class="section-pad border-y border-primary/5 bg-surface-purple/50"
-        aria-label="Client testimonials spotlight" @mouseenter="hovered = true" @mouseleave="hovered = false">
+        aria-label="Client testimonials spotlight" @mouseenter="hovered = true" @mouseleave="hovered = false"
+        @focusin="focused = true" @focusout="if (!$event.currentTarget.contains($event.relatedTarget)) focused = false">
         <div class="page-container">
             <div class="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
                 <div><span class="text-eyebrow mb-2 block">CLIENT EXPERIENCES</span>
@@ -93,12 +89,14 @@
                     companions to Waggies for boarding, grooming, and relocation.</p>
             </div>
             <div class="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-12">
-                <div class="order-2 flex flex-col justify-center space-y-3 lg:order-1 lg:col-span-4">
+                <div class="order-2 flex flex-col justify-center space-y-3 transition-[opacity,transform] duration-[280ms] ease-[cubic-bezier(0.23,1,0.32,1)] lg:order-1 lg:col-span-4 motion-reduce:transition-opacity motion-reduce:duration-180 motion-reduce:transform-none"
+                    :class="transitioning ? 'translate-y-1 opacity-0' : 'translate-y-0 opacity-100'">
                     <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wider text-primary-dark/40">Select Client
                         Story</p>
                     @foreach ($homeTestimonials as $index => $testimonial)
-                        <button type="button" role="tab" :aria-selected="active === {{ $index }}"
-                            @click="select({{ $index }})"
+                        <button x-cloak x-show="isVisible({{ $index }})" type="button" role="tab"
+                            :aria-selected="active === {{ $index }}" :tabindex="active === {{ $index }} ? 0 : -1"
+                            @click="select({{ $index }}, $event)"
                             class="group relative flex min-h-[52px] items-center justify-between rounded-xl border p-4 text-left transition duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                             :class="active === {{ $index }} ?
                                 'translate-x-1 border-primary/20 bg-white text-primary-dark shadow-sm' :
@@ -112,21 +110,45 @@
                                 name="chevron-right" size="16"
                                 class="shrink-0 text-primary opacity-0 transition group-hover:opacity-100" /></button>
                     @endforeach
+                    @if (count($homeTestimonials) > 3)
+                        <div class="flex flex-col items-start gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between" role="group"
+                            aria-label="Testimonial story sets">
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="previousBatch($event)" aria-label="Previous testimonial stories"
+                                    class="grid size-11 place-items-center rounded-full border border-primary/20 text-primary transition-colors hover:bg-surface-purple focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                                    <x-waggies.icon name="arrow-back" size="16" />
+                                </button>
+                                <span class="min-w-16 text-center text-xs font-semibold text-primary-dark/55"
+                                    aria-live="polite">Set <span x-text="batch + 1"></span> of <span
+                                        x-text="batchCount()"></span></span>
+                                <button type="button" @click="nextBatch($event)" aria-label="Next testimonial stories"
+                                    class="grid size-11 place-items-center rounded-full border border-primary/20 text-primary transition-colors hover:bg-surface-purple focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                                    <x-waggies.icon name="arrow-forward" size="16" />
+                                </button>
+                            </div>
+                            <a href="{{ route('about.testimonials') }}"
+                                class="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:text-primary-dark hover:underline">
+                                Read all testimonials
+                                <x-waggies.icon name="arrow-forward" size="16" />
+                            </a>
+                        </div>
+                    @endif
                 </div>
                 <div class="order-1 lg:order-2 lg:col-span-8">
                     <div
-                        class="w-card relative flex h-full flex-col justify-between overflow-hidden border border-primary/10 bg-white p-8 md:p-12">
+                        class="w-card relative flex h-full min-h-[30rem] flex-col justify-between overflow-hidden border border-primary/10 bg-white p-8 sm:min-h-[28rem] md:p-12">
                         <x-waggies.icon name="quotes" size="140"
                             class="pointer-events-none absolute -bottom-6 -right-6 text-primary/5" />
-                        <div class="relative z-10">
+                        <div class="relative z-10 transition-[opacity,transform] duration-[280ms] ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-opacity motion-reduce:duration-180 motion-reduce:transform-none"
+                            :class="transitioning ? 'translate-y-1 opacity-0' : 'translate-y-0 opacity-100'">
                             <div class="mb-6 flex flex-wrap items-center justify-between gap-4"><span
                                     class="rounded-full bg-surface-purple px-3 py-1 text-xs font-semibold tracking-wide text-primary"
                                     x-text="testimonials[active].service"></span>
-                                <div class="flex items-center gap-1" aria-label="5 out of 5 stars"><template
-                                        x-for="i in 5"><x-waggies.icon name="star" size="18"
-                                            class="text-gold" /></template></div>
+                                <div class="flex items-center gap-1" role="img" :aria-label="ratingLabel()"><template
+                                        x-for="i in 5" :key="i"><x-waggies.icon name="star" size="18"
+                                            x-bind:class="i <= Number(testimonials[active].stars || 0) ? 'text-gold' : 'text-primary/15'" /></template></div>
                             </div>
-                            <div x-transition.opacity>
+                            <div class="min-h-[16rem] sm:min-h-[15rem] lg:min-h-[13rem]">
                                 <blockquote
                                     class="mb-8 font-serif text-xl font-medium leading-relaxed text-primary-dark sm:text-2xl md:text-3xl"
                                     x-text="'“' + testimonials[active].quote + '”'"></blockquote>
@@ -143,9 +165,10 @@
                         <div class="mt-8 flex items-center gap-2 pt-4" role="tablist"
                             aria-label="Testimonial progress tabs">
                             @foreach ($homeTestimonials as $index => $testimonial)
-                                <button type="button" role="tab" :aria-selected="active === {{ $index }}"
+                                <button x-cloak x-show="isVisible({{ $index }})" type="button" role="tab"
+                                    :aria-selected="active === {{ $index }}" :tabindex="active === {{ $index }} ? 0 : -1"
                                     aria-label="Show testimonial {{ $index + 1 }}"
-                                    @click="select({{ $index }})"
+                                    @click="select({{ $index }}, $event)"
                                     class="h-2 min-w-[12px] rounded-full transition-[width,background-color] duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
                                     :class="active === {{ $index }} ? 'w-8 bg-primary' :
                                         'w-3 bg-primary/20 hover:bg-primary/40'"></button>

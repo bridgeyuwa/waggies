@@ -156,6 +156,7 @@ final class Testimonial extends Model
     {
         return [
             'service' => self::serviceOptions()[$this->service] ?? $this->service,
+            'stars' => $this->rating,
             'quote' => $this->story,
             'initial' => mb_substr($this->author_name, 0, 1),
             'name' => $this->author_name,

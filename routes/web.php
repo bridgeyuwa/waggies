@@ -25,6 +25,17 @@ use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\ToolsController;
 use Illuminate\Support\Facades\Route;
 
+if (app()->isLocal()) {
+    Route::prefix('__test/errors')->group(function () {
+        Route::get('/401', fn () => abort(401));
+        Route::get('/403', fn () => abort(403));
+        Route::get('/419', fn () => abort(419));
+        Route::get('/429', fn () => abort(429));
+        Route::get('/500', fn () => abort(500));
+        Route::get('/503', fn () => abort(503));
+    });
+}
+
 Route::get('/', HomeController::class)->name('home');
 Route::permanentRedirect('/service-hero-boarding-cats.jpg', '/media/services/boarding/hero-cats.jpg');
 Route::permanentRedirect('/service-hero-boarding-dogs.jpg', '/media/services/boarding/hero-dogs.jpg');

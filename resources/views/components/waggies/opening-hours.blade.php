@@ -16,7 +16,7 @@
                 <span x-text="schedule.status.label"></span>
             </span>
             <p class="text-sm text-primary-dark/70" x-text="statusDetail()"></p>
-            <p class="text-xs text-primary-dark/50">Times shown in <span x-text="schedule.timezone"></span></p>
+            <p class="text-xs text-primary-dark/50">Times shown in <span x-text="schedule.timezone"></span> (WAT, UTC+1)</p>
         </div>
 
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -87,7 +87,7 @@
                         </template>
                     </div>
 
-                    <p class="text-sm font-medium tracking-tight text-primary-dark sm:text-[0.95rem]" :class="row.isClosed ? 'text-primary-dark/50' : ''" x-text="row.isClosed ? 'Closed' : rowHours(row)"></p>
+                    <p class="text-sm font-medium tracking-tight text-primary-dark sm:text-[0.95rem]" :class="row.isClosed ? 'text-primary-dark/50' : ''" x-text="row.isClosed ? 'Closed' : rowHours(row).replaceAll('–', ' – ')"></p>
                 </div>
             </template>
         </div>
@@ -105,7 +105,7 @@
                                 <span> · <span x-text="exception.label"></span></span>
                             </template>
                         </p>
-                        <p class="shrink-0 text-sm font-semibold text-primary-dark" :class="exception.isClosed ? 'text-primary-dark/55' : ''" x-text="exceptionHours(exception)"></p>
+                        <p class="shrink-0 text-sm font-semibold text-primary-dark" :class="exception.isClosed ? 'text-primary-dark/55' : ''" x-text="exceptionHours(exception).replaceAll('–', ' – ')"></p>
                     </li>
                 </template>
             </ul>

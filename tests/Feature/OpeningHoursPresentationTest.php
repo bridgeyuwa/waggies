@@ -66,6 +66,40 @@ class OpeningHoursPresentationTest extends TestCase
             ->assertSee('12h');
     }
 
+    public function test_footer_reuses_calculated_status_grouped_schedule_and_contact_link(): void
+    {
+        $this->travelTo('2026-09-24 10:30:00');
+        $this->seedWeeklySchedule([
+            0 => [],
+            1 => ['09:00', '17:00'],
+            2 => ['09:00', '17:00'],
+            3 => ['09:00', '17:00'],
+            4 => ['09:00', '17:00'],
+            5 => ['09:00', '17:00'],
+            6 => ['10:00', '14:00'],
+        ]);
+        BusinessHour::query()->create([
+            'kind' => BusinessHour::KIND_EXCEPTION,
+            'date' => '2026-09-24',
+            'label' => 'Staff training day',
+            'is_closed' => true,
+        ]);
+
+        $schedule = BusinessHour::contactSchedule('Africa/Lagos');
+        $response = $this->get(route('home'));
+
+        $response->assertOk()
+            ->assertSee('Business Hours')
+            ->assertSee($schedule['status']['label'])
+            ->assertSee($schedule['status']['detail12'])
+            ->assertSee(str_replace('–', ' - ', $schedule['weekly']['grouped'][0]['label']))
+            ->assertSee(str_replace('–', ' - ', $schedule['weekly']['grouped'][0]['hours12']))
+            ->assertSee('View full hours')
+            ->assertSee('href="'.route('contact').'"', false);
+
+        $this->assertFalse($schedule['status']['isOpen']);
+    }
+
     public function test_spatie_exception_hours_override_weekly_status_and_render_as_an_exception(): void
     {
         $this->travelTo('2026-09-24 15:00:00');

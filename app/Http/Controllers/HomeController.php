@@ -56,11 +56,12 @@ final class HomeController extends Controller
                 ->published()
                 ->orderBy('sort_order')
                 ->orderBy('created_at')
-                ->limit(3)
+                ->limit(6)
                 ->get()
                 ->map(fn (Testimonial $testimonial): array => $testimonial->toHomeArray())
                 ->all() ?: [[
                     'service' => 'Client stories',
+                    'stars' => null,
                     'quote' => 'Verified client stories will appear here as Waggies pet parents share their experience.',
                     'initial' => 'W',
                     'name' => 'Waggies pet parents',

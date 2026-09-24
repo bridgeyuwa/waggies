@@ -131,7 +131,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('components.waggies.footer', static function (\Illuminate\View\View $view): void {
-            $view->with('businessHours', BusinessHour::publicSchedule());
+            $businessProfile = $view->getData()['businessProfile'] ?? BusinessProfile::current();
+
+            $view->with('businessSchedule', BusinessHour::contactSchedule(
+                $businessProfile->timezone ?: config('app.timezone'),
+            ));
         });
 
         $businessDescription = 'Pet boarding, grooming, vet care, training, relocation and local transport in Abuja, Nigeria.';

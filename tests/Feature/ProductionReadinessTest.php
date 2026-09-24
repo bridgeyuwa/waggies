@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\BusinessProfile;
+use App\Models\Testimonial;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +56,44 @@ it('renders a truthful homepage testimonial state when no stories are publishabl
     $this->get('/')
         ->assertOk()
         ->assertSee('Verified client stories will appear here as Waggies pet parents share their experience.');
+});
+
+it('renders up to six ordered published testimonials on the homepage', function (): void {
+    $testimonials = collect(range(1, 7))->map(function (int $sortOrder): Testimonial {
+        return Testimonial::factory()->create([
+            'author_name' => "Homepage Owner {$sortOrder}",
+            'story' => "Homepage testimonial {$sortOrder}.",
+            'status' => Testimonial::STATUS_APPROVED,
+            'sort_order' => $sortOrder,
+        ]);
+    });
+
+    $response = $this->get('/')->assertOk();
+
+    $testimonials->take(6)->each(function (Testimonial $testimonial) use ($response): void {
+        $response->assertSee($testimonial->author_name);
+    });
+
+    $response
+        ->assertDontSee($testimonials->last()->author_name)
+        ->assertSee('aria-label="Next testimonial stories"', false)
+        ->assertSee('Read all testimonials');
+});
+
+it('renders stored testimonial ratings on both public testimonial surfaces', function (): void {
+    $testimonial = Testimonial::factory()->create([
+        'author_name' => 'Three Star Owner',
+        'rating' => 3,
+        'story' => 'This published testimonial should render its stored three-star rating.',
+        'status' => Testimonial::STATUS_APPROVED,
+    ]);
+
+    $this->get(route('about.testimonials'))
+        ->assertSee($testimonial->story)
+        ->assertSee('aria-label="3 out of 5 stars"', false);
+
+    $this->get(route('home'))
+        ->assertSee('\\u0022stars\\u0022:3', false);
 });
 
 it('redirects guests away from the protected admin panel', function (): void {
