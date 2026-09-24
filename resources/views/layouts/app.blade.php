@@ -10,7 +10,7 @@
         <script>window.livewireScriptConfig = window.livewireScriptConfig ?? {};</script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-surface text-primary-dark antialiased" data-contact-url="{{ route('contact') }}" data-contact-enquiry-url="{{ route('contact-enquiries.store') }}" data-search-url="{{ route('search') }}" data-assistant-url="{{ route('assistant.store') }}" data-boarding-url="{{ route('services.boarding') }}" data-grooming-url="{{ route('services.grooming') }}" data-pricing-url="{{ route('services.pricing') }}" data-vet-care-url="{{ route('services.vet-care') }}" data-training-url="{{ route('services.training') }}" data-relocation-hub="{{ route('services.relocation') }}" data-relocation-transport="{{ route('relocation.transport') }}">
+    <body class="min-h-screen bg-surface text-primary-dark antialiased" data-contact-url="{{ route('contact') }}" data-contact-enquiry-url="{{ route('contact-enquiries.store') }}" data-search-url="{{ route('search') }}" data-assistant-url="{{ route('assistant.store') }}" data-assistant-stream-url="{{ route('assistant.stream') }}" data-boarding-url="{{ route('services.boarding') }}" data-grooming-url="{{ route('services.grooming') }}" data-pricing-url="{{ route('services.pricing') }}" data-vet-care-url="{{ route('services.vet-care') }}" data-training-url="{{ route('services.training') }}" data-relocation-hub="{{ route('services.relocation') }}" data-relocation-transport="{{ route('relocation.transport') }}">
         <div data-navigation-progress hidden class="navigation-progress" role="status" aria-label="Loading page"></div>
         <x-waggies.skip-link />
         <x-waggies.navbar :nav-section="$navSection ?? ''" />

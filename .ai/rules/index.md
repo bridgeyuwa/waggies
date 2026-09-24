@@ -8,3 +8,4 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/**, bootstrap/**, config/**, database/**, resources/**, routes/**, tests/**, public/**, composer.json, package.json, config/waggies_pricing.php | .ai/rules/reuse-before-reinventing.md |
 | app/Http/Controllers/**, app/Models/**, config/waggies_pricing.php, database/**, resources/js/**, resources/views/**, routes/**, tests/** | .ai/rules/views.md |
 | app/Filament/**, app/Providers/Filament/**, database/seeders/**, resources/views/**, routes/**, tests/** | .ai/rules/local-filament-testing.md |
+| resources/views/**, resources/css/**, resources/js/**, app/Livewire/**, app/Filament/**, app/Providers/Filament/** | .ai/rules/frontend-design-skills.md |

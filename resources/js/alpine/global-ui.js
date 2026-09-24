@@ -3,10 +3,119 @@ const waggiesChat = () => ({
     chatOpen: false,
     input: '',
     sending: false,
+    newReplyAvailable: false,
+    announcement: '',
+    lastFocus: null,
+    requestController: null,
+    suggestions: [
+        'What services do you offer?',
+        'What are your opening hours?',
+        'How do I make a booking?',
+        'What are your prices?',
+    ],
     messages: [{
         role: 'assistant',
-        text: 'Hi! I’m the Waggies AI assistant. I can help with services, booking, and general pet-care information.',
+        text: 'Hi! I’m the Waggies AI assistant. I can help with services, booking, opening hours, and general pet-care information.',
     }],
+    init() {
+        this.showTop = window.scrollY > 400;
+        window.addEventListener('scroll', () => this.showTop = window.scrollY > 400, { passive: true });
+        this.$watch('chatOpen', open => {
+            if (!open) return;
+
+            this.$nextTick(() => {
+                this.$refs.chatInput?.focus();
+                this.scrollToLatest(true);
+            });
+        });
+    },
+    openChat() {
+        this.lastFocus = document.activeElement;
+        this.chatOpen = true;
+    },
+    closeChat() {
+        if (!this.chatOpen) return;
+
+        const focusTarget = this.lastFocus;
+        this.chatOpen = false;
+        this.newReplyAvailable = false;
+        this.$nextTick(() => requestAnimationFrame(() => focusTarget?.focus?.()));
+    },
+    resetChat() {
+        if (this.sending) return;
+
+        this.messages = [{
+            role: 'assistant',
+            text: 'Hi! I’m the Waggies AI assistant. I can help with services, booking, opening hours, and general pet-care information.',
+        }];
+        this.input = '';
+        this.newReplyAvailable = false;
+        this.announcement = '';
+        this.$nextTick(() => {
+            this.$refs.chatInput?.focus();
+            this.scrollToLatest(true);
+        });
+    },
+    handleChatKeydown(event) {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            this.closeChat();
+            return;
+        }
+
+        if (event.key !== 'Tab') return;
+
+        const focusableElements = this.getFocusableElements();
+        if (!focusableElements.length) return;
+
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        }
+
+        if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    },
+    getFocusableElements() {
+        if (!this.$refs.chatPanel) return [];
+
+        return [...this.$refs.chatPanel.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+            .filter(element => element.offsetParent !== null && element.getAttribute('aria-hidden') !== 'true');
+    },
+    sendSuggestion(suggestion) {
+        this.input = suggestion;
+        this.send();
+    },
+    isNearBottom(messages = this.$refs.messages) {
+        if (!messages) return true;
+
+        return messages.scrollHeight - messages.scrollTop - messages.clientHeight <= 80;
+    },
+    handleMessagesScroll() {
+        if (this.isNearBottom()) this.newReplyAvailable = false;
+    },
+    scrollToLatest(force = false) {
+        this.$nextTick(() => requestAnimationFrame(() => {
+            const messages = this.$refs.messages;
+            if (!messages) return;
+
+            if (!force && !this.isNearBottom(messages)) {
+                this.newReplyAvailable = true;
+                return;
+            }
+
+            this.newReplyAvailable = false;
+            messages.scrollTo({
+                top: messages.scrollHeight,
+                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+            });
+        }));
+    },
     async send() {
         const value = this.input.trim();
         if (!value || this.sending) return;
@@ -14,12 +123,18 @@ const waggiesChat = () => ({
         this.messages.push({ role: 'user', text: value });
         this.input = '';
         this.sending = true;
+        this.scrollToLatest(true);
+
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), 30000);
+        let streamingMessage = null;
+        this.requestController = controller;
 
         try {
-            const response = await fetch(document.body.dataset.assistantUrl, {
+            const response = await fetch(document.body.dataset.assistantStreamUrl || document.body.dataset.assistantUrl, {
                 method: 'POST',
                 headers: {
-                    'Accept': 'application/json',
+                    'Accept': 'text/event-stream, application/json',
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
                 },
@@ -27,15 +142,153 @@ const waggiesChat = () => ({
                     message: value,
                     history: this.messages.slice(-8).map(message => ({ role: message.role, content: message.text })),
                 }),
+                signal: controller.signal,
             });
-            const payload = await response.json();
-            if (!response.ok) throw new Error(payload.message || 'Assistant unavailable');
-            this.messages.push({ role: 'assistant', text: payload.message, sources: payload.sources || [] });
+
+            if (!response.ok) {
+                let payload = {};
+
+                try {
+                    payload = await response.json();
+                } catch (error) {
+                    // The status code still provides the useful failure signal.
+                }
+
+                throw new Error(payload.message || 'Assistant unavailable');
+            }
+
+            if (response.headers.get('content-type')?.includes('text/event-stream') && response.body) {
+                streamingMessage = { role: 'assistant', text: '', streaming: true };
+                this.messages.push(streamingMessage);
+                await this.consumeStream(response, streamingMessage);
+                streamingMessage.streaming = false;
+                this.announcement = streamingMessage.text;
+            } else {
+                const payload = await response.json();
+                const shouldScroll = this.isNearBottom();
+                this.messages.push({ role: 'assistant', text: payload.message, sources: payload.sources || [] });
+                this.announcement = payload.message;
+                this.scrollToLatest(shouldScroll);
+            }
         } catch (error) {
-            this.messages.push({ role: 'assistant', text: 'I’m temporarily unavailable. Please contact Waggies directly or continue on WhatsApp.' });
+            if (streamingMessage) {
+                this.messages = this.messages.filter(message => message !== streamingMessage);
+            }
+
+            const shouldScroll = this.isNearBottom();
+            const timedOut = error.name === 'AbortError';
+            const errorMessage = timedOut
+                ? 'The assistant took too long to respond. Please try again or continue on WhatsApp.'
+                : 'I’m temporarily unavailable. Please try again or continue on WhatsApp.';
+            this.messages.push({
+                role: 'assistant',
+                text: errorMessage,
+                retryText: value,
+                error: true,
+            });
+            this.announcement = errorMessage;
+            this.scrollToLatest(shouldScroll);
         } finally {
+            window.clearTimeout(timeoutId);
+
+            if (this.requestController === controller) {
+                this.requestController = null;
+            }
+
             this.sending = false;
         }
+    },
+    async consumeStream(response, message) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let receivedText = false;
+
+        const processEvent = event => {
+            const data = event.split(/\r?\n/)
+                .filter(line => line.startsWith('data:'))
+                .map(line => line.slice(5).trimStart())
+                .join('\n');
+
+            if (!data || data === '[DONE]') return;
+
+            let payload;
+
+            try {
+                payload = JSON.parse(data);
+            } catch (error) {
+                return;
+            }
+
+            if (payload.type === 'error') {
+                throw new Error(payload.error || 'Assistant stream failed');
+            }
+
+            if (payload.type === 'citation' && payload.citation) {
+                message.sources = [...(message.sources || []), payload.citation]
+                    .filter((source, index, sources) => sources.findIndex(item => item.url === source.url) === index);
+                return;
+            }
+
+            if (payload.type !== 'text_delta' || !payload.delta) return;
+
+            message.text += payload.delta;
+            receivedText = true;
+            this.scrollToLatest();
+        };
+
+        while (true) {
+            const { value, done } = await reader.read();
+            buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+            const events = buffer.split(/\r?\n\r?\n/);
+            buffer = events.pop() || '';
+            events.forEach(processEvent);
+
+            if (done) break;
+        }
+
+        if (buffer.trim()) processEvent(buffer);
+        if (!receivedText) throw new Error('Assistant returned an empty response');
+    },
+    retry(messageText) {
+        if (this.sending) return;
+
+        const errorIndex = this.messages.findIndex(message => message.error && message.retryText === messageText);
+        if (errorIndex !== -1) {
+            this.messages.splice(errorIndex, 1);
+            const previousMessage = this.messages[errorIndex - 1];
+
+            if (previousMessage?.role === 'user' && previousMessage.text === messageText) {
+                this.messages.splice(errorIndex - 1, 1);
+            }
+        }
+
+        this.input = messageText;
+        this.send();
+    },
+    hasSources(message) {
+        return (message.sources || []).some(source => this.sourceUrl(source));
+    },
+    sourceUrl(source) {
+        const rawUrl = typeof source === 'object'
+            ? source.url || source.href || source.public_url
+            : '';
+
+        if (!rawUrl || typeof rawUrl !== 'string') return '';
+
+        try {
+            const url = new URL(rawUrl, window.location.origin);
+            return url.origin === window.location.origin ? url.href : '';
+        } catch (error) {
+            return '';
+        }
+    },
+    sourceLabel(source) {
+        const label = typeof source === 'object'
+            ? source.title || source.name || source.label || source.filename
+            : '';
+
+        return label || 'Waggies source';
     },
 });
 

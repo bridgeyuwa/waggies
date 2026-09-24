@@ -337,11 +337,12 @@
        reference implementation. Keep these values explicit because the
        CSS functions are not emitted reliably by every utility build. */
     .waggies-chat-panel {
-        bottom: max(5rem, calc(env(safe-area-inset-bottom, 0px) + 5rem)) !important;
+        --waggies-chat-bottom: max(5rem, calc(env(safe-area-inset-bottom, 0px) + 5rem));
+        bottom: var(--waggies-chat-bottom) !important;
         right: max(1.5rem, env(safe-area-inset-right, 0px)) !important;
-        min-height: min(60dvh, 400px);
-        max-height: calc(100dvh - 7rem);
-        width: clamp(280px, calc(100vw - 2rem), 380px);
+        height: min(70dvh, 520px);
+        max-height: calc(100dvh - var(--waggies-chat-bottom) - 2rem);
+        width: min(400px, calc(100vw - 2rem));
     }
 
     .waggies-fab--whatsapp {
