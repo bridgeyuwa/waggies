@@ -19,8 +19,10 @@
             @yield('content')
         </main>
 
-        <x-waggies.footer />
-        <x-waggies.floating-actions />
+        <x-waggies.footer :compact="($compactFooter ?? false) || ($headStatus ?? null) === 404" />
+        @unless($hideFloatingActions ?? false)
+            <x-waggies.floating-actions />
+        @endunless
         <x-waggies.mobile-bottom-nav />
 
         <div id="global-search-dialog" x-data="waggiesSearch" x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-layer-search bg-primary-dark/40 p-4 sm:p-8" role="dialog" aria-modal="true" aria-labelledby="search-title" :aria-hidden="!open" @click.self="close()" @keydown="handleDialogKeydown($event)">

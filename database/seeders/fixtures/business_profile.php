@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'business_name' => 'Waggies',
+    'business_name' => 'Waggies Pet Services',
     'primary_email' => 'hello@waggies.ng',
     'phone' => '0908 081 1902',
     'phone_international' => '+234 908 081 1902',

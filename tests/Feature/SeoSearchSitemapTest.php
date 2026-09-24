@@ -116,7 +116,6 @@ class SeoSearchSitemapTest extends TestCase
             $html = $response->getContent();
 
             $response->assertNotFound()
-                ->assertSee('We couldn’t find that page', false)
                 ->assertSee('<title>Page not found - Waggies</title>', false)
                 ->assertSee('<meta name="robots" content="noindex, follow">', false);
 

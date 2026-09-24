@@ -14,8 +14,13 @@ it('returns a healthy native endpoint with non-sensitive security headers', func
 it('renders the Waggies not found page with a real 404 response', function (): void {
     $this->get('/this-page-does-not-exist')
         ->assertNotFound()
-        ->assertSee('Page Not Found')
-        ->assertSee('Search for services, articles, products');
+        ->assertSee('404')
+        ->assertSee('Page not found')
+        ->assertSee('Return to homepage')
+        ->assertSee('Search Waggies')
+        ->assertSee('Browse services')
+        ->assertDontSee('Chat on WhatsApp')
+        ->assertDontSee('Open Waggies AI Assistant');
 });
 
 it('renders a truthful homepage testimonial state when no stories are publishable', function (): void {

@@ -1,3 +1,5 @@
+@props(['compact' => false])
+
 @php
     $businessHours = $businessHours ?? \App\Models\BusinessHour::publicSchedule();
     $errors = $errors ?? new \Illuminate\Support\ViewErrorBag();
@@ -14,6 +16,20 @@
 @endphp
 
 <footer class="mt-auto border-t border-white/10 bg-primary-dark">
+    @if($compact)
+        <div class="page-container flex flex-col gap-5 py-8 sm:flex-row sm:items-center sm:justify-between">
+            <a href="{{ route('home') }}" class="flex items-center gap-2" aria-label="Waggies - home">
+                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary"><x-waggies.icon name="pets" size="20" class="text-white" /></span>
+                <span class="font-serif text-xl font-bold text-white">Waggies</span>
+            </a>
+
+            <nav aria-label="Footer" class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+                <a href="{{ route('services.index') }}" class="text-white/70 hover:text-white">Services</a>
+                <a href="{{ route('shop.index') }}" class="text-white/70 hover:text-white">Shop</a>
+                <a href="{{ route('contact') }}" class="text-white/70 hover:text-white">Contact</a>
+            </nav>
+        </div>
+    @else
     <div class="mx-auto max-w-7xl px-4 pb-8 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pt-20">
         <div class="mb-12 rounded-2xl border border-white/10 bg-white/[0.04] p-6 sm:p-8 lg:mb-14">
             <div class="grid items-center gap-6 lg:grid-cols-2 lg:gap-10">
@@ -54,5 +70,6 @@
         <div class="my-10 border-t border-white/10 lg:my-12"></div>
         <div class="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5 lg:gap-6">@foreach ($footerColumns as $heading => $links)<div><h3 class="mb-5 text-xs font-semibold uppercase tracking-[0.14em] text-secondary">{{ $heading }}</h3><ul class="space-y-3">@foreach ($links as [$label, $href])<li><a href="{{ $href }}" class="text-sm text-white/65 transition-colors hover:text-white" @if(str_starts_with($href, 'http')) target="_blank" rel="noopener noreferrer" @endif>{{ $label }}</a></li>@endforeach</ul>@if($heading === 'Support')<div class="mt-5 space-y-1.5 border-t border-white/10 pt-4 text-xs text-white/55">@foreach($businessHours as $hours)<p><span class="font-medium text-white/70">{{ $hours['day'] }}:</span> {{ $hours['hours'] }}</p>@endforeach</div>@endif</div>@endforeach</div>
     </div>
+    @endif
     <div class="border-t border-white/10"><div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 sm:flex-row sm:px-6"><p class="text-xs text-white/60 sm:text-sm/6">© 2026 Waggies Pet Services. All rights reserved.</p><nav aria-label="Legal" class="flex items-center gap-4 sm:gap-5"><a href="{{ route('privacy-policy') }}" class="text-xs text-white/60 hover:text-white sm:text-sm/6">Privacy</a><a href="{{ route('terms-of-service') }}" class="text-xs text-white/60 hover:text-white sm:text-sm/6">Terms</a><a href="{{ route('cookies-policy') }}" class="text-xs text-white/60 hover:text-white sm:text-sm/6">Cookies</a></nav></div></div>
 </footer>
