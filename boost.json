@@ -34,6 +34,9 @@
         "laravel-permission-development",
         "sluggable-development",
         "debug-using-debugbar",
-        "spatie-laravel-php-standards"
+        "spatie-laravel-php-standards",
+        "refactoring-ui",
+        "waggies-ui-audit",
+        "waggies-ui-refactor"
     ]
 }

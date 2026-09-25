@@ -1,4 +1,107 @@
 <laravel-boost-guidelines>
+=== .ai/refactoring-ui/core rules ===
+
+# Refactoring UI — Core Guidance
+
+For Waggies, apply these principles within the Laravel 13 + Blade + Alpine.js + Tailwind CSS v4 frontend. The current Waggies implementation and its existing tokens are the starting evidence; the project rules define the intended direction.
+
+Apply these principles whenever a task changes the visual interface, layout, hierarchy, typography, color, imagery, responsiveness, interaction states, or design-system behavior.
+
+## Load the right skill
+
+- For detailed UI design or review work, load the `refactoring-ui` skill.
+- For an evidence-based Waggies audit with no implementation, load `waggies-ui-audit`.
+- For a bounded Waggies implementation/refactor, load `waggies-ui-refactor`.
+
+## Foundational principles
+
+- Start from the **feature, user task, and content priority**, not from a decorative shell.
+- Separate structural decisions from polish. Solve content, hierarchy, grouping, layout, and spacing before effects and ornament.
+- Work in short design/implementation cycles. Prefer the smallest coherent improvement that can be built and verified over a speculative full-site redesign.
+- Never imply functionality that the product does not actually support.
+- Use constrained systems for recurring choices: type, spacing, sizing, color, radius, border, shadow, opacity, and motion.
+- Establish a clear primary/secondary/tertiary hierarchy. When everything is emphasized, nothing is emphasized.
+- Prefer de-emphasizing competing elements over continuously adding emphasis to the primary element.
+- Keep semantic document structure and visual prominence separate: choose HTML for meaning/accessibility, then style it according to the intended visual hierarchy.
+- Treat spacing as a relationship signal. Space inside a group must generally be smaller than space between groups.
+- Give components only as much width as their content needs. Do not stretch elements merely because screen space exists.
+- Do not assume everything should scale proportionally. Large elements often need to shrink faster than small elements at narrow viewports.
+- Keep text readable: controlled line length, deliberate line-height, logical alignment, and a restricted type scale.
+- Use color to reinforce existing meaning, never as the sole carrier of state or information.
+- Use borders, shadows, backgrounds, and overlap only when they communicate separation, elevation, focus, or layering.
+- Design with real media constraints. Images, icons, screenshots, avatars, and user content need intentional aspect ratios and target sizes.
+- Empty, loading, error, success, disabled, hover, focus, pressed, and selected states are part of the component—not afterthoughts.
+
+## Decision discipline
+
+Before introducing any new visual value or pattern:
+
+1. Inspect nearby components and the existing token system.
+2. Reuse an existing token/pattern if it already solves the problem.
+3. If no existing option works, explain why before adding a new token or pattern.
+4. Do not create one-off values to solve local discomfort that should be addressed at the system level.
+
+## Scope discipline
+
+For refactors, preserve behavior unless behavior change is explicitly requested. Do not use a visual task as permission for unrelated architecture changes, dependency additions, route changes, data-model changes, or copy rewrites outside the affected experience.
+
+=== .ai/refactoring-ui/modern-web rules ===
+
+# Refactoring UI — Modern Web Adaptation
+
+The source material predates several current browser, CSS, accessibility, and responsive-design practices. Preserve its design logic while implementing it with modern standards.
+
+## Accessibility baseline
+
+Target **WCAG 2.2 AA** for all changed UI.
+
+- Normal text: at least 4.5:1 contrast unless a valid WCAG exception applies.
+- Large text and meaningful non-text UI graphics/boundaries: at least 3:1 where required.
+- Never remove visible keyboard focus. Prefer a deliberate `:focus-visible` treatment.
+- Interactive controls must remain operable with keyboard and assistive technology.
+- Do not encode state with color alone; pair color with text, iconography, shape, pattern, position, or another non-color cue.
+- Keep accessible names, labels, descriptions, errors, and relationships intact even when visual labels are reduced or hidden.
+- Do not use placeholder text as the only label.
+- Avoid hover-only discovery for essential actions.
+- Respect `prefers-reduced-motion` and do not make motion necessary to understand or operate the interface.
+- Ensure content reflows on narrow screens and remains usable under zoom/text enlargement.
+- Use adequately sized pointer targets; prefer 44px-class touch targets for primary mobile controls where practical, and never violate WCAG target-size requirements.
+
+## Waggies implementation boundary
+
+Use the CSS-first Tailwind v4 system in `resources/css/app.css`. Do not create `tailwind.config.js` or move public page composition into another frontend framework. Preserve Blade-first rendering, use Alpine for local interaction, and introduce Livewire only when server state materially improves the experience.
+
+## Color model
+
+The book recommends HSL because it maps better to human reasoning than hex/RGB. For modern CSS, prefer the project's established **OKLCH/semantic token system** when available because it is more perceptually useful for building consistent scales. Do not convert a stable project palette merely for fashion.
+
+Use raw color values only inside the canonical token definitions in `resources/css/app.css` or a clearly required technical exception. Waggies brand primitives are documented and implemented as OKLCH there; components, guidelines, and skills should consume semantic tokens.
+
+## Typography
+
+- Prefer `rem`-based type tokens for scalable UI typography.
+- Avoid component-relative `em` for the core type scale when it causes nested computed sizes to drift off-scale.
+- `em`/`ch` remain useful for context-specific measures such as line length and component-relative spacing when the relationship is intentional.
+- Do not treat exact historical pixel examples as immutable requirements; preserve the relationship and readability principle.
+
+## Responsive layout
+
+- Prefer intrinsic layout, `min()`, `max()`, `clamp()`, flex/grid, container queries, and explicit `max-width` constraints over percentage grids used by habit.
+- Use fixed/intrinsic widths for elements that should not grow indefinitely, and flexible tracks for content that should absorb remaining space.
+- Make breakpoint changes because the content needs them, not because a device name says so.
+
+## Images
+
+- Prefer semantic `<img>`/framework image components for content images.
+- Use fixed aspect-ratio containers plus `object-fit: cover`/`contain` for unpredictable media.
+- Reserve space to prevent layout shift.
+- Provide appropriate `alt` text for meaningful images; use empty alt for purely decorative images.
+- Supply responsive sources/sizes where the framework supports them.
+
+## Interaction states
+
+Every interactive pattern changed in a refactor must be checked for: default, hover (when applicable), focus-visible, pressed/active, selected/current, disabled, loading/busy, error, and success states. State styling must remain distinguishable without relying on color alone.
+
 === foundation rules ===
 
 # Laravel Boost Guidelines
