@@ -2,7 +2,7 @@
 
 **Status:** Verified implementation contract for the current CMS foundation
 **Date:** 22 September 2026
-**Authority:** The current standalone Laravel repository is authoritative. `WAGGIES-ARCHITECTURE-AUDIT.md` is architectural evidence. `WAGGIES-PROTOTYPE-DISCOVERY.md` is product/design discovery only.
+**Authority:** The current standalone Laravel repository is authoritative. This document records the verified CMS foundation and its current implementation boundaries.
 
 ## 1. Executive Summary
 
