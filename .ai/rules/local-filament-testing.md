@@ -3,8 +3,7 @@ paths:
   - app/Filament/**
   - app/Providers/Filament/**
   - database/seeders/**
-  - resources/views/**
-  - routes/**
+  - resources/views/filament/**
   - tests/**
 ---
 

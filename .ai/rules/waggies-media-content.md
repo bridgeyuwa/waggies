@@ -1,11 +1,12 @@
 ---
 paths:
-  - 'resources/views/**'
-  - 'resources/js/**'
-  - 'public/**'
-  - 'app/Livewire/**'
-  - 'app/Filament/**'
-  - 'app/Providers/Filament/**'
+  - 'resources/views/pages/**'
+  - 'resources/views/components/waggies/**'
+  - 'resources/views/layouts/**'
+  - 'resources/views/errors/**'
+  - 'resources/js/**/*.js'
+  - 'public/media/**'
+  - 'public/icons/**'
 ---
 
 # Waggies Media and Content
@@ -35,4 +36,3 @@ Do not place essential service names, prices, contact information, instructions,
 ## Alt text
 
 Meaningful images need concise contextual alt text. Decorative images should not create screen-reader noise.
-

@@ -2,14 +2,22 @@
 paths:
   - 'resources/views/pages/services/**'
   - 'resources/views/pages/contact.blade.php'
+  - 'resources/views/pages/home.blade.php'
+  - 'resources/views/pages/book.blade.php'
   - 'resources/views/components/waggies/**'
-  - 'app/Livewire/**'
-  - 'routes/**'
+  - 'resources/js/pricing-calculator.js'
+  - 'app/Http/Controllers/ServicesController.php'
+  - 'app/Http/Controllers/RelocationController.php'
+  - 'app/Http/Controllers/PricingController.php'
+  - 'app/Http/Controllers/BookingRequestsController.php'
+  - 'app/Http/Requests/StoreBookingRequest.php'
+  - 'config/waggies_pricing.php'
+  - 'routes/web.php'
 ---
 
 # Waggies Service and CTA Flow
 
-This rule governs Waggies' Laravel Blade/Alpine public service surfaces and their shared request-builder components.
+This rule governs Waggies' public Blade/Alpine service surfaces, their shared request-builder components, and the controller/configuration paths that supply their canonical service and request data. A page controller may compose these surfaces and read Filament-managed content without becoming an administrative CRUD controller.
 
 Waggies uses this product-led progression:
 
@@ -44,4 +52,3 @@ Preserve service/tier/intent query parameters and deep-link behavior used by the
 The request form is a primary task surface. Information/supporting content should not visually overpower it.
 
 After step transitions/submission, manage scroll/focus so the user is taken to the new relevant content/heading/error summary instead of being dumped at an arbitrary page position.
-

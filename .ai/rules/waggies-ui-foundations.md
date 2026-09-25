@@ -1,16 +1,16 @@
 ---
 paths:
-  - 'resources/views/**'
-  - 'resources/css/**'
-  - 'resources/js/**'
-  - 'app/Livewire/**'
-  - 'app/Filament/**'
-  - 'app/Providers/Filament/**'
+  - 'resources/views/pages/**'
+  - 'resources/views/components/waggies/**'
+  - 'resources/views/layouts/**'
+  - 'resources/views/errors/**'
+  - 'resources/css/app.css'
+  - 'resources/js/**/*.js'
 ---
 
 # Waggies UI Foundations
 
-Waggies is a Laravel 13 public website using Blade, Alpine.js, Tailwind CSS v4, and selective Livewire. Filament is the administration surface. Public UI is Blade-first; use Alpine for local browser interaction and Livewire only when server-side state materially improves correctness, persistence, authorization, or stateful behavior.
+This rule governs Waggies' public Laravel 13 website using Blade, Alpine.js, Tailwind CSS v4, and selective Livewire. Filament is the separate administration surface. Public UI is Blade-first; use Alpine for local browser interaction and Livewire only when server-side state materially improves correctness, persistence, authorization, or stateful behavior.
 
 ## Brand character
 
@@ -55,4 +55,3 @@ Avoid "card soup". Do not wrap every section or piece of information in a border
 ## Copy tone
 
 Interface copy should be friendly, clear, calm, and confident. Avoid generic startup language, exaggerated marketing claims, or overly cute pet puns that reduce trust in boarding, veterinary, relocation, or other high-responsibility services.
-

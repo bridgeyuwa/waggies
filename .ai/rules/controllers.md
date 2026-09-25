@@ -6,7 +6,7 @@ paths:
 
 # Cruddy by Design — Controller and Resource Architecture
 
-Waggies follows the **Cruddy by Design** approach presented by Adam Wathan in the Laracon US 2017 `laracon2017` repository.
+Waggies follows the **Cruddy by Design** approach presented by Adam Wathan in the Laracon US 2017 `laracon2017` repository. This is a resource-boundary convention, not a requirement that every public page controller implement every CRUD action.
 
 The central idea is to keep controllers small by organizing them around **resources** and the seven conventional REST/CRUD controller actions:
 
@@ -26,9 +26,9 @@ Begin by asking:
 
 The purpose is not CRUD for its own sake. The purpose is to use resource boundaries to keep controllers understandable, small, and focused, while often revealing useful concepts in the domain.
 
-## 1. Prefer the seven standard resource actions
+## 1. Prefer the seven standard resource actions for resources
 
-Controllers should ordinarily contain only these actions:
+Resource-oriented controllers should ordinarily use this action vocabulary:
 
 * `index`
 * `show`
@@ -60,6 +60,14 @@ Do not casually add custom verb-like methods such as:
 When such a method appears necessary, first reconsider the resource model and route design.
 
 The preferred response to a custom operation is usually **not** to add another method to the existing controller. Instead, identify the resource that is being created, displayed, edited, or destroyed and give that resource its own controller.
+
+## 1.1 Public and administration surfaces may expose different actions
+
+A domain resource may have separate public and administration surfaces. The public controller should expose only the actions required by public users, while Filament may provide the broader administrative create, read, update, and delete workflow.
+
+Do not duplicate Filament's administrative CRUD actions in public controllers merely to make the public controller complete. A public `index`/`show`, `create`/`store`, or `store`-only surface can be the correct resource boundary when the remaining lifecycle actions belong to Filament.
+
+A public controller may also read or compose data managed through Filament. Reading a managed model does not make the public controller an administrative CRUD controller.
 
 ## 2. A resource does not necessarily mean an Eloquent model
 
@@ -575,6 +583,12 @@ Before introducing one, demonstrate why:
 
 Do not add custom actions merely because they are faster to implement.
 
+## 18.1 Page-composition controllers are a separate category
+
+Static, editorial, marketing, tool, legal, and other application-owned page surfaces are not automatically CRUD resources. Do not force them into artificial `index`, `show`, `create`, or `store` methods when descriptive actions or an invokable controller communicate the page responsibility more clearly.
+
+Existing page-composition controllers are not violations that require automatic migration. Apply this convention to new work and deliberate refactors; preserve existing route names, URLs, and behavior unless restructuring is explicitly in scope.
+
 ## 19. Keep business logic out of controllers
 
 Cruddy by Design concerns **resource/controller structure**. It does not mean controllers should contain all the application logic.
@@ -720,7 +734,7 @@ The architecture should optimize for **clear resource boundaries and simple cont
 
 ## 24. Relationship to Waggies architecture
 
-This convention applies to Waggies' HTTP/application design, including future resources such as:
+This convention applies to Waggies' resource-oriented HTTP/application design, including future resources such as:
 
 ```text
 ServiceRequest
@@ -749,13 +763,15 @@ Instead, determine whether a new operation represents:
 
 Then design the controller accordingly.
 
+This resource convention does not reclassify application-owned page composition as CRUD merely because a page reads content from a Filament-managed model. The controller's responsibility is determined by the public HTTP surface it owns.
+
 ## 25. Final rule
 
-**Waggies should prefer more small, resource-focused controllers over fewer large controllers with many custom actions.**
+**Waggies should prefer more small, resource-focused controllers over fewer large resource controllers with many custom actions.**
 
-The seven conventional actions are the default vocabulary.
+The seven conventional actions are the default vocabulary for genuine resources and workflows, not a requirement for every page endpoint.
 
-When an operation does not fit the existing resource, do not immediately invent a custom controller method. **Redesign the resource boundary first.**
+When an operation does not fit the existing resource, do not immediately invent a custom controller method. **Redesign the resource boundary first.** If the operation is an application-owned page composition rather than a resource lifecycle operation, keep it in the page-controller category instead of manufacturing a CRUD shape.
 
 The objective is not to make everything look like CRUD for superficial consistency.
 
