@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\BookingRequest;
 use App\Models\ContactEnquiry;
 use App\Models\NewsletterSubscriber;
+use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,10 +23,33 @@ class SeoSearchSitemapTest extends TestCase
             ->assertSee('<title>Pet Boarding, Grooming &amp; Vet Care in Abuja</title>', false)
             ->assertSee('<link rel="canonical" href="'.$siteUrl.'/">', false)
             ->assertSee('<meta name="robots" content="index, follow">', false)
+            ->assertSee('property="og:image" content="'.$siteUrl.'/social-card.svg"', false)
+            ->assertSee('name="twitter:image" content="'.$siteUrl.'/social-card.svg"', false)
             ->assertSee('"@type":"WebSite"', false);
 
         $this->assertSame(1, substr_count($html, '<title>'));
         $this->assertSame(1, substr_count($html, 'rel="canonical"'));
+    }
+
+    public function test_breadcrumb_schema_is_rendered_once_through_laravel_head(): void
+    {
+        $html = $this->get(route('services.pricing'))->assertOk()->getContent();
+
+        preg_match_all('/<script type="application\/ld\+json"[^>]*>(.*?)<\/script>/s', $html, $matches);
+
+        $schemas = array_map(
+            static fn (string $schema): array => json_decode($schema, true, flags: JSON_THROW_ON_ERROR),
+            $matches[1] ?? [],
+        );
+        $breadcrumbSchemas = array_values(array_filter(
+            $schemas,
+            static fn (array $schema): bool => ($schema['@type'] ?? null) === 'BreadcrumbList',
+        ));
+
+        $this->assertCount(1, $breadcrumbSchemas);
+        $this->assertSame('Home', $breadcrumbSchemas[0]['itemListElement'][0]['name']);
+        $lastBreadcrumb = $breadcrumbSchemas[0]['itemListElement'][array_key_last($breadcrumbSchemas[0]['itemListElement'])];
+        $this->assertSame(route('services.pricing'), $lastBreadcrumb['item']);
     }
 
     public function test_query_state_is_not_indexable_and_search_response_is_not_indexable(): void
@@ -46,6 +70,49 @@ class SeoSearchSitemapTest extends TestCase
             ->assertOk()
             ->assertJsonFragment(['href' => route('services.relocation')])
             ->assertJsonMissing(['href' => $siteUrl.'/relocation']);
+    }
+
+    public function test_page_specific_schema_types_are_rendered_without_global_business_schema(): void
+    {
+        $product = Product::query()->firstOrFail();
+
+        $this->get(route('about'))
+            ->assertOk()
+            ->assertSee('"@type":"AboutPage"', false)
+            ->assertDontSee('"@type":"LocalBusiness"', false);
+
+        $this->get(route('contact'))
+            ->assertOk()
+            ->assertSee('"@type":"ContactPage"', false);
+
+        $this->get(route('services.boarding'))
+            ->assertOk()
+            ->assertSee('"@type":"Service"', false);
+
+        $this->get(route('shop.show', ['product' => $product]))
+            ->assertOk()
+            ->assertSee('"@type":"Product"', false);
+
+        $this->get(route('guides.show', ['slug' => 'preparing-pet-boarding']))
+            ->assertOk()
+            ->assertSee('"@type":"Article"', false);
+
+        $this->get(route('faq'))
+            ->assertOk()
+            ->assertSee('"@type":"FAQPage"', false);
+    }
+
+    public function test_canonical_uses_configured_production_origin_and_drops_query_state(): void
+    {
+        config()->set([
+            'app.url' => 'https://www.waggies.example',
+            'app.env' => 'production',
+        ]);
+
+        $this->get('/?utm_source=external', ['Host' => 'attacker.example'])
+            ->assertOk()
+            ->assertSee('<link rel="canonical" href="https://www.waggies.example/">', false)
+            ->assertSee('<meta name="robots" content="noindex, follow">', false);
     }
 
     public function test_search_indexes_published_products_and_faqs(): void
@@ -96,6 +163,8 @@ class SeoSearchSitemapTest extends TestCase
         $this->assertSame([], array_filter($locations, fn (string $location): bool => str_contains($location, '/api/')));
         $this->assertContains($siteUrl.'/privacy-policy', $locations);
         $this->assertContains($siteUrl.'/guides/preparing-pet-boarding', $locations);
+        $this->assertContains($siteUrl.'/services/pricing', $locations);
+        $this->assertNotContains($siteUrl.'/tools/cost-calculator', $locations);
 
         $this->get('/robots.txt')
             ->assertOk()
@@ -120,6 +189,9 @@ class SeoSearchSitemapTest extends TestCase
                 ->assertSee('<meta name="robots" content="noindex, follow">', false);
 
             $this->assertSame(0, substr_count($html, 'rel="canonical"'));
+            $this->assertStringNotContainsString('property="og:', $html);
+            $this->assertStringNotContainsString('name="twitter:', $html);
+            $this->assertStringNotContainsString('application/ld+json', $html);
         }
     }
 }

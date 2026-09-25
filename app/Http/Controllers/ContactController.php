@@ -34,12 +34,31 @@ class ContactController extends Controller
             'robots' => $request->query() === [] ? ['index', 'follow'] : ['noindex', 'follow'],
         ];
 
+        $timezone = $businessProfile->timezone ?: config('app.timezone');
+        $localBusiness = Schema::localBusiness()
+            ->name($businessProfile->business_name)
+            ->description($metadata['description'])
+            ->url($metadata['canonical'])
+            ->telephone($businessProfile->phone_international ?: $businessProfile->phone)
+            ->email($businessProfile->primary_email)
+            ->address(Schema::postalAddress()
+                ->streetAddress($businessProfile->address_street)
+                ->addressLocality($businessProfile->address_city)
+                ->postalCode($businessProfile->address_postal_code)
+                ->addressRegion($businessProfile->address_state)
+                ->addressCountry($businessProfile->address_country))
+            ->sameAs(array_values($businessProfile->socialLinks()))
+            ->openingHoursSpecification(BusinessHour::openingHours($timezone)->asStructuredData(
+                timezone: $timezone,
+            ));
+
         $this->setPageHead($metadata, [
             Schema::contactPage()
                 ->name('Contact Waggies - Abuja Pet Care')
                 ->description($metadata['description'])
                 ->url($metadata['canonical'])
                 ->toArray(),
+            $localBusiness->toArray(),
         ]);
 
         return view('pages.contact', $metadata + [

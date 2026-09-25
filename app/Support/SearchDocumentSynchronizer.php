@@ -83,7 +83,7 @@ final class SearchDocumentSynchronizer
         return [
             ...Guide::query()->indexable()->get()->all(),
             ...KnowledgeArticle::query()->indexable()->get()->all(),
-            ...Product::query()->published()->get()->all(),
+            ...Product::query()->indexable()->get()->all(),
             ...Faq::query()->published()->get()->all(),
             ...JobOpening::query()->open()->get()->all(),
         ];
@@ -118,7 +118,7 @@ final class SearchDocumentSynchronizer
                 'category' => 'Product',
                 'keywords' => collect([$model->category, $features])->filter()->implode(', '),
                 'published_at' => $model->published_at,
-                'searchable' => $model->isPublished(),
+                'searchable' => $model->isIndexable(),
                 'boost' => 4,
             ];
         }

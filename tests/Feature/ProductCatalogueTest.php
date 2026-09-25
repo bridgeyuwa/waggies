@@ -46,6 +46,53 @@ it('renders published products from the database and hides unpublished products'
         ->assertNotFound();
 });
 
+it('keeps product indexability and sitemap inclusion independent', function (): void {
+    $product = Product::query()->firstOrFail();
+    $url = route('shop.show', ['product' => $product]);
+
+    $product->update(['is_indexable' => false]);
+
+    $this->get($url)
+        ->assertOk()
+        ->assertSee('<meta name="robots" content="noindex, follow">', false)
+        ->assertDontSee('rel="canonical"', false)
+        ->assertDontSee('"@type":"Product"', false);
+
+    $this->get($url.'?utm_source=external')
+        ->assertOk()
+        ->assertSee('<meta name="robots" content="noindex, follow">', false)
+        ->assertDontSee('rel="canonical"', false);
+
+    expect($this->get(route('sitemap'))->getContent())->not->toContain($url);
+
+    $product->update(['is_indexable' => true, 'include_in_sitemap' => false]);
+
+    $this->get($url)
+        ->assertOk()
+        ->assertSee('<link rel="canonical" href="'.$url.'">', false)
+        ->assertSee('<meta name="robots" content="index, follow">', false)
+        ->assertSee('"@type":"Product"', false);
+
+    expect($this->get(route('sitemap'))->getContent())->not->toContain($url);
+});
+
+it('uses product SEO fields for copy without changing URL or schema policy', function (): void {
+    $product = Product::query()->firstOrFail();
+    $product->update([
+        'seo_title' => 'A deliberately specific product title',
+        'seo_description' => 'A deliberately specific product description.',
+    ]);
+
+    $this->get(route('shop.show', ['product' => $product]))
+        ->assertOk()
+        ->assertSee('<title>A deliberately specific product title</title>', false)
+        ->assertSee('<meta name="description" content="A deliberately specific product description.">', false)
+        ->assertSee('property="og:title" content="A deliberately specific product title"', false)
+        ->assertSee('"@type":"Product"', false)
+        ->assertSee('"description":'.json_encode($product->description), false)
+        ->assertDontSee('"description":"A deliberately specific product description."', false);
+});
+
 it('generates unique slug-only product URLs', function (): void {
     $first = Product::factory()->create(['name' => 'Same Product']);
     $second = Product::factory()->create(['name' => 'Same Product']);

@@ -22,7 +22,7 @@
 
         <div class="relative min-h-112 px-6 py-8 sm:px-10 sm:py-10">
             <div x-show="submitted" x-cloak tabindex="-1" class="flex flex-col items-center justify-center py-10 text-center" role="status" aria-live="polite">
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true"><circle cx="32" cy="32" r="28" stroke="#6B2C91" stroke-width="3" fill="#F5F0FA"/><path d="M20 33 L28 41 L44 24" stroke="#6B2C91" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true"><circle cx="32" cy="32" r="28" stroke="var(--color-primary)" stroke-width="3" fill="var(--color-surface-purple)"/><path d="M20 33 L28 41 L44 24" stroke="var(--color-primary)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <h3 class="mt-4 font-serif text-2xl font-bold text-primary-dark">Thank you!</h3>
                 <p class="mt-1.5 max-w-sm text-primary-dark/60">Your testimonial has been submitted. We&apos;ll review it and share it with the Waggies community soon.</p>
             </div>

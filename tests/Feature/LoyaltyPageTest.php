@@ -21,7 +21,7 @@ final class LoyaltyPageTest extends TestCase
             ->assertSee('No online account')
             ->assertSee('No points ledger')
             ->assertDontSee('Earn points on every Waggies visit')
-            ->assertSee('"@type":"Organization"', false)
+            ->assertDontSee('"@type":"Organization"', false)
             ->assertSee('"@type":"WebPage"', false)
             ->assertSee('application/ld+json', false);
     }

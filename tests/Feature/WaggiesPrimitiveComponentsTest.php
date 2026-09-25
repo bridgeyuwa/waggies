@@ -35,4 +35,12 @@ final class WaggiesPrimitiveComponentsTest extends TestCase
         $view->assertSee('aria-hidden="true"', false);
         $view->assertSee('role="img" aria-label="More information"', false);
     }
+
+    public function test_zoom_in_icon_uses_a_registered_asset_instead_of_the_fallback_icon(): void
+    {
+        $view = $this->blade('<x-waggies.icon name="zoom-in" />');
+
+        $view->assertSee('search.svg', false);
+        $view->assertDontSee('pets.svg', false);
+    }
 }

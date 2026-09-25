@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+    <title id="title">Waggies Pet Care in Abuja</title>
+    <desc id="description">Boarding, grooming, vet care, training, relocation and local transport for pets in Abuja.</desc>
+    <rect width="1200" height="630" fill="#2D2D2D" />
+    <rect x="56" y="56" width="1088" height="518" rx="28" fill="none" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="2" />
+    <g transform="translate(112 116)">
+        <rect width="92" height="92" rx="18" fill="#FFFFFF" />
+        <path d="M68 23 54 42H23v15h21L23 78h29l17-24-17 24h16l18-25V23Z" fill="#2D2D2D" />
+    </g>
+    <text x="112" y="318" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="88" font-weight="700" letter-spacing="8">WAGGIES</text>
+    <text x="118" y="385" fill="#FFFFFF" fill-opacity="0.78" font-family="Arial, sans-serif" font-size="27" font-weight="600" letter-spacing="4">PET CARE IN ABUJA</text>
+    <path d="M118 446H1082" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="2" />
+    <text x="118" y="500" fill="#FFFFFF" fill-opacity="0.9" font-family="Georgia, serif" font-size="28">Care, comfort, and confidence for every pet.</text>
+</svg>

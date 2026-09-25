@@ -17,13 +17,11 @@ use Illuminate\Foundation\Events\DiagnosingHealth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Schema as DatabaseSchema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Head\Facades\Head;
 use Laravel\Head\HeadBuilder;
-use Spatie\SchemaOrg\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -138,64 +136,21 @@ class AppServiceProvider extends ServiceProvider
             ));
         });
 
-        $businessDescription = 'Pet boarding, grooming, vet care, training, relocation and local transport in Abuja, Nigeria.';
-
-        Head::defaults(function (HeadBuilder $head) use ($businessDescription): void {
-            $siteUrl = app('router')->has('home')
-                ? rtrim(route('home'), '/')
-                : rtrim(url('/'), '/');
-            $businessProfile = BusinessProfile::current();
-            $organization = Schema::organization()
-                ->name($businessProfile->business_name)
-                ->description($businessDescription)
-                ->url($siteUrl)
-                ->toArray();
-
-            $address = Schema::postalAddress()
-                ->streetAddress($businessProfile->address_street)
-                ->addressLocality($businessProfile->address_city)
-                ->postalCode($businessProfile->address_postal_code)
-                ->addressRegion($businessProfile->address_state)
-                ->addressCountry($businessProfile->address_country);
-
-            $localBusiness = Schema::localBusiness()
-                ->name($businessProfile->business_name)
-                ->description($businessDescription)
-                ->url($siteUrl)
-                ->telephone($businessProfile->phone_international ?: $businessProfile->phone)
-                ->email($businessProfile->primary_email)
-                ->address($address)
-                ->sameAs(array_values($businessProfile->socialLinks()));
-
-            if (DatabaseSchema::hasTable('business_hours') && DatabaseSchema::hasColumn('business_hours', 'end_date')) {
-                $openingHours = BusinessHour::openingHours($businessProfile->timezone ?: config('app.timezone'));
-
-                $localBusiness->openingHoursSpecification($openingHours->asStructuredData(
-                    timezone: $businessProfile->timezone ?: config('app.timezone'),
-                ));
-            }
-
-            $localBusiness = $localBusiness->toArray();
-
+        Head::defaults(function (HeadBuilder $head): void {
             $head->title('Waggies - Pet Care, Abuja', exact: true)
-                ->description('Waggies provides boarding, grooming, vet care, training, relocation and local transport services in Abuja, Nigeria.')
-                ->themeColor('#6B2C91')
-                ->applicationName('Waggies')
-                ->meta('author', 'Waggies')
-                ->meta('generator', 'Laravel')
-                ->meta('keywords', 'pet boarding Abuja,pet care Abuja,pet relocation Nigeria,dog grooming Abuja,veterinary care,Waggies')
-                ->referrer('origin-when-cross-origin')
-                ->og('website', 'Waggies - Pet Care, Abuja', 'Pet boarding, grooming, vet care and relocation services in Abuja, Nigeria.', $siteUrl, asset('logo.svg'), siteName: 'Waggies', locale: 'en_NG')
-                ->twitter('summary_large_image', title: 'Waggies - Pet Care, Abuja', description: 'Pet boarding, grooming, vet care and relocation services in Abuja, Nigeria.', image: asset('logo.svg'))
-                ->favicon(asset('favicon.ico'))
-                ->schema($organization)
-                ->schema($localBusiness);
+                ->description('Waggies provides boarding, grooming, vet care, training, relocation and local transport services in Abuja, Nigeria.');
         });
 
         Head::errors(function ($errors): void {
             $errors->defaults(function (HeadBuilder $head): void {
                 $head->title('Page not found - Waggies', exact: true)
                     ->description('The requested Waggies page could not be found.')
+                    ->robots(['noindex', 'follow']);
+            });
+
+            $errors->status(401, function (HeadBuilder $head): void {
+                $head->title('Unauthorized - Waggies', exact: true)
+                    ->description('You need to sign in before viewing this Waggies page.')
                     ->robots(['noindex', 'follow']);
             });
 

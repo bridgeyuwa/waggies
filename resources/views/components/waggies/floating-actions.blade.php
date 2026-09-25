@@ -82,7 +82,7 @@
                                 href="{{ $businessProfile->whatsapp_url }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="rounded-full border border-[#25D366]/30 px-3 py-1.5 text-xs font-semibold text-[#168c43] transition-colors hover:bg-[#25D366]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]/40"
+                                class="rounded-full border border-whatsapp/30 px-3 py-1.5 text-xs font-semibold text-whatsapp transition-colors hover:bg-whatsapp/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-whatsapp/40"
                             >
                                 Continue on WhatsApp
                             </a>
@@ -194,10 +194,10 @@
             href="{{ $businessProfile->whatsapp_url }}"
             target="_blank"
             rel="noopener noreferrer"
-            class="block flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-2xl transition duration-200 hover:scale-110 hover:ring-4 hover:ring-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white"
+            class="block flex h-14 w-14 items-center justify-center rounded-full bg-whatsapp text-whatsapp-foreground shadow-2xl transition duration-200 hover:scale-110 hover:ring-4 hover:ring-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white"
             aria-label="Chat on WhatsApp"
         >
-            <x-waggies.brand-icon name="whatsapp" size="24" class="text-white" />
+            <x-waggies.brand-icon name="whatsapp" size="24" class="text-whatsapp-foreground" />
         </a>
         <div aria-hidden="true" class="pointer-events-none absolute bottom-full right-0 mb-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
             <div class="whitespace-nowrap rounded-full bg-primary-dark px-3 py-1.5 text-xs font-semibold text-white shadow-md">Chat on WhatsApp</div>

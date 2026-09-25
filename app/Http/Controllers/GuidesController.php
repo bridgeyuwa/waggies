@@ -114,7 +114,7 @@ final class GuidesController extends Controller
         if ($isIndexable) {
             $schemas[] = Schema::article()
                 ->headline($guideRecord->title)
-                ->description($description)
+                ->description($guideRecord->excerpt)
                 ->url($canonical)
                 ->publisher(Schema::organization()->name('Waggies')->url(route('home')))
                 ->image($guide['image'])

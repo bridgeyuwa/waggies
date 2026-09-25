@@ -22,7 +22,7 @@ final class PublicUrlCatalog
             'relocation.transport', 'relocation.checklist', 'about', 'about.testimonials',
             'about.gallery', 'about.careers', 'about.partnerships', 'guides.index',
             'knowledge-base.index', 'tools.index', 'tools.symptom-checker', 'tools.pet-age',
-            'tools.vaccination', 'tools.cost', 'tools.nutrition',
+            'tools.vaccination', 'tools.nutrition',
             'tools.emergency', 'tools.new-pet-checklist', 'tools.parasite', 'tools.behavior-tips',
             'tools.breed-finder', 'faq', 'shop.index', 'contact', 'book', 'loyalty', 'privacy-policy',
             'terms-of-service', 'cookies-policy',
@@ -42,7 +42,7 @@ final class PublicUrlCatalog
             $urls[] = route('knowledge-base.show', ['slug' => $slug]);
         }
 
-        foreach (Product::query()->published()->orderBy('sort_order')->pluck('slug') as $slug) {
+        foreach (Product::query()->sitemapEligible()->orderBy('sort_order')->pluck('slug') as $slug) {
             $urls[] = route('shop.show', ['product' => $slug]);
         }
 

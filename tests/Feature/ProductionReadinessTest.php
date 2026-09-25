@@ -27,6 +27,7 @@ it('renders the Waggies not found page with a real 404 response', function (): v
 
 it('renders branded fallback pages with their real HTML error status', function (): void {
     $pages = [
+        401 => ['title' => 'Unauthorized', 'description' => 'You need to sign in before viewing this page.', 'secondary' => 'Contact Waggies'],
         403 => ['title' => 'Access denied', 'description' => 'You do not have permission to view this page.', 'secondary' => 'Contact Waggies'],
         419 => ['title' => 'Page expired', 'description' => 'This form session has expired.', 'secondary' => 'Contact Waggies'],
         429 => ['title' => 'Too many requests', 'description' => 'Please wait a moment before trying again.', 'secondary' => 'Contact Waggies'],

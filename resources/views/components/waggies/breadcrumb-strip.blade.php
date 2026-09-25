@@ -1,21 +1,23 @@
 @props(['items' => []])
 @php
-    $breadcrumbs = \Diglactic\Breadcrumbs\Breadcrumbs::generate('waggies-path', $items);
-    $schemaItems = $items;
+    $breadcrumbItems = $items;
 
-    if ($schemaItems !== []) {
-        $lastSchemaItem = array_key_last($schemaItems);
+    if ($breadcrumbItems !== []) {
+        $lastBreadcrumbItem = array_key_last($breadcrumbItems);
 
-        if ($lastSchemaItem !== null
-            && empty($schemaItems[$lastSchemaItem]['href'])
-            && empty($schemaItems[$lastSchemaItem]['route'])) {
-            $schemaItems[$lastSchemaItem]['href'] = url()->current();
+        if ($lastBreadcrumbItem !== null
+            && empty($breadcrumbItems[$lastBreadcrumbItem]['href'])
+            && empty($breadcrumbItems[$lastBreadcrumbItem]['route'])) {
+            $breadcrumbItems[$lastBreadcrumbItem]['href'] = url()->current();
         }
     }
+
+    $breadcrumbs = \Diglactic\Breadcrumbs\Breadcrumbs::generate('waggies-path', $breadcrumbItems);
+
+    if ($breadcrumbItems !== []) {
+        app(\App\Support\WaggiesPageHead::class)->registerBreadcrumbs($breadcrumbs);
+    }
 @endphp
-@push('head')
-    {!! \Diglactic\Breadcrumbs\Breadcrumbs::view('breadcrumbs::json-ld', 'waggies-path', $schemaItems)->render() !!}
-@endpush
 <nav aria-label="Breadcrumb">
     <div {{ $attributes->merge(['class' => 'page-container py-4']) }}>
         <ol class="flex flex-wrap items-center gap-2 text-xs font-medium text-primary-dark/50">

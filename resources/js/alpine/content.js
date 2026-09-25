@@ -21,11 +21,12 @@ const homeTestimonials = (testimonials) => ({
         subtitle: 'Verified stories coming soon',
     }],
     active: 0,
+    displayed: 0,
     batch: 0,
     batchSize: 3,
     hovered: false,
     focused: false,
-    autoplayDelay: 4000,
+    autoplayDelay: 6000,
     timer: null,
     transitionTimer: null,
     transitioning: false,
@@ -37,13 +38,12 @@ const homeTestimonials = (testimonials) => ({
 
         if (this.testimonials.length <= 1) return;
 
-        this.timer = setTimeout(() => {
-            if (!this.hovered && !this.focused) this.advance();
-            this.startTimer();
+        this.timer = setInterval(() => {
+            if (!this.hovered && !this.focused && !this.transitioning) this.advance();
         }, this.autoplayDelay);
     },
     stopTimer() {
-        clearTimeout(this.timer);
+        clearInterval(this.timer);
         this.timer = null;
     },
     restartTimer() {
@@ -70,26 +70,80 @@ const homeTestimonials = (testimonials) => ({
         return Math.min(this.batchSize, this.testimonials.length - this.batchStart());
     },
     ratingLabel() {
-        const rating = Number(this.testimonials[this.active]?.stars || 0);
+        const rating = Number(this.testimonials[this.displayed]?.stars || 0);
 
         return rating > 0 ? `${rating} out of 5 stars` : 'No rating provided';
     },
     isVisible(index) {
         return index >= this.batchStart() && index < this.batchStart() + this.currentBatchSize();
     },
+    tabKeydown(event) {
+        const tabList = event.currentTarget;
+        const currentTab = event.target.closest('[role="tab"]');
+
+        if (!tabList || !currentTab) return;
+
+        const tabs = [...tabList.querySelectorAll('[role="tab"]')]
+            .filter(tab => getComputedStyle(tab).display !== 'none');
+        const index = tabs.indexOf(currentTab);
+
+        if (index < 0) return;
+
+        const delta = event.key === 'ArrowDown'
+            ? 1
+            : event.key === 'ArrowUp'
+                ? -1
+                : 0;
+
+        if (!delta && event.key !== 'Home' && event.key !== 'End') return;
+
+        event.preventDefault();
+
+        const next = event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+                ? tabs.length - 1
+                : (index + delta + tabs.length) % tabs.length;
+
+        tabs[next].focus();
+        this.select(Number(tabs[next].dataset.testimonialIndex), event);
+    },
+    prefersReducedMotion() {
+        return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    },
+    transitionDuration() {
+        const content = this.$root.querySelector('[data-testimonial-content]');
+
+        if (!content) return 280;
+
+        const duration = Number.parseFloat(getComputedStyle(content).transitionDuration);
+
+        return Number.isFinite(duration) ? duration * 1000 : 280;
+    },
     transitionTo(index) {
-        if (index === this.active && !this.transitioning) return;
+        if (index === this.active && index === this.displayed && !this.transitioning) return;
 
         clearTimeout(this.transitionTimer);
+        this.active = index;
+        this.batch = Math.floor(index / this.batchSize);
+
+        if (this.prefersReducedMotion()) {
+            this.displayed = index;
+            this.transitioning = false;
+
+            return;
+        }
+
         this.transitioning = true;
         this.transitionTimer = setTimeout(() => {
-            this.active = index;
-            this.batch = Math.floor(index / this.batchSize);
+            this.displayed = this.active;
 
             requestAnimationFrame(() => {
-                this.transitioning = false;
+                requestAnimationFrame(() => {
+                    this.transitioning = false;
+                });
             });
-        }, 60);
+        }, this.transitionDuration());
     },
     nextBatch(event = null) {
         if (this.batchCount() <= 1) return;

@@ -8,6 +8,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Image;
 use Filament\Schemas\Components\Section;
@@ -113,6 +114,27 @@ class ProductForm
                             ->label('Alt text')
                             ->required()
                             ->maxLength(255),
+                    ])
+                    ->columnSpanFull(),
+                Section::make('SEO')
+                    ->schema([
+                        TextInput::make('seo_title')
+                            ->label('SEO title')
+                            ->maxLength(160),
+                        Textarea::make('seo_description')
+                            ->label('SEO description')
+                            ->maxLength(255)
+                            ->rows(3),
+                        Grid::make(2)->schema([
+                            Toggle::make('is_indexable')
+                                ->label('Indexable')
+                                ->default(true)
+                                ->helperText('Controls public search, canonical, structured data, and robots output.'),
+                            Toggle::make('include_in_sitemap')
+                                ->label('Include in sitemap')
+                                ->default(true)
+                                ->helperText('Only published, indexable products enter the sitemap.'),
+                        ]),
                     ])
                     ->columnSpanFull(),
             ]);

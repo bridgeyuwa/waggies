@@ -38,6 +38,7 @@ class ShopController extends Controller
             $productQuery = Product::search($search)
                 ->query(static fn (Builder $query): Builder => $query
                     ->where('status', Product::STATUS_PUBLISHED)
+                    ->where('is_indexable', true)
                     ->where(function (Builder $query): void {
                         $query->whereNull('published_at')->orWhere('published_at', '<=', now());
                     })
@@ -107,14 +108,32 @@ class ShopController extends Controller
             ->map(fn (Product $recentProduct): array => $recentProduct->toPublicArray("/media/shop/{$product->slug}/recent-{$recentProduct->slug}.jpg"))
             ->all();
 
-        $metadata = ['title' => $productData['name'].' - Waggies Shop', 'description' => $productData['description'], 'canonical' => route('shop.show', ['product' => $product]), 'ogTitle' => $productData['name'].' - Waggies Shop', 'ogDescription' => $productData['description'], 'ogImage' => $productData['image']];
-        $productSchema = Schema::product()
-            ->name($productData['name'])
-            ->description($productData['description'])
-            ->image($productData['image'])
-            ->url($metadata['canonical'])
-            ->offers(Schema::offer()->price($productData['price'])->priceCurrency($productData['currency'])->url($metadata['canonical']));
-        $this->setPageHead($metadata, [$productSchema->toArray()]);
+        $isIndexable = $product->isIndexable();
+        $canonical = $isIndexable ? route('shop.show', ['product' => $product]) : null;
+        $title = $product->seo_title ?: $productData['name'].' - Waggies Shop';
+        $description = $product->seo_description ?: $productData['description'];
+        $metadata = [
+            'title' => $title,
+            'description' => $description,
+            'canonical' => $canonical,
+            'robots' => $isIndexable ? ['index', 'follow'] : ['noindex', 'follow'],
+            'ogTitle' => $product->seo_title ?: $productData['name'].' - Waggies Shop',
+            'ogDescription' => $description,
+            'ogImage' => $productData['image'],
+        ];
+        $schemas = [];
+
+        if ($isIndexable) {
+            $schemas[] = Schema::product()
+                ->name($productData['name'])
+                ->description($productData['description'])
+                ->image($productData['image'])
+                ->url($canonical)
+                ->offers(Schema::offer()->price($productData['price'])->priceCurrency($productData['currency'])->url($canonical))
+                ->toArray();
+        }
+
+        $this->setPageHead($metadata, $schemas);
 
         return view('pages.shop.show', $metadata + [
             'product' => $productData,

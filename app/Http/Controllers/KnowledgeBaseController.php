@@ -121,7 +121,7 @@ final class KnowledgeBaseController extends Controller
         if ($isIndexable) {
             $articleSchema = Schema::article()
                 ->headline($articleRecord->title)
-                ->description($description)
+                ->description($articleRecord->excerpt)
                 ->url($canonical)
                 ->publisher(Schema::organization()->name('Waggies')->url(route('home')))
                 ->image($article['image']);

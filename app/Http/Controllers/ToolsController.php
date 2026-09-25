@@ -6390,12 +6390,12 @@ final class ToolsController extends Controller
 
     public function parasite(): View
     {
-        return view('pages.tools.parasite-schedule', $this->meta('Parasite & Deworming Schedule - Waggies - Waggies', 'Deworming schedule reference for puppies, kittens, and adult pets. Educational timeline with general parasite prevention guidance.', 'Parasite & Deworming Schedule - Waggies', 'Pet deworming and parasite prevention schedule reference.'));
+        return view('pages.tools.parasite-schedule', $this->meta('Parasite & Deworming Schedule - Waggies', 'Deworming schedule reference for puppies, kittens, and adult pets. Educational timeline with general parasite prevention guidance.', 'Parasite & Deworming Schedule - Waggies', 'Pet deworming and parasite prevention schedule reference.'));
     }
 
     public function emergency(): View
     {
-        return view('pages.tools.emergency-guide', $this->meta('Emergency & Poison Guide - Waggies - Waggies', 'Pet emergency and poison reference guide for dogs and cats, with symptoms, immediate steps, and clear veterinary escalation.', 'Emergency & Poison Guide - Waggies', 'Quick-reference guide for common pet emergencies and poisons.') + [
+        return view('pages.tools.emergency-guide', $this->meta('Emergency & Poison Guide - Waggies', 'Pet emergency and poison reference guide for dogs and cats, with symptoms, immediate steps, and clear veterinary escalation.', 'Emergency & Poison Guide - Waggies', 'Quick-reference guide for common pet emergencies and poisons.') + [
             'emergency' => $this->emergencyData(),
         ]);
     }

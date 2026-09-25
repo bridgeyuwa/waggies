@@ -38,7 +38,7 @@ class BatchOneContractsTest extends TestCase
     {
         $profile = BusinessProfile::current();
 
-        $this->assertSame('Waggies', $profile->business_name);
+        $this->assertSame('Waggies Pet Services', $profile->business_name);
         $this->assertNotEmpty($profile->phone);
         $this->assertCount(7, BusinessHour::publicSchedule());
         $this->assertSame('Monday', BusinessHour::publicSchedule()[0]['day']);

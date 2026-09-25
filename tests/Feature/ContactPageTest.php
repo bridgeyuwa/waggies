@@ -9,8 +9,8 @@ class ContactPageTest extends TestCase
 {
     public function test_contact_gateway_and_contextual_requests_render(): void
     {
-        $this->get('/contact')->assertOk()->assertSee('What can Waggies help you with?');
-        $this->get('/contact?intent=booking')->assertOk()->assertSee('What would you like to book?');
+        $this->get('/contact')->assertOk()->assertSee('Choose a request type and');
+        $this->get('/contact?intent=booking')->assertOk()->assertSee('Choose a service and');
         $this->get('/contact?intent=veterinary&service=vet-care')->assertOk()->assertSee('Veterinary appointment');
     }
 

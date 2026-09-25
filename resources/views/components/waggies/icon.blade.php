@@ -38,6 +38,7 @@
         'emergency' => ['outlined' => 'warning.svg', 'filled' => 'warning-fill.svg'],
         'verified' => ['outlined' => 'verified.svg', 'filled' => 'verified-fill.svg'],
         'search' => ['outlined' => 'search.svg', 'filled' => 'search-fill.svg'],
+        'zoom-in' => ['outlined' => 'search.svg', 'filled' => 'search-fill.svg'],
         'menu' => ['outlined' => 'menu.svg', 'filled' => 'menu-fill.svg'],
         'close' => ['outlined' => 'close.svg', 'filled' => 'close-fill.svg'],
         'arrow-forward' => ['outlined' => 'arrow_forward.svg', 'filled' => 'arrow_forward-fill.svg'],

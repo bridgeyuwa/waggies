@@ -42,6 +42,8 @@ final class Product extends Model implements HasMedia
         'currency' => 'NGN',
         'status' => self::STATUS_DRAFT,
         'features' => '[]',
+        'is_indexable' => true,
+        'include_in_sitemap' => true,
     ];
 
     protected $fillable = [
@@ -61,6 +63,8 @@ final class Product extends Model implements HasMedia
         'published_at',
         'seo_title',
         'seo_description',
+        'is_indexable',
+        'include_in_sitemap',
     ];
 
     protected static function booted(): void
@@ -88,6 +92,8 @@ final class Product extends Model implements HasMedia
             'sort_order' => 'integer',
             'published_at' => 'datetime',
             'availability' => 'string',
+            'is_indexable' => 'boolean',
+            'include_in_sitemap' => 'boolean',
         ];
     }
 
@@ -127,9 +133,41 @@ final class Product extends Model implements HasMedia
             && ($publishedAt === null || Carbon::parse($publishedAt)->isPast());
     }
 
+    /**
+     * Limit Products to published records that may be indexed publicly.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeIndexable(Builder $query): Builder
+    {
+        return $query->published()->where('is_indexable', true);
+    }
+
+    /**
+     * Limit Products to records eligible for the public sitemap.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeSitemapEligible(Builder $query): Builder
+    {
+        return $query->indexable()->where('include_in_sitemap', true);
+    }
+
+    public function isIndexable(): bool
+    {
+        return (bool) $this->is_indexable && $this->isPublished();
+    }
+
+    public function isSitemapEligible(): bool
+    {
+        return $this->isIndexable() && (bool) $this->include_in_sitemap;
+    }
+
     public function shouldBeSearchable(): bool
     {
-        return $this->isPublished();
+        return $this->isIndexable();
     }
 
     /**
