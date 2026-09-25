@@ -4,6 +4,8 @@ namespace App\Filament\Resources\BookingRequests;
 
 use App\Filament\Resources\BookingRequests\Pages\EditBookingRequest;
 use App\Filament\Resources\BookingRequests\Pages\ListBookingRequests;
+use App\Filament\Resources\BookingRequests\RelationManagers\PetsRelationManager;
+use App\Filament\Resources\BookingRequests\RelationManagers\ServicesRelationManager;
 use App\Filament\Resources\BookingRequests\Schemas\BookingRequestForm;
 use App\Filament\Resources\BookingRequests\Tables\BookingRequestsTable;
 use App\Models\BookingRequest;
@@ -38,7 +40,8 @@ class BookingRequestResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ServicesRelationManager::class,
+            PetsRelationManager::class,
         ];
     }
 

@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -34,14 +35,18 @@ test('service detail packages derive numeric prices and preserve quote-only pack
         ->assertSeeText('Custom quote');
 });
 
-test('contact request schema serializes canonical pricing data', function () {
+test('booking wizard reads canonical pricing data for service choices', function () {
     $training = config('waggies_pricing.services.training.tiers.puppy');
 
-    $this->get(route('contact', ['intent' => 'service', 'service' => 'training']))
-        ->assertOk()
-        ->assertSee('pricingData')
-        ->assertSee((string) $training['amount'])
-        ->assertSee((string) $training['max_amount']);
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'training'],
+    ])
+        ->assertSee('Puppy Foundation')
+        ->assertSee('Basic Obedience')
+        ->assertSee('Behaviour Modification');
+
+    expect($training['amount'])->toBe(80000)
+        ->and($training['max_amount'])->toBe(120000);
 });
 
 test('public service detail uses version controlled pricing configuration', function () {

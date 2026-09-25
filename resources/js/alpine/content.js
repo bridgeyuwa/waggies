@@ -5,11 +5,38 @@ const faqPage = (faqs, categories) => ({
     popular: [{ id: 19, label: 'How do I make a booking?' }, { id: 1, label: 'What do I need to bring for check-in?' }, { id: 10, label: 'How early to plan a pet relocation?' }],
     init() { if (!this.categories.includes(this.active)) this.active = 'all'; },
     select(category) { this.active = category; const url = new URL(window.location.href); category === 'all' ? url.searchParams.delete('category') : url.searchParams.set('category', category); history.replaceState({}, '', url); },
+    tabId(category) { return `faq-tab-${String(category).replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase()}`; },
     visibleCategories() { return this.active === 'all' ? this.categories : this.categories.filter(category => category === this.active); },
     results() { const q = this.query.trim().toLowerCase(); return q ? this.faqs.filter(faq => faq.question.toLowerCase().includes(q) || faq.answer.toLowerCase().includes(q)) : []; },
     highlight(text) { const escaped = text.replace(/[&<>\"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', "'": '&#039;' }[char])); const q = this.query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); return q ? escaped.replace(new RegExp(`(${q})`, 'gi'), '<mark class="rounded bg-primary/15 px-0.5 py-0.5 text-primary-dark">$1</mark>') : escaped; },
     popularClick(id) { const faq = this.faqs.find(item => item.id === id); if (!faq) return; this.select(faq.category); requestAnimationFrame(() => requestAnimationFrame(() => { const node = document.querySelector(`[data-faq-id="${id}"]`); if (node) { node.open = true; node.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); node.focus(); } })); },
-    tabKeydown(event) { const tabs = [...event.currentTarget.querySelectorAll('[role=tab]')]; const index = tabs.indexOf(document.activeElement); if (index < 0) return; const delta = ['ArrowRight', 'ArrowDown'].includes(event.key) ? 1 : ['ArrowLeft', 'ArrowUp'].includes(event.key) ? -1 : 0; if (delta || event.key === 'Home' || event.key === 'End') { event.preventDefault(); const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + delta + tabs.length) % tabs.length; tabs[next].focus(); tabs[next].click(); } },
+    tabKeydown(event) {
+        const currentTab = event.target.closest('[role="tab"]');
+        const tabs = [...event.currentTarget.querySelectorAll('[role="tab"]')]
+            .filter(tab => tab.getClientRects().length > 0 && !tab.disabled);
+        const index = tabs.indexOf(currentTab);
+
+        if (index < 0) return;
+
+        const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+        const next = event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+                ? tabs.length - 1
+                : event.key === 'PageDown'
+                    ? Math.min(tabs.length - 1, index + 3)
+                    : event.key === 'PageUp'
+                        ? Math.max(0, index - 3)
+                        : delta
+                            ? (index + delta + tabs.length) % tabs.length
+                            : null;
+
+        if (next === null) return;
+
+        event.preventDefault();
+        tabs[next].focus();
+        tabs[next].click();
+    },
 });
 const homeTestimonials = (testimonials) => ({
     testimonials: testimonials?.length ? testimonials : [{
@@ -182,21 +209,52 @@ const testimonialsGrid = (items) => ({
 });
 
 const galleryLightbox = (images, categories) => ({
-    images, categories, activeCategory: new URLSearchParams(window.location.search).get('category') || 'All', lightboxIndex: null, pointerStartX: null, pointerStartY: null,
-    init() { if (this.activeCategory !== 'All' && !this.categories.includes(this.activeCategory)) this.activeCategory = 'All'; this.$watch('lightboxIndex', value => { document.body.style.overflow = value === null ? '' : 'hidden'; }); },
+    images, categories, activeCategory: new URLSearchParams(window.location.search).get('category') || 'All', lightboxIndex: null, pointerStartX: null, pointerStartY: null, lastFocus: null,
+    init() {
+        if (this.activeCategory !== 'All' && !this.categories.includes(this.activeCategory)) this.activeCategory = 'All';
+        this.$watch('lightboxIndex', value => {
+            document.body.style.overflow = value === null ? '' : 'hidden';
+
+            if (value !== null) {
+                this.$nextTick(() => this.$refs.lightboxClose?.focus());
+            }
+        });
+        this.$cleanup = () => { document.body.style.overflow = ''; };
+    },
     visibleImages() { return this.activeCategory === 'All' ? this.images : this.images.filter(image => image.category === this.activeCategory); },
     isVisible(image) { return this.activeCategory === 'All' || image.category === this.activeCategory; },
     cellAspect(index) { return ['aspect-4/5', 'aspect-square', 'aspect-3/4', 'aspect-4/3', 'aspect-5/6'][index % 5]; },
     selectCategory(category) { this.activeCategory = category; this.lightboxIndex = null; const url = new URL(window.location.href); category === 'All' ? url.searchParams.delete('category') : url.searchParams.set('category', category); history.replaceState({}, '', url); },
     visibleIndex(index) { return this.visibleImages().findIndex(image => image === this.images[index]); },
-    openAt(index) { this.lightboxIndex = this.visibleIndex(index); },
+    openAt(index) { this.lastFocus = document.activeElement; this.lightboxIndex = this.visibleIndex(index); },
     currentImage() { return this.lightboxIndex === null ? null : this.visibleImages()[this.lightboxIndex]; },
-    closeLightbox() { this.lightboxIndex = null; },
+    closeLightbox() {
+        const focusTarget = this.lastFocus;
+        this.lightboxIndex = null;
+        this.$nextTick(() => focusTarget?.isConnected && focusTarget.focus());
+    },
     goNext() { if (this.lightboxIndex === null) return; this.lightboxIndex = (this.lightboxIndex + 1) % this.visibleImages().length; },
     goPrev() { if (this.lightboxIndex === null) return; this.lightboxIndex = (this.lightboxIndex - 1 + this.visibleImages().length) % this.visibleImages().length; },
     pointerStart(event) { this.pointerStartX = event.clientX; this.pointerStartY = event.clientY; },
     pointerEnd(event) { if (this.pointerStartX === null || this.pointerStartY === null) return; const dx = event.clientX - this.pointerStartX; const dy = event.clientY - this.pointerStartY; this.pointerStartX = null; this.pointerStartY = null; if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return; dx < 0 ? this.goNext() : this.goPrev(); },
-    lockScroll() { if (this.lightboxIndex === null) document.body.style.overflow = ''; },
+    handleLightboxKeydown(event) {
+        if (event.key !== 'Tab' || this.lightboxIndex === null) return;
+
+        const focusable = [...this.$refs.lightbox.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+            .filter(element => element.getClientRects().length > 0);
+        if (!focusable.length) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    },
 });
 
 const waggiesGuidesIndex = initialCategory => ({

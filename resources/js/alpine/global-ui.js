@@ -314,6 +314,8 @@ export const waggiesDialog = () => ({
         this.dialogState = state;
         this.dialogInitialFocus = getInitialFocus;
         this.$watch(state, isOpen => {
+            document.body.classList.toggle('overflow-hidden', isOpen);
+
             if (isOpen) {
                 this.$nextTick(() => requestAnimationFrame(() => {
                     const target = this.dialogInitialFocus?.() || this.dialogFocusableElements()[0];
@@ -342,6 +344,8 @@ export const waggiesDialog = () => ({
             .filter(node => node.getClientRects().length > 0 && node.getAttribute('aria-hidden') !== 'true');
     },
     handleDialogKeydown(event) {
+        if (!this[this.dialogState]) return;
+
         if (event.key === 'Escape') {
             event.preventDefault();
             this.close();
@@ -382,15 +386,40 @@ export const waggiesDialog = () => ({
 
 const waggiesSearch = () => ({
     ...waggiesDialog(),
-    open: false, query: '', results: [], loading: false,
+    open: false, query: '', results: [], loading: false, selectedResultId: null,
     init() { this.initDialog(() => this.$refs.input); this.listen(); },
-    listen() { window.addEventListener('waggies:open-search', event => { this.openDialog(event.detail?.trigger, event.detail?.fallback); this.query = ''; this.results = []; }); },
-    close() { this.closeDialog(); this.query = ''; this.results = []; },
+    listen() { window.addEventListener('waggies:open-search', event => { this.openDialog(event.detail?.trigger, event.detail?.fallback); this.query = ''; this.results = []; this.selectedResultId = null; }); },
+    close() { this.closeDialog(); this.query = ''; this.results = []; this.selectedResultId = null; },
     async fetchResults() {
         const value = this.query.trim();
-        if (!value) { this.results = []; return; }
+        if (!value) { this.results = []; this.selectedResultId = null; return; }
+        this.selectedResultId = null;
         this.loading = true;
         try { const response = await fetch(`${document.body.dataset.searchUrl}?q=${encodeURIComponent(value)}`); const data = await response.json(); this.results = data.results ?? []; } catch { this.results = []; } finally { this.loading = false; }
+    },
+    resultId(key) { return `search-result-${key}`; },
+    handleSearchKeydown(event) {
+        if (!this.results.length) return;
+
+        const currentIndex = this.results.findIndex(result => String(result.key) === String(this.selectedResultId));
+        const setSelected = index => { this.selectedResultId = this.results[index]?.key ?? null; };
+
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            setSelected(Math.min(this.results.length - 1, currentIndex + 1));
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            setSelected(Math.max(0, currentIndex < 0 ? this.results.length - 1 : currentIndex - 1));
+        } else if (event.key === 'Home') {
+            event.preventDefault();
+            setSelected(0);
+        } else if (event.key === 'End') {
+            event.preventDefault();
+            setSelected(this.results.length - 1);
+        } else if (event.key === 'Enter' && currentIndex >= 0) {
+            event.preventDefault();
+            this.navigate(this.results[currentIndex].href);
+        }
     },
     navigate(href) { this.close(); window.location.href = href; },
 });

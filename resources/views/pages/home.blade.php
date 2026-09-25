@@ -191,7 +191,7 @@
 
     <section class="section-pad bg-surface">
         <div class="page-container">
-            @php($homeBookingCta = ['heading' => 'Ready to', 'headingAccent' => 'book?', 'body' => 'Get in touch to request a visit, ask questions, or make a booking request for your pet.', 'primaryLabel' => 'Contact Us', 'primaryRoute' => 'contact', 'secondaryLabel' => 'See Pricing', 'secondaryRoute' => 'services.pricing'])
+            @php($homeBookingCta = ['heading' => 'Ready to', 'headingAccent' => 'book?', 'body' => 'Start a booking request for your pet, or contact the care team if you have a general question.', 'primaryLabel' => 'Request a booking', 'primaryRoute' => 'book', 'secondaryLabel' => 'See Pricing', 'secondaryRoute' => 'services.pricing'])
             <div
                 class="relative overflow-hidden rounded-3xl bg-primary-dark px-8 py-16 md:px-16 md:py-20">
                 <div class="pointer-events-none absolute inset-x-8 top-0 h-px bg-secondary/60 md:inset-x-16"></div>

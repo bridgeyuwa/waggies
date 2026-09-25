@@ -1,14 +1,17 @@
-// Livewire bundles Alpine; the public layout guard prevents the unused Livewire runtime from auto-starting.
-import { Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm.js';
+import { Alpine, Livewire } from '../../vendor/livewire/livewire/dist/livewire.esm.js';
 import { registerCareersComponents } from './alpine/careers';
 import { registerContentComponents } from './alpine/content';
 import { registerGlobalComponents } from './alpine/global-ui';
 import { registerOpeningHoursComponents } from './alpine/opening-hours';
 import { registerRequestComponents } from './alpine/requests';
 import { registerShopComponents } from './alpine/shop';
-import { registerWaggiesSelectEnhancement } from './alpine/selects';
+import { registerWaggiesSelectEnhancement, syncWaggiesSelects } from './alpine/selects';
 import { registerPricingCalculator } from './pricing-calculator';
 import { registerToolComponents } from './tools-calculators';
+import { registerBookingDraftPersistence } from './booking-wizard';
+
+window.Alpine = Alpine;
+window.Livewire = Livewire;
 
 registerToolComponents(Alpine);
 registerPricingCalculator(Alpine);
@@ -52,4 +55,12 @@ document.addEventListener('click', event => {
 }, true);
 
 registerWaggiesSelectEnhancement();
-Alpine.start();
+registerBookingDraftPersistence();
+
+if (document.querySelector('[wire\\:id]')) {
+    Livewire.hook('morphed', () => syncWaggiesSelects());
+    document.addEventListener('livewire:initialized', () => syncWaggiesSelects(), { once: true });
+    Livewire.start();
+} else {
+    Alpine.start();
+}

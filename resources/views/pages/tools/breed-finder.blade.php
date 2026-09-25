@@ -11,7 +11,7 @@
                         <legend class="mb-2 block text-sm font-semibold text-primary-dark">Species</legend>
                         <div class="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Species">
                             <template x-for="option in ['dog', 'cat']" :key="option">
-                                <button type="button" role="radio" :aria-checked="species === option" @click="changeSpecies(option)" class="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40" :class="species === option ? 'border-primary bg-surface-purple text-primary' : 'border-primary/10 bg-white text-primary-dark/60 hover:border-primary/30'">
+                                <button type="button" role="radio" :aria-checked="species === option" :tabindex="species === option || (!species && option === 'dog') ? 0 : -1" :data-species="option" @click="changeSpecies(option)" @keydown="speciesKeydown($event, option)" class="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40" :class="species === option ? 'border-primary bg-surface-purple text-primary' : 'border-primary/10 bg-white text-primary-dark/60 hover:border-primary/30'">
                                     <template x-if="option === 'dog'"><x-waggies.icon name="pets" size="18" variant="filled" /></template>
                                     <template x-if="option === 'cat'"><x-waggies.icon name="cat" size="18" variant="filled" /></template>
                                     <span x-text="option === 'dog' ? 'Dogs' : 'Cats'"></span>

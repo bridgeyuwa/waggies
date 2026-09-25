@@ -23,11 +23,6 @@ final class ContactContextResolver
         $product = $productId !== null
             ? Product::query()->published()->where('slug', $productId)->first()
             : null;
-        $transportRoute = $this->value($request->query('transportRoute'));
-
-        if ($transportRoute !== null && (strlen($transportRoute) > 4000 || json_decode($transportRoute, true) === null)) {
-            $transportRoute = null;
-        }
 
         return [
             'rawIntent' => $rawIntent ?? '',
@@ -38,8 +33,6 @@ final class ContactContextResolver
             'tier' => $tier,
             'productId' => $productId,
             'productName' => $product !== null ? $product->name : $productName,
-            'transportProduct' => $this->allowedTransportProduct($this->value($request->query('transportProduct'))),
-            'transportRoute' => $transportRoute,
             'source' => $this->allowedSource($this->value($request->query('source'))),
             'product' => $product ? ['name' => $product->name] : null,
         ];
@@ -84,11 +77,6 @@ final class ContactContextResolver
         }
 
         return ['vet' => 'vet-care', 'transport' => 'local-transport'][$service] ?? $service;
-    }
-
-    private function allowedTransportProduct(?string $value): ?string
-    {
-        return in_array($value, ['transport-city-transfer', 'transport-vet-transfer', 'transport-airport-transfer'], true) ? $value : null;
     }
 
     private function allowedSource(?string $value): string

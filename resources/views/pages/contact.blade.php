@@ -4,76 +4,14 @@
     $gateway = [
         [
             'title' => 'SERVICE REQUESTS',
-            'description' => 'Book or request a Waggies service',
+            'description' => 'Start a service request in the dedicated booking flow',
             'primary' => true,
             'items' => [
                 [
-                    'label' => 'Boarding',
-                    'description' => 'Overnight stays for dogs, cats, and exotic pets',
-                    'icon' => 'boarding',
-                    'options' => [
-                        [
-                            'label' => 'Dog boarding',
-                            'href' => route('contact', [
-                                'intent' => 'booking',
-                                'service' => 'boarding',
-                                'variant' => 'dogs',
-                            ]),
-                        ],
-                        [
-                            'label' => 'Cat boarding',
-                            'href' => route('contact', [
-                                'intent' => 'booking',
-                                'service' => 'boarding',
-                                'variant' => 'cats',
-                            ]),
-                        ],
-                        [
-                            'label' => 'Exotic boarding',
-                            'href' => route('contact', [
-                                'intent' => 'service',
-                                'service' => 'boarding',
-                                'variant' => 'exotic',
-                            ]),
-                        ],
-                    ],
-                ],
-                [
-                    'label' => 'Grooming',
-                    'description' => 'Breed-specific spa treatments and styling',
-                    'icon' => 'grooming',
-                    'href' => route('contact', ['intent' => 'service', 'service' => 'grooming']),
-                ],
-                [
-                    'label' => 'Veterinary Care',
-                    'description' => 'Consultations, vaccinations, and wellness checks',
-                    'icon' => 'veterinary-care',
-                    'href' => route('contact', ['intent' => 'veterinary', 'service' => 'vet-care']),
-                ],
-                [
-                    'label' => 'Training',
-                    'description' => 'Positive-reinforcement dog training programmes',
-                    'icon' => 'training',
-                    'href' => route('contact', ['intent' => 'service', 'service' => 'training']),
-                ],
-                [
-                    'label' => 'Relocation',
-                    'description' => 'International pet import, export, and transport',
-                    'icon' => 'airport-departure',
-                    'options' => [
-                        [
-                            'label' => 'Pet import',
-                            'href' => route('contact', ['intent' => 'quote', 'service' => 'relocation-import']),
-                        ],
-                        [
-                            'label' => 'Pet export',
-                            'href' => route('contact', ['intent' => 'quote', 'service' => 'relocation-export']),
-                        ],
-                        [
-                            'label' => 'Local transport',
-                            'href' => route('contact', ['intent' => 'transport', 'service' => 'local-transport']),
-                        ],
-                    ],
+                    'label' => 'Request a service',
+                    'description' => 'Boarding, grooming, veterinary care, training, relocation, or local transport',
+                    'icon' => 'pets',
+                    'href' => route('book'),
                 ],
             ],
         ],
@@ -114,44 +52,6 @@
             ],
         ],
     ];
-    $booking = [
-        [
-            'label' => 'Boarding',
-            'description' => 'Overnight stays for dogs, cats, and exotic pets',
-            'icon' => 'boarding',
-            'href' => route('contact', ['intent' => 'booking', 'service' => 'boarding']),
-        ],
-        [
-            'label' => 'Grooming',
-            'description' => 'Breed-specific spa treatments and styling',
-            'icon' => 'grooming',
-            'href' => route('contact', ['intent' => 'service', 'service' => 'grooming']),
-        ],
-        [
-            'label' => 'Veterinary Care',
-            'description' => 'Consultations, vaccinations, and wellness checks',
-            'icon' => 'veterinary-care',
-            'href' => route('contact', ['intent' => 'veterinary', 'service' => 'vet-care']),
-        ],
-        [
-            'label' => 'Training',
-            'description' => 'Positive-reinforcement dog training programmes',
-            'icon' => 'training',
-            'href' => route('contact', ['intent' => 'service', 'service' => 'training']),
-        ],
-        [
-            'label' => 'Pet Relocation',
-            'description' => 'International pet import and export services',
-            'icon' => 'airport-departure',
-            'href' => route('contact', ['intent' => 'quote', 'service' => 'relocation']),
-        ],
-        [
-            'label' => 'Local Transport',
-            'description' => 'Door-to-door pet transport across Abuja',
-            'icon' => 'transport',
-            'href' => route('contact', ['intent' => 'transport', 'service' => 'local-transport']),
-        ],
-    ];
     $mapUrl = $business['mapUrl'];
 @endphp
 
@@ -170,8 +70,7 @@
                     </span>
                 </div>
                 <h1 class="text-display mb-7 text-primary-dark">Contact Waggies</h1>
-                <p class="max-w-2xl text-lg leading-relaxed text-primary-dark/70">Have a question, want to make a booking,
-                    or need a quote? Fill in the request form and we&rsquo;ll continue the conversation on WhatsApp.</p>
+                <p class="max-w-2xl text-lg leading-relaxed text-primary-dark/70">Have a question, need help with a product, or want to start a service request? Choose the path that fits and we&rsquo;ll continue the conversation on WhatsApp.</p>
             </div>
         </div>
     </section>
@@ -228,34 +127,8 @@
                                     </section>
                                 @endforeach
                             </div>
-                        @elseif($mode === 'booking')
-                            <div class="flex flex-col gap-8">
-                                <div class="flex flex-col gap-2">
-                                    <h2 class="font-serif text-2xl font-bold leading-snug text-primary-dark">What would you
-                                        like to book?</h2>
-                                    <p class="text-sm leading-relaxed text-primary-dark/60">Choose a service and we&rsquo;ll
-                                        guide you through the booking process.</p>
-                                </div>
-                                <div class="flex flex-col gap-4">
-                                    @foreach ($booking as $item)
-                                        <a href="{{ $item['href'] }}"
-                                            class="group flex items-center gap-5 rounded-2xl border border-primary/10 bg-white p-6 transition-[border-color,box-shadow] duration-200 hover:border-primary/30 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30"><span
-                                                class="flex size-14 shrink-0 items-center justify-center rounded-xl border border-primary/10 bg-primary/5 text-primary transition-colors group-hover:border-primary/20 group-hover:bg-primary/10"><x-waggies.icon
-                                                    name="{{ $item['icon'] }}" size="24" /></span><span
-                                                class="min-w-0 flex-1"><span
-                                                    class="mb-1 block font-serif text-lg font-bold text-primary-dark transition-colors group-hover:text-primary">{{ $item['label'] }}</span><span
-                                                    class="block text-sm leading-relaxed text-primary-dark/60">{{ $item['description'] }}</span></span><x-waggies.icon
-                                                name="arrow-forward" size="20"
-                                                class="text-primary/30 transition-colors group-hover:text-primary" /></a>
-                                    @endforeach
-                                </div>
-                                <p class="text-xs text-primary-dark/50">Not sure which service is right? <a
-                                        href="{{ route('contact') }}"
-                                        class="font-semibold text-primary hover:underline">Start with a general enquiry.</a>
-                                </p>
-                            </div>
                         @else
-                            <div x-data="contactRequest(@js($schema), @js($context), @js($business['whatsapp']))" x-ref="request">
+                            <div x-data="contactRequestV2(@js($schema), @js($context), @js($business['whatsapp']))" x-ref="request">
                                 <template x-if="schema.intent === 'CART_ORDER' && cartItems.length && step === 'form'">
                                     <div class="mb-5 rounded-xl border border-primary/10 bg-surface-purple p-4">
                                         <p class="mb-2 text-xs font-bold uppercase tracking-wider text-primary/60"
@@ -466,11 +339,14 @@
                                                             :aria-label="field.label"
                                                             :aria-required="field.required || requiredWhen(field)"
                                                             :aria-describedby="field.helperText ? `field-${field.name}-help` : null">
-                                                            <template x-for="option in field.options"
+                                                            <template x-for="(option, optionIndex) in field.options"
                                                                 :key="option.value"><button type="button"
                                                                     role="radio"
                                                                     :aria-checked="values[field.name] === option.value"
+                                                                    :tabindex="values[field.name] === option.value || (!values[field.name] && optionIndex === 0) ? 0 : -1"
+                                                                    :data-radio-value="option.value"
                                                                     @click="values[field.name] = option.value"
+                                                                    @keydown="radioKeydown($event, field.name, field.options, option.value)"
                                                                     class="inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-colors"
                                                                     :class="values[field.name] === option.value ?
                                                                         'border-primary bg-surface-purple text-primary' :

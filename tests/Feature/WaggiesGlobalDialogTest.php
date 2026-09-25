@@ -50,7 +50,7 @@ test('catalogue cart copy does not imply checkout or shipping', function (): voi
 
 test('public booking copy describes a request rather than a confirmed appointment', function (): void {
     $this->get(route('home'))
-        ->assertSeeText('request a visit')
+        ->assertSeeText('Start a booking request')
         ->assertSeeText('booking request');
 
     $this->get(route('terms-of-service'))

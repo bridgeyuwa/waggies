@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CreateBookingRequest;
 use App\Http\Requests\StoreBookingRequest;
 use App\Models\BookingRequest;
 use App\Models\BusinessProfile;
@@ -47,10 +48,18 @@ final class BookingRequestsController extends Controller
             'whatsappUrl' => $whatsappUrl.'?text='.rawurlencode('Hello Waggies, I submitted a booking request and would like to continue the conversation.'),
             'minimumDate' => now()->toDateString(),
             'bookingSubmitted' => (bool) session('booking_submitted'),
+            'enableLivewire' => true,
+            'bookingContext' => [
+                'service' => array_key_exists($service, $serviceOptions) ? $service : null,
+                'variant' => $variant !== '' ? $variant : null,
+                'tier' => $tier !== '' ? $tier : null,
+                'source' => $source !== '' ? $source : null,
+                'whatsappUrl' => $whatsappUrl.'?text='.rawurlencode('Hello Waggies, I submitted a booking request and would like to continue the conversation.'),
+            ],
         ]);
     }
 
-    public function store(StoreBookingRequest $request): RedirectResponse
+    public function store(StoreBookingRequest $request, CreateBookingRequest $createBookingRequest): RedirectResponse
     {
         $validated = $request->safe()->only([
             'name',
@@ -69,14 +78,38 @@ final class BookingRequestsController extends Controller
             'message',
         ]);
 
-        $validated['context'] = array_filter([
+        $context = array_filter([
             'service' => $validated['service_key'] ?? null,
             'variant' => $validated['service_variant'] ?? null,
             'tier' => $validated['pricing_tier'] ?? null,
             'source' => $validated['source'] ?? null,
         ]);
 
-        BookingRequest::create($validated);
+        $createBookingRequest->handle([
+            'contact' => [
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'preferred_contact_method' => $validated['preferred_contact_method'] ?? null,
+            ],
+            'pets' => [[
+                'name' => $validated['pet_name'],
+                'species' => $validated['pet_type'],
+            ]],
+            'services' => [[
+                'service_key' => $validated['service_key'],
+                'service_variant' => $validated['service_variant'] ?? null,
+                'pricing_tier' => $validated['pricing_tier'] ?? null,
+                'requested_date' => $validated['requested_date'],
+                'requested_time' => $validated['requested_time'] ?? null,
+                'location' => $validated['location'] ?? null,
+                'details' => [
+                    'message' => $validated['message'] ?? null,
+                ],
+            ]],
+            'source' => $validated['source'] ?? null,
+            'context' => $context,
+        ]);
 
         return redirect()
             ->route('book')

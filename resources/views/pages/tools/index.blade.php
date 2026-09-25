@@ -5,7 +5,7 @@
     $labels = ['health' => 'Health Tools', 'calculator' => 'Calculators', 'reference' => 'Reference', 'utility' => 'Utilities'];
     $grouped = collect($tools)->groupBy('category');
     $destination = fn (array $tool): string => route($tool['route']);
-    $toolsAdviceCta = ['heading' => 'Need Professional Advice?', 'body' => 'Our veterinary team is available for consultations. Send a request or call us directly.', 'primaryLabel' => 'Request Vet Care', 'primaryHref' => route('contact').'?intent=veterinary&service=vet-care', 'secondaryLabel' => 'Call '.$businessProfile->phone, 'secondaryHref' => $businessProfile->toPublicArray()['phoneHref']];
+    $toolsAdviceCta = ['heading' => 'Need Professional Advice?', 'body' => 'Our veterinary team is available for consultations. Send a request or call us directly.', 'primaryLabel' => 'Request Vet Care', 'primaryHref' => route('book', ['service' => 'vet-care', 'source' => 'tool']), 'secondaryLabel' => 'Call '.$businessProfile->phone, 'secondaryHref' => $businessProfile->toPublicArray()['phoneHref']];
 @endphp
 
 @section('content')

@@ -108,6 +108,7 @@
                             aria-labelledby="{{ $titleId }}"
                             @if(filled($role->description)) aria-describedby="{{ $descriptionId }}" @endif
                             :aria-hidden="(!open).toString()"
+                            tabindex="-1"
                             @click.self="close()"
                             @keydown="handleDialogKeydown($event)"
                             class="fixed inset-0 z-layer-lightbox overflow-y-auto bg-primary-dark/60 p-4 sm:p-8"

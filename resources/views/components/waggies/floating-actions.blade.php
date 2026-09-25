@@ -11,8 +11,10 @@
         class="waggies-chat-panel fixed z-layer-floating-panel flex min-w-0 flex-col overflow-hidden rounded-2xl border border-primary/10 bg-white shadow-xl"
         role="dialog"
         aria-modal="true"
+        :aria-hidden="(!chatOpen).toString()"
         aria-labelledby="waggies-chat-title"
         aria-describedby="waggies-chat-description"
+        tabindex="-1"
         @keydown="handleChatKeydown($event)"
     >
         <div class="flex shrink-0 items-center justify-between bg-primary px-5 py-4 text-white">

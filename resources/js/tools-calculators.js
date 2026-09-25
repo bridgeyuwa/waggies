@@ -183,6 +183,19 @@ const breedFinder = (breeds) => ({
         this.groomingNeeds = '';
         this.search = search;
     },
+    speciesKeydown(event, value) {
+        const options = ['dog', 'cat'];
+        const currentIndex = options.indexOf(value);
+        const delta = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 0;
+        const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1 : delta ? (currentIndex + delta + options.length) % options.length : null;
+
+        if (nextIndex === null) return;
+
+        event.preventDefault();
+        const currentTarget = event.currentTarget;
+        this.changeSpecies(options[nextIndex]);
+        this.$nextTick(() => currentTarget.closest('[role="radiogroup"]')?.querySelector(`[data-species="${options[nextIndex]}"]`)?.focus());
+    },
     clearFilters() {
         this.size = '';
         this.exerciseNeeds = '';

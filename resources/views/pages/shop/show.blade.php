@@ -30,7 +30,7 @@
                     <p class="mt-3 text-center text-xs font-semibold text-primary-dark/55" aria-live="polite">Photo <span x-text="activeIndex + 1"></span> of <span x-text="images.length"></span></p>
                 </div>
             </div>
-            <div x-show="lightboxOpen" x-cloak class="fixed inset-0 z-layer-lightbox flex flex-col bg-primary-dark/95" role="dialog" aria-modal="true" aria-label="Product image lightbox" @click.self="closeLightbox()" @touchstart="startTouch($event)" @touchend="endTouch($event)">
+            <div x-ref="lightboxDialog" x-show="lightboxOpen" x-cloak class="fixed inset-0 z-layer-lightbox flex flex-col bg-primary-dark/95" role="dialog" aria-modal="true" tabindex="-1" aria-label="Product image lightbox" @click.self="closeLightbox()" @touchstart="startTouch($event)" @touchend="endTouch($event)">
                 <div class="flex items-center justify-between px-4 py-4 text-white/80 sm:px-8">
                     <p class="text-sm font-semibold"><span x-text="activeIndex + 1"></span> <span class="text-white/40">/</span> <span x-text="images.length"></span></p>
                     <button type="button" x-ref="lightboxClose" @click="closeLightbox()" aria-label="Close product image lightbox" class="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"><x-waggies.icon name="close" size="20" /></button>

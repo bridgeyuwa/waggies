@@ -3,7 +3,7 @@
 @section('content')
 <x-waggies.breadcrumb-strip :items="[['label' => 'Services', 'route' => 'services.index'], ['label' => 'Pet Relocation', 'route' => 'services.relocation']]" />
 
-<x-waggies.cover-hero :hero="array_merge($hero, ['eyebrow' => 'International & Local Relocation', 'eyebrowIcon' => 'airport-departure', 'title' => 'Stress-Free Pet Relocation<br/>Home & Abroad', 'description' => 'End-to-end relocation management for pets moving into, out of, or across Nigeria. Permits, vet endorsements, IATA crates, and flight coordination handled with total precision.', 'actions' => [['label' => 'Request Relocation Quote', 'url' => route('contact', ['intent' => 'quote', 'service' => 'relocation']), 'icon' => 'arrow-forward'], ['label' => 'Open Relocation Checklist', 'url' => route('relocation.checklist'), 'icon' => 'checklist']]])" />
+<x-waggies.cover-hero :hero="array_merge($hero, ['eyebrow' => 'International & Local Relocation', 'eyebrowIcon' => 'airport-departure', 'title' => 'Stress-Free Pet Relocation<br/>Home & Abroad', 'description' => 'End-to-end relocation management for pets moving into, out of, or across Nigeria. Permits, vet endorsements, IATA crates, and flight coordination handled with total precision.', 'actions' => [['label' => 'Request Relocation Quote', 'url' => route('book', ['service' => 'relocation']), 'icon' => 'arrow-forward'], ['label' => 'Open Relocation Checklist', 'url' => route('relocation.checklist'), 'icon' => 'checklist']]])" />
 
 <section class="bg-white py-20">
     <div class="page-container">
@@ -20,7 +20,7 @@
 
 <section class="border-t border-primary/5 bg-white py-20"><div class="page-container"><x-waggies.section-heading eyebrow="Frequent Questions" title="Frequently Asked Questions About Relocation" subtitle="Clear answers on documentation, timelines, flight requirements, and pet safety during transit." spacing="mb-14" /><x-waggies.faq-accordion :faqs="$faqs" /><p class="mt-8 text-center text-sm text-primary-dark/60">Have specific country requirements? <a href="{{ route('contact') }}" class="font-bold text-primary hover:underline">Contact our relocation specialists</a> for direct assistance.</p></div></section>
 
-@php($relocationCta = ['heading' => 'Planning Your Pet’s Move?', 'headingAccent' => 'Let Our Experts Handle the Details', 'body' => 'From official Ministry permits to airline cargo reservations and customs clearance, Waggies makes relocation simple and secure.', 'primaryLabel' => 'Request Relocation Quote', 'primaryRoute' => 'contact', 'primaryParams' => ['intent' => 'quote', 'service' => 'relocation'], 'secondaryLabel' => 'Open Relocation Checklist', 'secondaryRoute' => 'relocation.checklist', 'secondaryIcon' => 'checklist'])
+@php($relocationCta = ['heading' => 'Planning Your Pet’s Move?', 'headingAccent' => 'Let Our Experts Handle the Details', 'body' => 'From official Ministry permits to airline cargo reservations and customs clearance, Waggies makes relocation simple and secure.', 'primaryLabel' => 'Request Relocation Quote', 'primaryRoute' => 'book', 'primaryParams' => ['service' => 'relocation'], 'secondaryLabel' => 'Open Relocation Checklist', 'secondaryRoute' => 'relocation.checklist', 'secondaryIcon' => 'checklist'])
 <section class="w-full py-20"><div class="page-container"><x-waggies.cta-primary :cta="$relocationCta" /></div></section>
 
 @endsection

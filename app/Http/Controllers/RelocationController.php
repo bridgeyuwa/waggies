@@ -157,9 +157,8 @@ final class RelocationController extends Controller
                     'heading' => 'Ready to start your pet\'s import process?',
                     'body' => 'We recommend reaching out at least 4-6 weeks before your intended travel date to ensure all Ministry import permits and rabies titer documentation are processed smoothly.',
                     'primaryLabel' => 'Request Quote',
-                    'primaryRoute' => 'contact',
+                    'primaryRoute' => 'book',
                     'primaryParams' => [
-                        'intent' => 'quote',
                         'service' => 'relocation-import',
                     ],
                     'secondaryLabel' => 'View Checklist',
@@ -256,9 +255,8 @@ final class RelocationController extends Controller
                     'heading' => 'Planning an international move from Nigeria?',
                     'body' => 'Different destinations require varying preparation windows — for example, the UK/EU require a rabies blood titer test done 3+ months prior. Contact our team early to stay on schedule.',
                     'primaryLabel' => 'Request Quote',
-                    'primaryRoute' => 'contact',
+                    'primaryRoute' => 'book',
                     'primaryParams' => [
-                        'intent' => 'quote',
                         'service' => 'relocation-export',
                     ],
                     'secondaryLabel' => 'View Checklist',
@@ -274,9 +272,8 @@ final class RelocationController extends Controller
                     'imageAlt' => 'Pet transport service at Waggies Abuja',
                 ],
                 'ctaText' => 'Request Transport',
-                'ctaRoute' => 'contact',
+                'ctaRoute' => 'book',
                 'ctaParams' => [
-                    'intent' => 'transport',
                     'service' => 'local-transport',
                 ],
                 'descriptionBlock' => 'Whether it\'s a trip to Waggies for boarding or grooming, a vet visit, or an airport transfer, our trained handlers and climate-controlled vehicles ensure your pet travels safely and comfortably — door to door.',

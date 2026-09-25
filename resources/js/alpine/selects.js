@@ -56,6 +56,7 @@ function initWaggiesSelect(select) {
     let typeaheadTimer = null;
 
     const options = () => [...select.options].filter(option => option.value !== '');
+    const enabledOptionButtons = () => optionButtons.filter(optionButton => optionButton.getAttribute('aria-disabled') !== 'true');
     const selectedLabel = () => select.value === '' ? 'Select...' : (select.selectedOptions[0]?.textContent?.trim() || 'Select...');
     const sync = () => {
         value.textContent = selectedLabel();
@@ -79,6 +80,7 @@ function initWaggiesSelect(select) {
             optionButton.querySelector('[data-waggies-select-check]')?.toggleAttribute('hidden', !selected);
         });
     };
+    select._waggiesSelectSync = sync;
     const renderOptions = () => {
         listbox.replaceChildren();
         optionButtons = options().map(option => {
@@ -86,10 +88,14 @@ function initWaggiesSelect(select) {
             optionButton.className = 'flex min-h-[44px] w-full cursor-default items-center gap-2 rounded-md py-3 pl-3 pr-9 text-left text-sm text-primary-dark outline-none select-none hover:bg-surface-purple focus:bg-surface-purple';
             optionButton.dataset.value = option.value;
             optionButton.setAttribute('role', 'option');
+            optionButton.setAttribute('aria-disabled', option.disabled ? 'true' : 'false');
             optionButton.tabIndex = -1;
             optionButton.dataset.state = 'unchecked';
             optionButton.textContent = option.textContent?.trim() || '';
             optionButton.dataset.label = optionButton.textContent;
+            optionButton.classList.toggle('pointer-events-none', option.disabled);
+            optionButton.classList.toggle('cursor-not-allowed', option.disabled);
+            optionButton.classList.toggle('opacity-45', option.disabled);
             const check = document.createElement('img');
             check.src = '/icons/material-symbols/outlined/check.svg';
             check.alt = '';
@@ -99,6 +105,8 @@ function initWaggiesSelect(select) {
             optionButton.appendChild(check);
             check.hidden = option.value !== select.value;
             optionButton.addEventListener('click', () => {
+                if (option.disabled) return;
+
                 select.value = option.value;
                 select.dispatchEvent(new Event('change', { bubbles: true }));
                 close();
@@ -106,11 +114,14 @@ function initWaggiesSelect(select) {
             });
             optionButton.addEventListener('focus', () => { optionButton.dataset.highlighted = ''; });
             optionButton.addEventListener('blur', () => { delete optionButton.dataset.highlighted; });
-            optionButton.addEventListener('pointermove', () => optionButton.focus({ preventScroll: true }));
+            optionButton.addEventListener('pointermove', () => {
+                if (!option.disabled) optionButton.focus({ preventScroll: true });
+            });
             optionButton.addEventListener('keydown', event => {
                 if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    optionButton.click();
+                    event.stopPropagation();
+                    if (!option.disabled) optionButton.click();
                 }
             });
             listbox.appendChild(optionButton);
@@ -153,7 +164,11 @@ function initWaggiesSelect(select) {
         button.dataset.state = 'open';
         listbox.dataset.state = 'open';
         const selectedIndex = optionButtons.findIndex(optionButton => optionButton.dataset.value === select.value);
-        optionButtons[Math.max(0, selectedIndex >= 0 ? selectedIndex : focusIndex)]?.focus();
+        const enabled = enabledOptionButtons();
+        const selectedButton = selectedIndex >= 0 && optionButtons[selectedIndex]?.getAttribute('aria-disabled') !== 'true'
+            ? optionButtons[selectedIndex]
+            : focusIndex < 0 ? enabled.at(-1) : enabled[0];
+        selectedButton?.focus();
     };
     button.addEventListener('click', () => open ? close() : openMenu());
     button.addEventListener('keydown', event => {
@@ -166,23 +181,54 @@ function initWaggiesSelect(select) {
     });
     listbox.addEventListener('keydown', event => {
         const currentIndex = optionButtons.indexOf(document.activeElement);
+        const enabled = enabledOptionButtons();
+
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            if (currentIndex >= 0 && document.activeElement?.getAttribute('aria-disabled') !== 'true') document.activeElement.click();
+
+            return;
+        }
+
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            close();
+            button.focus();
+
+            return;
+        }
+
+        if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+            event.preventDefault();
+
+            if (event.key === 'Home') {
+                enabled[0]?.focus();
+            } else if (event.key === 'End') {
+                enabled.at(-1)?.focus();
+            } else {
+                const currentEnabledIndex = enabled.indexOf(document.activeElement);
+                const fallbackIndex = event.key === 'ArrowDown' ? -1 : enabled.length;
+                const nextIndex = currentEnabledIndex < 0
+                    ? fallbackIndex
+                    : (currentEnabledIndex + (event.key === 'ArrowDown' ? 1 : -1) + enabled.length) % enabled.length;
+                enabled[Math.min(enabled.length - 1, Math.max(0, nextIndex))]?.focus();
+            }
+
+            return;
+        }
+
         if (event.key.length === 1 && !event.ctrlKey && !event.altKey && !event.metaKey) {
             event.preventDefault();
             typeahead += event.key.toLowerCase();
-            const match = optionButtons.find(optionButton => optionButton.dataset.label?.toLowerCase().startsWith(typeahead));
+            const match = enabled.find(optionButton => optionButton.dataset.label?.toLowerCase().startsWith(typeahead));
             if (match) match.focus();
             if (typeaheadTimer) clearTimeout(typeaheadTimer);
             typeaheadTimer = setTimeout(() => { typeahead = ''; typeaheadTimer = null; }, 1000);
-            return;
         }
-        if (event.key === 'ArrowDown') { event.preventDefault(); optionButtons[Math.min(optionButtons.length - 1, currentIndex + 1)]?.focus(); }
-        else if (event.key === 'ArrowUp') { event.preventDefault(); optionButtons[Math.max(0, currentIndex - 1)]?.focus(); }
-        else if (event.key === 'Home') { event.preventDefault(); optionButtons[0]?.focus(); }
-        else if (event.key === 'End') { event.preventDefault(); optionButtons.at(-1)?.focus(); }
-        else if (event.key === 'Escape') { event.preventDefault(); close(); button.focus(); }
     });
     select.addEventListener('change', sync);
     document.addEventListener('click', event => { if (!wrapper.contains(event.target) && !listbox.contains(event.target)) close(); });
+    document.addEventListener('focusin', event => { if (!wrapper.contains(event.target) && !listbox.contains(event.target)) close(); });
     window.addEventListener('resize', close);
     window.addEventListener('blur', close);
     window.addEventListener('scroll', () => { if (open) positionMenu(); }, true);
@@ -190,6 +236,33 @@ function initWaggiesSelect(select) {
     const observer = new MutationObserver(() => { renderOptions(); });
     observer.observe(select, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'required', 'aria-invalid', 'aria-describedby'] });
     renderOptions();
+}
+
+function syncWaggiesSelectPresentation(select) {
+    const button = select.parentElement?.querySelector(':scope > button.waggies-select-trigger');
+    if (!button) return;
+
+    const selectedValue = select.value;
+    const selectedLabel = selectedValue === '' ? 'Select...' : (select.selectedOptions[0]?.textContent?.trim() || 'Select...');
+    const value = button.querySelector('span');
+
+    if (value) {
+        value.textContent = selectedLabel;
+        value.classList.toggle('text-primary-dark/45', selectedValue === '');
+        value.classList.toggle('text-primary-dark', selectedValue !== '');
+    }
+
+    button.toggleAttribute('data-placeholder', selectedValue === '');
+
+    const listboxId = button.getAttribute('aria-controls');
+    const listbox = listboxId ? document.getElementById(listboxId) : null;
+
+    listbox?.querySelectorAll('[role="option"]').forEach(optionButton => {
+        const selected = optionButton.dataset.value === selectedValue;
+        optionButton.setAttribute('aria-selected', selected ? 'true' : 'false');
+        optionButton.dataset.state = selected ? 'checked' : 'unchecked';
+        optionButton.querySelector('[data-waggies-select-check]')?.toggleAttribute('hidden', !selected);
+    });
 }
 
 function enhanceWaggiesSelects(root = document) {
@@ -207,4 +280,11 @@ export function registerWaggiesSelectEnhancement() {
     enhanceWaggiesSelects();
 
     waggiesSelectObserver.observe(document.body, { childList: true, subtree: true });
+}
+
+export function syncWaggiesSelects(root = document) {
+    root.querySelectorAll?.('select[data-waggies-select-enhanced="true"]').forEach(select => {
+        select._waggiesSelectSync?.();
+        syncWaggiesSelectPresentation(select);
+    });
 }

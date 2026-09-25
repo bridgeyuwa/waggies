@@ -56,10 +56,12 @@ class SeoSearchSitemapTest extends TestCase
     {
         $siteUrl = rtrim((string) config('app.url'), '/');
 
-        $this->get('/contact?intent=booking')
+        $this->get('/book?service=grooming')
             ->assertOk()
-            ->assertSee('<link rel="canonical" href="'.$siteUrl.'/contact">', false)
+            ->assertSee('<link rel="canonical" href="'.$siteUrl.'/book">', false)
             ->assertSee('<meta name="robots" content="noindex, follow">', false);
+
+        $this->get('/contact?intent=booking')->assertNotFound();
 
         $this->get('/api/search?q=grooming')
             ->assertOk()

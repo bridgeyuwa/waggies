@@ -22,6 +22,7 @@ const waggiesProductGallery = images => ({
     images,
     activeIndex: 0,
     lightboxOpen: false,
+    lastFocus: null,
     touchStartX: null,
     touchStartY: null,
     touchMoved: false,
@@ -74,6 +75,7 @@ const waggiesProductGallery = images => ({
             return;
         }
 
+        this.lastFocus = document.activeElement;
         this.lightboxOpen = true;
     },
     activateMainImage() {
@@ -86,8 +88,9 @@ const waggiesProductGallery = images => ({
         this.openLightbox();
     },
     closeLightbox() {
+        const focusTarget = this.lastFocus;
         this.lightboxOpen = false;
-        this.$nextTick(() => this.$refs.mainImage?.focus());
+        this.$nextTick(() => (focusTarget?.isConnected ? focusTarget : this.$refs.mainImage)?.focus());
     },
     handleGalleryKeydown(event) {
         if (this.lightboxOpen) {
@@ -122,6 +125,24 @@ const waggiesProductGallery = images => ({
         if (event.key === 'ArrowLeft') {
             event.preventDefault();
             this.previous();
+        }
+
+        if (event.key === 'Tab') {
+            const focusable = [...this.$refs.lightboxDialog.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+                .filter(element => element.getClientRects().length > 0);
+
+            if (!focusable.length) return;
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
         }
     },
     startTouch(event) {

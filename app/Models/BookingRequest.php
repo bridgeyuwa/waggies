@@ -8,6 +8,7 @@ use DomainException;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class BookingRequest extends Model
@@ -69,6 +70,22 @@ class BookingRequest extends Model
     public function serviceLabel(): string
     {
         return self::serviceOptions()[$this->service_key] ?? Str::headline((string) $this->service_key);
+    }
+
+    /**
+     * @return HasMany<BookingRequestPet, $this>
+     */
+    public function pets(): HasMany
+    {
+        return $this->hasMany(BookingRequestPet::class);
+    }
+
+    /**
+     * @return HasMany<BookingRequestService, $this>
+     */
+    public function services(): HasMany
+    {
+        return $this->hasMany(BookingRequestService::class);
     }
 
     public function transitionTo(BookingRequestStatus $status): void

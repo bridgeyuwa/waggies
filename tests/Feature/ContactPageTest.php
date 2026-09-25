@@ -3,44 +3,42 @@
 namespace Tests\Feature;
 
 use App\Models\BusinessProfile;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class ContactPageTest extends TestCase
 {
     public function test_contact_gateway_and_contextual_requests_render(): void
     {
-        $this->get('/contact')->assertOk()->assertSee('Choose a request type and');
-        $this->get('/contact?intent=booking')->assertOk()->assertSee('Choose a service and');
-        $this->get('/contact?intent=veterinary&service=vet-care')->assertOk()->assertSee('Veterinary appointment');
+        $this->get('/contact')->assertOk()->assertSee('Choose a request type and')->assertSee('Request a service');
+        $this->get('/contact?intent=booking')->assertNotFound();
+        $this->get('/contact?intent=veterinary&service=vet-care')->assertNotFound();
     }
 
-    public function test_contextual_schema_preserves_reference_fields_and_conditions(): void
+    public function test_booking_contexts_are_removed_from_contact_and_render_in_the_progressive_wizard(): void
     {
-        $this->get('/contact?intent=service&service=boarding&variant=cats')
-            ->assertOk()
-            ->assertSee('feedingRequirements')
-            ->assertSee('medications')
-            ->assertSee('behavioralConsiderations')
-            ->assertSee('specialCareNeeds')
+        $this->get('/contact?intent=service&service=boarding&variant=cats')->assertNotFound();
+        $this->get('/contact?intent=quote&service=relocation-import')->assertNotFound();
+
+        Livewire::test('booking-request-wizard', [
+            'initialContext' => ['service' => 'boarding', 'variant' => 'cats'],
+        ])
             ->assertSee('Cozy')
-            ->assertSee('Exact packages and pricing vary by pet type');
+            ->set('step', 3)
+            ->assertSee('Feeding routine')
+            ->assertSee('Medication or health notes')
+            ->assertSee('Special care needs');
 
-        $this->get('/contact?intent=transport&service=local-transport')
-            ->assertOk()
-            ->assertSee('transportProduct')
-            ->assertSee('distanceKm')
-            ->assertSee('additionalPetSafe')
-            ->assertSee('stopsWithinCorridor')
-            ->assertSee('airportDetails')
-            ->assertSee('transport-airport-transfer');
-
-        $this->get('/contact?intent=quote&service=relocation-import')
-            ->assertOk()
-            ->assertSee('documentationStatus')
-            ->assertSee('Default destination is our facility in Abuja');
+        Livewire::test('booking-request-wizard', [
+            'initialContext' => ['service' => 'local-transport'],
+        ])
+            ->set('step', 3)
+            ->assertSee('Pickup point')
+            ->assertSee('Drop-off point')
+            ->assertSee('Trip type');
     }
 
-    public function test_transport_route_context_is_carried_into_the_contact_engine(): void
+    public function test_old_transport_context_is_removed_from_contact(): void
     {
         $route = json_encode([
             'origin' => 'Maitama, Abuja',
@@ -53,9 +51,7 @@ class ContactPageTest extends TestCase
         ], JSON_THROW_ON_ERROR);
 
         $this->get('/contact?intent=transport&service=local-transport&transportRoute='.urlencode($route))
-            ->assertOk()
-            ->assertSee('transportRoute')
-            ->assertSee('Maitama, Abuja');
+            ->assertNotFound();
     }
 
     public function test_general_inquiry_keeps_optional_contact_fields_optional(): void
@@ -66,19 +62,13 @@ class ContactPageTest extends TestCase
             ->assertSee('WhatsApp number (optional)');
     }
 
-    public function test_pricing_payload_contains_reference_boarding_grooming_training_and_transport_rules(): void
+    public function test_contact_no_longer_serializes_booking_pricing_or_transport_rules(): void
     {
-        $response = $this->get('/contact?intent=service&service=training');
-
-        $response->assertOk()
-            ->assertSee('Basic Obedience')
-            ->assertSee('Puppy Foundation')
-            ->assertSee('Behaviour Modification');
-
-        $this->get('/contact?intent=transport&service=local-transport')
+        $this->get('/contact?intent=general')
             ->assertOk()
-            ->assertSee('pricingData')
-            ->assertSee('transportProduct');
+            ->assertDontSee('Basic Obedience')
+            ->assertDontSee('transportProduct')
+            ->assertDontSee('pricingData');
     }
 
     public function test_unknown_product_context_preserves_reference_empty_state(): void

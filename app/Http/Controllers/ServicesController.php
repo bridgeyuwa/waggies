@@ -735,10 +735,9 @@ final class ServicesController extends Controller
                     'cta' => [
                         'heading' => 'Enquire About Exotic Boarding',
                         'body' => 'Tell us your species, setup, and dates - we\'ll confirm availability and build a care plan before check-in.',
-                        'primaryLabel' => 'Get in Touch',
-                        'primaryRoute' => 'contact',
+                        'primaryLabel' => 'Start a boarding request',
+                        'primaryRoute' => 'book',
                         'primaryParams' => [
-                            'intent' => 'consult',
                             'service' => 'boarding',
                             'variant' => 'exotic',
                         ],

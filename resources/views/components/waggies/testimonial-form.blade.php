@@ -47,7 +47,7 @@
                         <div class="flex items-center gap-2">
                             <div class="flex items-center gap-1" role="radiogroup" aria-labelledby="testimonial-rating-label" aria-required="true" :aria-describedby="errors.rating ? 'testimonial-rating-error' : null">
                                 <template x-for="n in 5" :key="n">
-                                    <button type="button" @click="data.rating = n; clear('rating')" class="-m-1 rounded-full p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60" :aria-label="n + (n > 1 ? ' stars' : ' star')" :aria-checked="data.rating === n" role="radio">
+                                    <button type="button" @click="data.rating = n; clear('rating')" @keydown="ratingKeydown($event, n)" :tabindex="data.rating === n || (data.rating === 0 && n === 1) ? 0 : -1" :data-rating="n" class="-m-1 rounded-full p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60" :aria-label="n + (n > 1 ? ' stars' : ' star')" :aria-checked="data.rating === n" role="radio">
                                         <span :class="data.rating >= n ? 'text-gold' : 'text-primary-dark/20 hover:text-gold'"><x-waggies.icon name="star" size="30" variant="filled" /></span>
                                     </button>
                                 </template>

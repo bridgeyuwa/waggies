@@ -6,8 +6,9 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         @head($headStatus ?? null)
         @stack('head')
-        {{-- Livewire's bundled ESM export provides Alpine for the public bundle; this guard prevents its automatic Livewire boot. --}}
-        <script>window.livewireScriptConfig = window.livewireScriptConfig ?? {};</script>
+        @if($enableLivewire ?? false)
+            @livewireStyles
+        @endif
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="min-h-screen bg-surface text-primary-dark antialiased" data-contact-url="{{ route('contact') }}" data-contact-enquiry-url="{{ route('contact-enquiries.store') }}" data-search-url="{{ route('search') }}" data-assistant-url="{{ route('assistant.store') }}" data-assistant-stream-url="{{ route('assistant.stream') }}" data-boarding-url="{{ route('services.boarding') }}" data-grooming-url="{{ route('services.grooming') }}" data-pricing-url="{{ route('services.pricing') }}" data-vet-care-url="{{ route('services.vet-care') }}" data-training-url="{{ route('services.training') }}" data-relocation-hub="{{ route('services.relocation') }}" data-relocation-transport="{{ route('relocation.transport') }}">
@@ -25,17 +26,17 @@
         @endunless
         <x-waggies.mobile-bottom-nav />
 
-        <div id="global-search-dialog" x-data="waggiesSearch" x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-layer-search bg-primary-dark/40 p-4 sm:p-8" role="dialog" aria-modal="true" aria-labelledby="search-title" :aria-hidden="!open" @click.self="close()" @keydown="handleDialogKeydown($event)">
+        <div id="global-search-dialog" x-data="waggiesSearch" x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-layer-search bg-primary-dark/40 p-4 sm:p-8" role="dialog" aria-modal="true" aria-labelledby="search-title" :aria-hidden="!open" tabindex="-1" @click.self="close()" @keydown="handleDialogKeydown($event)">
             <div class="mx-auto mt-12 max-w-2xl overflow-hidden rounded-2xl border border-primary/10 bg-white shadow-2xl" @click.stop>
-                <div class="relative flex items-center gap-3 border-b border-surface-purple p-4"><x-waggies.icon name="search" size="20"/><label id="search-title" class="sr-only" for="global-search">Search query</label><input id="global-search" x-ref="input" x-model="query" @input.debounce.150ms="fetchResults()" aria-autocomplete="list" aria-controls="search-results-list" autocomplete="off" class="min-w-0 flex-1 border-0 text-lg focus:outline-none" placeholder="Search services, articles, products, FAQs…"><button type="button" @click="close()" aria-label="Close search" class="flex h-11 w-11 items-center justify-center rounded-full hover:bg-surface-purple"><x-waggies.icon name="close" size="20"/></button></div>
+                <div class="relative flex items-center gap-3 border-b border-surface-purple p-4"><x-waggies.icon name="search" size="20"/><label id="search-title" class="sr-only" for="global-search">Search query</label><input id="global-search" x-ref="input" x-model="query" role="combobox" :aria-expanded="!loading && Boolean(results.length)" aria-autocomplete="list" aria-controls="search-results-list" :aria-activedescendant="selectedResultId ? resultId(selectedResultId) : null" @keydown="handleSearchKeydown($event)" @input.debounce.150ms="fetchResults()" autocomplete="off" class="min-w-0 flex-1 border-0 text-lg focus:outline-none" placeholder="Search services, articles, products, FAQs…"><button type="button" @click="close()" aria-label="Close search" class="flex h-11 w-11 items-center justify-center rounded-full hover:bg-surface-purple"><x-waggies.icon name="close" size="20"/></button></div>
                 <div x-show="!query && !loading" class="p-4"><p class="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-primary-dark/50">Popular</p><div class="flex flex-wrap gap-2"><template x-for="term in ['Grooming', 'Vet Care', 'Boarding prices', 'Dog training', 'Pet relocation', 'Vaccination']" :key="term"><button type="button" class="rounded-xl bg-surface-purple px-3 py-2 text-sm font-medium text-primary-dark hover:bg-primary hover:text-white" x-text="term" @click="query = term; fetchResults()"></button></template></div></div>
                 <div x-show="loading" class="p-8 text-center text-sm text-primary-dark/60">Searching…</div>
-                <ul id="search-results-list" x-show="!loading && results.length" class="max-h-[60vh] space-y-1 overflow-y-auto p-2" role="listbox" aria-label="Search results"><template x-for="result in results" :key="result.id"><li role="option"><button type="button" class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left hover:bg-surface-purple" @click="navigate(result.href)"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary"><x-waggies.icon name="search" size="18"/></span><span class="min-w-0 flex-1"><span class="block truncate font-medium text-primary-dark" x-text="result.title"></span><span class="block line-clamp-1 text-sm text-primary-dark/60" x-text="result.description"></span></span><span class="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase text-primary" x-text="result.category"></span></button></li></template></ul>
+                <ul id="search-results-list" x-show="!loading && results.length" class="max-h-[60vh] space-y-1 overflow-y-auto p-2" role="listbox" aria-label="Search results"><template x-for="result in results" :key="result.key"><li :id="resultId(result.key)" role="option" :aria-selected="String(selectedResultId) === String(result.key)" class="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-left hover:bg-surface-purple" :class="String(selectedResultId) === String(result.key) ? 'bg-surface-purple' : ''" @mouseenter="selectedResultId = result.key" @click="navigate(result.href)"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary"><x-waggies.icon name="search" size="18"/></span><span class="min-w-0 flex-1"><span class="block truncate font-medium text-primary-dark" x-text="result.title"></span><span class="block line-clamp-1 text-sm text-primary-dark/60" x-text="result.description"></span></span><span class="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase text-primary" x-text="result.category"></span></li></template></ul>
                 <div x-show="query && !loading && !results.length" class="px-6 py-12 text-center"><div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-surface-purple"><x-waggies.icon name="search" size="24" class="text-primary-dark/60"/></div><p class="font-medium text-primary-dark">No results for “<span x-text="query"></span>”</p><p class="mt-1 text-sm text-primary-dark/60">Try a different keyword, or jump to a popular page.</p></div>
             </div>
         </div>
 
-        <div id="global-cart-dialog" x-data="waggiesCart" x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-layer-cart bg-primary-dark/40" role="dialog" aria-modal="true" aria-labelledby="cart-title" :aria-hidden="!open" @click.self="close()" @keydown="handleDialogKeydown($event)">
+        <div id="global-cart-dialog" x-data="waggiesCart" x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-layer-cart bg-primary-dark/40" role="dialog" aria-modal="true" aria-labelledby="cart-title" :aria-hidden="!open" tabindex="-1" @click.self="close()" @keydown="handleDialogKeydown($event)">
             <aside class="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-2xl">
                 <div class="border-b border-primary/5 px-6 pb-4 pt-6">
                     <div class="flex items-center justify-between"><h2 id="cart-title" class="font-serif text-xl font-bold text-primary-dark">Saved for enquiry</h2><button type="button" x-ref="closeButton" @click="close()" aria-label="Close saved list" class="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-surface-purple"><x-waggies.icon name="close" size="20"/></button></div>
@@ -77,6 +78,9 @@
         </div>
 
         <div x-data="waggiesToasts" class="fixed right-4 top-20 z-layer-toast space-y-2" aria-live="polite"><template x-for="toast in items" :key="toast.id"><div class="rounded-xl bg-primary-dark px-4 py-3 text-sm text-white shadow-lg" x-text="toast.message"></div></template></div>
+        @if($enableLivewire ?? false)
+            @livewireScriptConfig
+        @endif
         @stack('scripts')
     </body>
 </html>
