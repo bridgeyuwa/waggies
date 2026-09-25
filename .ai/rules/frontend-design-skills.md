@@ -330,3 +330,9 @@ Expose SEO title and description as copy controls, indexability as the indexing 
 
 ## Use Headless UI-inspired interaction standards
 Treat Headless UI as the behavioral and accessibility reference, not a React/Vue dependency. In Blade + Alpine components, use native controls with correct ARIA roles, stable IDs, state relationships, keyboard behavior, visible focus, Escape/outside-click handling, and focus restoration where the pattern requires it. Prefer reusable Alpine.data factories and focused DOM helpers over duplicated inline handlers; verify keyboard, focus-visible, disabled, reduced-motion, and responsive states.
+
+## Follow Headless UI component contracts
+Model interactive Blade components on Headless UI behavior for Disclosure, Dialog, Menu, Popover, Tabs, Listbox, Combobox, Radio Group, Switch, Checkbox, and Transition. Define each pattern's native element or ARIA roles, stable IDs, keyboard commands, disabled/selected states, focus movement and restoration, Escape/outside-click behavior, and panel relationships before styling. Prefer native Input, Textarea, Select, and Fieldset controls whenever they provide the required behavior.
+
+## Verify interactive components as behavior contracts
+Verify every interactive component with pointer and keyboard input, Enter/Space, applicable Arrow/Home/End/Page keys, Escape, Tab/Shift+Tab, focus-visible styling, focus restoration, disabled/loading/error states, outside click, reduced motion, nested overlays, responsive reflow, and screen-reader relationships. Do not consider a component complete because its visual state changes.

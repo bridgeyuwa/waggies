@@ -51,3 +51,6 @@ Menu/flyout transitions should be brief and explanatory. Respect reduced-motion 
 
 ## Make auto-rotating content deterministic and interruptible
 Auto-rotating content must use one deterministic timer, pause while hovered or focused, never advance during a transition, and expose manual accessible controls. Keep target/selected state separate from displayed content until the transition completes; use transform/opacity transitions under 300ms, respect prefers-reduced-motion, and clean up timers when components are destroyed.
+
+## Use Alpine UI patterns for reusable interaction behavior
+Implement interaction contracts with reusable Alpine.data factories and focused helpers. Prefer x-id, x-ref, $nextTick, x-cloak, x-show/x-transition, and x-teleport where appropriate; use x-trap/$focus only when the Alpine Focus plugin is explicitly installed. Use Alpine UI's public component patterns for dropdowns, modals, accordions, carousels, tabs, notifications, radio groups, toggles, and tooltips as references, without adding React/Vue Headless UI or copying paid source without a valid license.

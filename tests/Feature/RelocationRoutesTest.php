@@ -68,4 +68,12 @@ class RelocationRoutesTest extends TestCase
 
         $this->assertSame($locations, array_values(array_unique($locations)));
     }
+
+    public function test_relocation_hub_secondary_actions_open_the_checklist(): void
+    {
+        $this->get(route('services.relocation'))
+            ->assertOk()
+            ->assertSeeText('Open Relocation Checklist')
+            ->assertSee('href="'.route('relocation.checklist').'"', false);
+    }
 }

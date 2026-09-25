@@ -18,6 +18,12 @@ it('renders accessible testimonial controls with required field contracts', func
         ->assertSee('name="consent"', false);
 });
 
+it('keeps the home testimonial panel labelled by the testimonial that is currently displayed', function (): void {
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertSee(":aria-labelledby=\"'testimonial-tab-' + displayed\"", false);
+});
+
 it('rejects testimonial submissions that trip the honeypot', function (): void {
     $payload = [
         'website' => 'https://spam.example.test',

@@ -94,6 +94,7 @@
                     <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wider text-primary-dark/40">Select Client
                         Story</p>
                     <div role="tablist" aria-orientation="vertical" aria-label="Select client story"
+                        class="flex flex-col gap-3"
                         @keydown="tabKeydown($event)">
                         @foreach ($homeTestimonials as $index => $testimonial)
                         <button id="testimonial-tab-{{ $index }}" data-testimonial-index="{{ $index }}" x-cloak
@@ -145,8 +146,8 @@
                         <x-waggies.icon name="quotes" size="140"
                             class="pointer-events-none absolute -bottom-6 -right-6 text-primary/5" />
                         <div id="testimonial-panel" role="tabpanel" aria-live="polite"
-                            :aria-labelledby="'testimonial-tab-' + active" data-testimonial-content
-                            class="relative z-10 transition-[opacity,transform] duration-[280ms] ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-opacity motion-reduce:duration-180 motion-reduce:transform-none"
+                            :aria-labelledby="'testimonial-tab-' + displayed" data-testimonial-content
+                            class="relative z-10 min-w-0 transition-[opacity,translate] duration-[280ms] ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-opacity motion-reduce:duration-180 motion-reduce:translate-y-0"
                             :class="transitioning ? 'translate-y-1 opacity-0' : 'translate-y-0 opacity-100'">
                             <div class="mb-6 flex flex-wrap items-center justify-between gap-4"><span
                                     class="rounded-full bg-surface-purple px-3 py-1 text-xs font-semibold tracking-wide text-primary"
@@ -157,7 +158,7 @@
                             </div>
                             <div class="min-h-[16rem] sm:min-h-[15rem] lg:min-h-[13rem]">
                                 <blockquote
-                                    class="mb-8 font-serif text-xl font-medium leading-relaxed text-primary-dark sm:text-2xl md:text-3xl"
+                                    class="mb-8 break-words font-serif text-xl font-medium leading-relaxed text-primary-dark sm:text-2xl md:text-3xl"
                                     x-text="'“' + testimonials[displayed].quote + '”'"></blockquote>
                                 <footer class="flex items-center gap-4 border-t border-primary/5 pt-4"><span
                                         class="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary font-serif text-lg font-bold text-white shadow-sm"
