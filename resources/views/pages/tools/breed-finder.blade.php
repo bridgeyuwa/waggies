@@ -6,7 +6,7 @@
     <section class="bg-surface pb-20 md:pb-28">
         <div x-data="breedFinder(@js($breeds))" class="mx-auto max-w-6xl px-4 md:px-10">
             <div class="space-y-6">
-                <div class="space-y-5 rounded-2xl border border-primary/10 bg-white p-5 sm:p-6">
+                <div class="w-card space-y-5 p-5 sm:p-6">
                     <fieldset>
                         <legend class="mb-2 block text-sm font-semibold text-primary-dark">Species</legend>
                         <div class="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Species">
@@ -41,14 +41,14 @@
 
                 <p class="text-xs text-primary-dark/50" aria-live="polite">Showing <span class="font-semibold text-primary-dark/70" x-text="filteredBreeds().length"></span> of <span class="font-semibold text-primary-dark/70" x-text="speciesTotal()"></span> <span x-text="species === 'dog' ? 'dog' : 'cat'"></span> breed<span x-show="speciesTotal() !== 1">s</span></p>
 
-                <div x-show="filteredBreeds().length === 0" x-cloak class="rounded-2xl border border-primary/10 bg-white py-12 text-center">
+                <div x-show="filteredBreeds().length === 0" x-cloak class="w-card py-12 text-center">
                     <x-waggies.icon name="pets" size="32" class="mx-auto mb-3 text-primary-dark/20" />
                     <p class="text-sm text-primary-dark/60">No breeds match your filters. Try adjusting your search criteria.</p>
                 </div>
 
                 <div x-show="filteredBreeds().length > 0" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <template x-for="breed in filteredBreeds()" :key="breed.id">
-                        <article class="flex flex-col gap-3 rounded-2xl border border-primary/10 bg-white p-5">
+                        <article class="w-card flex flex-col gap-3 p-5">
                             <header>
                                 <h3 class="font-serif text-base font-bold text-primary-dark sm:text-lg" x-text="breed.name"></h3>
                                 <div class="mt-2 flex flex-wrap gap-1.5">

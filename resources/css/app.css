@@ -32,7 +32,9 @@
     /* Brand */
     --color-waggies-primary: oklch(0.432 0.162 309.9);
     /* #6B2C91 – AA with white */
-    --color-waggies-primary-light: oklch(0.489 0.145 305);
+    --color-waggies-primary-light: oklch(0.515 0.17 305);
+    /* Brighter brand role for small accents and selected states. */
+    --color-waggies-primary-bright: oklch(0.54 0.18 306);
     --color-waggies-primary-dark: oklch(0.196 0.108 310);
 
     --color-waggies-secondary: oklch(0.849 0.037 80);
@@ -40,16 +42,18 @@
     --color-waggies-secondary-hover: oklch(0.64 0.04 80);
 
     /* Surfaces */
-    --color-waggies-surface: oklch(0.985 0.005 90);
-    /* cream page */
-    --color-waggies-surface-purple: oklch(0.955 0.018 305);
-    /* brand tint (kept for existing use) */
-    --color-waggies-surface-subtle: oklch(0.95 0.012 80);
-    /* quiet neutral */
+    --color-waggies-surface: oklch(0.978 0.009 85);
+    /* Warm cream canvas: richer than white, still quiet enough for reading. */
+    --color-waggies-surface-purple: oklch(0.95 0.026 305);
+    /* Brand tint with enough chroma to read as intentional, not grey. */
+    --color-waggies-surface-subtle: oklch(0.95 0.018 82);
+    /* Warm quiet surface for grouped content. */
     --color-waggies-surface-hover: var(--color-waggies-surface-purple);
     /* Keep hover ownership explicit while preserving the current brand tint. */
     --color-waggies-surface-raised: oklch(1 0 0);
-    --color-waggies-beige-soft: oklch(0.94 0.028 82);
+    --color-waggies-beige-soft: oklch(0.935 0.04 82);
+    /* Warm accent role for highlights and CTA detail; keep body text purple. */
+    --color-waggies-accent-warm: oklch(0.78 0.09 82);
     --color-waggies-on-brand: oklch(1 0 0);
 
     /* Reading palette – solid, warm, background-independent */
@@ -141,8 +145,9 @@
     /* Interaction timing – shared by cards, controls, and CTA groups. */
     --duration-card: 180ms;
     --duration-control: 200ms;
+    --duration-press: 140ms;
     --ease-waggies-out: cubic-bezier(0.23, 1, 0.32, 1);
-    --ease-waggies-standard: cubic-bezier(0.2, 0, 0, 1);
+    --ease-waggies-standard: var(--ease-waggies-out);
     --motion-card-lift: -0.1875rem;
     --motion-card-press: 0.0625rem;
 
@@ -158,6 +163,7 @@
     /* Application semantic aliases – preserved exactly */
     --color-primary: var(--color-waggies-primary);
     --color-primary-light: var(--color-waggies-primary-light);
+    --color-primary-bright: var(--color-waggies-primary-bright);
     --color-primary-dark: var(--color-waggies-primary-dark);
 
     --color-secondary: var(--color-waggies-secondary);
@@ -171,6 +177,7 @@
     --color-surface-muted: var(--color-waggies-surface-subtle);
     --color-surface-elevated: var(--color-waggies-surface-raised);
     --color-beige-soft: var(--color-waggies-beige-soft);
+    --color-accent-warm: var(--color-waggies-accent-warm);
 
     /* Solid text – WCAG safe */
     --color-text: var(--color-waggies-ink);
@@ -529,27 +536,49 @@
     .w-card {
         background-color: var(--color-surface-raised);
         border-radius: var(--radius-card);
-        box-shadow: inset 0 0 0 1px oklch(0.196 0.108 310 / 0.08), var(--shadow-card);
+        box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-waggies-shadow) 8%, transparent),
+            var(--shadow-card);
     }
 
-    .w-card-hover {
-        transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1),
-            box-shadow 180ms cubic-bezier(0.23, 1, 0.32, 1),
-            border-color 180ms cubic-bezier(0.23, 1, 0.32, 1);
+    .w-card-media {
+        transition: transform var(--duration-card) var(--ease-waggies-out);
     }
 
-    .w-card-hover:active {
-        transform: translateY(1px) scale(0.99);
-    }
+    @media (hover: hover) and (pointer: fine) {
+        .w-card-hover:hover .w-card-media--soft {
+            transform: scale(1.02);
+        }
 
-    @media (hover: hover) {
-        .w-card-hover:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-soft);
+        .w-card-hover:hover .w-card-media--zoom {
+            transform: scale(1.04);
         }
     }
 
-    .w-card-hover:focus-visible {
+    .w-card-hover {
+        transition: transform var(--duration-card) var(--ease-waggies-out),
+            box-shadow var(--duration-card) var(--ease-waggies-out),
+            border-color var(--duration-card) var(--ease-waggies-out);
+    }
+
+    .w-card-hover:active {
+        transform: translateY(var(--motion-card-press)) scale(0.99);
+    }
+
+    .w-card-hover:focus-within {
+        box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-primary) 16%, transparent),
+            var(--shadow-card-hover);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .w-card-hover:hover {
+            transform: translateY(var(--motion-card-lift));
+            box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-primary) 16%, transparent),
+                var(--shadow-card-hover);
+        }
+    }
+
+    .w-card-hover:focus-visible,
+    .w-cta-link:focus-visible {
         outline: var(--focus-ring-width) solid var(--color-focus);
         outline-offset: var(--focus-ring-offset);
     }
@@ -1040,8 +1069,16 @@
         font-weight: 700;
         line-height: 1.5;
         white-space: nowrap;
-        transition: background-color 200ms ease, border-color 200ms ease,
-            color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+        transition: background-color var(--duration-control) var(--ease-waggies-standard),
+            border-color var(--duration-control) var(--ease-waggies-standard),
+            color var(--duration-control) var(--ease-waggies-standard),
+            box-shadow var(--duration-control) var(--ease-waggies-standard),
+            transform var(--duration-press) var(--ease-waggies-standard);
+    }
+
+    .w-cta-link {
+        transition-duration: var(--duration-control);
+        transition-timing-function: var(--ease-waggies-standard);
     }
 
     .w-cta--sm {
@@ -1064,7 +1101,7 @@
 
     .w-cta--primary {
         background-color: var(--color-primary);
-        color: #fff;
+        color: var(--color-waggies-on-brand);
         box-shadow: var(--shadow-subtle);
     }
 
@@ -1075,14 +1112,14 @@
 
     .w-cta--secondary {
         border: 1px solid color-mix(in oklab, var(--color-primary) 30%, transparent);
-        background-color: color-mix(in oklab, #fff 60%, transparent);
+        background-color: color-mix(in oklab, var(--color-surface-raised) 60%, transparent);
         color: var(--color-primary-dark);
         font-weight: 600;
     }
 
     .w-cta--secondary:hover {
         border-color: color-mix(in oklab, var(--color-primary) 50%, transparent);
-        background-color: #fff;
+        background-color: var(--color-surface-raised);
     }
 
     .mobile-nav-link,
@@ -1190,6 +1227,7 @@
         .navigation-progress { transition: none; }
         .navigation-progress.is-loading::after { animation: none; }
     }
+
     .print-only {
         display: none;
     }
@@ -1270,45 +1308,35 @@ summary {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    /*
-     * Reduced motion is intentionally semantic rather than a blanket
-     * near-zero duration override. Global timing overrides can interrupt
-     * modal/drawer sequencing and make state changes harder to understand;
-     * Framer Motion components opt into their own reduced-motion branches.
-     */
+    /* Keep state feedback while removing spatial movement and continuous loops. */
     html {
         scroll-behavior: auto !important;
     }
 
-    /* Native disclosure content should be present immediately, without the
-     * spatial reveal. The open state and keyboard interaction remain native. */
     details[open] summary~* {
         animation: none !important;
     }
 
-    /* These utilities are continuous/decorative or loading loops. A static
-     * indicator remains visible and does not delay or hide the underlying UI. */
     .animate-spin,
     .animate-ping,
-    .animate-pulse,
-    .animate-bounce {
+    .animate-pulse {
         animation: none !important;
     }
 
-    /* The skip link is focus feedback, not spatial decoration. */
-    .skip-link {
-        transition: none !important;
-    }
-
+    .skip-link,
     .waggies-select-options[data-state="open"] {
+        transition: none !important;
         animation: none !important;
     }
 
     .w-card-hover,
     .w-card-hover:hover,
-    .w-card-hover:active {
+    .w-card-hover:active,
+    .w-card-hover:focus-within,
+    .w-card-media,
+    .w-cta,
+    .w-cta:active {
         transform: none !important;
-        transition: none !important;
     }
 
     @media (hover: hover) and (pointer: fine) {

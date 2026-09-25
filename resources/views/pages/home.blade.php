@@ -22,10 +22,10 @@
                 @foreach ($homeServiceCards as $index => $card)
                     @php($starts = ['lg:col-start-1', 'lg:col-start-3', 'lg:col-start-5', 'lg:col-start-2', 'lg:col-start-4'])
                     <a href="{{ route($card['route'], $card['params'] ?? []) }}"
-                        class="group block h-full overflow-hidden rounded-2xl bg-white shadow-[inset_0_0_0_1px_oklch(0.196_0.108_310/0.08),0_1px_3px_oklch(0.196_0.108_310/0.05)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[inset_0_0_0_1px_oklch(0.332_0.155_305/0.16),0_16px_40px_-12px_oklch(0.196_0.108_310/0.18)] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:col-span-1 lg:col-span-2 {{ $starts[$index] }} {{ $index === 4 ? 'md:col-span-2 md:mx-auto md:max-w-md' : '' }}">
+                        class="w-card w-card-hover group block h-full overflow-hidden p-0 md:col-span-1 lg:col-span-2 {{ $starts[$index] }} {{ $index === 4 ? 'md:col-span-2 md:mx-auto md:max-w-md' : '' }}">
                         <div class="relative aspect-3/2 overflow-hidden"><img src="{{ $card['imageSrc'] }}"
                                 alt="{{ $card['title'] }}" loading="lazy"
-                                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]">
+                                class="w-card-media w-card-media--zoom h-full w-full object-cover motion-reduce:transform-none">
                         </div>
                         <div class="p-6">
                             <div class="mb-2 flex items-center gap-2.5"><x-waggies.icon name="{{ $card['icon'] }}"
@@ -182,19 +182,11 @@
 
     <section class="section-pad bg-surface">
         <div class="page-container">
+            @php($homeBookingCta = ['heading' => 'Ready to', 'headingAccent' => 'book?', 'body' => 'Get in touch to request a visit, ask questions, or make a booking request for your pet.', 'primaryLabel' => 'Contact Us', 'primaryRoute' => 'contact', 'secondaryLabel' => 'See Pricing', 'secondaryRoute' => 'services.pricing'])
             <div
-                class="relative overflow-hidden rounded-3xl bg-primary-dark px-8 py-16 text-center md:px-16 md:py-20">
+                class="relative overflow-hidden rounded-3xl bg-primary-dark px-8 py-16 md:px-16 md:py-20">
                 <div class="pointer-events-none absolute inset-x-8 top-0 h-px bg-secondary/60 md:inset-x-16"></div>
-                <h2 class="mb-4 font-serif text-3xl font-bold text-white md:text-[2.75rem] md:leading-[1.1]">Ready to <span
-                        class="italic text-secondary">book?</span></h2>
-                <p class="mx-auto mb-9 max-w-md text-white/65">Get in touch to request a visit, ask questions, or make a
-                    booking request for your pet.</p>
-                <div class="flex flex-wrap justify-center gap-3"><x-waggies.button href="{{ route('contact') }}"
-                        class="bg-secondary! text-primary-dark! hover:bg-secondary-hover!">Contact Us <x-waggies.icon
-                            name="arrow-forward" size="18" /></x-waggies.button><x-waggies.button
-                        href="{{ route('services.pricing') }}" variant="secondary"
-                        class="border-white/30 bg-transparent text-white hover:bg-white/10">See Pricing</x-waggies.button>
-                </div>
+                <x-waggies.cta-centered :cta="$homeBookingCta" />
             </div>
         </div>
     </section>

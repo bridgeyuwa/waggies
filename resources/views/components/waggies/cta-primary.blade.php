@@ -1,7 +1,10 @@
 @props(['cta'])
 
 @php($headingAccent = $cta['headingAccent'] ?? 'Care They Deserve')
-@php($primaryDestination = !empty($cta['primaryRoute']) ? route($cta['primaryRoute'], $cta['primaryParams'] ?? []) : url($cta['primaryHref']))
+@php($resolveHref = static fn (?string $href): ?string => !empty($href) ? (preg_match('/^[a-z][a-z0-9+.-]*:/i', $href) === 1 || str_starts_with($href, '/') ? $href : url($href)) : null)
+@php($primaryDestination = !empty($cta['primaryRoute']) ? route($cta['primaryRoute'], $cta['primaryParams'] ?? []) : $resolveHref($cta['primaryHref'] ?? null))
+@php($primaryIcon = $cta['primaryIcon'] ?? 'arrow-forward')
+@php($secondaryDestination = !empty($cta['secondaryRoute']) ? route($cta['secondaryRoute'], $cta['secondaryParams'] ?? []) : $resolveHref($cta['secondaryHref'] ?? null))
 
 <div class="w-full rounded-2xl bg-primary-dark">
     <div class="page-container py-12 md:py-16"><div class="mx-auto flex max-w-5xl flex-col items-center gap-10 md:flex-row md:items-center md:justify-between">
@@ -10,6 +13,6 @@
             <h2 class="font-serif text-3xl font-bold leading-tight text-white md:text-4xl">{{ $cta['heading'] }}@if($headingAccent)<br /><span class="text-secondary italic">{{ $headingAccent }}</span>@endif</h2>
             <p class="max-w-sm text-base leading-relaxed text-white/65 md:max-w-md">{{ $cta['body'] }}</p>
         </div>
-        <div class="flex flex-wrap justify-center gap-3 md:items-center md:justify-end"><x-waggies.button href="{{ $primaryDestination }}" class="bg-secondary! text-primary-dark! hover:bg-secondary-hover!">{{ $cta['primaryLabel'] }} <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>@if(!empty($cta['secondaryLabel']) && (!empty($cta['secondaryRoute']) || !empty($cta['secondaryHref'])))<x-waggies.button href="{{ !empty($cta['secondaryRoute']) ? route($cta['secondaryRoute'], $cta['secondaryParams'] ?? []) : url($cta['secondaryHref']) }}" variant="outline" class="border-white/30 bg-transparent text-white hover:bg-white/10">{{ $cta['secondaryLabel'] }}</x-waggies.button>@endif</div>
+        <div class="flex flex-wrap justify-center gap-3 md:items-center md:justify-end"><x-waggies.button href="{{ $primaryDestination }}" class="bg-secondary! text-primary-dark! hover:bg-secondary-hover!">{{ $cta['primaryLabel'] }} <x-waggies.icon name="{{ $primaryIcon }}" size="16" /></x-waggies.button>@if(!empty($cta['secondaryLabel']) && $secondaryDestination)<x-waggies.button href="{{ $secondaryDestination }}" variant="outline" class="border-white/30 bg-transparent text-white hover:bg-white/10">@if(!empty($cta['secondaryIcon']))<x-waggies.icon name="{{ $cta['secondaryIcon'] }}" size="16" />@endif{{ $cta['secondaryLabel'] }}</x-waggies.button>@endif</div>
     </div></div>
 </div>

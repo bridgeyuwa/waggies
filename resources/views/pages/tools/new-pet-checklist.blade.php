@@ -13,7 +13,7 @@
                 <p class="mt-1 text-sm text-primary-dark/65">A practical preparation and settling-in checklist for a new companion.</p>
             </header>
 
-            <div class="rounded-2xl border border-primary/10 bg-white p-5 sm:p-6">
+            <div class="w-card p-5 sm:p-6">
                 <div class="mb-3 flex items-center justify-between">
                     <h3 class="font-serif text-base font-bold text-primary-dark">Your Progress</h3>
                     <span class="text-sm font-semibold text-primary"><span x-text="completed()"></span> of <span x-text="total()"></span> completed</span>
@@ -26,7 +26,7 @@
             </div>
 
             @foreach($checklist as $category)
-                <div class="mt-8 rounded-2xl border border-primary/10 bg-white p-5 sm:p-6 print-break-inside-avoid" data-print-break>
+                <div class="w-card mt-8 p-5 sm:p-6 print-break-inside-avoid" data-print-break>
                     <div class="mb-4 flex items-center gap-3">
                         @php
                             $categoryIcon = str_contains($category['title'], 'Home') ? 'home' : (str_contains($category['title'], 'Week') ? 'pets' : (str_contains($category['title'], 'Health') ? 'veterinary-care' : (str_contains($category['title'], 'Training') ? 'training' : 'supplies')));

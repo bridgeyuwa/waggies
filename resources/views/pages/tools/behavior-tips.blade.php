@@ -20,13 +20,13 @@
             </div>
 
             <p class="mt-6 text-sm text-primary-dark/60" role="status">Showing <span x-text="filteredTips().length"></span> <span x-text="species"></span> tips. This is general educational guidance; sudden or concerning changes should be discussed with a veterinarian.</p>
-            <div x-show="filteredTips().length === 0" x-cloak class="mt-6 rounded-2xl border border-dashed border-primary/25 bg-white p-8 text-center">
+            <div x-show="filteredTips().length === 0" x-cloak class="w-card mt-6 border-dashed border-primary/25 p-8 text-center">
                 <p class="font-serif text-xl font-semibold text-primary-dark">No tips match that search.</p>
                 <p class="mt-2 text-sm text-primary-dark/60">Try a broader term or clear the search.</p>
             </div>
             <div x-show="filteredTips().length > 0" class="mt-6 space-y-5">
                 <template x-for="tip in filteredTips()" :key="tip.stableId">
-                    <article class="rounded-2xl border border-primary/10 bg-white p-5 sm:p-6">
+                    <article class="w-card p-5 sm:p-6">
                         <div class="flex items-start justify-between gap-4">
                             <div><p class="text-xs font-semibold uppercase tracking-[0.12em] text-primary/55" x-text="tip.category"></p><h2 class="mt-1 font-serif text-xl font-bold text-primary-dark" x-text="tip.title"></h2></div>
                             <span x-show="tip.escalate" role="img" aria-label="Professional guidance may be needed" class="shrink-0 text-amber-700"><x-waggies.icon name="warning" size="21" /></span>

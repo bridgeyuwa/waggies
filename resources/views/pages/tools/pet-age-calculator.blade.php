@@ -5,7 +5,7 @@
     <section class="bg-surface pb-20 md:pb-28">
         <div x-data="petAgeCalculator" class="mx-auto max-w-2xl px-4 md:px-10">
             <div class="flex flex-col gap-8">
-                <div class="rounded-2xl border border-primary/10 bg-white p-6">
+                <div class="w-card p-6">
                     <h3 class="mb-5 font-serif text-lg font-bold text-primary-dark">Pet Type</h3>
                     <div class="grid grid-cols-2 gap-3">
                         <button type="button" @click="changePetType('dog')" :aria-pressed="petType === 'dog'" class="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border-2 p-4 font-semibold transition-colors" :class="petType === 'dog' ? 'border-primary bg-surface-purple text-primary' : 'border-primary/10 bg-white text-primary-dark/60 hover:border-primary/30'"><x-waggies.icon name="pets" size="24" />Dog</button>
@@ -13,7 +13,7 @@
                     </div>
                 </div>
 
-                <div x-show="petType === 'dog'" class="rounded-2xl border border-primary/10 bg-white p-6">
+                <div x-show="petType === 'dog'" class="w-card p-6">
                     <h3 class="mb-1 font-serif text-lg font-bold text-primary-dark">Dog Size</h3>
                     <p class="mb-5 text-xs text-primary-dark/50">Size affects aging rate and lifespan. These categories are Waggies product-level definitions, not universal veterinary standards.</p>
                     <div class="grid grid-cols-2 gap-3">
@@ -23,7 +23,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-2xl border border-primary/10 bg-white p-6">
+                <div class="w-card p-6">
                     <h3 class="mb-5 font-serif text-lg font-bold text-primary-dark">Your Pet&rsquo;s Age</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <label class="block"><span class="mb-2 block text-sm font-medium text-primary-dark/80">Years</span><select x-model.number="years" id="pet-age-years" class="min-h-[44px] w-full rounded-md border border-primary/20 bg-white px-4 py-3 text-sm font-medium text-primary-dark focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/40"><template x-for="year in yearsOptions()" :key="year"><option :value="year" x-text="year"></option></template></select></label>
@@ -31,7 +31,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-2xl border-2 border-primary/20 bg-white p-8 text-center">
+                <div class="w-card border-2 border-primary/20 p-8 text-center">
                     <div x-show="isDefault()" class="py-6">
                         <div class="mb-4 flex justify-center"><x-waggies.icon name="pets" size="36" class="text-primary/40" /></div>
                         <p class="mb-2 font-serif text-xl font-bold text-primary-dark/60">Enter your pet&apos;s age to see an estimated human-equivalent.</p>

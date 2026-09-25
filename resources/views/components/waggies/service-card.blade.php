@@ -2,7 +2,7 @@
 <article {{ $attributes }}>
     <x-waggies.card hover class="group flex h-full flex-col overflow-hidden border border-primary/5 p-0">
         <div class="relative aspect-3/2 overflow-hidden">
-            <div class="absolute inset-0 transition-transform duration-200 ease-out group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:transform-none">
+            <div class="w-card-media w-card-media--soft absolute inset-0 motion-reduce:transform-none">
                 <x-waggies.image src="{{ $card['imageSrc'] }}" alt="{{ $card['imageAlt'] ?? $card['title'] }}" class="h-full w-full object-cover" />
             </div>
         </div>

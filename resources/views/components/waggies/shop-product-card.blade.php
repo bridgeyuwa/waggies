@@ -13,7 +13,7 @@
     <x-waggies.card hover class="group flex h-full flex-col overflow-hidden border border-primary/5 p-0">
         <a href="{{ route('shop.show', ['product' => $product['id']]) }}" class="flex flex-1 flex-col">
             <div class="relative aspect-square overflow-hidden bg-surface">
-                <x-waggies.image src="{{ $product['image'] }}" alt="{{ $product['alt'] }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025] motion-reduce:transition-none motion-reduce:transform-none" />
+                <x-waggies.image src="{{ $product['image'] }}" alt="{{ $product['alt'] }}" class="w-card-media w-card-media--soft h-full w-full object-cover motion-reduce:transform-none" />
                 @if($product['badge'])
                     <span class="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-white">{{ $product['badge'] }}</span>
                 @endif

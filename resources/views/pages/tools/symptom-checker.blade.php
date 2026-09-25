@@ -7,7 +7,7 @@
     <section class="bg-surface pb-20 md:pb-28">
         <div x-data="symptomChecker(@js($symptomChecker))" class="mx-auto max-w-3xl px-4 md:px-10">
             <div class="flex flex-col gap-8">
-                <div class="rounded-2xl border border-primary/10 bg-white p-6">
+                <div class="w-card p-6">
                     <div class="mb-5 flex items-center gap-3">
                         <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">1</span>
                         <h3 class="font-serif text-lg font-bold text-primary-dark">Select your pet type</h3>
@@ -22,7 +22,7 @@
                     </div>
                 </div>
 
-                <div x-show="petType" x-cloak class="rounded-2xl border border-primary/10 bg-white p-6">
+                <div x-show="petType" x-cloak class="w-card p-6">
                     <div class="mb-5 flex items-center gap-3">
                         <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">2</span>
                         <h3 class="font-serif text-lg font-bold text-primary-dark">Select the body area</h3>
@@ -37,7 +37,7 @@
                     </div>
                 </div>
 
-                <div x-show="selectedArea" x-cloak class="rounded-2xl border border-primary/10 bg-white p-6">
+                <div x-show="selectedArea" x-cloak class="w-card p-6">
                     <div class="mb-5 flex items-center gap-3">
                         <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">3</span>
                         <h3 class="font-serif text-lg font-bold text-primary-dark">Select the signs you notice</h3>

@@ -7,7 +7,7 @@
 
 <section x-data="waggiesShopIndex(@js($activeCategory), @js($categories))" class="bg-surface pb-20 md:pb-28">
     <div class="page-container">
-        <form method="get" class="mb-8 grid grid-cols-1 gap-3 rounded-2xl border border-primary/10 bg-white p-4 sm:grid-cols-[1fr_auto]">
+        <form method="get" class="w-card mb-8 grid grid-cols-1 gap-3 p-4 sm:grid-cols-[1fr_auto]">
             <label class="sr-only" for="shop-search">Search products</label>
             <input id="shop-search" name="q" value="{{ $search }}" placeholder="Search products, categories or features" class="contact-input mt-0!">
             <div class="flex gap-3">

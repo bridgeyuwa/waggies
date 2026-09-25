@@ -7,7 +7,7 @@
 <section id="pricing-calculator" x-data="pricingCalculator(@js($pricing), @js($resolved), @js(route('contact')), @js(route('book')))" class="scroll-mt-24 bg-surface-purple py-16">
     <div class="mx-auto max-w-5xl px-4 md:px-10 lg:px-12">
         <x-waggies.section-heading eyebrow="Pricing Tool" title="Get Your Estimate" subtitle="Select your service and package - we'll show a clear price or quote range and next steps." />
-        <div x-show="step === 'form'" x-transition class="mt-10 rounded-2xl border border-surface-purple bg-white p-6 shadow-soft md:p-8">
+        <x-waggies.card x-show="step === 'form'" x-transition class="mt-10 p-6 md:p-8">
             <div class="flex flex-col gap-5">
                 <template x-if="!locked"><label for="pricing-service" class="text-sm font-semibold text-primary-dark">Service<select id="pricing-service" x-model="service" @change="variant=''; tier=''" class="contact-input mt-2! rounded-xl! font-normal!"><option value="">Choose a service…</option><template x-for="(item,key) in services" :key="key"><option :value="key" x-text="item.label"></option></template></select></label></template>
                 <template x-if="locked && current"><div><p class="text-sm font-semibold text-primary-dark/60">Service</p><p class="text-lg font-bold" x-text="current.label"></p></div></template>
@@ -17,10 +17,10 @@
                 <template x-if="current && current.quantity_label"><label for="pricing-quantity" class="text-sm font-semibold"><span x-text="current.quantity_label"></span><input id="pricing-quantity" x-model.number="quantity" type="number" min="1" max="30" class="contact-input mt-2! rounded-xl! font-normal!"></label></template>
                 <x-waggies.button type="button" @click="calculate()" ::disabled="!canCalculate" class="w-full justify-center sm:w-auto" x-text="actionLabel"></x-waggies.button>
             </div>
-        </div>
-        <div x-show="step === 'result'" x-transition class="mt-10 overflow-hidden rounded-2xl border-2 border-primary bg-white shadow-soft">
+        </x-waggies.card>
+        <x-waggies.card x-show="step === 'result'" x-transition class="mt-10 overflow-hidden border-2 border-primary">
             <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr]"><div class="border-b border-surface-purple p-6 md:p-8 lg:border-b-0 lg:border-r"><p class="mb-2 text-xs font-bold uppercase tracking-widest text-primary/60">Your estimate</p><p class="text-sm text-primary-dark/60" x-text="result.service"></p><p class="mb-6 text-sm text-primary-dark/50" x-text="result.tier"></p><h3 class="mb-4 flex items-center gap-2 font-serif text-lg font-bold"><x-waggies.icon name="checklist" size="20" class="text-primary" />What's included</h3><ul class="space-y-2.5"><template x-for="(feature,index) in result.features" :key="index"><li class="flex items-start gap-2.5 text-sm"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success/15 text-success"><x-waggies.icon name="check" size="14" /></span><span x-text="typeof feature === 'string' ? feature : feature.label"></span></li></template></ul><button type="button" @click="reset()" class="mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"><x-waggies.icon name="arrow-back" size="16" />Start over</button></div><div class="bg-surface-purple/40 p-6 md:p-8 lg:sticky lg:top-24 lg:self-start"><p class="mb-3 text-xs font-bold uppercase tracking-widest text-primary/60">Price summary</p><p class="mb-2 font-serif text-3xl font-bold md:text-4xl" x-html="result.display"></p><p class="mb-1 text-sm text-primary-dark/60" x-text="result.tier"></p><p class="mb-5 text-xs text-primary-dark/60" x-text="result.service"></p><p x-show="result.notice" class="mb-5 text-xs text-primary-dark/60" x-text="result.notice"></p><div class="flex flex-col gap-3"><x-waggies.button x-bind:href="result.href" class="w-full justify-center"><span x-text="result.cta"></span><x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button></div></div></div>
-        </div>
+        </x-waggies.card>
     </div>
 </section>
 

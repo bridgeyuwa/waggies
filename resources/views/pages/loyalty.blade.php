@@ -29,7 +29,7 @@
 
             <ol class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
                 @foreach($page['howItWorks'] as $item)
-                    <li class="flex flex-col gap-4 rounded-2xl bg-surface-purple p-8">
+                    <li class="w-card w-card-hover flex flex-col gap-4 bg-surface-purple p-8">
                         <div class="flex items-center gap-4">
                             <span class="font-serif text-4xl font-bold text-primary/20">{{ $item['step'] }}</span>
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
@@ -50,7 +50,7 @@
 
             <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
                 @foreach($page['tiers'] as $tier)
-                    <div class="rounded-2xl border border-surface-purple bg-white p-8 shadow-sm transition-shadow hover:shadow-soft">
+                    <x-waggies.card hover class="p-8">
                         <x-waggies.icon name="{{ $tier['icon'] }}" variant="filled" size="36" class="text-4xl {{ $tier['color'] }} mb-3 block!" />
                         <h3 class="mb-1 font-serif text-2xl font-bold text-primary-dark">{{ $tier['tier'] }}</h3>
                         <p class="mb-4 text-xs uppercase tracking-widest text-primary-dark/60">{{ $tier['threshold'] }}</p>
@@ -62,20 +62,16 @@
                                 </li>
                             @endforeach
                         </ul>
-                    </div>
+                    </x-waggies.card>
                 @endforeach
             </div>
         </div>
     </section>
 
+    @php($loyaltyCta = ['heading' => $page['startEarningCta']['heading'], 'body' => $page['startEarningCta']['body'], 'primaryLabel' => $page['startEarningCta']['ctaLabel'], 'primaryRoute' => $page['startEarningCta']['ctaRoute'], 'primaryParams' => $page['startEarningCta']['ctaParams'] ?? [], 'primaryIcon' => $page['startEarningCta']['ctaIcon'] ?? 'arrow-forward'])
     <section class="bg-surface-purple py-16">
         <div class="mx-auto max-w-3xl px-4 text-center">
-            <h2 class="mb-3 font-serif text-3xl font-bold text-primary-dark">{{ $page['startEarningCta']['heading'] }}</h2>
-            <p class="mb-6 text-primary-dark/60">{{ $page['startEarningCta']['body'] }}</p>
-            <x-waggies.button href="{{ route($page['startEarningCta']['ctaRoute'], $page['startEarningCta']['ctaParams'] ?? []) }}">
-                {{ $page['startEarningCta']['ctaLabel'] }}
-                <x-waggies.icon name="{{ $page['startEarningCta']['ctaIcon'] }}" size="16" />
-            </x-waggies.button>
+            <x-waggies.cta-centered :cta="$loyaltyCta" tone="light" />
         </div>
     </section>
 

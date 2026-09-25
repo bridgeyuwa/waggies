@@ -11,7 +11,7 @@
     $variantClasses = match ($variant) {
         'secondary' => 'w-cta w-cta--secondary',
         'outline' => 'w-cta w-cta--secondary bg-transparent',
-        'link' => 'inline-flex min-h-11 items-center gap-1.5 font-semibold text-primary transition-colors hover:text-primary-dark hover:underline',
+        'link' => 'w-cta-link inline-flex min-h-11 items-center gap-1.5 font-semibold text-primary transition-colors hover:text-primary-dark hover:underline',
         default => 'w-cta w-cta--primary',
     };
     $sizeClasses = match ($size) {

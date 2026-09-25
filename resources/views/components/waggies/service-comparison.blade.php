@@ -35,7 +35,7 @@
 
         <div class="grid grid-cols-1 gap-4 lg:hidden sm:grid-cols-2">
             @foreach ($services as $service)
-                <div class="rounded-2xl border border-primary/10 bg-white p-5">
+                <x-waggies.card class="p-5">
                     <div class="mb-4 flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-purple"><x-waggies.icon name="{{ $service['icon'] }}" size="20" class="text-primary" /></div><div><p class="text-sm font-semibold text-primary-dark">{{ $service['label'] }}</p><p class="text-xs text-primary-dark/50">{{ $service['price'] }}</p></div></div>
                     <ul class="space-y-2.5">
                         @foreach ($features as $feature)
@@ -43,7 +43,7 @@
                             <li class="flex items-center gap-2 text-sm">@if($supported)<x-waggies.icon name="check-circle" size="20" variant="filled" class="text-primary" />@else<x-waggies.icon name="error" size="20" class="text-primary-dark/20" />@endif<span class="{{ $supported ? 'text-primary-dark' : 'text-primary-dark/60' }}">{{ $feature['label'] }}</span></li>
                         @endforeach
                     </ul>
-                </div>
+                </x-waggies.card>
             @endforeach
         </div>
     </div>
