@@ -324,3 +324,6 @@ Verification:
 
 The goal is better Waggies, not Waggies rewritten according to an external
 skill's default aesthetic.
+
+## Keep CMS SEO controls semantically separate
+Expose SEO title and description as copy controls, indexability as the indexing decision, and sitemap inclusion as a separate sitemap decision. Do not present title or description fields as controlling canonical URLs, robots directives, or Schema.org structure.

@@ -14,3 +14,6 @@ For local/admin browser verification only, use the project's existing standard l
 The account is not a production account. Do not create, copy, print, log, commit, or persist its credentials in repository rules, documentation, environment files, test artifacts, screenshots, or external services. Obtain the credentials from the active local-account mechanism or the current task context when needed.
 
 Never use this local test account or passwordless/local authentication configuration for production verification or production access.
+
+## Test SEO head and sitemap contracts separately
+Cover representative public pages for title, canonical, robots, social metadata, query-state indexability, CMS fallback and override behavior, and Schema.org output. Test sitemap eligibility and XML response behavior separately; do not require APIs or Filament to render public HTML head metadata.

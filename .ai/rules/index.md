@@ -11,7 +11,9 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Http/Controllers/**, routes/** | .ai/rules/controllers.md |
 | resources/views/**, resources/css/**, resources/js/**, app/Livewire/**, app/Filament/**, app/Providers/Filament/** | .ai/rules/frontend-design-skills.md |
 | app/Filament/**, app/Providers/Filament/**, database/seeders/**, resources/views/filament/**, tests/** | .ai/rules/local-filament-testing.md |
+| app/Providers/** | .ai/rules/providers.md |
 | app/**, bootstrap/**, config/**, database/**, resources/**, routes/**, tests/**, public/**, composer.json, package.json, config/waggies_pricing.php | .ai/rules/reuse-before-reinventing.md |
+| app/Support/** | .ai/rules/support.md |
 | app/Http/Controllers/**, app/Models/**, config/waggies_pricing.php, database/**, resources/js/**, resources/views/**, routes/**, tests/** | .ai/rules/views.md |
 | resources/css/app.css, resources/views/pages/**, resources/views/components/waggies/**, resources/views/layouts/**, resources/views/errors/**, resources/js/**/*.js | .ai/rules/waggies-design-tokens.md |
 | resources/views/components/waggies/**, resources/views/layouts/**, resources/views/pages/**, resources/js/alpine/** | .ai/rules/waggies-interaction-navigation.md |

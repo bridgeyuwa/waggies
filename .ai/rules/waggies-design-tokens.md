@@ -59,3 +59,6 @@ Shadows communicate elevation, floating behavior, or interaction. They are not a
 ## Icons
 
 Use the existing `<x-waggies.icon>` component and the local Material Symbols assets. Do not introduce another icon family inside a refactored Waggies surface without an explicit migration decision.
+
+## Use Laravel Head as the sole public SEO renderer
+Render public-page title, description, canonical, robots, Open Graph, and Twitter metadata through the layout's Laravel Head output. Keep the head stack reserved for exceptional non-SEO tags; do not add a second SEO renderer in Blade.

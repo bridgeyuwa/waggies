@@ -778,3 +778,12 @@ The objective is not to make everything look like CRUD for superficial consisten
 The objective is to use CRUD/resource semantics to uncover meaningful resources and keep controllers small, focused, predictable, and easy to understand.
 
 This is a project-level architectural convention and should be followed consistently unless an explicit later architecture decision supersedes it.
+
+## Use Laravel Head through the Waggies page-head adapter
+For public HTML pages, use the thin Waggies page-head adapter as the controller-level boundary for title, description, canonical, robots, Open Graph, and Twitter metadata. The adapter must delegate rendering to Laravel Head; do not create a competing SEO renderer or place SEO metadata in Blade.
+
+## Keep sitemap XML package-owned
+Serve sitemap.xml through spatie/laravel-sitemap. Application code may provide the eligible canonical URL set, but must not hand-build sitemap XML or introduce a competing sitemap serializer.
+
+## Keep Schema.org construction separate from head rendering
+Use spatie/schema-org for Schema.org object construction where appropriate, then register the resulting structured data through Laravel Head. Do not hand-build a competing JSON-LD renderer or duplicate Schema.org output.

@@ -767,3 +767,9 @@ Standardize genuine semantic and behavioral responsibilities, but do not consoli
 
 ## Keep service pricing configuration-backed
 Do not move Waggies service pricing into Filament/CMS merely because staff-editable prices are technically possible. Pricing inputs participate in application-owned calculations and relationships; keep service pricing in version-controlled configuration unless a future product requirement materially changes this architecture.
+
+## Keep SEO package ownership explicit
+Use Laravel Head for public document-head metadata and spatie/laravel-sitemap for sitemap XML mechanics. Use spatie/schema-org for Schema.org construction where appropriate; do not introduce competing SEO, Schema.org, or sitemap frameworks.
+
+## Use a thin page-head boundary, not a generic manager
+Do not create a generic SeoManager or forward-only package wrapper. A thin Waggies page-head adapter is appropriate when it centralizes Waggies metadata policy, indexability, and fallbacks while delegating rendering to Laravel Head.
