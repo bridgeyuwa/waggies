@@ -293,17 +293,17 @@ const waggiesChat = () => ({
 });
 
 const waggiesNavbar = () => ({
-    mobileOpen: false, desktopMenu: null, pinnedMenu: null, timer: null, lastFocus: null,
+    mobileOpen: false, desktopMenu: null, pinnedMenu: null, timer: null, lastFocus: null, desktopTrigger: null,
     init() { this.$watch('mobileOpen', open => { document.body.classList.toggle('overflow-hidden', open); if (open) { this.lastFocus = document.activeElement; this.$nextTick(() => this.$refs.drawer?.querySelector('button, a')?.focus()); } else { this.lastFocus?.focus?.(); } }); this.$el.addEventListener('keydown', event => { if (!this.mobileOpen || event.key !== 'Tab') return; const nodes = [...this.$refs.drawer.querySelectorAll('a,button')].filter(node => !node.disabled && node.offsetParent !== null); if (!nodes.length) return; const first = nodes[0], last = nodes[nodes.length - 1]; if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); } }); window.addEventListener('resize', () => { if (this.desktopMenu) this.updateMegaOffset(this.desktopMenu); }); },
     cancelClose() { clearTimeout(this.timer); this.timer = null; },
     hoverOpen(menu) { this.cancelClose(); this.timer = setTimeout(() => { if (!this.pinnedMenu || this.pinnedMenu === menu) { this.updateMegaOffset(menu); this.desktopMenu = menu; } }, 150); },
     hoverClose(menu) { this.cancelClose(); this.timer = setTimeout(() => { if (!this.pinnedMenu && this.desktopMenu === menu) this.desktopMenu = null; }, 150); },
-    toggle(menu) { this.cancelClose(); if (this.pinnedMenu === menu) { this.pinnedMenu = null; this.desktopMenu = null; } else { this.updateMegaOffset(menu); this.pinnedMenu = menu; this.desktopMenu = menu; } },
+    toggle(menu) { this.cancelClose(); if (this.pinnedMenu === menu) { this.pinnedMenu = null; this.desktopMenu = null; this.desktopTrigger = null; } else { this.updateMegaOffset(menu); this.pinnedMenu = menu; this.desktopMenu = menu; this.desktopTrigger = document.querySelector(`[data-nav-trigger="${menu}"]`); } },
     updateMegaOffset(menu) { const panel = document.querySelector(`#desktop-menu-${menu}`), trigger = document.querySelector(`[data-nav-trigger="${menu}"]`), nav = this.$refs.nav; if (!panel || !trigger || !nav) return; const triggerRect = trigger.getBoundingClientRect(), navRect = nav.getBoundingClientRect(); panel.style.setProperty('--mega-offset', `${navRect.left + navRect.width / 2 - (triggerRect.left + triggerRect.width / 2)}px`); },
-    openAndFocus(menu) { this.updateMegaOffset(menu); this.desktopMenu = menu; this.$nextTick(() => { document.querySelector(`#desktop-menu-${menu} a`)?.focus(); }); },
-    closeDesktop() { this.cancelClose(); this.pinnedMenu = null; this.desktopMenu = null; },
+    openAndFocus(menu) { this.updateMegaOffset(menu); this.desktopMenu = menu; this.desktopTrigger = document.querySelector(`[data-nav-trigger="${menu}"]`); this.$nextTick(() => { document.querySelector(`#desktop-menu-${menu} a`)?.focus(); }); },
+    closeDesktop() { this.cancelClose(); this.pinnedMenu = null; this.desktopMenu = null; this.desktopTrigger = null; },
     openMobile() { this.lastFocus = document.activeElement; this.mobileOpen = true; }, closeMobile() { this.mobileOpen = false; this.$nextTick(() => { if (this.lastFocus?.isConnected) this.lastFocus.focus(); this.lastFocus = null; }); },
-    escape() { if (this.mobileOpen) this.closeMobile(); else this.closeDesktop(); },
+    escape() { if (this.mobileOpen) { this.closeMobile(); return; } const trigger = this.desktopTrigger; this.closeDesktop(); trigger?.focus(); },
 });
 export const waggiesDialog = () => ({
     dialogState: 'open',

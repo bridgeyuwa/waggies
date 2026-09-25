@@ -46,11 +46,11 @@
     /* brand tint (kept for existing use) */
     --color-waggies-surface-subtle: oklch(0.95 0.012 80);
     /* quiet neutral */
-    --color-waggies-surface-hover: oklch(0.955 0.018 305);
-    /* oklch(0.90 0.04 305); */
-    /* perceptible hover */
+    --color-waggies-surface-hover: var(--color-waggies-surface-purple);
+    /* Keep hover ownership explicit while preserving the current brand tint. */
     --color-waggies-surface-raised: oklch(1 0 0);
     --color-waggies-beige-soft: oklch(0.94 0.028 82);
+    --color-waggies-on-brand: oklch(1 0 0);
 
     /* Reading palette – solid, warm, background-independent */
     --color-waggies-ink: oklch(0.27 0.02 70);
@@ -85,18 +85,18 @@
     /* Feedback – darkened for usability + foreground tokens */
     --color-success: oklch(0.50 0.13 145);
     --color-success-light: oklch(0.94 0.03 145);
-    --color-success-foreground: #ffffff;
+    --color-success-foreground: var(--color-waggies-on-brand);
 
     --color-error: oklch(0.55 0.18 25);
     --color-error-light: oklch(0.95 0.03 25);
-    --color-error-foreground: #ffffff;
+    --color-error-foreground: var(--color-waggies-on-brand);
 
     --color-warning: oklch(0.55 0.08 75);
     --color-warning-light: oklch(0.96 0.025 75);
-    --color-warning-foreground: #ffffff;
+    --color-warning-foreground: var(--color-waggies-on-brand);
 
     --color-whatsapp: oklch(0.46 0.10 145);
-    --color-whatsapp-foreground: #ffffff;
+    --color-whatsapp-foreground: var(--color-waggies-on-brand);
 
     /* Loyalty – usable on light surfaces */
     --color-gold: oklch(0.56 0.08 90);
@@ -112,6 +112,7 @@
     --radius-2xl: 1.25rem;
     --radius-control: var(--radius-md);
     --radius-card: var(--radius-xl);
+    --radius-panel: var(--radius-2xl);
     --radius-pill: 9999px;
 
     /* Elevation scale – Refactoring UI compliant (restrained & neutral) */
@@ -133,8 +134,17 @@
        stable while clarifying ownership for later component work. */
     --shadow-subtle: var(--shadow-xs);
     --shadow-card: var(--shadow-sm);
+    --shadow-card-hover: var(--shadow-soft);
     --shadow-floating: var(--shadow-lg);
     --shadow-modal: var(--shadow-xl);
+
+    /* Interaction timing – shared by cards, controls, and CTA groups. */
+    --duration-card: 180ms;
+    --duration-control: 200ms;
+    --ease-waggies-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-waggies-standard: cubic-bezier(0.2, 0, 0, 1);
+    --motion-card-lift: -0.1875rem;
+    --motion-card-press: 0.0625rem;
 
     /* Navigation's existing 1153px transition is a real product breakpoint:
        it changes the mega-menu from two columns to three. */
@@ -156,6 +166,7 @@
 
     --color-surface: var(--color-waggies-surface);
     --color-surface-purple: var(--color-waggies-surface-purple);
+    --color-surface-hover: var(--color-waggies-surface-hover);
     --color-surface-raised: var(--color-waggies-surface-raised);
     --color-surface-muted: var(--color-waggies-surface-subtle);
     --color-surface-elevated: var(--color-waggies-surface-raised);
@@ -179,13 +190,13 @@
     --color-background: var(--color-surface);
     --color-foreground: var(--color-waggies-ink);
 
-    --color-card: #ffffff;
+    --color-card: var(--color-waggies-surface-raised);
     --color-card-foreground: var(--color-waggies-ink);
 
-    --color-popover: #ffffff;
+    --color-popover: var(--color-waggies-surface-raised);
     --color-popover-foreground: var(--color-waggies-ink);
 
-    --color-primary-foreground: #ffffff;
+    --color-primary-foreground: var(--color-waggies-on-brand);
 
     --color-secondary-foreground: var(--color-waggies-ink);
 
@@ -210,10 +221,10 @@
     --color-chart-5: oklch(0.56 0.08 90);
 
     /* Sidebar */
-    --color-sidebar: #ffffff;
+    --color-sidebar: var(--color-waggies-surface-raised);
     --color-sidebar-foreground: var(--color-waggies-ink);
     --color-sidebar-primary: var(--color-waggies-primary);
-    --color-sidebar-primary-foreground: #ffffff;
+    --color-sidebar-primary-foreground: var(--color-waggies-on-brand);
     --color-sidebar-accent: var(--color-waggies-surface-subtle);
     --color-sidebar-accent-foreground: var(--color-waggies-ink);
     --color-sidebar-border: var(--color-waggies-border);
@@ -746,10 +757,15 @@
         border-radius: var(--radius-xl);
         border: 1px solid var(--color-nav-border);
         /* soft */
-        box-shadow: var(--shadow-floating);
+        box-shadow: var(--shadow-modal);
         /* elevation does the work */
         overflow: hidden;
         z-index: 50;
+        transform-origin: top center;
+    }
+
+    .mobile-nav-drawer {
+        width: min(24rem, calc(100vw - 2rem));
     }
 
     .nav-dropdown--stacked {
@@ -1146,9 +1162,34 @@
         transform: scaleX(0);
         transform-origin: left;
         background: var(--color-primary);
+        box-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-primary) 60%, transparent);
         transition: transform 500ms ease-out;
     }
+    .navigation-progress::after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 6rem;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-secondary) 80%, white), transparent);
+        content: '';
+        opacity: 0;
+    }
     .navigation-progress.is-loading { transform: scaleX(0.8); }
+    .navigation-progress.is-loading::after {
+        opacity: 1;
+        animation: navigation-progress-peg 900ms ease-in-out infinite;
+    }
+
+    @keyframes navigation-progress-peg {
+        from { transform: translateX(100%); }
+        to { transform: translateX(-300%); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .navigation-progress { transition: none; }
+        .navigation-progress.is-loading::after { animation: none; }
+    }
     .print-only {
         display: none;
     }
