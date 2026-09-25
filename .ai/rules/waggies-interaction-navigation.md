@@ -49,3 +49,5 @@ If the header is intended to be sticky, refactors must preserve sticky behavior 
 
 Menu/flyout transitions should be brief and explanatory. Respect reduced-motion preferences. Do not use long elastic/spring effects for routine navigation.
 
+## Make auto-rotating content deterministic and interruptible
+Auto-rotating content must use one deterministic timer, pause while hovered or focused, never advance during a transition, and expose manual accessible controls. Keep target/selected state separate from displayed content until the transition completes; use transform/opacity transitions under 300ms, respect prefers-reduced-motion, and clean up timers when components are destroyed.

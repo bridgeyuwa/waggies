@@ -327,3 +327,6 @@ skill's default aesthetic.
 
 ## Keep CMS SEO controls semantically separate
 Expose SEO title and description as copy controls, indexability as the indexing decision, and sitemap inclusion as a separate sitemap decision. Do not present title or description fields as controlling canonical URLs, robots directives, or Schema.org structure.
+
+## Use Headless UI-inspired interaction standards
+Treat Headless UI as the behavioral and accessibility reference, not a React/Vue dependency. In Blade + Alpine components, use native controls with correct ARIA roles, stable IDs, state relationships, keyboard behavior, visible focus, Escape/outside-click handling, and focus restoration where the pattern requires it. Prefer reusable Alpine.data factories and focused DOM helpers over duplicated inline handlers; verify keyboard, focus-visible, disabled, reduced-motion, and responsive states.
