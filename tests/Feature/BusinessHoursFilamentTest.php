@@ -30,13 +30,14 @@ class BusinessHoursFilamentTest extends TestCase
             ->call('create')
             ->assertHasNoFormErrors();
 
-        $this->assertDatabaseHas('business_hours', [
-            'kind' => BusinessHour::KIND_EXCEPTION,
-            'date' => '2026-12-25',
-            'is_closed' => true,
-            'open_time' => null,
-            'close_time' => null,
-        ]);
+        $businessHour = BusinessHour::query()
+            ->where('kind', BusinessHour::KIND_EXCEPTION)
+            ->sole();
+
+        $this->assertSame('2026-12-25', $businessHour->date?->toDateString());
+        $this->assertTrue($businessHour->is_closed);
+        $this->assertNull($businessHour->open_time);
+        $this->assertNull($businessHour->close_time);
     }
 
     public function test_open_exception_still_requires_a_complete_primary_interval(): void
@@ -74,13 +75,14 @@ class BusinessHoursFilamentTest extends TestCase
             ->call('create')
             ->assertHasNoFormErrors();
 
-        $this->assertDatabaseHas('business_hours', [
-            'kind' => BusinessHour::KIND_EXCEPTION,
-            'date' => '2026-12-24',
-            'end_date' => '2026-12-26',
-            'recurrence' => BusinessHour::RECURRENCE_YEARLY,
-            'is_closed' => true,
-        ]);
+        $businessHour = BusinessHour::query()
+            ->where('kind', BusinessHour::KIND_EXCEPTION)
+            ->sole();
+
+        $this->assertSame('2026-12-24', $businessHour->date?->toDateString());
+        $this->assertSame('2026-12-26', $businessHour->end_date?->toDateString());
+        $this->assertSame(BusinessHour::RECURRENCE_YEARLY, $businessHour->recurrence);
+        $this->assertTrue($businessHour->is_closed);
     }
 
     public function test_filament_rejects_overlapping_intervals_through_spatie(): void

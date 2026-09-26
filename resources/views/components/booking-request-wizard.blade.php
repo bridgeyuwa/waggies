@@ -78,6 +78,18 @@ new class extends Component
         $this->resetValidation();
     }
 
+    public function tierChanged(int $index, ?string $tier): void
+    {
+        $service = (string) ($this->services[$index]['service_key'] ?? '');
+        $variant = $this->services[$index]['service_variant'] ?? null;
+        $tierOptions = BookingRequestSchema::tierOptions($service, $variant);
+
+        $this->services[$index]['pricing_tier'] = array_key_exists((string) $tier, $tierOptions)
+            ? $tier
+            : null;
+        $this->resetValidation();
+    }
+
     public function addService(): void
     {
         $service = array_key_first(BookingRequestSchema::serviceOptions());
@@ -364,25 +376,25 @@ new class extends Component
                                 @endif
                             </div>
                             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                <x-waggies.select id="booking-{{ $index }}-service" label="Service needed" wire:model="services.{{ $index }}.service_key" wire:change="serviceChanged({{ $index }}, $event.target.value)" required>
-                                    <option value="">Choose a service</option>
+                                <x-waggies.select id="booking-{{ $index }}-service" label="Service needed" data-booking-draft-model="services.{{ $index }}.service_key" wire:change="serviceChanged({{ $index }}, $event.target.value)" required>
+                                    <option value="" @selected(empty($service['service_key']))>Choose a service</option>
                                     @foreach(\App\Support\BookingRequestSchema::serviceOptions() as $key => $label)
-                                        <option value="{{ $key }}">{{ $label }}</option>
+                                        <option value="{{ $key }}" @selected(($service['service_key'] ?? null) === $key)>{{ $label }}</option>
                                     @endforeach
                                 </x-waggies.select>
                                 @if($variantOptions)
-                                    <x-waggies.select id="booking-{{ $index }}-variant" label="Pet group or service variant" wire:model="services.{{ $index }}.service_variant" wire:change="variantChanged({{ $index }}, $event.target.value)" required>
-                                        <option value="">Choose an option</option>
+                                    <x-waggies.select id="booking-{{ $index }}-variant" label="Pet group or service variant" data-booking-draft-model="services.{{ $index }}.service_variant" wire:change="variantChanged({{ $index }}, $event.target.value)" required>
+                                        <option value="" @selected(empty($service['service_variant']))>Choose an option</option>
                                         @foreach($variantOptions as $key => $label)
-                                            <option value="{{ $key }}">{{ $label }}</option>
+                                            <option value="{{ $key }}" @selected(($service['service_variant'] ?? null) === $key)>{{ $label }}</option>
                                         @endforeach
                                     </x-waggies.select>
                                 @endif
                                 @if($tierOptions)
-                                    <x-waggies.select id="booking-{{ $index }}-tier" label="Package or plan" wire:model="services.{{ $index }}.pricing_tier" required>
-                                        <option value="">Choose an option</option>
+                                    <x-waggies.select id="booking-{{ $index }}-tier" label="Package or plan" data-booking-draft-model="services.{{ $index }}.pricing_tier" wire:change="tierChanged({{ $index }}, $event.target.value)" required>
+                                        <option value="" @selected(empty($service['pricing_tier']))>Choose an option</option>
                                         @foreach($tierOptions as $key => $label)
-                                            <option value="{{ $key }}">{{ $label }}</option>
+                                            <option value="{{ $key }}" @selected(($service['pricing_tier'] ?? null) === $key)>{{ $label }}</option>
                                         @endforeach
                                     </x-waggies.select>
                                 @endif

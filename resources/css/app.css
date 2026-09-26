@@ -730,6 +730,23 @@
         transition: border-color 150ms ease, box-shadow 150ms ease;
     }
 
+    /* Native selects remain the accessible source of truth for Livewire-owned
+       fields, but use the same control geometry and chevron as enhanced ones. */
+    select.contact-input {
+        appearance: none;
+        padding-right: 2.75rem;
+        background-image: url('/icons/material-symbols/outlined/keyboard_arrow_down.svg');
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 1rem;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    select.contact-input:has(> option:checked[value=""]) {
+        color: color-mix(in oklab, var(--color-primary-dark) 45%, transparent);
+    }
+
     .contact-input::placeholder {
         color: color-mix(in oklab, var(--color-primary-dark) 45%, transparent);
     }

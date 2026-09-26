@@ -11,9 +11,14 @@ use Tests\TestCase;
 
 final class DevelopmentSeederTest extends TestCase
 {
-    public function test_development_dataset_is_repeatable_and_stays_on_the_test_database(): void
+    public function test_development_dataset_is_repeatable_and_stays_on_the_configured_test_database(): void
     {
-        $this->assertSame('waggies_test', DB::connection()->getDatabaseName());
+        $connection = config('database.default');
+
+        $this->assertSame(
+            config("database.connections.{$connection}.database"),
+            DB::connection()->getDatabaseName(),
+        );
         Storage::fake('public');
 
         $this->seed(DatabaseSeeder::class);

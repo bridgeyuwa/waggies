@@ -13,6 +13,7 @@ return new class extends Migration
     {
         if (Schema::hasColumn('medications', 'clinical_content_id')) {
             Schema::table('medications', function (Blueprint $table): void {
+                $table->dropForeign(['clinical_content_id']);
                 $table->dropColumn('clinical_content_id');
             });
         }

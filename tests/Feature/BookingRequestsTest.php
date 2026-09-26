@@ -35,7 +35,8 @@ it('renders the public booking page with service choices and required controls',
         ->assertOk()
         ->assertSee('Start with a request, then we will confirm the details')
         ->assertSee('Which services should we review?')
-        ->assertSee('wire:model="services.0.service_key"', false)
+        ->assertSee('data-booking-draft-model="services.0.service_key"', false)
+        ->assertSee('wire:change="serviceChanged(0, $event.target.value)"', false)
         ->assertSee('value="boarding"', false)
         ->assertSee('Add another service');
 });
@@ -51,6 +52,22 @@ it('preserves service context passed from public booking CTAs', function (): voi
         ->assertSet('services.0.service_key', 'boarding')
         ->assertSet('services.0.service_variant', 'cats')
         ->assertSet('services.0.pricing_tier', 'premium');
+});
+
+it('updates dependent booking choices through one server-side action per select', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding'],
+    ])
+        ->call('variantChanged', 0, 'cats')
+        ->assertSet('services.0.service_variant', 'cats')
+        ->call('tierChanged', 0, 'premium')
+        ->assertSet('services.0.pricing_tier', 'premium')
+        ->call('serviceChanged', 0, 'grooming')
+        ->assertSet('services.0.service_key', 'grooming')
+        ->assertSet('services.0.service_variant', null)
+        ->assertSet('services.0.pricing_tier', 'bath')
+        ->call('tierChanged', 0, 'full')
+        ->assertSet('services.0.pricing_tier', 'full');
 });
 
 it('persists a valid booking request as a UUIDv7 and shows a truthful success state', function (): void {

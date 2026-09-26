@@ -22,8 +22,10 @@ export const registerBookingDraftPersistence = () => {
 
         const draft = readDraft();
 
-        root.querySelectorAll('[wire\\:model], [wire\\:model\\.live]').forEach(control => {
-            const model = control.getAttribute('wire:model') || control.getAttribute('wire:model.live');
+        root.querySelectorAll('[data-booking-draft-model], [wire\\:model], [wire\\:model\\.live]').forEach(control => {
+            const model = control.getAttribute('data-booking-draft-model')
+                || control.getAttribute('wire:model')
+                || control.getAttribute('wire:model.live');
             if (!model) return;
 
             draft[model] = control.type === 'checkbox' ? control.checked : control.value;
@@ -48,16 +50,24 @@ export const registerBookingDraftPersistence = () => {
         if (!Object.keys(draft).length || draft.contextKey !== contextKey) return;
 
         restoring = true;
-        root.querySelectorAll('[wire\\:model], [wire\\:model\\.live]').forEach(control => {
-            const model = control.getAttribute('wire:model') || control.getAttribute('wire:model.live');
+        root.querySelectorAll('[data-booking-draft-model], [wire\\:model], [wire\\:model\\.live]').forEach(control => {
+            const model = control.getAttribute('data-booking-draft-model')
+                || control.getAttribute('wire:model')
+                || control.getAttribute('wire:model.live');
             if (!model || !(model in draft)) return;
 
             const value = draft[model];
+            let changed = false;
+
             if (control.type === 'checkbox') {
+                changed = control.checked !== Boolean(value);
                 control.checked = Boolean(value);
             } else if (control.value !== value) {
                 control.value = value;
+                changed = true;
             }
+
+            if (!changed) return;
 
             control.dispatchEvent(new Event('input', { bubbles: true }));
             control.dispatchEvent(new Event('change', { bubbles: true }));
@@ -69,11 +79,6 @@ export const registerBookingDraftPersistence = () => {
 
     root.addEventListener('input', scheduleSave, true);
     root.addEventListener('change', scheduleSave, true);
-
-    const observer = new MutationObserver(() => {
-        applyDraft();
-    });
-    observer.observe(root, { childList: true, subtree: true });
 
     applyDraft();
 

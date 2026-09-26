@@ -5,7 +5,7 @@ import { registerGlobalComponents } from './alpine/global-ui';
 import { registerOpeningHoursComponents } from './alpine/opening-hours';
 import { registerRequestComponents } from './alpine/requests';
 import { registerShopComponents } from './alpine/shop';
-import { registerWaggiesSelectEnhancement, syncWaggiesSelects } from './alpine/selects';
+import { registerWaggiesSelectEnhancement, syncWaggiesLivewireSelects, syncWaggiesSelects } from './alpine/selects';
 import { registerPricingCalculator } from './pricing-calculator';
 import { registerToolComponents } from './tools-calculators';
 import { registerBookingDraftPersistence } from './booking-wizard';
@@ -54,11 +54,14 @@ document.addEventListener('click', event => {
     }
 }, true);
 
-registerWaggiesSelectEnhancement();
+registerWaggiesSelectEnhancement(Alpine);
 registerBookingDraftPersistence();
 
 if (document.querySelector('[wire\\:id]')) {
-    Livewire.hook('morphed', () => syncWaggiesSelects());
+    Livewire.hook('morphed', () => {
+        syncWaggiesSelects();
+        syncWaggiesLivewireSelects();
+    });
     document.addEventListener('livewire:initialized', () => syncWaggiesSelects(), { once: true });
     Livewire.start();
 } else {
