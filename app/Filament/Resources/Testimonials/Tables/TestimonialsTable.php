@@ -2,13 +2,10 @@
 
 namespace App\Filament\Resources\Testimonials\Tables;
 
-use App\Actions\VerifyTestimonialCustomer;
 use App\Models\Testimonial;
-use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -19,12 +16,6 @@ class TestimonialsTable
     {
         return $table
             ->columns([
-                ImageColumn::make('photo')
-                    ->label('Photo')
-                    ->state(fn (Testimonial $record): ?string => $record->publicPhotoUrl())
-                    ->alt(fn (Testimonial $record): string => "Photo of {$record->author_name}")
-                    ->circular()
-                    ->size(40),
                 TextColumn::make('author_name')
                     ->label('Author')
                     ->searchable()
@@ -40,10 +31,6 @@ class TestimonialsTable
                 TextColumn::make('status')
                     ->badge()
                     ->sortable(),
-                TextColumn::make('crm_match_status')
-                    ->label('CRM match')
-                    ->formatStateUsing(fn (?string $state): string => Testimonial::crmMatchOptions()[$state] ?? (string) $state)
-                    ->badge(),
                 TextColumn::make('sort_order')
                     ->label('Order')
                     ->sortable(),
@@ -58,12 +45,6 @@ class TestimonialsTable
             ->reorderable('sort_order')
             ->recordActions([
                 EditAction::make(),
-                Action::make('verifyCustomer')
-                    ->label('Verify CRM')
-                    ->icon('heroicon-o-shield-check')
-                    ->action(function (Testimonial $record, VerifyTestimonialCustomer $verifier): void {
-                        $verifier->execute($record);
-                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

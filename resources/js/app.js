@@ -1,7 +1,9 @@
 // Livewire bundles Alpine; the public layout guard prevents the unused Livewire runtime from auto-starting.
 import { Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm.js';
+import { registerCareersComponents } from './alpine/careers';
 import { registerContentComponents } from './alpine/content';
 import { registerGlobalComponents } from './alpine/global-ui';
+import { registerOpeningHoursComponents } from './alpine/opening-hours';
 import { registerRequestComponents } from './alpine/requests';
 import { registerShopComponents } from './alpine/shop';
 import { registerWaggiesSelectEnhancement } from './alpine/selects';
@@ -11,6 +13,8 @@ import { registerToolComponents } from './tools-calculators';
 registerToolComponents(Alpine);
 registerPricingCalculator(Alpine);
 registerGlobalComponents(Alpine);
+registerOpeningHoursComponents(Alpine);
+registerCareersComponents(Alpine);
 registerShopComponents(Alpine);
 registerRequestComponents(Alpine);
 registerContentComponents(Alpine);

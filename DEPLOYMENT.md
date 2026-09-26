@@ -35,7 +35,6 @@ Required production values:
 - `CACHE_STORE` and `SESSION_DRIVER` backed by the same production database or an explicitly provisioned alternative. Redis is optional and is not required by the current application.
 - `MAIL_MAILER`, `MAIL_FROM_ADDRESS`, and the provider-specific variables only when production email delivery is enabled. Development uses `log`; no provider or credentials are selected here.
 - `SESSION_SECURE_COOKIE=true`, `SESSION_HTTP_ONLY=true`, and `SESSION_SAME_SITE=lax` for the HTTPS deployment. Do not change local development to HTTPS-only cookies unless the local site is HTTPS.
-- `WAGGIES_PHONE`, `WAGGIES_PHONE_INTERNATIONAL`, and `WAGGIES_WHATSAPP` when the public business contact details differ from the safe values in `.env.example`.
 - `SUITECRM_BASE_URL`, `SUITECRM_TOKEN`, and `SUITECRM_TIMEOUT` only when the testimonial verification boundary is connected to a real SuiteCRM endpoint. Verification fails closed when these values are absent or the endpoint cannot be reached.
 
 `APP_KEY` is a release-independent production secret. Generate it once before the first deployment, store it in the host secret manager, and reuse it for every release. Do not commit it or regenerate it during deployment: changing it invalidates encrypted session data and other encrypted values.
@@ -136,7 +135,7 @@ The application does not currently trust arbitrary reverse proxies. If the chose
 
 Public Booking, Contact, Newsletter, and Testimonial submissions use CSRF where applicable, validation, honeypots, and named rate limiters. Testimonial publication requires moderation, consent, a CRM customer match, identity verification, and customer-relationship verification; CRM failures do not publish a testimonial. Testimonial and admin uploads are image-constrained and Media Library rejects dangerous filename extensions; public media is stored on the public disk by explicit collection policy. Filament is protected by its authentication middleware. Operational records are not rendered on public pages.
 
-WhatsApp is a handoff URL from the `WAGGIES_WHATSAPP` value in `config/waggies.php`; it is not an API integration and does not provide delivery confirmation. The current search, canonical URLs, robots, and sitemap use the configured `APP_URL`; staging must use a staging `APP_URL` and must not be indexed. In-process search reads database/config content and has no rebuild or search service deployment step.
+WhatsApp is a handoff URL from the database-backed BusinessProfile; it is not an API integration and does not provide delivery confirmation. The current search, canonical URLs, robots, and sitemap use the configured `APP_URL`; staging must use a staging `APP_URL` and must not be indexed. In-process search reads database/config content and has no rebuild or search service deployment step.
 
 ## Smoke-test checklist
 

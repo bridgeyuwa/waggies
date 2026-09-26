@@ -6,7 +6,6 @@ use App\Enums\BookingRequestStatus;
 use App\Models\BookingRequest;
 use App\Models\BusinessHour;
 use App\Models\BusinessProfile;
-use App\Models\Testimonial;
 use App\Models\User;
 use DomainException;
 use Tests\TestCase;
@@ -62,25 +61,6 @@ class BatchOneContractsTest extends TestCase
         $this->get(route('contact'))
             ->assertSee('Monday')
             ->assertSee('Closed');
-    }
-
-    public function test_approved_testimonials_require_crm_and_identity_verification(): void
-    {
-        $testimonial = Testimonial::factory()->create([
-            'status' => Testimonial::STATUS_APPROVED,
-            'crm_match_status' => Testimonial::CRM_NOT_FOUND,
-        ]);
-
-        $this->assertNull($testimonial->published_at);
-        $this->assertFalse(Testimonial::published()->whereKey($testimonial)->exists());
-
-        $testimonial->update([
-            'crm_match_status' => Testimonial::CRM_MATCHED,
-            'identity_verification_status' => Testimonial::VERIFICATION_VERIFIED,
-            'customer_relationship_status' => Testimonial::VERIFICATION_VERIFIED,
-        ]);
-
-        $this->assertTrue(Testimonial::published()->whereKey($testimonial)->exists());
     }
 
     public function test_batch_one_admin_resources_render_for_staff(): void

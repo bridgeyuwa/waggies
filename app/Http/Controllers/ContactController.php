@@ -23,6 +23,7 @@ class ContactController extends Controller
         $mode = $rawIntent === '' ? 'gateway' : ($rawIntent === 'booking' && ! $service ? 'booking' : 'form');
         $product = $context['product'];
         unset($context['product']);
+        $businessProfile = BusinessProfile::current();
 
         $metadata = [
             'title' => 'Contact Us — Waggies Pet Care Abuja',
@@ -43,22 +44,21 @@ class ContactController extends Controller
 
         return view('pages.contact', $metadata + [
             'navSection' => 'contact', 'mode' => $mode, 'context' => $context,
-            'schema' => $mode === 'form' ? $this->schema($context, $product) : null,
-            'business' => $this->businessData(),
+            'schema' => $mode === 'form' ? $this->schema($context, $product, $businessProfile) : null,
+            'business' => $this->businessData($businessProfile),
         ]);
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function businessData(): array
+    private function businessData(BusinessProfile $profile): array
     {
-        $profile = BusinessProfile::current();
-
         return $profile->toPublicArray() + [
             'phoneLocal' => $profile->phone,
             'email' => $profile->primary_email,
             'hours' => BusinessHour::publicSchedule(),
+            'openingHours' => BusinessHour::contactSchedule($profile->timezone ?: config('app.timezone')),
         ];
     }
 
@@ -71,10 +71,10 @@ class ContactController extends Controller
 
     private function common(): array
     {
-        return [['name' => 'customerName', 'label' => 'Your name', 'type' => 'text', 'required' => true, 'placeholder' => 'e.g. Ada Obi'], ['name' => 'whatsappNumber', 'label' => 'WhatsApp number', 'type' => 'tel', 'required' => true, 'placeholder' => 'e.g. 0808 081 1902', 'helperText' => "We'll use this to continue the conversation on WhatsApp."]];
+        return [['name' => 'customerName', 'label' => 'Your name', 'type' => 'text', 'required' => true, 'placeholder' => 'e.g. Ada Obi'], ['name' => 'whatsappNumber', 'label' => 'WhatsApp number', 'type' => 'tel', 'required' => true, 'placeholder' => 'e.g. +234 800 000 0000', 'helperText' => "We'll use this to continue the conversation on WhatsApp."]];
     }
 
-    private function schema(array $ctx, ?array $product): array
+    private function schema(array $ctx, ?array $product, BusinessProfile $businessProfile): array
     {
         $intent = $ctx['intent'];
         $service = $ctx['service'];
@@ -121,7 +121,7 @@ class ContactController extends Controller
             $title = 'Veterinary appointment';
             $description = 'Our vet team will review your request and confirm an appointment on WhatsApp.';
             $pricingMode = 'QUOTE_REQUIRED';
-            $fields = [['name' => 'reasonForVisit', 'label' => 'Reason for visit', 'type' => 'textarea', 'required' => true, 'placeholder' => 'e.g. Annual checkup, vaccinations, not eating well...'], ['name' => 'urgency', 'label' => 'Urgency', 'type' => 'radio', 'required' => true, 'options' => [['value' => 'routine', 'label' => 'Routine'], ['value' => 'urgent', 'label' => 'Urgent (within 48h)'], ['value' => 'emergency', 'label' => 'Emergency']], 'helperText' => 'For emergencies, call us directly at 0908 081 1902 or use the WhatsApp button.'], ['name' => 'preferredDate', 'label' => 'Preferred date', 'type' => 'date', 'required' => false], ['name' => 'preferredTime', 'label' => 'Preferred time', 'type' => 'time', 'required' => false], ['name' => 'additionalNotes', 'label' => 'Additional notes (optional)', 'type' => 'textarea', 'required' => false, 'placeholder' => 'Symptoms, duration, existing conditions, current medications...']];
+            $fields = [['name' => 'reasonForVisit', 'label' => 'Reason for visit', 'type' => 'textarea', 'required' => true, 'placeholder' => 'e.g. Annual checkup, vaccinations, not eating well...'], ['name' => 'urgency', 'label' => 'Urgency', 'type' => 'radio', 'required' => true, 'options' => [['value' => 'routine', 'label' => 'Routine'], ['value' => 'urgent', 'label' => 'Urgent (within 48h)'], ['value' => 'emergency', 'label' => 'Emergency']], 'helperText' => "For emergencies, call us directly at {$businessProfile->phone} or use the WhatsApp button."], ['name' => 'preferredDate', 'label' => 'Preferred date', 'type' => 'date', 'required' => false], ['name' => 'preferredTime', 'label' => 'Preferred time', 'type' => 'time', 'required' => false], ['name' => 'additionalNotes', 'label' => 'Additional notes (optional)', 'type' => 'textarea', 'required' => false, 'placeholder' => 'Symptoms, duration, existing conditions, current medications...']];
         } elseif ($intent === 'TRANSPORT_REQUEST') {
             $title = 'Local transport';
             $description = 'Door-to-door, climate-controlled pet transport across Abuja.';

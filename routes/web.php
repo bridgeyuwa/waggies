@@ -26,6 +26,9 @@ use App\Http\Controllers\ToolsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::permanentRedirect('/service-hero-boarding-cats.jpg', '/media/services/boarding/hero-cats.jpg');
+Route::permanentRedirect('/service-hero-boarding-dogs.jpg', '/media/services/boarding/hero-dogs.jpg');
+Route::permanentRedirect('/service-hero-boarding-exotic.jpg', '/media/services/boarding/hero-exotic.jpg');
 Route::get('/about', AboutController::class)->name('about');
 Route::controller(AboutPagesController::class)->group(function (): void {
     Route::get('/about/testimonials', 'testimonials')->name('about.testimonials');
@@ -74,7 +77,6 @@ Route::controller(ToolsController::class)->group(function (): void {
     Route::get('/tools/vaccination-schedule', 'vaccination')->name('tools.vaccination');
     Route::get('/tools/parasite-schedule', 'parasite')->name('tools.parasite');
     Route::get('/tools/emergency-guide', 'emergency')->name('tools.emergency');
-    Route::get('/tools/medication-dosage-guide', 'medication')->name('tools.medication');
     Route::get('/tools/pet-age-calculator', 'petAge')->name('tools.pet-age');
     Route::get('/tools/cost-calculator', 'cost')->name('tools.cost');
     Route::get('/tools/nutrition-calculator', 'nutrition')->name('tools.nutrition');

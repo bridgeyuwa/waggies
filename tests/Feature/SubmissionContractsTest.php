@@ -47,12 +47,12 @@ class SubmissionContractsTest extends TestCase
         $response->assertCreated()
             ->assertJsonPath('message', "Thank you! Your testimonial has been submitted. We'll review it and share it with the Waggies community soon.");
 
-        $testimonial = Testimonial::query()->where('title', 'A lovely stay')->firstOrFail();
+        $testimonial = Testimonial::query()->where('story', $this->testimonial_payload()['story'])->firstOrFail();
 
         $this->assertSame(Testimonial::STATUS_PENDING, $testimonial->status);
         $this->assertNotNull($testimonial->consented_at);
         $this->assertDatabaseHas('testimonials', [
-            'title' => 'A lovely stay',
+            'story' => $this->testimonial_payload()['story'],
             'status' => Testimonial::STATUS_PENDING,
         ]);
     }
@@ -68,17 +68,17 @@ class SubmissionContractsTest extends TestCase
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['story', 'consent']);
 
-        $this->assertDatabaseMissing('testimonials', ['title' => 'Too short']);
+        $this->assertDatabaseMissing('testimonials', ['story' => 'Too short']);
     }
 
     public function test_pending_testimonials_are_excluded_from_public_publication_scope(): void
     {
         $this->postJson(route('testimonials.store'), $this->testimonial_payload());
 
-        $testimonial = Testimonial::query()->where('title', 'A lovely stay')->firstOrFail();
+        $testimonial = Testimonial::query()->where('story', $this->testimonial_payload()['story'])->firstOrFail();
 
         $this->assertFalse(Testimonial::published()->whereKey($testimonial)->exists());
-        $this->get(route('about.testimonials'))->assertDontSee('A lovely stay');
+        $this->get(route('about.testimonials'))->assertDontSee($testimonial->story);
     }
 
     public function test_cost_calculator_receives_rates_from_pricing_configuration(): void
@@ -98,14 +98,9 @@ class SubmissionContractsTest extends TestCase
         return [
             'rating' => 5,
             'service' => 'Boarding',
-            'title' => 'A lovely stay',
             'story' => 'The Waggies team took wonderful care of our dog and kept us updated every day.',
             'author_name' => 'Adaeze O.',
             'author_location' => 'Maitama, Abuja',
-            'contact_method' => 'phone',
-            'contact_value' => '0808 081 1902',
-            'pet_name' => 'Bruno',
-            'pet_type' => 'Dog',
             'consent' => true,
         ];
     }

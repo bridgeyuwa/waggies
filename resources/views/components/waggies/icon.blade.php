@@ -75,7 +75,6 @@
         'guide' => ['outlined' => 'menu_book.svg', 'filled' => 'menu_book-fill.svg'],
         'knowledge-base' => ['outlined' => 'book.svg', 'filled' => 'book-fill.svg'],
         'calculator' => ['outlined' => 'calculate.svg', 'filled' => 'calculate-fill.svg'],
-        'medication' => ['outlined' => 'medication.svg', 'filled' => 'medication-fill.svg'],
         'nutrition' => ['outlined' => 'restaurant.svg', 'filled' => 'restaurant-fill.svg'],
         'water' => ['outlined' => 'water_drop.svg', 'filled' => 'water_drop-fill.svg'],
         'supplies' => ['outlined' => 'inventory_2.svg', 'filled' => 'inventory_2-fill.svg'],

@@ -1,5 +1,4 @@
 @php
-    $businessProfile = $businessProfile ?? \App\Models\BusinessProfile::current();
     $businessHours = $businessHours ?? \App\Models\BusinessHour::publicSchedule();
     $errors = $errors ?? new \Illuminate\Support\ViewErrorBag();
     $phoneHref = $businessProfile->toPublicArray()['phoneHref'];

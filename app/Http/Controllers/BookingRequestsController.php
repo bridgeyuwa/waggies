@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBookingRequest;
 use App\Models\BookingRequest;
+use App\Models\BusinessProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -34,6 +35,7 @@ final class BookingRequestsController extends Controller
         $tier = trim((string) $request->query('tier', ''));
         $source = trim((string) $request->query('source', ''));
         $serviceOptions = BookingRequest::serviceOptions();
+        $whatsappUrl = BusinessProfile::current()->whatsapp_url;
 
         return view('pages.book', $metadata + [
             'navSection' => 'contact',
@@ -42,7 +44,7 @@ final class BookingRequestsController extends Controller
             'selectedVariant' => $variant,
             'selectedTier' => $tier,
             'source' => $source,
-            'whatsappUrl' => config('waggies.whatsapp').'?text='.rawurlencode('Hello Waggies, I submitted a booking request and would like to continue the conversation.'),
+            'whatsappUrl' => $whatsappUrl.'?text='.rawurlencode('Hello Waggies, I submitted a booking request and would like to continue the conversation.'),
             'minimumDate' => now()->toDateString(),
             'bookingSubmitted' => (bool) session('booking_submitted'),
         ]);

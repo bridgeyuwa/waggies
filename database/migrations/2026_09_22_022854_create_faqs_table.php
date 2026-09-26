@@ -29,6 +29,7 @@ return new class extends Migration
         });
 
         $now = now();
+        $faqsFixture = require database_path('seeders/fixtures/faqs.php');
         $faqs = array_map(
             static fn (array $faq): array => [
                 'id' => (string) Str::uuid7(),
@@ -42,7 +43,7 @@ return new class extends Migration
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
-            config('waggies_faqs', []),
+            $faqsFixture,
         );
 
         if ($faqs !== []) {

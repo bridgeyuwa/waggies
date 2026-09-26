@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BusinessProfile;
 use Illuminate\View\View;
 use Spatie\SchemaOrg\Schema;
 
@@ -9,6 +10,8 @@ final class AboutController extends Controller
 {
     public function __invoke(): View
     {
+        $businessProfile = BusinessProfile::current();
+
         $metadata = [
             'title' => 'About Us',
             'description' => 'Waggies is a full-service pet care centre in Abuja offering boarding, grooming, vet care, training, and relocation under one roof.',
@@ -34,7 +37,7 @@ final class AboutController extends Controller
                     ['label' => 'Book a Free Consultation', 'url' => route('contact')],
                     ['label' => 'Explore Services', 'url' => route('services.index')],
                 ],
-                'imageSrc' => '/media/editorial/photo-1559839734-2b71ea197ec2.jpg',
+                'imageSrc' => '/media/about/intro.jpg',
                 'imageAlt' => 'Complete Veterinary & Pet Care in Abuja',
             ],
             'stats' => [
@@ -58,8 +61,8 @@ final class AboutController extends Controller
                 ],
             ],
             'mosaicImages' => [
-                ['src' => '/media/editorial/photo-1628009368231-7bb7cfcb0def.jpg', 'alt' => 'Veterinarian examining a dog in a clinic', 'offset' => true],
-                ['src' => '/media/editorial/photo-1516734212186-a967f81ad0d7.jpg', 'alt' => 'Dog being groomed at a spa'],
+                ['src' => '/media/about/veterinary-care.jpg', 'alt' => 'Veterinarian examining a dog in a clinic', 'offset' => true],
+                ['src' => '/media/about/grooming.jpg', 'alt' => 'Dog being groomed at a spa'],
             ],
             'story' => [
                 'title' => 'Built by Pet Lovers,<br />for Pet Owners',
@@ -87,7 +90,7 @@ final class AboutController extends Controller
                 ['name' => 'Boarding and grooming', 'role' => 'Pet care team', 'responsibility' => 'We will help you choose a calm, suitable routine for your pet’s stay or appointment.', 'icon' => 'boarding'],
                 ['name' => 'Relocation and transport', 'role' => 'Client support', 'responsibility' => 'Share your route and timeline with our team so we can explain the requirements that apply.', 'icon' => 'transport'],
             ],
-            'address' => 'Life Camp, Efab City Estate, 65 1st Ave, Abuja 900108, Federal Capital Territory, Nigeria',
+            'address' => $businessProfile->addressLine(),
             'cta' => ['heading' => 'Explore Our Pet Care Services', 'body' => 'From grooming to veterinary care and boarding, discover everything we offer to keep your pet healthy and happy.', 'label' => 'View Services'],
         ]);
     }

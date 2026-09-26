@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\BusinessProfile;
 use Tests\TestCase;
 
 class ContactPageTest extends TestCase
@@ -92,6 +93,44 @@ class ContactPageTest extends TestCase
     {
         $this->get('/contact')
             ->assertOk()
-            ->assertSee('"@context":"https://schema.org"', false);
+            ->assertSee('"@context":"https://schema.org"', false)
+            ->assertSee('"openingHoursSpecification"', false);
+    }
+
+    public function test_contact_and_global_business_consumers_render_database_profile_values(): void
+    {
+        $profile = BusinessProfile::current();
+        $profile->update([
+            'phone' => '0800 111 2233',
+            'phone_international' => '+234 800 111 2233',
+            'whatsapp_url' => 'https://wa.example.test/database-profile',
+            'map_url' => 'https://maps.example.test/database-profile',
+            'address_street' => 'Database-owned Street',
+            'address_city' => 'Database City',
+            'address_postal_code' => '123456',
+            'address_state' => 'Database State',
+            'address_country' => 'Database Country',
+            'instagram_url' => 'https://social.example.test/database-profile',
+        ]);
+
+        $response = $this->get('/contact');
+
+        $response->assertOk()
+            ->assertSee('0800 111 2233')
+            ->assertSee('href="tel:2348001112233"', false)
+            ->assertSee('https://wa.example.test/database-profile', false)
+            ->assertSee('https://maps.example.test/database-profile', false)
+            ->assertSee('Database-owned Street, Database City, 123456, Database State, Database Country', false)
+            ->assertSee('https://social.example.test/database-profile', false);
+
+        $address = 'Database-owned Street, Database City, 123456, Database State, Database Country';
+        $directionsUrl = 'https://www.google.com/maps/dir/?api=1&destination='.urlencode($address);
+        $content = $response->getContent();
+
+        $this->assertIsString($content);
+        $this->assertSame(1, substr_count($content, $address));
+        $this->assertStringContainsString('href="'.e($directionsUrl).'"', $content);
+        $this->assertStringNotContainsString('https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d6484.734419313616', $content);
+        $this->assertStringNotContainsString('height="340"', $content);
     }
 }

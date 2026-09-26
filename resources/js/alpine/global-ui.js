@@ -52,7 +52,7 @@ const waggiesNavbar = () => ({
     openMobile() { this.lastFocus = document.activeElement; this.mobileOpen = true; }, closeMobile() { this.mobileOpen = false; this.$nextTick(() => { if (this.lastFocus?.isConnected) this.lastFocus.focus(); this.lastFocus = null; }); },
     escape() { if (this.mobileOpen) this.closeMobile(); else this.closeDesktop(); },
 });
-const waggiesDialog = () => ({
+export const waggiesDialog = () => ({
     dialogState: 'open',
     dialogTrigger: null,
     dialogFallback: null,
@@ -83,7 +83,9 @@ const waggiesDialog = () => ({
         this[this.dialogState] = false;
     },
     dialogFocusableElements() {
-        return [...this.$el.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+        const dialog = this.$refs.dialog || this.$el;
+
+        return [...dialog.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
             .filter(node => node.getClientRects().length > 0 && node.getAttribute('aria-hidden') !== 'true');
     },
     handleDialogKeydown(event) {

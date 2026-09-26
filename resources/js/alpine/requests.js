@@ -250,15 +250,13 @@ const contactRequest = (schema, context, whatsapp) => ({
 });
 
 const testimonialForm = (submitUrl) => ({
-    step: 0, submitted: false, submitting: false, serverError: '', errors: {}, services: ['Boarding', 'Grooming', 'Vet Care', 'Training', 'Transport', 'Relocation'], petTypes: ['Dog', 'Cat', 'Bird', 'Rabbit', 'Reptile', 'Other'], data: { rating: 0, service: '', title: '', story: '', authorName: '', authorLocation: '', petName: '', petType: '', contactMethod: '', contactValue: '', photoUrl: undefined, consent: false },
+    step: 0, submitted: false, submitting: false, serverError: '', errors: {}, services: ['Boarding', 'Grooming', 'Vet Care', 'Training', 'Transport', 'Relocation'], data: { rating: 0, service: '', story: '', authorName: '', authorLocation: '', consent: false },
     get stepIndex() { return this.step; },
     clear(field) { delete this.errors[field]; },
-    validateExperience() { const errors = {}; if (!Number.isInteger(this.data.rating) || this.data.rating < 1 || this.data.rating > 5) errors.rating = 'Please select a star rating.'; if (!this.services.includes(this.data.service)) errors.service = this.data.service ? 'Please choose a valid service.' : 'Please select the service you used.'; if (!this.data.title) errors.title = 'Please give your experience a short title.'; else if (this.data.title.length > 80) errors.title = 'Title should be 80 characters or less.'; if (this.data.story.length < 50) errors.story = 'Please share at least 50 characters about your experience.'; else if (this.data.story.length > 2000) errors.story = 'Story should be 2000 characters or less.'; return errors; },
-    validateAbout() { const errors = {}; if (this.data.authorName.trim().length < 2) errors.authorName = 'Please enter your name (min 2 characters).'; else if (this.data.authorName.length > 60) errors.authorName = 'Name should be 60 characters or less.'; if (this.data.authorLocation.trim().length < 2) errors.authorLocation = 'Please enter your area (e.g. Maitama, Abuja).'; else if (this.data.authorLocation.length > 80) errors.authorLocation = 'Location should be 80 characters or less.'; if (this.data.petName.length > 60) errors.petName = 'Pet name should be 60 characters or less.'; if (!this.petTypes.includes(this.data.petType)) errors.petType = this.data.petType ? 'Please choose a valid pet type.' : 'Please select your pet type.'; if (!['phone', 'whatsapp', 'email'].includes(this.data.contactMethod)) errors.contactMethod = 'Please choose a contact method.'; if (this.data.contactValue.trim().length < 3) errors.contactValue = 'Please provide a contact detail so staff can verify the submission.'; return errors; },
+    validateExperience() { const errors = {}; if (!Number.isInteger(this.data.rating) || this.data.rating < 1 || this.data.rating > 5) errors.rating = 'Please select a star rating.'; if (!this.services.includes(this.data.service)) errors.service = this.data.service ? 'Please choose a valid service.' : 'Please select the service you used.'; if (this.data.story.length < 50) errors.story = 'Please share at least 50 characters about your experience.'; else if (this.data.story.length > 2000) errors.story = 'Story should be 2000 characters or less.'; return errors; },
+    validateAbout() { const errors = {}; if (this.data.authorName.trim().length < 2) errors.authorName = 'Please enter your name (min 2 characters).'; else if (this.data.authorName.length > 60) errors.authorName = 'Name should be 60 characters or less.'; if (this.data.authorLocation.trim().length < 2) errors.authorLocation = 'Please enter your area (e.g. Maitama, Abuja).'; else if (this.data.authorLocation.length > 80) errors.authorLocation = 'Location should be 80 characters or less.'; return errors; },
     next() { const errors = this.step === 0 ? this.validateExperience() : this.validateAbout(); this.errors = errors; if (!Object.keys(errors).length) this.step += 1; },
     back() { if (this.step > 0) { this.step -= 1; this.errors = {}; } },
-    photoChange(event) { const file = event.target.files?.[0]; if (!file) return; const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']; if (!allowedTypes.includes(file.type)) { this.errors.photo = 'Please choose a JPG, PNG, or WebP image.'; event.target.value = ''; return; } if (file.size > 4 * 1024 * 1024) { this.errors.photo = 'Please choose an image under 4 MB.'; event.target.value = ''; return; } const reader = new FileReader(); reader.onload = () => { this.data.photoUrl = typeof reader.result === 'string' ? reader.result : undefined; this.clear('photo'); }; reader.readAsDataURL(file); },
-    removePhoto() { this.data.photoUrl = undefined; const input = document.getElementById('testimonial-photo'); if (input) input.value = ''; },
     async submit(event) {
         if (this.submitting) return;
 
@@ -278,7 +276,7 @@ const testimonialForm = (submitUrl) => ({
             if (!response.ok) {
                 const payload = await response.json().catch(() => ({}));
                 if (response.status === 422) {
-                    const fieldNames = { author_name: 'authorName', author_location: 'authorLocation', pet_name: 'petName', pet_type: 'petType' };
+                    const fieldNames = { author_name: 'authorName', author_location: 'authorLocation' };
                     this.errors = Object.fromEntries(Object.entries(payload.errors ?? {}).map(([field, messages]) => [fieldNames[field] || field, messages[0]]));
                     return;
                 }
@@ -292,8 +290,7 @@ const testimonialForm = (submitUrl) => ({
             setTimeout(() => {
                 this.submitted = false;
                 this.step = 0;
-                this.data = { rating: 0, service: '', title: '', story: '', authorName: '', authorLocation: '', petName: '', petType: '', contactMethod: '', contactValue: '', photoUrl: undefined, consent: false };
-                this.removePhoto();
+                this.data = { rating: 0, service: '', story: '', authorName: '', authorLocation: '', consent: false };
                 this.errors = {};
             }, 3000);
         } catch (error) {

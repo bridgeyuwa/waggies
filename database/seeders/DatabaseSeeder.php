@@ -24,6 +24,9 @@ class DatabaseSeeder extends Seeder
             ])->getAttributes(),
         );
 
-        $this->call(DevelopmentDatasetSeeder::class);
+        $this->call([
+            WaggiesContentSeeder::class,
+            DevelopmentDatasetSeeder::class,
+        ]);
     }
 }

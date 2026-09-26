@@ -16,10 +16,6 @@ final class JobOpening extends Model
 
     public const string STATUS_OPEN = 'open';
 
-    public const string STATUS_CLOSED = 'closed';
-
-    public const string STATUS_ARCHIVED = 'archived';
-
     protected $attributes = [
         'status' => self::STATUS_DRAFT,
         'sort_order' => 0,
@@ -35,17 +31,13 @@ final class JobOpening extends Model
         'requirements',
         'status',
         'published_at',
-        'closing_date',
         'sort_order',
-        'application_email',
-        'application_url',
     ];
 
     protected function casts(): array
     {
         return [
             'published_at' => 'datetime',
-            'closing_date' => 'date',
             'sort_order' => 'integer',
         ];
     }
@@ -60,9 +52,6 @@ final class JobOpening extends Model
             ->where('status', self::STATUS_OPEN)
             ->where(function (Builder $query): void {
                 $query->whereNull('published_at')->orWhere('published_at', '<=', now());
-            })
-            ->where(function (Builder $query): void {
-                $query->whereNull('closing_date')->orWhereDate('closing_date', '>=', today());
             });
     }
 
@@ -74,8 +63,6 @@ final class JobOpening extends Model
         return [
             self::STATUS_DRAFT => 'Draft',
             self::STATUS_OPEN => 'Open',
-            self::STATUS_CLOSED => 'Closed',
-            self::STATUS_ARCHIVED => 'Archived',
         ];
     }
 }

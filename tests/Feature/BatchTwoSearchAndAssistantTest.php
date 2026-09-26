@@ -2,6 +2,7 @@
 
 use App\AI\WaggiesAssistant;
 use App\Models\Faq;
+use App\Models\JobOpening;
 use App\Models\Product;
 use App\Models\SearchDocument;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -111,4 +112,30 @@ it('does not include draft FAQs in a rebuilt public projection', function (): vo
     $this->artisan('waggies:search-rebuild')->assertSuccessful();
 
     expect(SearchDocument::query()->where('title', 'Draft question about a secret service')->exists())->toBeFalse();
+});
+
+it('keeps current job openings searchable without indexing drafts or future openings', function (): void {
+    JobOpening::factory()->create([
+        'title' => 'Searchable Care Role',
+        'description' => 'A unique searchable role description.',
+        'status' => JobOpening::STATUS_OPEN,
+        'published_at' => now(),
+    ]);
+    JobOpening::factory()->create([
+        'title' => 'Future Search Role',
+        'description' => 'A future role that must remain hidden.',
+        'status' => JobOpening::STATUS_OPEN,
+        'published_at' => now()->addDay(),
+    ]);
+    JobOpening::factory()->create([
+        'title' => 'Draft Search Role',
+        'description' => 'A draft role that must remain hidden.',
+        'status' => JobOpening::STATUS_DRAFT,
+    ]);
+
+    $this->getJson(route('search', ['q' => 'unique searchable role']))
+        ->assertOk()
+        ->assertJsonFragment(['title' => 'Searchable Care Role'])
+        ->assertJsonMissing(['title' => 'Future Search Role'])
+        ->assertJsonMissing(['title' => 'Draft Search Role']);
 });

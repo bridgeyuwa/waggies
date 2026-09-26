@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\BusinessProfile;
 use App\Models\User;
 
 it('returns a healthy native endpoint with non-sensitive security headers', function (): void {
@@ -54,8 +55,10 @@ it('allows authenticated staff to reach the admin panel without exposing credent
         ->assertOk();
 });
 
-it('uses the configured WhatsApp destination in public contact journeys', function (): void {
-    config()->set('waggies.whatsapp', 'https://wa.example.test/waggies');
+it('uses the database WhatsApp destination in public contact journeys', function (): void {
+    BusinessProfile::current()->update([
+        'whatsapp_url' => 'https://wa.example.test/waggies',
+    ]);
 
     $this->get('/book')
         ->assertOk()

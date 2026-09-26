@@ -7,10 +7,11 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-it('imports the current gallery content into persisted UUIDv7 records', function (): void {
+it('imports the gallery seed fixture into persisted UUIDv7 records', function (): void {
     $items = GalleryItem::query()->orderBy('sort_order')->get();
+    $aboutPagesFixture = require database_path('seeders/fixtures/about_pages.php');
 
-    expect($items)->toHaveCount(count(config('waggies_about_pages.gallery.images')));
+    expect($items)->toHaveCount(count($aboutPagesFixture['gallery']['images']));
 
     foreach ($items as $item) {
         expect($item->getKey())

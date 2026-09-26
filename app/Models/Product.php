@@ -36,6 +36,8 @@ final class Product extends Model implements HasMedia
 
     public const string AVAILABILITY_UNAVAILABLE = 'unavailable';
 
+    public const int MAX_GALLERY_IMAGES = 8;
+
     protected $attributes = [
         'currency' => 'NGN',
         'status' => self::STATUS_DRAFT,
@@ -221,14 +223,15 @@ final class Product extends Model implements HasMedia
      *
      * @return array<string, mixed>
      */
-    public function toPublicArray(): array
+    public function toPublicArray(?string $fallbackImage = null): array
     {
         $media = $this->getFirstMedia('image');
         $gallery = $this->getMedia('images');
-        $primaryImage = $this->publicImageUrl();
+        $primaryMedia = $gallery->first() ?? $media;
+        $primaryImage = $primaryMedia?->getUrl('detail') ?? $this->publicImageUrl();
 
-        if ($gallery->isNotEmpty()) {
-            $primaryImage = $gallery->first()->getUrl('detail');
+        if ($primaryImage === '') {
+            $primaryImage = (string) $fallbackImage;
         }
 
         return [
@@ -239,7 +242,7 @@ final class Product extends Model implements HasMedia
             'currency' => $this->currency,
             'category' => $this->category,
             'image' => $primaryImage,
-            'imageSrcset' => $media?->getSrcset('detail'),
+            'imageSrcset' => $primaryMedia?->getSrcset('detail'),
             'alt' => $this->image_alt ?: $this->name,
             'badge' => $this->badge,
             'features' => $this->features ?? [],
@@ -248,6 +251,7 @@ final class Product extends Model implements HasMedia
             'gallery' => $gallery->map(fn (Media $item): array => [
                 'url' => $item->getUrl('detail'),
                 'thumb' => $item->getUrl('thumb'),
+                'srcset' => $item->getSrcset('detail'),
                 'alt' => $item->getCustomProperty('alt') ?: $this->image_alt ?: $this->name,
             ])->values()->all(),
         ];

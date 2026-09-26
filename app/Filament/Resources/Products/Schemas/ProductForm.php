@@ -105,14 +105,14 @@ class ProductForm
                             ->disk('public')
                             ->visibility('public')
                             ->responsiveImages()
-                            ->maxFiles(8)
-                            ->maxSize(10240),
+                            ->maxFiles(Product::MAX_GALLERY_IMAGES)
+                            ->appendFiles()
+                            ->maxSize(10240)
+                            ->helperText('Up to 8 additional images. Drag to reorder them; the first image is used as the primary gallery image.'),
                         TextInput::make('image_alt')
                             ->label('Alt text')
                             ->required()
                             ->maxLength(255),
-                        TextInput::make('seo_title')->maxLength(160),
-                        Textarea::make('seo_description')->maxLength(255)->columnSpanFull(),
                     ])
                     ->columnSpanFull(),
             ]);

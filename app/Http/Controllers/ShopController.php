@@ -54,7 +54,9 @@ class ShopController extends Controller
             ->orderBy($sortOptions[$sort][0], $sortOptions[$sort][1])
             ->when($sort !== 'name', fn ($query) => $query->orderBy('name'))
             ->get();
-        $products = $publishedProducts->map->toPublicArray()->all();
+        $products = $publishedProducts
+            ->map(fn (Product $product): array => $product->toPublicArray("/media/shop/card-{$product->slug}.jpg"))
+            ->all();
         $metadata = [
             'title' => 'Pet Shop - Supplies & Products', 'description' => 'Browse pet food, toys, grooming supplies, health products, and accessories at the Waggies pet shop in Abuja, Nigeria.',
             'canonical' => route('shop.index'), 'ogTitle' => 'Pet Shop - Supplies & Products | Waggies', 'ogDescription' => 'Pet food, toys, grooming supplies, health products, and accessories in Abuja.',
@@ -84,7 +86,7 @@ class ShopController extends Controller
         abort_unless($product->isPublished(), 404);
 
         $product->loadMissing('media');
-        $productData = $product->toPublicArray();
+        $productData = $product->toPublicArray("/media/shop/{$product->slug}/hero.jpg");
         $relatedProducts = Product::query()
             ->published()
             ->with('media')
@@ -93,8 +95,7 @@ class ShopController extends Controller
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get()
-            ->map
-            ->toPublicArray()
+            ->map(fn (Product $relatedProduct): array => $relatedProduct->toPublicArray("/media/shop/{$product->slug}/related-{$relatedProduct->slug}.jpg"))
             ->take(3)
             ->all();
         $recentProducts = Product::query()
@@ -103,8 +104,7 @@ class ShopController extends Controller
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get()
-            ->map
-            ->toPublicArray()
+            ->map(fn (Product $recentProduct): array => $recentProduct->toPublicArray("/media/shop/{$product->slug}/recent-{$recentProduct->slug}.jpg"))
             ->all();
 
         $metadata = ['title' => $productData['name'].' - Waggies Shop', 'description' => $productData['description'], 'canonical' => route('shop.show', ['product' => $product]), 'ogTitle' => $productData['name'].' - Waggies Shop', 'ogDescription' => $productData['description'], 'ogImage' => $productData['image']];

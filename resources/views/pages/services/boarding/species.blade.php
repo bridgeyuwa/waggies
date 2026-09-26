@@ -13,7 +13,11 @@
     $shareTitle = ['dogs' => 'Dog Boarding - Waggies', 'cats' => 'Cat Boarding - Waggies', 'exotic' => 'Exotic Pet Boarding - Waggies'][$species];
     $shareDescription = $page['description'];
     $dailyHeadingId = $species === 'dogs' ? 'dog-daily-heading' : ($species === 'cats' ? 'cat-daily-heading' : 'exotic-daily-heading');
-    $siblings = [['key' => 'dogs', 'title' => 'Dog Boarding', 'desc' => 'Private suites, supervised play, and structured daily routines.', 'image' => '/service-hero-boarding-dogs.jpg', 'icon' => 'pets'], ['key' => 'cats', 'title' => 'Cat Boarding', 'desc' => 'Calm, dog-free condos with enrichment and daily photo updates.', 'image' => '/service-hero-boarding-cats.jpg', 'icon' => 'pets'], ['key' => 'exotic', 'title' => 'Exotic Pet Boarding', 'desc' => 'Species-specific enclosures with specialist handlers and vet access.', 'image' => '/service-hero-boarding-exotic.jpg', 'icon' => 'exotic-pet']];
+    $siblings = collect([
+        ['key' => 'dogs', 'title' => 'Dog Boarding', 'desc' => 'Private suites, supervised play, and structured daily routines.', 'icon' => 'pets'],
+        ['key' => 'cats', 'title' => 'Cat Boarding', 'desc' => 'Calm, dog-free condos with enrichment and daily photo updates.', 'icon' => 'pets'],
+        ['key' => 'exotic', 'title' => 'Exotic Pet Boarding', 'desc' => 'Species-specific enclosures with specialist handlers and vet access.', 'icon' => 'exotic-pet'],
+    ])->map(fn (array $sibling): array => $sibling + ['image' => "/media/services/boarding/{$species}/related-{$sibling['key']}.jpg"])->all();
 @endphp
 
 <x-waggies.breadcrumb-strip class="border-b border-primary/5 bg-white" :items="[['label' => 'Services', 'route' => 'services.index'], ['label' => 'Boarding', 'route' => 'services.boarding'], ['label' => $page['hero']['eyebrow'], 'route' => 'services.boarding.species', 'params' => ['species' => $species]]]" />

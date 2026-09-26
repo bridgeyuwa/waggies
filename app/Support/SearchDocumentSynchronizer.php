@@ -142,10 +142,8 @@ final class SearchDocumentSynchronizer
 
         if ($model instanceof JobOpening) {
             $publishedAt = $model->getAttribute('published_at');
-            $closingDate = $model->getAttribute('closing_date');
             $searchable = $model->status === JobOpening::STATUS_OPEN
-                && ($publishedAt === null || $publishedAt->isPast())
-                && ($closingDate === null || $closingDate->isFuture() || $closingDate->isToday());
+                && ($publishedAt === null || $publishedAt->isPast());
 
             return [
                 'source_type' => 'job',

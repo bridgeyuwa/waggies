@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Http\Controllers\ToolData;
+
 final class SearchCatalog
 {
     /**
@@ -27,7 +29,7 @@ final class SearchCatalog
             ['key' => 'shop', 'type' => 'page', 'title' => 'Pet Shop', 'excerpt' => 'Browse pet food, toys, grooming supplies, health products and accessories.', 'route' => 'shop.index', 'section' => 'Shop', 'category' => 'Page', 'keywords' => 'products pet shop supplies food toys', 'boost' => 7],
         ];
 
-        foreach (config('waggies_tools.catalogue', []) as $tool) {
+        foreach (ToolData::catalogue() as $tool) {
             $entries[] = [
                 'key' => "tool-{$tool['id']}",
                 'type' => 'tool',

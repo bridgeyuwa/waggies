@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-it('imports the current guide configuration into the persisted guide source', function (): void {
-    $configuredGuides = config('waggies_guides.items');
+it('imports the guide seed fixture into the persisted guide source', function (): void {
+    $configuredGuides = (require database_path('seeders/fixtures/guides.php'))['items'];
     $persistedGuides = Guide::query()->orderBy('id')->get();
 
     expect($persistedGuides)->toHaveCount(count($configuredGuides))
@@ -137,8 +137,6 @@ it('preserves supported rich editorial content while removing unsafe markup', fu
 });
 
 it('uses UUIDv7 keys and generates a normalized guide slug on creation', function (): void {
-    config()->set('waggies_guides.items', []);
-
     $guide = Guide::create(guide_payload([
         'title' => '  Caring for Dogs & Cats  ',
         'slug' => null,
@@ -152,8 +150,6 @@ it('uses UUIDv7 keys and generates a normalized guide slug on creation', functio
 });
 
 it('regenerates untouched guide slugs and redirects multiple stale URLs', function (): void {
-    config()->set('waggies_guides.items', []);
-
     $guide = Guide::create(guide_payload([
         'title' => 'Original Guide Title',
         'slug' => null,
@@ -179,7 +175,6 @@ it('regenerates untouched guide slugs and redirects multiple stale URLs', functi
 });
 
 it('associates guide media with the UUID model and keeps rich content media separate', function (): void {
-    config()->set('waggies_guides.items', []);
     Storage::fake('public');
 
     $guide = Guide::create(guide_payload(['slug' => null]));

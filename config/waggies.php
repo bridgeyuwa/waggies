@@ -1,25 +1,6 @@
 <?php
 
 return [
-    'phone' => env('WAGGIES_PHONE', '0908 081 1902'),
-    'phone_international' => env('WAGGIES_PHONE_INTERNATIONAL', '+234 908 081 1902'),
-    'whatsapp' => env('WAGGIES_WHATSAPP', 'https://wa.me/2349080811902'),
-    'map_url' => env('WAGGIES_MAP_URL', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3939.758!2d7.4913!3d9.0579!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOcKwMDMnMzQuNCJOIDfCsDI5JzI4LjciRQ!5e0!3m2!1sen!2sng!4v1'),
-    'address' => [
-        'street' => 'Life Camp, Efab City Estate, 65 1st Ave',
-        'city' => 'Abuja',
-        'postal_code' => '900108',
-        'state' => 'Federal Capital Territory',
-        'country' => 'Nigeria',
-    ],
-    'socials' => [
-        'instagram' => 'https://instagram.com/waggies',
-        'facebook' => 'https://facebook.com/waggies',
-        'x' => 'https://x.com/waggies',
-        'linkedin' => 'https://linkedin.com/company/waggies',
-        'tiktok' => 'https://tiktok.com/@waggies',
-        'youtube' => 'https://youtube.com/@waggies',
-    ],
     'navigation' => [
         'services' => ['label' => 'Services', 'route' => 'services.index', 'kind' => 'mega', 'hubLabel' => 'View All Services', 'columns' => [
             ['label' => 'Boarding', 'items' => [
@@ -61,7 +42,6 @@ return [
                 ['label' => 'Breed Info Finder', 'route' => 'tools.breed-finder', 'description' => 'Explore dog & cat breeds', 'icon' => 'search'],
             ]],
             ['label' => 'Planning', 'items' => [
-                ['label' => 'Medication & OTC Safety Guide', 'route' => 'tools.medication', 'description' => 'Safety-first medication information', 'icon' => 'medication'],
                 ['label' => 'New Pet Checklist', 'route' => 'tools.new-pet-checklist', 'description' => 'Everything for a new pet', 'icon' => 'checklist'],
             ]],
         ]],
@@ -70,25 +50,5 @@ return [
             ['label' => 'Guides', 'route' => 'guides.index', 'description' => 'In-depth pet care guides', 'icon' => 'guide'],
             ['label' => 'Knowledge Base', 'route' => 'knowledge-base.index', 'description' => 'Pet care answers', 'icon' => 'knowledge-base'],
         ]],
-    ],
-    'service_comparison' => [
-        'services' => [
-            ['key' => 'boarding', 'label' => 'Boarding', 'icon' => 'boarding', 'pricing' => ['type' => 'from', 'unit' => '/night']],
-            ['key' => 'grooming', 'label' => 'Grooming', 'icon' => 'grooming', 'pricing' => ['type' => 'from', 'unit' => '/session']],
-            ['key' => 'vet-care', 'label' => 'Vet Care', 'icon' => 'veterinary-care', 'pricing' => ['type' => 'from', 'unit' => '/visit']],
-            ['key' => 'training', 'label' => 'Training', 'icon' => 'training', 'pricing' => ['type' => 'from', 'unit' => '/programme']],
-            ['key' => 'relocation', 'label' => 'Relocation', 'icon' => 'airport-departure', 'pricing' => ['type' => 'editorial', 'label' => 'Custom quote']],
-            ['key' => 'transport', 'label' => 'Local Transport', 'icon' => 'transport', 'pricing' => ['type' => 'editorial', 'label' => 'Route estimate/trip']],
-        ],
-        'features' => [
-            ['label' => '24/7 Care', 'supported' => ['boarding']],
-            ['label' => 'On-site Vet', 'supported' => ['boarding', 'vet-care']],
-            ['label' => 'Home Visit', 'supported' => ['vet-care', 'transport']],
-            ['label' => 'International', 'supported' => ['relocation']],
-            ['label' => 'Group Sessions', 'supported' => ['training']],
-            ['label' => 'Pickup & Dropoff', 'supported' => ['transport', 'relocation']],
-            ['label' => 'Daily Updates', 'supported' => ['boarding', 'grooming']],
-            ['label' => 'Booking Request', 'supported' => ['boarding', 'grooming', 'vet-care', 'training', 'relocation', 'transport']],
-        ],
     ],
 ];

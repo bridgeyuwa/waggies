@@ -233,6 +233,20 @@ Evaluate official integrations with Filament and other current Waggies infrastru
 
 The package does not define Waggies' domain concepts for photos, documents, attachments, or records.
 
+### Asset reuse must be evidence-based
+
+The reuse-before-reinventing principle does not require visual assets to be reused when doing so would obscure ownership, purpose, crop, or visual meaning.
+
+Before consolidating image assets, establish:
+
+```text
+asset → references → owner/purpose → canonical location → public URL risk
+```
+
+Reuse one physical asset when it is genuinely the same source asset and its uses share the same visual role. Keep separate files when an asset is entity-owned, purpose-specific, differently cropped, or intentionally distinct, even if the files look similar or reuse would reduce file count.
+
+Do not force unrelated assets into a shared `editorial`, `shared`, or page directory merely to satisfy reuse. Do not create page-specific copies merely because one asset appears on multiple pages. Organize by ownership and domain, preserve legitimate existing assets, and make the smallest coherent change that improves maintainability without casually breaking public URLs, seeded content, or visual parity.
+
 ---
 
 ## Roles and permissions

@@ -8,7 +8,7 @@
         <p class="mx-auto mt-2 max-w-lg text-center text-sm leading-relaxed text-white/70 sm:text-base">{{ $medical ? 'Our veterinary team is available for consultations. Request a consultation or call us directly.' : 'Speak with our care team about your pet’s needs or request a service today.' }}</p>
         <div class="mx-auto mt-6 flex max-w-md flex-col items-center justify-center gap-3 sm:flex-row">
             <x-waggies.button href="{{ $medical ? route('contact', ['intent' => 'veterinary', 'service' => 'vet-care', 'source' => 'tool-medical-cta']) : route('contact', ['intent' => 'tool-assistance', 'source' => 'tool-general-cta']) }}" class="!bg-secondary !text-primary-dark hover:!bg-secondary-hover">{{ $medical ? 'Book a Vet Appointment' : 'Contact Waggies' }} <x-waggies.icon name="arrow-forward" size="18" /></x-waggies.button>
-            @if($medical)<x-waggies.button href="tel:{{ preg_replace('/\s+/', '', config('waggies.phone_international')) }}" variant="outline" class="border-white/30 bg-transparent text-white hover:bg-white/10"><x-waggies.icon name="phone" size="18" />Call {{ config('waggies.phone') }}</x-waggies.button>@endif
+            @if($medical)<x-waggies.button href="{{ $businessProfile->toPublicArray()['phoneHref'] }}" variant="outline" class="border-white/30 bg-transparent text-white hover:bg-white/10"><x-waggies.icon name="phone" size="18" />Call {{ $businessProfile->phone }}</x-waggies.button>@endif
         </div>
     </div>
 </section>

@@ -37,27 +37,27 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        $address = config('waggies.address', []);
-        $socials = config('waggies.socials', []);
+        $businessProfile = require database_path('seeders/fixtures/business_profile.php');
 
         DB::table('business_profiles')->insert([
-            'business_name' => 'Waggies',
-            'primary_email' => 'hello@waggies.ng',
-            'phone' => config('waggies.phone'),
-            'phone_international' => config('waggies.phone_international'),
-            'whatsapp_url' => config('waggies.whatsapp'),
-            'address_street' => $address['street'] ?? null,
-            'address_city' => $address['city'] ?? null,
-            'address_postal_code' => $address['postal_code'] ?? null,
-            'address_state' => $address['state'] ?? null,
-            'address_country' => $address['country'] ?? null,
-            'timezone' => 'Africa/Lagos',
-            'instagram_url' => $socials['instagram'] ?? null,
-            'facebook_url' => $socials['facebook'] ?? null,
-            'x_url' => $socials['x'] ?? null,
-            'linkedin_url' => $socials['linkedin'] ?? null,
-            'tiktok_url' => $socials['tiktok'] ?? null,
-            'youtube_url' => $socials['youtube'] ?? null,
+            'business_name' => $businessProfile['business_name'],
+            'primary_email' => $businessProfile['primary_email'],
+            'phone' => $businessProfile['phone'],
+            'phone_international' => $businessProfile['phone_international'],
+            'whatsapp_url' => $businessProfile['whatsapp_url'],
+            'address_street' => $businessProfile['address']['street'],
+            'address_city' => $businessProfile['address']['city'],
+            'address_postal_code' => $businessProfile['address']['postal_code'],
+            'address_state' => $businessProfile['address']['state'],
+            'address_country' => $businessProfile['address']['country'],
+            'timezone' => $businessProfile['timezone'],
+            'map_url' => $businessProfile['map_url'],
+            'instagram_url' => $businessProfile['socials']['instagram'],
+            'facebook_url' => $businessProfile['socials']['facebook'],
+            'x_url' => $businessProfile['socials']['x'],
+            'linkedin_url' => $businessProfile['socials']['linkedin'],
+            'tiktok_url' => $businessProfile['socials']['tiktok'],
+            'youtube_url' => $businessProfile['socials']['youtube'],
             'created_at' => now(),
             'updated_at' => now(),
         ]);

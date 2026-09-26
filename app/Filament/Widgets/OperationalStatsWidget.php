@@ -4,7 +4,6 @@ namespace App\Filament\Widgets;
 
 use App\Enums\BookingRequestStatus;
 use App\Models\BookingRequest;
-use App\Models\ClinicalContent;
 use App\Models\ContactEnquiry;
 use App\Models\Testimonial;
 use Filament\Widgets\StatsOverviewWidget;
@@ -42,18 +41,6 @@ final class OperationalStatsWidget extends StatsOverviewWidget
                 ->color('gray')
                 ->url(route('filament.admin.resources.testimonials.index')),
         ];
-
-        if (auth()->user()?->is_clinical_reviewer === true) {
-            $clinicalReviewQueue = ClinicalContent::query()
-                ->whereIn('clinical_status', ['pending_review', 'changes_requested'])
-                ->count();
-
-            $stats[] = Stat::make('Clinical items in review', $clinicalReviewQueue)
-                ->description('Approval remains gated')
-                ->descriptionIcon('heroicon-m-shield-check')
-                ->color('danger')
-                ->url(route('filament.admin.resources.clinical-contents.index'));
-        }
 
         return $stats;
     }

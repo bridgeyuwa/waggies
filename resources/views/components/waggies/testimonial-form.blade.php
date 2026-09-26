@@ -2,7 +2,7 @@
     <div class="overflow-hidden rounded-3xl border border-surface-purple/60 bg-white shadow-[0_20px_60px_-20px_rgba(107,44,145,0.35)]">
         <div class="bg-primary px-6 py-5 sm:px-10">
             <div class="flex items-center justify-between gap-4" aria-label="Testimonial submission progress">
-                <template x-for="(label, index) in ['Experience', 'About You', 'Photos']" :key="label">
+                <template x-for="(label, index) in ['Experience', 'About You', 'Consent & Submit']" :key="label">
                     <div class="flex flex-1 items-center gap-3 last:flex-none">
                         <div class="flex flex-col items-center gap-1.5">
                             <div class="relative grid size-9 place-items-center rounded-full text-sm font-bold transition-colors duration-300" :class="stepIndex === index ? 'bg-white text-primary' : stepIndex > index ? 'bg-white/25 text-white' : 'bg-white/10 text-white/70'">
@@ -27,7 +27,7 @@
                 <p class="mt-1.5 max-w-sm text-primary-dark/60">Your testimonial has been submitted. We&apos;ll review it and share it with the Waggies community soon.</p>
             </div>
 
-            <form x-show="!submitted" x-cloak @submit.prevent="submit($event)" enctype="multipart/form-data" :aria-busy="submitting" class="space-y-5" aria-describedby="testimonial-form-help">
+            <form x-show="!submitted" x-cloak @submit.prevent="submit($event)" :aria-busy="submitting" class="space-y-5" aria-describedby="testimonial-form-help">
                 @csrf
                 <div class="hidden" aria-hidden="true">
                     <label for="testimonial-website">Leave this field empty</label>
@@ -67,13 +67,6 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <label for="testimonial-title" class="font-semibold text-primary-dark">Experience title <span class="text-primary" aria-hidden="true">*</span></label>
-                        <input id="testimonial-title" name="title" x-model="data.title" @input="clear('title')" required maxlength="80" placeholder="e.g. Bruno loved his stay!" :aria-invalid="errors.title ? 'true' : null" :aria-describedby="errors.title ? 'testimonial-title-help testimonial-title-error' : 'testimonial-title-help'" class="contact-input !rounded-md">
-                        <div id="testimonial-title-help" class="flex items-center justify-between text-[11px] text-primary-dark/60"><span>A short headline for your story.</span><span x-text="data.title.length + '/80'"></span></div>
-                        <p id="testimonial-title-error" x-show="errors.title" x-text="errors.title" class="text-xs font-medium text-error" role="alert"></p>
-                    </div>
-
-                    <div class="space-y-1.5">
                         <label for="testimonial-story" class="font-semibold text-primary-dark">Your story <span class="text-primary" aria-hidden="true">*</span></label>
                         <textarea id="testimonial-story" name="story" x-model="data.story" @input="clear('story')" required maxlength="2000" rows="5" placeholder="Share what happened, how the team treated your pet, and what you loved most..." :aria-invalid="errors.story ? 'true' : null" :aria-describedby="errors.story ? 'testimonial-story-help testimonial-story-error' : 'testimonial-story-help'" class="contact-input resize-none !rounded-md"></textarea>
                         <div id="testimonial-story-help" class="flex items-center justify-between text-[11px] text-primary-dark/60"><span>Minimum 50 characters.</span><span x-text="data.story.length + '/2000'"></span></div>
@@ -83,7 +76,7 @@
 
                 <div x-show="step === 1" x-transition class="space-y-5">
                     <div>
-                        <h3 class="font-serif text-xl font-bold text-primary-dark">About You &amp; Your Pet</h3>
+                        <h3 class="font-serif text-xl font-bold text-primary-dark">About You</h3>
                         <p class="mt-0.5 text-sm text-primary-dark/60">So we can attribute your testimonial properly.</p>
                     </div>
 
@@ -99,57 +92,15 @@
                             <p id="author-location-error" x-show="errors.authorLocation" x-text="errors.authorLocation" class="text-xs font-medium text-error" role="alert"></p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div class="space-y-1.5">
-                            <label for="testimonial-contact-method" class="font-semibold text-primary-dark">Best contact method <span class="text-primary" aria-hidden="true">*</span></label>
-                            <select id="testimonial-contact-method" name="contact_method" x-model="data.contactMethod" @change="clear('contactMethod')" required class="contact-input !rounded-md">
-                                <option value="">Choose one</option>
-                                <option value="phone">Phone</option>
-                                <option value="whatsapp">WhatsApp</option>
-                                <option value="email">Email</option>
-                            </select>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label for="testimonial-contact-value" class="font-semibold text-primary-dark">Contact detail <span class="text-primary" aria-hidden="true">*</span></label>
-                            <input id="testimonial-contact-value" name="contact_value" x-model="data.contactValue" @input="clear('contactValue')" required maxlength="255" placeholder="Phone number, WhatsApp number or email" class="contact-input !rounded-md">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div class="space-y-1.5">
-                            <label for="petName" class="font-semibold text-primary-dark">Pet name</label>
-                            <input id="petName" name="pet_name" x-model="data.petName" @input="clear('petName')" maxlength="60" placeholder="Your pet's name" :aria-invalid="errors.petName ? 'true' : null" :aria-describedby="errors.petName ? 'pet-name-error' : null" class="contact-input !rounded-md">
-                            <p id="pet-name-error" x-show="errors.petName" x-text="errors.petName" class="text-xs font-medium text-error" role="alert"></p>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label for="testimonial-pet-type" class="font-semibold text-primary-dark">Pet type <span class="text-primary" aria-hidden="true">*</span></label>
-                            <select id="testimonial-pet-type" name="pet_type" x-model="data.petType" @change="clear('petType')" required :aria-invalid="errors.petType ? 'true' : null" :aria-describedby="errors.petType ? 'testimonial-pet-type-error' : null" class="contact-input !rounded-md">
-                                <option value="">Select pet type</option>
-                                <template x-for="type in petTypes" :key="type"><option :value="type" x-text="type"></option></template>
-                            </select>
-                            <p id="testimonial-pet-type-error" x-show="errors.petType" x-text="errors.petType" class="text-xs font-medium text-error" role="alert"></p>
-                        </div>
-                    </div>
                 </div>
 
                 <div x-show="step === 2" x-transition class="space-y-5">
                     <div>
-                        <h3 class="font-serif text-xl font-bold text-primary-dark">Photos &amp; Submit</h3>
-                        <p class="mt-0.5 text-sm text-primary-dark/60">Add an optional photo and review your consent before submitting.</p>
+                        <h3 class="font-serif text-xl font-bold text-primary-dark">Consent &amp; Submit</h3>
+                        <p class="mt-0.5 text-sm text-primary-dark/60">Review your consent before submitting.</p>
                     </div>
 
                     <div x-show="serverError" x-text="serverError" class="rounded-xl border border-error/40 bg-error-light/50 p-4 text-sm text-error" role="alert" aria-live="assertive"></div>
-
-                    <div class="space-y-1.5">
-                        <p id="testimonial-photo-label" class="font-semibold text-primary-dark">Photo <span class="font-normal text-primary-dark/60">(optional)</span></p>
-                        <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-                            <label for="testimonial-photo" class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-dashed border-primary/40 bg-surface-purple/40 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-surface-purple/80"><x-waggies.icon name="photo" size="16" aria-hidden="true" /><span x-text="data.photoUrl ? 'Change photo' : 'Choose a photo'"></span></label>
-                            <input id="testimonial-photo" name="photo" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" @change="photoChange" aria-labelledby="testimonial-photo-label" class="sr-only">
-                            <template x-if="data.photoUrl"><div class="relative"><img :src="data.photoUrl" alt="Selected preview" class="size-24 rounded-xl border border-surface-purple object-cover"><button type="button" @click="removePhoto" class="absolute -right-2 -top-2 grid size-11 place-items-center rounded-full bg-error text-xs text-white shadow hover:bg-error/90" aria-label="Remove photo"><x-waggies.icon name="close" size="14" aria-hidden="true" /></button></div></template>
-                            <span x-show="!data.photoUrl" class="text-xs text-primary-dark/60">JPG, PNG or WebP - max 4 MB. We&apos;ll preview it here.</span>
-                        </div>
-                        <p id="testimonial-photo-error" x-show="errors.photo" x-text="errors.photo" class="text-xs font-medium text-error" role="alert"></p>
-                    </div>
 
                     <div class="space-y-1.5">
                         <label for="testimonial-consent" class="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition" :class="errors.consent ? 'border-error bg-error-light/40' : 'border-surface-purple bg-surface-purple/40 hover:bg-surface-purple/70'">
@@ -162,7 +113,6 @@
                     <div class="mt-2 rounded-xl border border-surface-purple bg-white p-4">
                         <p class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-primary-dark/50">Your submission</p>
                         <div class="flex flex-wrap items-center gap-3 text-sm"><div class="flex items-center gap-0.5"><template x-for="n in 5" :key="n"><span :class="data.rating >= n ? 'text-gold' : 'text-primary-dark/20'"><x-waggies.icon name="star" size="16" variant="filled" /></span></template></div><span class="text-primary-dark/60">·</span><span class="font-semibold text-primary-dark" x-text="data.service || ' - '"></span><span class="text-primary-dark/60">·</span><span class="text-primary-dark/70" x-text="(data.authorName || 'Your name') + (data.authorLocation ? ' · ' + data.authorLocation : '')"></span></div>
-                        <p x-show="data.title" x-text="data.title" class="mt-2 font-serif text-base font-bold text-primary-dark"></p>
                         <p x-show="data.story" x-text="data.story" class="mt-1 line-clamp-2 text-sm text-primary-dark/70"></p>
                     </div>
                 </div>

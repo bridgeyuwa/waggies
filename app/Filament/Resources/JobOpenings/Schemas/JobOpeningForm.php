@@ -34,10 +34,7 @@ class JobOpeningForm
                         Grid::make(3)->schema([
                             Select::make('status')->options(JobOpening::statusOptions())->required(),
                             DatePicker::make('published_at')->label('Publish from'),
-                            DatePicker::make('closing_date')->label('Closing date'),
                             TextInput::make('sort_order')->numeric()->integer()->minValue(0)->required(),
-                            TextInput::make('application_email')->email()->maxLength(255),
-                            TextInput::make('application_url')->url()->maxLength(500),
                         ]),
                     ])->columnSpanFull(),
             ]);

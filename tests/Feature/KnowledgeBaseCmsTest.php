@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-it('imports the current knowledge base configuration into the persisted source', function (): void {
-    $configuredArticles = config('waggies_knowledge_base.items');
+it('imports the knowledge-base seed fixture into the persisted source', function (): void {
+    $configuredArticles = (require database_path('seeders/fixtures/knowledge_base.php'))['items'];
     $persistedArticles = KnowledgeArticle::query()->orderBy('sort_order')->get();
 
     expect($persistedArticles)->toHaveCount(count($configuredArticles))
@@ -42,8 +42,6 @@ it('rejects an invalid knowledge article status before persistence', function ()
 });
 
 it('serves published articles from the database and hides unpublished articles', function (): void {
-    config()->set('waggies_knowledge_base.items', []);
-
     $draft = KnowledgeArticle::create(knowledge_article_payload([
         'slug' => 'draft-knowledge-article',
         'title' => 'Draft Knowledge Article',
@@ -124,8 +122,6 @@ it('preserves knowledge base listing pagination and search contracts', function 
 });
 
 it('uses UUIDv7 keys and generates a normalized knowledge article slug on creation', function (): void {
-    config()->set('waggies_knowledge_base.items', []);
-
     $article = KnowledgeArticle::create(knowledge_article_payload([
         'title' => '  Caring for Dogs & Cats  ',
         'slug' => null,
@@ -139,8 +135,6 @@ it('uses UUIDv7 keys and generates a normalized knowledge article slug on creati
 });
 
 it('regenerates untouched knowledge article slugs and redirects multiple stale URLs', function (): void {
-    config()->set('waggies_knowledge_base.items', []);
-
     $article = KnowledgeArticle::create(knowledge_article_payload([
         'title' => 'Original Knowledge Title',
         'slug' => null,
@@ -166,7 +160,6 @@ it('regenerates untouched knowledge article slugs and redirects multiple stale U
 });
 
 it('associates knowledge article media with the UUID model', function (): void {
-    config()->set('waggies_knowledge_base.items', []);
     Storage::fake('public');
 
     $article = KnowledgeArticle::create(knowledge_article_payload(['slug' => null]));

@@ -58,7 +58,9 @@ return new class extends Migration
             ]);
         }
 
-        foreach (config('waggies_about_pages.testimonials.items', []) as $index => $item) {
+        $aboutPagesFixture = require database_path('seeders/fixtures/about_pages.php');
+
+        foreach ($aboutPagesFixture['testimonials']['items'] ?? [] as $index => $item) {
             DB::table('testimonials_batch_25')->insert([
                 'id' => (string) Str::uuid7(),
                 'rating' => $item['stars'] ?? 5,

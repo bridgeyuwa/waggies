@@ -5,10 +5,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('imports the current FAQ content into the persisted source with UUIDv7 keys', function (): void {
+it('imports the FAQ seed fixture into the persisted source with UUIDv7 keys', function (): void {
     $faqs = Faq::query()->orderBy('sort_order')->get();
+    $faqFixture = require database_path('seeders/fixtures/faqs.php');
 
-    expect($faqs)->toHaveCount(count(config('waggies_faqs')));
+    expect($faqs)->toHaveCount(count($faqFixture));
 
     foreach ($faqs as $faq) {
         expect($faq->getKey())

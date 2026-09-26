@@ -57,7 +57,7 @@ final class FaqController extends Controller
         return view('pages.faq', $metadata + [
             'navSection' => 'resources',
             'hero' => [
-                'imageSrc' => '/media/editorial/photo-1601758228041-f3b2795255f1.jpg',
+                'imageSrc' => '/media/faq/hero.jpg',
                 'imageAlt' => 'Pets relaxing together',
                 'eyebrow' => 'Help Centre',
                 'eyebrowIcon' => 'help',

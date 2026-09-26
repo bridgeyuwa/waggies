@@ -42,17 +42,13 @@ it('fails safely for medication ingestion and dose questions before the model is
         ->assertJsonMissing(['message' => 'unsafe model output']);
 });
 
-it('renders medication safety boundaries without a generic dose list', function (): void {
-    $this->get(route('tools.medication'))
-        ->assertOk()
-        ->assertSee('Do not give human pain medicine without veterinary instruction')
-        ->assertSee('Dose display gate')
-        ->assertDontSee('Content coming soon');
-});
-
 it('labels nutrition output as an estimate rather than a prescription', function (): void {
     $this->get(route('tools.nutrition'))
         ->assertOk()
         ->assertSee('Estimated starting energy requirement', false)
         ->assertSee('not an exact prescription', false);
+});
+
+it('removes the unsupported medication reference route without affecting safety endpoints', function (): void {
+    $this->get('/tools/medication-dosage-guide')->assertNotFound();
 });

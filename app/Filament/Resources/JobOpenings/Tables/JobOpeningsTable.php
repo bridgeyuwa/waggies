@@ -20,7 +20,6 @@ class JobOpeningsTable
                 TextColumn::make('department')->searchable()->sortable(),
                 TextColumn::make('employment_type')->label('Type')->sortable(),
                 TextColumn::make('status')->badge()->sortable(),
-                TextColumn::make('closing_date')->date()->sortable(),
                 TextColumn::make('sort_order')->label('Order')->sortable(),
             ])
             ->filters([

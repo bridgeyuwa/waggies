@@ -21,7 +21,7 @@ final class KnowledgeBaseController extends Controller
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get()
-            ->map(static fn (KnowledgeArticle $article): array => $article->toPublicArray())
+            ->map(static fn (KnowledgeArticle $article): array => $article->toPublicArray("/media/knowledge-base/card-{$article->slug}.jpg"))
             ->all();
         $categories = array_values(array_unique(array_column($items, 'category')));
         $requestedCategory = $request->string('category')->toString();
@@ -86,7 +86,7 @@ final class KnowledgeBaseController extends Controller
 
             return redirect()->to($canonical, 308);
         }
-        $article = $articleRecord->toPublicArray();
+        $article = $articleRecord->toPublicArray("/media/knowledge-base/{$articleRecord->slug}/cover.jpg");
 
         $articleBody = ArticleBodyProcessor::process($article['content']);
 
@@ -99,7 +99,7 @@ final class KnowledgeBaseController extends Controller
             ->orderBy('id')
             ->take(3)
             ->get()
-            ->map(static fn (KnowledgeArticle $relatedArticle): array => $relatedArticle->toPublicArray())
+            ->map(fn (KnowledgeArticle $relatedArticle): array => $relatedArticle->toPublicArray("/media/knowledge-base/{$articleRecord->slug}/related-{$relatedArticle->slug}.jpg"))
             ->all();
 
         $isIndexable = $articleRecord->isIndexable();

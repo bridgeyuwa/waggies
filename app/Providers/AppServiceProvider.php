@@ -4,14 +4,12 @@ namespace App\Providers;
 
 use App\Models\BusinessHour;
 use App\Models\BusinessProfile;
-use App\Models\ClinicalContent;
 use App\Models\Faq;
 use App\Models\Guide;
 use App\Models\JobOpening;
 use App\Models\KnowledgeArticle;
 use App\Models\Product;
 use App\Models\Testimonial;
-use App\Observers\ClinicalContentObserver;
 use App\Observers\SearchContentObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\DatabaseManager;
@@ -19,6 +17,7 @@ use Illuminate\Foundation\Events\DiagnosingHealth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema as DatabaseSchema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -79,8 +78,6 @@ class AppServiceProvider extends ServiceProvider
             $model::observe(SearchContentObserver::class);
         }
 
-        ClinicalContent::observe(ClinicalContentObserver::class);
-
         View::composer('components.waggies.proof-band', static function (\Illuminate\View\View $view): void {
             $serviceOptions = Testimonial::serviceOptions();
             $hrefs = [
@@ -125,9 +122,16 @@ class AppServiceProvider extends ServiceProvider
             $view->with('testimonials', $testimonials);
         });
 
+        $businessProfile = null;
+
+        View::composer('*', static function (\Illuminate\View\View $view) use (&$businessProfile): void {
+            $businessProfile ??= BusinessProfile::current();
+
+            $view->with('businessProfile', $businessProfile);
+        });
+
         View::composer('components.waggies.footer', static function (\Illuminate\View\View $view): void {
-            $view->with('businessProfile', BusinessProfile::current())
-                ->with('businessHours', BusinessHour::publicSchedule());
+            $view->with('businessHours', BusinessHour::publicSchedule());
         });
 
         $businessDescription = 'Pet boarding, grooming, vet care, training, relocation and local transport in Abuja, Nigeria.';
@@ -157,8 +161,17 @@ class AppServiceProvider extends ServiceProvider
                 ->telephone($businessProfile->phone_international ?: $businessProfile->phone)
                 ->email($businessProfile->primary_email)
                 ->address($address)
-                ->sameAs(array_values($businessProfile->socialLinks()))
-                ->toArray();
+                ->sameAs(array_values($businessProfile->socialLinks()));
+
+            if (DatabaseSchema::hasTable('business_hours') && DatabaseSchema::hasColumn('business_hours', 'end_date')) {
+                $openingHours = BusinessHour::openingHours($businessProfile->timezone ?: config('app.timezone'));
+
+                $localBusiness->openingHoursSpecification($openingHours->asStructuredData(
+                    timezone: $businessProfile->timezone ?: config('app.timezone'),
+                ));
+            }
+
+            $localBusiness = $localBusiness->toArray();
 
             $head->title('Waggies - Pet Care, Abuja', exact: true)
                 ->description('Waggies provides boarding, grooming, vet care, training, relocation and local transport services in Abuja, Nigeria.')

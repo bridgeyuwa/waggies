@@ -2,7 +2,6 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\ClinicalContent;
 use App\Models\ContactEnquiry;
 use App\Models\Guide;
 use App\Models\JobOpening;
@@ -52,16 +51,6 @@ final class DashboardWorkQueueWidget extends Widget
                 'tone' => 'gray',
             ],
         ];
-
-        if (auth()->user()?->is_clinical_reviewer === true) {
-            $queues[] = [
-                'label' => 'Overdue clinical reviews',
-                'count' => ClinicalContent::query()->whereNotNull('review_due_at')->where('review_due_at', '<', now())->count(),
-                'description' => 'Keep stale clinical material unpublished until reviewed.',
-                'href' => route('filament.admin.resources.clinical-contents.index'),
-                'tone' => 'danger',
-            ];
-        }
 
         return [
             'queues' => $queues,

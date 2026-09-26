@@ -73,6 +73,8 @@ it('attaches product media to the local public disk', function (): void {
         ->and($media->disk)->toBe('public')
         ->and($product->fresh()->publicImageUrl())->toBe($media->getUrl('detail'));
 
+    expect($product->fresh()->toPublicArray('/fallback.jpg')['image'])->toBe($media->getUrl('detail'));
+
     $this->assertDatabaseHas('media', [
         'model_type' => Product::class,
         'model_id' => $product->getKey(),
@@ -81,6 +83,34 @@ it('attaches product media to the local public disk', function (): void {
     ]);
 
     Storage::disk('public')->assertExists($media->getPathRelativeToRoot());
+});
+
+it('renders every product image as a navigable gallery item in media order', function (): void {
+    Storage::fake('public');
+
+    $product = Product::factory()->create(['name' => 'Gallery Product']);
+    $product->addMedia(UploadedFile::fake()->image('first.jpg'))->toMediaCollection('images');
+    $product->addMedia(UploadedFile::fake()->image('second.jpg'))->toMediaCollection('images');
+    $product->addMedia(UploadedFile::fake()->image('third.jpg'))->toMediaCollection('images');
+
+    $response = $this->get(route('shop.show', ['product' => $product]));
+
+    $response->assertOk()
+        ->assertSee('waggiesProductGallery', false)
+        ->assertSee(":aria-label=\"'Show image ' + (index + 1) + ': ' + image.alt\"", false)
+        ->assertSee(':aria-current="activeIndex === index ? \'true\' : \'false\'"', false)
+        ->assertSee('Previous image', false)
+        ->assertSee('Next image', false)
+        ->assertSee('Product image lightbox', false);
+});
+
+it('renders a single usable gallery item when a product has no media', function (): void {
+    $product = Product::factory()->create(['name' => 'No Media Product']);
+
+    $this->get(route('shop.show', ['product' => $product]))
+        ->assertOk()
+        ->assertSee('waggiesProductGallery', false)
+        ->assertSee('Photo <span x-text="activeIndex + 1"></span> of <span x-text="images.length"></span>', false);
 });
 
 it('exposes the product resource to authenticated staff', function (): void {

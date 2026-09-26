@@ -33,6 +33,7 @@ return new class extends Migration
         });
 
         $now = now();
+        $guidesFixture = require database_path('seeders/fixtures/guides.php');
         $guides = array_map(
             static fn (array $guide): array => [
                 'id' => (string) Str::uuid7(),
@@ -53,7 +54,7 @@ return new class extends Migration
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
-            config('waggies_guides.items', []),
+            $guidesFixture['items'] ?? [],
         );
 
         if ($guides !== []) {

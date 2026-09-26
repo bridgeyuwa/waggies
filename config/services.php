@@ -35,12 +35,6 @@ return [
         ],
     ],
 
-    'suitecrm' => [
-        'base_url' => env('SUITECRM_BASE_URL'),
-        'token' => env('SUITECRM_TOKEN'),
-        'timeout' => env('SUITECRM_TIMEOUT', 10),
-    ],
-
     'waggies_ai' => [
         'enabled' => env('WAGGIES_AI_ENABLED', true),
         'provider' => env('WAGGIES_AI_PROVIDER', 'openai'),

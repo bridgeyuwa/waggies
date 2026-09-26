@@ -17,6 +17,139 @@ const waggiesProductDetail = (productId, cartItem) => ({
     decrease() { this.quantity = Math.max(1, this.quantity - 1); },
     addToCart() { window.dispatchEvent(new CustomEvent('waggies:add-item', { detail: { ...this.cartItem, quantity: this.quantity } })); },
 });
+
+const waggiesProductGallery = images => ({
+    images,
+    activeIndex: 0,
+    lightboxOpen: false,
+    touchStartX: null,
+    touchStartY: null,
+    touchMoved: false,
+    init() {
+        this.$watch('lightboxOpen', open => {
+            document.body.style.overflow = open ? 'hidden' : '';
+
+            if (open) {
+                this.$nextTick(() => this.$refs.lightboxClose?.focus());
+            }
+        });
+
+        this.$cleanup = () => {
+            document.body.style.overflow = '';
+        };
+    },
+    currentImage() {
+        return this.images[this.activeIndex] ?? this.images[0] ?? { url: '', thumb: '', alt: '' };
+    },
+    select(index) {
+        if (! this.images[index]) {
+            return;
+        }
+
+        this.activeIndex = index;
+        this.$nextTick(() => {
+            this.$refs.thumbnailRail?.querySelector('[aria-current="true"]')?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'nearest',
+            });
+        });
+    },
+    next() {
+        if (this.images.length < 2) {
+            return;
+        }
+
+        this.select((this.activeIndex + 1) % this.images.length);
+    },
+    previous() {
+        if (this.images.length < 2) {
+            return;
+        }
+
+        this.select((this.activeIndex - 1 + this.images.length) % this.images.length);
+    },
+    openLightbox() {
+        if (this.images.length === 0) {
+            return;
+        }
+
+        this.lightboxOpen = true;
+    },
+    activateMainImage() {
+        if (this.touchMoved) {
+            this.touchMoved = false;
+
+            return;
+        }
+
+        this.openLightbox();
+    },
+    closeLightbox() {
+        this.lightboxOpen = false;
+        this.$nextTick(() => this.$refs.mainImage?.focus());
+    },
+    handleGalleryKeydown(event) {
+        if (this.lightboxOpen) {
+            return;
+        }
+
+        if (event.key === 'ArrowRight') {
+            event.preventDefault();
+            this.next();
+        }
+
+        if (event.key === 'ArrowLeft') {
+            event.preventDefault();
+            this.previous();
+        }
+    },
+    handleLightboxKeydown(event) {
+        if (! this.lightboxOpen) {
+            return;
+        }
+
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            this.closeLightbox();
+        }
+
+        if (event.key === 'ArrowRight') {
+            event.preventDefault();
+            this.next();
+        }
+
+        if (event.key === 'ArrowLeft') {
+            event.preventDefault();
+            this.previous();
+        }
+    },
+    startTouch(event) {
+        const point = event.touches?.[0] ?? event;
+        this.touchMoved = false;
+        this.touchStartX = point.clientX;
+        this.touchStartY = point.clientY;
+    },
+    endTouch(event) {
+        if (this.touchStartX === null || this.touchStartY === null) {
+            return;
+        }
+
+        const point = event.changedTouches?.[0] ?? event;
+        const deltaX = point.clientX - this.touchStartX;
+        const deltaY = point.clientY - this.touchStartY;
+        this.touchStartX = null;
+        this.touchStartY = null;
+
+        if (Math.abs(deltaX) < 48 || Math.abs(deltaX) <= Math.abs(deltaY)) {
+            return;
+        }
+
+        this.touchMoved = true;
+        deltaX < 0 ? this.next() : this.previous();
+    },
+});
+
 const waggiesRecentlyViewed = currentProductId => ({
     currentProductId,
     visibleIds: [],
@@ -39,5 +172,6 @@ const waggiesRecentlyViewed = currentProductId => ({
 export function registerShopComponents(Alpine) {
     Alpine.data('waggiesShopIndex', waggiesShopIndex);
     Alpine.data('waggiesProductDetail', waggiesProductDetail);
+    Alpine.data('waggiesProductGallery', waggiesProductGallery);
     Alpine.data('waggiesRecentlyViewed', waggiesRecentlyViewed);
 }

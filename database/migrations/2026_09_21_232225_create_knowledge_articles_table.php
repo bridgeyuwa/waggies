@@ -32,7 +32,8 @@ return new class extends Migration
         });
 
         $now = now();
-        $configuredArticles = config('waggies_knowledge_base.items', []);
+        $knowledgeBaseFixture = require database_path('seeders/fixtures/knowledge_base.php');
+        $configuredArticles = $knowledgeBaseFixture['items'] ?? [];
         $articles = array_map(
             static fn (array $article, int $index): array => [
                 'id' => (string) Str::uuid7(),

@@ -19,7 +19,7 @@ final class GuidesController extends Controller
             ->published()
             ->orderBy('id')
             ->get()
-            ->map(static fn (Guide $guide): array => $guide->toPublicArray())
+            ->map(static fn (Guide $guide): array => $guide->toPublicArray("/media/guides/card-{$guide->slug}.jpg"))
             ->all();
         $categories = array_values(array_unique(array_column($items, 'category')));
         $requestedCategory = $request->string('category')->toString();
@@ -91,7 +91,7 @@ final class GuidesController extends Controller
 
             return redirect()->to($canonical, 308);
         }
-        $guide = $guideRecord->toPublicArray();
+        $guide = $guideRecord->toPublicArray("/media/guides/{$guideRecord->slug}/cover.jpg");
 
         $articleBody = ArticleBodyProcessor::process($guide['content']);
         $isIndexable = $guideRecord->isIndexable();

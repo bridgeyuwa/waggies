@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use InvalidArgumentException;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\Conversions\Manipulations;
@@ -116,14 +115,6 @@ final class Guide extends Model implements HasMedia, HasRichContent
     public function slugHistories(): HasMany
     {
         return $this->hasMany(GuideSlugHistory::class);
-    }
-
-    /**
-     * @return MorphOne<ClinicalContent, $this>
-     */
-    public function clinicalContent(): MorphOne
-    {
-        return $this->morphOne(ClinicalContent::class, 'contentable');
     }
 
     public function setUpRichContent(): void
@@ -237,7 +228,7 @@ final class Guide extends Model implements HasMedia, HasRichContent
 
     public function isIndexable(): bool
     {
-        return $this->is_indexable && $this->isPublished() && ($this->clinicalContent()->first()?->isPubliclyEligible() ?? true);
+        return $this->is_indexable && $this->isPublished();
     }
 
     public function isPublished(): bool
@@ -258,7 +249,7 @@ final class Guide extends Model implements HasMedia, HasRichContent
      *
      * @return array<string, mixed>
      */
-    public function toPublicArray(): array
+    public function toPublicArray(?string $fallbackImage = null): array
     {
         $cover = $this->getFirstMedia('cover');
 
@@ -268,7 +259,7 @@ final class Guide extends Model implements HasMedia, HasRichContent
             'title' => $this->title,
             'excerpt' => $this->excerpt,
             'category' => $this->category,
-            'image' => $cover?->getUrl('detail') ?: (string) $this->image,
+            'image' => $cover?->getUrl('detail') ?: ($fallbackImage ?? (string) $this->image),
             'imageSrcset' => $cover?->getSrcset('detail'),
             'imageAlt' => $this->image_alt ?: $this->title,
             'readTime' => $this->read_time,

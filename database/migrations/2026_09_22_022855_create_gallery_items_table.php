@@ -29,6 +29,8 @@ return new class extends Migration
         });
 
         $now = now();
+        $aboutPagesFixture = require database_path('seeders/fixtures/about_pages.php');
+        $galleryImages = $aboutPagesFixture['gallery']['images'] ?? [];
         $items = array_map(
             static fn (array $image, int $index): array => [
                 'id' => (string) Str::uuid7(),
@@ -42,8 +44,8 @@ return new class extends Migration
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
-            config('waggies_about_pages.gallery.images', []),
-            array_keys(config('waggies_about_pages.gallery.images', [])),
+            $galleryImages,
+            array_keys($galleryImages),
         );
 
         if ($items !== []) {
