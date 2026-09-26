@@ -24,7 +24,11 @@ class ContactPageTest extends TestCase
             'initialContext' => ['service' => 'boarding', 'variant' => 'cats'],
         ])
             ->assertSee('Cozy')
-            ->set('step', 1)
+            ->set('services.0.pricing_tier', 'cozy')
+            ->set('pets.0.name', 'Milo')
+            ->set('pets.0.species', 'cat')
+            ->set('services.0.assigned_pet_ids', [0])
+            ->set('step', 3)
             ->assertSee('Feeding routine')
             ->assertSee('Medication or health notes')
             ->assertSee('Special care needs');
@@ -32,7 +36,10 @@ class ContactPageTest extends TestCase
         Livewire::test('booking-request-wizard', [
             'initialContext' => ['service' => 'local-transport'],
         ])
-            ->set('step', 1)
+            ->set('pets.0.name', 'Milo')
+            ->set('pets.0.species', 'dog')
+            ->set('services.0.assigned_pet_ids', [0])
+            ->set('step', 3)
             ->assertSee('Pickup point')
             ->assertSee('Drop-off point')
             ->assertSee('Trip type');

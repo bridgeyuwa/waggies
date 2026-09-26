@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\BookingRequestStatus;
+use App\Support\BookingPricingCatalog;
 use Database\Factories\BookingRequestFactory;
 use DomainException;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -60,11 +61,7 @@ class BookingRequest extends Model
      */
     public static function serviceOptions(): array
     {
-        return collect(config('waggies_pricing.services', []))
-            ->mapWithKeys(static fn (array $service, string $key): array => [
-                $key => $service['label'] ?? Str::headline($key),
-            ])
-            ->all();
+        return app(BookingPricingCatalog::class)->serviceOptions(availableOnly: true);
     }
 
     public function serviceLabel(): string

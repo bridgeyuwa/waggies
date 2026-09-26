@@ -33,34 +33,41 @@ function bookingRequestPayload(array $overrides = []): array
 it('renders the public booking page with service choices and required controls', function (): void {
     $this->get(route('book'))
         ->assertOk()
-        ->assertSee('Tell us when and where first')
-        ->assertSee('Confirm your service and schedule')
-        ->assertSee('Service &amp; schedule', false)
+        ->assertSee('Tell us what your pet needs')
+        ->assertSee('What service do you need?')
+        ->assertSee('Choose every service you are considering')
+        ->assertSee('Local Transport')
+        ->assertSee('Pet Relocation')
         ->assertSee('Your request')
         ->assertSee('Nothing is charged yet')
         ->assertSee('What happens next?')
-        ->assertSee('data-booking-draft-model="services.0.service_key"', false)
-        ->assertSee('wire:change="serviceChanged(0, $event.target.value)"', false)
-        ->assertSee('value="boarding"', false)
+        ->assertSee('data-booking-draft="waggies-booking-request-v2"', false)
+        ->assertDontSee('Tell us when and where first')
         ->assertSee('Add another service');
 });
 
-it('uses four focused steps in service, pet, contact, and review order', function (): void {
+it('uses five focused steps with explicit pet matching before contact and review', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'grooming'],
     ])
-        ->set('services.0.requested_date', now()->addDays(4)->toDateString())
+        ->set('services.0.service_variant', 'dogs')
+        ->set('services.0.pricing_tier', 'bath')
         ->call('nextStep')
         ->assertSet('step', 2)
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
+        ->set('pets.0.weight_kg', 12)
         ->call('nextStep')
         ->assertSet('step', 3)
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('services.0.requested_date', now()->addDays(4)->toDateString())
+        ->call('nextStep')
+        ->assertSet('step', 4)
         ->set('contact.name', 'Ada Obi')
         ->set('contact.email', 'flow@example.com')
         ->set('contact.phone', '0808 081 1902')
         ->call('nextStep')
-        ->assertSet('step', 4)
+        ->assertSet('step', 5)
         ->assertSee('Review your request');
 });
 
@@ -88,7 +95,8 @@ it('updates dependent booking choices through one server-side action per select'
         ->call('serviceChanged', 0, 'grooming')
         ->assertSet('services.0.service_key', 'grooming')
         ->assertSet('services.0.service_variant', null)
-        ->assertSet('services.0.pricing_tier', 'bath')
+        ->assertSet('services.0.pricing_tier', null)
+        ->call('variantChanged', 0, 'dogs')
         ->call('tierChanged', 0, 'full')
         ->assertSet('services.0.pricing_tier', 'full');
 });
@@ -137,16 +145,20 @@ it('persists a progressive Livewire request with normalized services and pets', 
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'grooming'],
     ])
+        ->set('services.0.service_variant', 'dogs')
+        ->set('services.0.pricing_tier', 'bath')
         ->set('services.0.requested_date', now()->addDays(4)->toDateString())
         ->set('services.0.details.coat_and_grooming_notes', 'A short trim and gentle brush-out.')
+        ->set('services.0.assigned_pet_ids', [0])
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
+        ->set('pets.0.weight_kg', 12)
         ->set('pets.0.breed', 'Mixed breed')
         ->set('contact.name', 'Ada Obi')
         ->set('contact.email', 'livewire@example.com')
         ->set('contact.phone', '0808 081 1902')
         ->set('contact.preferred_contact_method', 'whatsapp')
-        ->set('step', 4)
+        ->set('step', 5)
         ->call('submit')
         ->assertSet('submitted', true);
 
@@ -155,6 +167,37 @@ it('persists a progressive Livewire request with normalized services and pets', 
     expect($bookingRequest->services)->toHaveCount(1)
         ->and($bookingRequest->pets)->toHaveCount(1)
         ->and($bookingRequest->services->first()->pets->first()->is($bookingRequest->pets->first()))->toBeTrue();
+
+    expect($bookingRequest->services->first()->price_snapshot['status'])->toBe('estimate')
+        ->and($bookingRequest->services->first()->price_snapshot['lines'][0]['weight_kg'])->toBe(12);
+});
+
+it('persists only the pets assigned to each service and keeps separate service price snapshots', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'grooming'],
+    ])
+        ->set('services.0.service_variant', 'dogs')
+        ->set('services.0.pricing_tier', 'full')
+        ->set('services.0.requested_date', now()->addDays(4)->toDateString())
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('pets.0.name', 'Bruno')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.weight_kg', 22)
+        ->call('addPet')
+        ->set('pets.1.name', 'Luna')
+        ->set('pets.1.species', 'cat')
+        ->set('contact.name', 'Ada Obi')
+        ->set('contact.email', 'assignment@example.com')
+        ->set('contact.phone', '0808 081 1902')
+        ->set('step', 5)
+        ->call('submit');
+
+    $bookingRequest = BookingRequest::query()->where('email', 'assignment@example.com')->firstOrFail();
+    $service = $bookingRequest->services->firstOrFail();
+
+    expect($service->pets)->toHaveCount(1)
+        ->and($service->pets->first()->name)->toBe('Bruno')
+        ->and($service->price_snapshot['amount'])->toBe(16000);
 });
 
 it('rejects invalid booking input without persisting a request', function (): void {

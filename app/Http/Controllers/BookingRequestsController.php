@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Actions\CreateBookingRequest;
 use App\Http\Requests\StoreBookingRequest;
-use App\Models\BookingRequest;
 use App\Models\BusinessProfile;
+use App\Support\BookingPricingCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -35,7 +35,7 @@ final class BookingRequestsController extends Controller
         $variant = trim((string) $request->query('variant', ''));
         $tier = trim((string) $request->query('tier', ''));
         $source = trim((string) $request->query('source', ''));
-        $serviceOptions = BookingRequest::serviceOptions();
+        $serviceOptions = app(BookingPricingCatalog::class)->serviceOptions();
         $whatsappUrl = BusinessProfile::current()->whatsapp_url;
 
         return view('pages.book', $metadata + [

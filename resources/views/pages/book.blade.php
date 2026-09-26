@@ -6,8 +6,8 @@
     <x-waggies.page-header
         eyebrow="BOOKING REQUEST"
         title-id="booking-page-title"
-        title="Tell us when and where first"
-        description="Then we will collect the details needed to review your request."
+        title="Tell us what your pet needs"
+        description="Choose your services, add your pets, and send one clear request for Waggies to review."
         class="bg-surface-purple [&_[data-page-intro-content]]:py-8 md:[&_[data-page-intro-content]]:py-8"
     />
 

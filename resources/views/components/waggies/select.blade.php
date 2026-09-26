@@ -4,6 +4,7 @@
     'help' => null,
     'error' => null,
     'required' => false,
+    'plain' => false,
 ])
 
 @php
@@ -12,22 +13,23 @@
     $errorId = $error && $controlId ? $controlId.'-error' : null;
     $describedBy = collect([$helpId, $errorId])->filter()->join(' ');
     $isLivewireSelect = $attributes->whereStartsWith('wire:')->isNotEmpty();
-    $nativeControlId = $isLivewireSelect && $controlId ? $controlId.'-native' : $controlId;
+    $useEnhancedLivewireSelect = $isLivewireSelect && ! $plain;
+    $nativeControlId = $useEnhancedLivewireSelect && $controlId ? $controlId.'-native' : $controlId;
     $selectClasses = ['contact-input'];
 
-    if ($isLivewireSelect) {
+    if ($useEnhancedLivewireSelect) {
         $selectClasses[] = 'sr-only';
     }
 @endphp
 
 <x-waggies.field :id="$controlId" :label="$label" :help="$help" :error="$error" :required="$required">
     <div
-        @if($isLivewireSelect) x-data="waggiesLivewireSelect" data-waggies-livewire-select @endif
+        @if($useEnhancedLivewireSelect) x-data="waggiesLivewireSelect" data-waggies-livewire-select @endif
         class="relative w-full"
     >
         <select
             @if($nativeControlId) id="{{ $nativeControlId }}" @endif
-            @if($isLivewireSelect) x-ref="native" aria-hidden="true" tabindex="-1" @endif
+            @if($useEnhancedLivewireSelect) x-ref="native" aria-hidden="true" tabindex="-1" @endif
             @if($required) required @endif
             @if($error) aria-invalid="true" @endif
             @if($describedBy) aria-describedby="{{ $describedBy }}" @endif
@@ -36,7 +38,7 @@
             {{ $slot }}
         </select>
 
-        @if($isLivewireSelect)
+        @if($useEnhancedLivewireSelect)
             <div wire:ignore class="relative w-full">
                 <button
                     @if($controlId) id="{{ $controlId }}" aria-controls="{{ $controlId }}-listbox" @endif

@@ -20,6 +20,7 @@ class BookingRequestService extends Model
         'service_variant',
         'pricing_tier',
         'requested_date',
+        'requested_end_date',
         'requested_time',
         'location',
         'details',
@@ -27,6 +28,7 @@ class BookingRequestService extends Model
         'quote_amount',
         'quote_currency',
         'quote_notes',
+        'price_snapshot',
         'status_changed_at',
     ];
 
@@ -38,8 +40,10 @@ class BookingRequestService extends Model
     {
         return [
             'requested_date' => 'date',
+            'requested_end_date' => 'date',
             'details' => 'array',
             'quote_amount' => 'integer',
+            'price_snapshot' => 'array',
             'status_changed_at' => 'datetime',
         ];
     }

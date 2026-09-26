@@ -2,17 +2,22 @@
 
 namespace App\Support;
 
-use App\Models\BookingRequest;
-use Illuminate\Support\Str;
-
-class BookingRequestSchema
+final class BookingRequestSchema
 {
     /**
      * @return array<string, string>
      */
     public static function serviceOptions(): array
     {
-        return BookingRequest::serviceOptions();
+        return app(BookingPricingCatalog::class)->serviceOptions(availableOnly: true);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function allServiceOptions(): array
+    {
+        return app(BookingPricingCatalog::class)->serviceOptions();
     }
 
     /**
@@ -20,13 +25,7 @@ class BookingRequestSchema
      */
     public static function variantOptions(?string $service): array
     {
-        $variants = config("waggies_pricing.services.{$service}.variants", []);
-
-        return collect($variants)
-            ->mapWithKeys(static fn (array $variant, string $key): array => [
-                $key => $variant['label'] ?? Str::headline($key),
-            ])
-            ->all();
+        return app(BookingPricingCatalog::class)->variantOptions($service, availableOnly: true);
     }
 
     /**
@@ -34,69 +33,39 @@ class BookingRequestSchema
      */
     public static function tierOptions(?string $service, ?string $variant = null): array
     {
-        $tiers = $variant
-            ? config("waggies_pricing.services.{$service}.variants.{$variant}.tiers", [])
-            : config("waggies_pricing.services.{$service}.tiers", []);
-
-        return collect($tiers)
-            ->mapWithKeys(static fn (array $tier, string $key): array => [
-                $key => $tier['label'] ?? Str::headline($key),
-            ])
-            ->all();
+        return app(BookingPricingCatalog::class)->tierOptions($service, $variant, availableOnly: true);
     }
 
     public static function defaultVariant(?string $service): ?string
     {
-        return array_key_first(self::variantOptions($service));
+        return null;
     }
 
     public static function defaultTier(?string $service, ?string $variant = null): ?string
     {
-        return array_key_first(self::tierOptions($service, $variant));
+        return null;
     }
 
     /**
      * @return array<int, array<string, mixed>>
      */
-    public static function serviceFields(string $service): array
+    public static function serviceFields(string $service, ?string $tier = null): array
     {
-        $common = [
-            [
-                'key' => 'requested_date',
-                'label' => 'Preferred date',
-                'type' => 'date',
-                'required' => true,
-                'help' => 'We will confirm availability after reviewing your request.',
-            ],
-            [
-                'key' => 'requested_time',
-                'label' => 'Preferred time',
-                'type' => 'time',
-                'required' => false,
-            ],
-            [
-                'key' => 'location',
-                'label' => 'Location or address',
-                'type' => 'text',
-                'required' => false,
-                'placeholder' => 'Area, estate, or address',
-            ],
-        ];
-
         return match ($service) {
             'boarding' => [
-                ...$common,
+                self::dateField('check_in', 'Check-in date', 'When would your pet come to Waggies?', 'details'),
+                self::dateField('check_out', 'Check-out date', 'When would your pet go home?', 'details'),
                 self::textarea('feeding_requirements', 'Feeding routine', 'Tell us about meals, treats, and timing.'),
                 self::textarea('medications', 'Medication or health notes', 'Include instructions we should know before confirming care.'),
                 self::textarea('special_care_needs', 'Special care needs', 'Anything else that will help us prepare for your pet?'),
             ],
             'grooming' => [
-                ...$common,
+                self::dateField('requested_date', 'Preferred grooming date', 'We will confirm the available appointment after reviewing your request.', 'service'),
                 self::textarea('coat_and_grooming_notes', 'Coat or grooming notes', 'Share coat condition, sensitivities, or the look you prefer.'),
                 self::textarea('handling_notes', 'Handling notes', 'Tell us about nervousness, sensitivities, or previous grooming experiences.'),
             ],
             'vet-care' => [
-                ...$common,
+                self::dateField('requested_date', 'Preferred appointment date', 'The vet normally sets the exact consultation time.', 'service'),
                 [
                     'key' => 'reason',
                     'label' => 'What does your pet need help with?',
@@ -117,12 +86,12 @@ class BookingRequestSchema
                 ],
             ],
             'training' => [
-                ...$common,
-                self::textarea('training_goals', 'Training goals', 'Tell us what you would like your pet to learn or improve.'),
+                self::dateField('requested_date', 'Preferred programme start date', 'Choose the date you would ideally like the programme to begin.', 'service'),
+                self::textarea('training_goals', 'Training goals', 'Tell us what you would like your dog to learn or improve.'),
                 self::textarea('behaviour_notes', 'Behaviour notes', 'Include triggers, routines, or context that would help the trainer prepare.'),
             ],
             'local-transport' => [
-                ...$common,
+                self::dateField('requested_date', 'Preferred transport date', 'We will confirm the route and availability with you.', 'service'),
                 [
                     'key' => 'pickup',
                     'label' => 'Pickup point',
@@ -150,20 +119,22 @@ class BookingRequestSchema
                 self::textarea('special_requirements', 'Special transport requirements', 'Add carrier, accessibility, waiting, or handling details.'),
             ],
             'relocation' => [
-                ...$common,
+                self::dateField('requested_date', 'Preferred travel date', 'We will review the route, documentation, and timing with you.', 'service'),
                 [
-                    'key' => 'origin',
-                    'label' => 'Origin',
+                    'key' => 'origin_country',
+                    'label' => 'Country your pet is coming from',
                     'type' => 'text',
                     'required' => true,
-                    'placeholder' => 'Where is your pet travelling from?',
+                    'when_tier' => 'import',
+                    'placeholder' => 'For example: United Kingdom',
                 ],
                 [
-                    'key' => 'destination',
-                    'label' => 'Destination',
+                    'key' => 'destination_country',
+                    'label' => 'Country your pet is going to',
                     'type' => 'text',
                     'required' => true,
-                    'placeholder' => 'Where is your pet travelling to?',
+                    'when_tier' => 'export',
+                    'placeholder' => 'For example: Ghana',
                 ],
                 [
                     'key' => 'documentation_status',
@@ -178,8 +149,23 @@ class BookingRequestSchema
                 ],
                 self::textarea('relocation_notes', 'Relocation notes', 'Share timing, route, and any requirements you already know about.'),
             ],
-            default => $common,
+            default => [],
         };
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function dateField(string $key, string $label, string $help, string $scope): array
+    {
+        return [
+            'key' => $key,
+            'label' => $label,
+            'type' => 'date',
+            'required' => true,
+            'help' => $help,
+            'scope' => $scope,
+        ];
     }
 
     /**
@@ -193,6 +179,7 @@ class BookingRequestSchema
             'type' => 'textarea',
             'required' => false,
             'placeholder' => $placeholder,
+            'scope' => 'details',
         ];
     }
 }

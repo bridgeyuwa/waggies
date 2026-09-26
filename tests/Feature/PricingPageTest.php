@@ -8,7 +8,7 @@ class PricingPageTest extends TestCase
 {
     public function test_pricing_page_exposes_local_transport_calculator_options(): void
     {
-        $this->get('/services/pricing')
+        $this->get('/services/pricing?service=transport&tier=airport')
             ->assertOk()
             ->assertSee('Local Transport')
             ->assertSee('City Pet Transfer')
