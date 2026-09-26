@@ -24,7 +24,7 @@ class ContactPageTest extends TestCase
             'initialContext' => ['service' => 'boarding', 'variant' => 'cats'],
         ])
             ->assertSee('Cozy')
-            ->set('step', 3)
+            ->set('step', 1)
             ->assertSee('Feeding routine')
             ->assertSee('Medication or health notes')
             ->assertSee('Special care needs');
@@ -32,7 +32,7 @@ class ContactPageTest extends TestCase
         Livewire::test('booking-request-wizard', [
             'initialContext' => ['service' => 'local-transport'],
         ])
-            ->set('step', 3)
+            ->set('step', 1)
             ->assertSee('Pickup point')
             ->assertSee('Drop-off point')
             ->assertSee('Trip type');

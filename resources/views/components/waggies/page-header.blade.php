@@ -14,7 +14,7 @@
 @endphp
 
 <section {{ $attributes->class(['w-page-intro border-b border-primary/10 bg-white']) }} aria-labelledby="{{ $titleId }}">
-    <div class="w-page-intro__content page-container flex flex-col py-16 md:py-20">
+    <div data-page-intro-content class="w-page-intro__content page-container flex flex-col py-16 md:py-20">
         <div class="flex max-w-3xl flex-col gap-4 {{ $alignmentClasses }}">
             @if(isset($supporting) && $supporting->isNotEmpty())
                 <div>

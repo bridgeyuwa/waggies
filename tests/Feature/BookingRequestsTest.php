@@ -33,12 +33,35 @@ function bookingRequestPayload(array $overrides = []): array
 it('renders the public booking page with service choices and required controls', function (): void {
     $this->get(route('book'))
         ->assertOk()
-        ->assertSee('Start with a request, then we will confirm the details')
-        ->assertSee('Which services should we review?')
+        ->assertSee('Tell us when and where first')
+        ->assertSee('Confirm your service and schedule')
+        ->assertSee('Service &amp; schedule', false)
+        ->assertSee('Your request')
+        ->assertSee('Nothing is charged yet')
+        ->assertSee('What happens next?')
         ->assertSee('data-booking-draft-model="services.0.service_key"', false)
         ->assertSee('wire:change="serviceChanged(0, $event.target.value)"', false)
         ->assertSee('value="boarding"', false)
         ->assertSee('Add another service');
+});
+
+it('uses four focused steps in service, pet, contact, and review order', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'grooming'],
+    ])
+        ->set('services.0.requested_date', now()->addDays(4)->toDateString())
+        ->call('nextStep')
+        ->assertSet('step', 2)
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->call('nextStep')
+        ->assertSet('step', 3)
+        ->set('contact.name', 'Ada Obi')
+        ->set('contact.email', 'flow@example.com')
+        ->set('contact.phone', '0808 081 1902')
+        ->call('nextStep')
+        ->assertSet('step', 4)
+        ->assertSee('Review your request');
 });
 
 it('preserves service context passed from public booking CTAs', function (): void {
@@ -123,7 +146,7 @@ it('persists a progressive Livewire request with normalized services and pets', 
         ->set('contact.email', 'livewire@example.com')
         ->set('contact.phone', '0808 081 1902')
         ->set('contact.preferred_contact_method', 'whatsapp')
-        ->set('step', 5)
+        ->set('step', 4)
         ->call('submit')
         ->assertSet('submitted', true);
 

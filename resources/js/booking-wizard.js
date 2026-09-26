@@ -3,6 +3,10 @@ export const registerBookingDraftPersistence = () => {
 
     if (!root) return;
 
+    const modelControls = () => root.querySelectorAll(
+        '[data-booking-draft-model], [wire\\:model], [wire\\:model\\.live], [wire\\:model\\.blur], [wire\\:model\\.live\\.blur]',
+    );
+
     const storageKey = root.dataset.bookingDraft;
     const contextKey = root.dataset.bookingContext || '';
     const status = root.querySelector('[data-booking-draft-status]');
@@ -22,10 +26,12 @@ export const registerBookingDraftPersistence = () => {
 
         const draft = readDraft();
 
-        root.querySelectorAll('[data-booking-draft-model], [wire\\:model], [wire\\:model\\.live]').forEach(control => {
+        modelControls().forEach(control => {
             const model = control.getAttribute('data-booking-draft-model')
                 || control.getAttribute('wire:model')
-                || control.getAttribute('wire:model.live');
+                || control.getAttribute('wire:model.live')
+                || control.getAttribute('wire:model.blur')
+                || control.getAttribute('wire:model.live.blur');
             if (!model) return;
 
             draft[model] = control.type === 'checkbox' ? control.checked : control.value;
@@ -50,10 +56,12 @@ export const registerBookingDraftPersistence = () => {
         if (!Object.keys(draft).length || draft.contextKey !== contextKey) return;
 
         restoring = true;
-        root.querySelectorAll('[data-booking-draft-model], [wire\\:model], [wire\\:model\\.live]').forEach(control => {
+        modelControls().forEach(control => {
             const model = control.getAttribute('data-booking-draft-model')
                 || control.getAttribute('wire:model')
-                || control.getAttribute('wire:model.live');
+                || control.getAttribute('wire:model.live')
+                || control.getAttribute('wire:model.blur')
+                || control.getAttribute('wire:model.live.blur');
             if (!model || !(model in draft)) return;
 
             const value = draft[model];
@@ -95,5 +103,29 @@ export const registerBookingDraftPersistence = () => {
         bindLivewireEvents();
     } else {
         document.addEventListener('livewire:init', bindLivewireEvents, { once: true });
+    }
+
+    const focusStepHeading = () => {
+        const heading = root.querySelector('[data-booking-step-heading]');
+
+        if (!heading) return;
+
+        heading.focus({ preventScroll: true });
+        heading.scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+            block: 'start',
+        });
+    };
+
+    const bindStepEvents = () => {
+        if (!window.Livewire?.on) return;
+
+        window.Livewire.on('booking-wizard-step-changed', focusStepHeading);
+    };
+
+    if (window.Livewire?.on) {
+        bindStepEvents();
+    } else {
+        document.addEventListener('livewire:init', bindStepEvents, { once: true });
     }
 };

@@ -51,9 +51,8 @@
             <div class="mt-12 grid grid-cols-1 gap-y-10 lg:mt-16 lg:grid-cols-12 lg:gap-x-14">
                 <figure class="lg:col-span-5">
                     <div class="relative aspect-square overflow-hidden rounded-2xl shadow-soft lg:aspect-4/5"><img
-                            src="/media/home/care-standards.jpg"
-                            alt="Puppy resting comfortably in a cozy boarding suite" loading="lazy"
-                            class="h-full w-full object-cover"></div>
+                            src="/media/home/care-standards.jpg" alt="Puppy resting comfortably in a cozy boarding suite"
+                            loading="lazy" class="h-full w-full object-cover"></div>
                     <figcaption class="mt-3 text-xs leading-relaxed text-primary-dark/70">A young guest settling in for a
                         rest in one of our boarding suites.</figcaption>
                 </figure>
@@ -94,33 +93,33 @@
                     <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wider text-primary-dark/40">Select Client
                         Story</p>
                     <div role="tablist" aria-orientation="vertical" aria-label="Select client story"
-                        class="flex flex-col gap-3"
-                        @keydown="tabKeydown($event)">
+                        class="flex flex-col gap-3" @keydown="tabKeydown($event)">
                         @foreach ($homeTestimonials as $index => $testimonial)
-                        <button id="testimonial-tab-{{ $index }}" data-testimonial-index="{{ $index }}" x-cloak
-                            x-show="isVisible({{ $index }})" type="button" role="tab"
-                            aria-controls="testimonial-panel"
-                            :aria-selected="active === {{ $index }}" :tabindex="active === {{ $index }} ? 0 : -1"
-                            @click="select({{ $index }}, $event)"
-                            class="group relative flex min-h-[52px] w-full items-center justify-between rounded-xl border p-4 text-left transition duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                            :class="active === {{ $index }} ?
-                                'translate-x-1 border-primary/20 bg-white text-primary-dark shadow-sm' :
-                                'border-transparent bg-white/40 text-primary-dark/60 hover:bg-white/70 hover:text-primary-dark'"><span
-                                class="flex items-center gap-3"><span
-                                    class="flex size-8 items-center justify-center rounded-full font-serif text-xs font-bold"
-                                    :class="active === {{ $index }} ? 'bg-primary text-white' :
-                                        'bg-primary/10 text-primary'">{{ $testimonial['initial'] }}</span><span><span
-                                        class="block text-sm font-semibold leading-tight">{{ $testimonial['name'] }}</span><span
-                                        class="block text-xs text-primary-dark/50">{{ $testimonial['service'] }}</span></span></span><x-waggies.icon
-                                name="chevron-right" size="16"
-                                class="shrink-0 text-primary opacity-0 transition group-hover:opacity-100" /></button>
+                            <button id="testimonial-tab-{{ $index }}" data-testimonial-index="{{ $index }}"
+                                x-cloak x-show="isVisible({{ $index }})" type="button" role="tab"
+                                aria-controls="testimonial-panel" :aria-selected="active === {{ $index }}"
+                                :tabindex="active === {{ $index }} ? 0 : -1"
+                                @click="select({{ $index }}, $event)"
+                                class="group relative flex min-h-[52px] w-full items-center justify-between rounded-xl border p-4 text-left transition duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                                :class="active === {{ $index }} ?
+                                    'translate-x-1 border-primary/20 bg-white text-primary-dark shadow-sm' :
+                                    'border-transparent bg-white/40 text-primary-dark/60 hover:bg-white/70 hover:text-primary-dark'"><span
+                                    class="flex items-center gap-3"><span
+                                        class="flex size-8 items-center justify-center rounded-full font-serif text-xs font-bold"
+                                        :class="active === {{ $index }} ? 'bg-primary text-white' :
+                                            'bg-primary/10 text-primary'">{{ $testimonial['initial'] }}</span><span><span
+                                            class="block text-sm font-semibold leading-tight">{{ $testimonial['name'] }}</span><span
+                                            class="block text-xs text-primary-dark/50">{{ $testimonial['service'] }}</span></span></span><x-waggies.icon
+                                    name="chevron-right" size="16"
+                                    class="shrink-0 text-primary opacity-0 transition group-hover:opacity-100" /></button>
                         @endforeach
                     </div>
                     @if (count($homeTestimonials) > 3)
-                        <div class="flex flex-col items-start gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between" role="group"
-                            aria-label="Testimonial story sets">
+                        <div class="flex flex-col items-start gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between"
+                            role="group" aria-label="Testimonial story sets">
                             <div class="flex items-center gap-2">
-                                <button type="button" @click="previousBatch($event)" aria-label="Previous testimonial stories"
+                                <button type="button" @click="previousBatch($event)"
+                                    aria-label="Previous testimonial stories"
                                     class="grid size-11 place-items-center rounded-full border border-primary/20 text-primary transition-colors hover:bg-surface-purple focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                                     <x-waggies.icon name="arrow-back" size="16" />
                                 </button>
@@ -153,8 +152,11 @@
                                     class="rounded-full bg-surface-purple px-3 py-1 text-xs font-semibold tracking-wide text-primary"
                                     x-text="testimonials[displayed].service"></span>
                                 <div class="flex items-center gap-1" role="img" :aria-label="ratingLabel()"><template
-                                        x-for="i in 5" :key="i"><x-waggies.icon name="star" size="18"
-                                            x-bind:class="i <= Number(testimonials[displayed].stars || 0) ? 'text-gold' : 'text-primary/15'" /></template></div>
+                                        x-for="i in 5" :key="i"><x-waggies.icon name="star"
+                                            size="18"
+                                            x-bind:class="i <= Number(testimonials[displayed].stars || 0) ? 'text-gold' :
+                                                'text-primary/15'" /></template>
+                                </div>
                             </div>
                             <div class="min-h-[16rem] sm:min-h-[15rem] lg:min-h-[13rem]">
                                 <blockquote
@@ -192,8 +194,7 @@
     <section class="section-pad bg-surface">
         <div class="page-container">
             @php($homeBookingCta = ['heading' => 'Ready to', 'headingAccent' => 'book?', 'body' => 'Start a booking request for your pet, or contact the care team if you have a general question.', 'primaryLabel' => 'Request a booking', 'primaryRoute' => 'book', 'secondaryLabel' => 'See Pricing', 'secondaryRoute' => 'services.pricing'])
-            <div
-                class="relative overflow-hidden rounded-3xl bg-primary-dark px-8 py-16 md:px-16 md:py-20">
+            <div class="relative overflow-hidden rounded-3xl bg-primary-dark px-8 py-16 md:px-16 md:py-20">
                 <div class="pointer-events-none absolute inset-x-8 top-0 h-px bg-secondary/60 md:inset-x-16"></div>
                 <x-waggies.cta-centered :cta="$homeBookingCta" />
             </div>
