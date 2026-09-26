@@ -6,9 +6,12 @@ use App\Models\BookingRequest;
 use App\Support\BookingPricingCatalog;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class CreateBookingRequest
 {
+    public function __construct(private readonly BookingPricingCatalog $pricingCatalog) {}
+
     /**
      * @param array{
      *     contact: array<string, mixed>,
@@ -20,8 +23,10 @@ class CreateBookingRequest
      */
     public function handle(array $data): BookingRequest
     {
+        $this->validateAssignments($data['pets'], $data['services']);
+
         return DB::transaction(function () use ($data): BookingRequest {
-            $pricingCatalog = app(BookingPricingCatalog::class);
+            $pricingCatalog = $this->pricingCatalog;
             $contact = $data['contact'];
             $pets = array_values($data['pets']);
             $services = array_values($data['services']);
@@ -53,6 +58,12 @@ class CreateBookingRequest
             $petModels = [];
 
             foreach ($pets as $petIndex => $pet) {
+                $petDetails = Arr::wrap($pet['details'] ?? []);
+
+                if (($pet['size'] ?? null) !== null) {
+                    $petDetails['size'] = $pet['size'];
+                }
+
                 $petModels[$petIndex] = $bookingRequest->pets()->create([
                     'name' => $pet['name'],
                     'species' => $pet['species'],
@@ -60,15 +71,16 @@ class CreateBookingRequest
                     'age' => $pet['age'] ?? null,
                     'sex' => $pet['sex'] ?? null,
                     'notes' => $pet['notes'] ?? null,
-                    'details' => $pet['details'] ?? [],
+                    'details' => $petDetails,
                 ]);
             }
 
             foreach ($services as $service) {
                 $details = Arr::wrap($service['details'] ?? []);
-                $servicePetIndexes = array_key_exists('assigned_pet_ids', $service)
-                    ? array_values(array_filter($service['assigned_pet_ids'], static fn (mixed $index): bool => array_key_exists((int) $index, $pets)))
-                    : array_keys($pets);
+                $servicePetIndexes = array_values(array_filter(
+                    array_map(static fn (mixed $index): int => (int) $index, $service['assigned_pet_ids'] ?? []),
+                    static fn (int $index): bool => array_key_exists($index, $pets),
+                ));
                 $servicePets = array_map(static fn (int|string $index): array => $pets[(int) $index], $servicePetIndexes);
                 $priceSnapshot = $pricingCatalog->quoteForService($service, $servicePets);
                 $requestedDate = $service['requested_date'] ?? $details['check_in'] ?? null;
@@ -99,5 +111,63 @@ class CreateBookingRequest
 
             return $bookingRequest->load(['pets', 'services']);
         });
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $pets
+     * @param  array<int, array<string, mixed>>  $services
+     */
+    private function validateAssignments(array $pets, array $services): void
+    {
+        $messages = [];
+        $assignedPetIndexes = [];
+
+        foreach ($services as $serviceIndex => $service) {
+            $petIndexes = $service['assigned_pet_ids'] ?? [];
+
+            if (! is_array($petIndexes) || $petIndexes === []) {
+                $messages["services.{$serviceIndex}.assigned_pet_ids"] = 'Assign at least one compatible pet to this service.';
+
+                continue;
+            }
+
+            foreach ($petIndexes as $petIndex) {
+                $petIndex = (int) $petIndex;
+
+                if (! array_key_exists($petIndex, $pets)) {
+                    $messages["services.{$serviceIndex}.assigned_pet_ids"] = 'Choose a pet that exists in this request.';
+
+                    continue;
+                }
+
+                $assignedPetIndexes[$petIndex] = true;
+
+                if ($this->pricingCatalog->isPetCompatible(
+                    (string) ($service['service_key'] ?? ''),
+                    $service['service_variant'] ?? null,
+                    $pets[$petIndex]['species'] ?? null,
+                )) {
+                    continue;
+                }
+
+                $messages["services.{$serviceIndex}.assigned_pet_ids"] = $this->pricingCatalog->petCompatibilityReason(
+                    (string) ($service['service_key'] ?? ''),
+                    $service['service_variant'] ?? null,
+                    $pets[$petIndex]['species'] ?? null,
+                ) ?? 'Choose a pet that matches this service.';
+            }
+        }
+
+        foreach ($pets as $petIndex => $pet) {
+            if (isset($assignedPetIndexes[$petIndex])) {
+                continue;
+            }
+
+            $messages["pets.{$petIndex}.assignments"] = 'Assign this pet to at least one service or remove it.';
+        }
+
+        if ($messages !== []) {
+            throw ValidationException::withMessages($messages);
+        }
     }
 }

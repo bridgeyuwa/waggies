@@ -117,10 +117,54 @@ export const registerBookingDraftPersistence = () => {
         });
     };
 
+    const focusErrorSummary = () => {
+        const summary = root.querySelector('[data-booking-error-summary]');
+
+        if (!summary) return;
+
+        summary.scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+            block: 'start',
+        });
+        summary.focus({ preventScroll: true });
+    };
+
+    const focusTarget = target => {
+        if (!target) return;
+
+        window.requestAnimationFrame(() => {
+            const element = document.getElementById(target);
+
+            if (!element) return;
+
+            element.scrollIntoView({
+                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                block: 'center',
+            });
+
+            if (typeof element.focus === 'function') {
+                element.setAttribute('tabindex', '-1');
+                element.focus({ preventScroll: true });
+            }
+        });
+    };
+
+    const announce = message => {
+        const announcement = root.querySelector('[data-booking-announcement]');
+
+        if (!announcement || !message) return;
+
+        announcement.textContent = '';
+        window.requestAnimationFrame(() => { announcement.textContent = message; });
+    };
+
     const bindStepEvents = () => {
         if (!window.Livewire?.on) return;
 
         window.Livewire.on('booking-wizard-step-changed', focusStepHeading);
+        window.Livewire.on('booking-wizard-validation-failed', focusErrorSummary);
+        window.Livewire.on('booking-wizard-focus-target', ({ target }) => focusTarget(target));
+        window.Livewire.on('booking-wizard-announcement', ({ message }) => announce(message));
     };
 
     if (window.Livewire?.on) {

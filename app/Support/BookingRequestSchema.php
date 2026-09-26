@@ -31,9 +31,25 @@ final class BookingRequestSchema
     /**
      * @return array<string, string>
      */
+    public static function allVariantOptions(?string $service): array
+    {
+        return app(BookingPricingCatalog::class)->variantOptions($service);
+    }
+
+    /**
+     * @return array<string, string>
+     */
     public static function tierOptions(?string $service, ?string $variant = null): array
     {
         return app(BookingPricingCatalog::class)->tierOptions($service, $variant, availableOnly: true);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function allTierOptions(?string $service, ?string $variant = null): array
+    {
+        return app(BookingPricingCatalog::class)->tierOptions($service, $variant);
     }
 
     public static function defaultVariant(?string $service): ?string

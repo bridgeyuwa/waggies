@@ -18,6 +18,25 @@ it('calculates dog grooming estimates from weight-derived size and package adjus
         ]);
 });
 
+it('calculates size-based dog grooming without requiring an exact weight', function (): void {
+    expect(app(BookingPricingCatalog::class)->quote('grooming', 'dogs', 'full', ['size' => 'medium']))
+        ->toMatchArray([
+            'status' => 'estimate',
+            'amount' => 16000,
+            'max_amount' => 23000,
+            'size' => 'medium',
+            'weight_kg' => null,
+        ]);
+});
+
+it('provides configurable dog size labels and breed examples', function (): void {
+    expect(app(BookingPricingCatalog::class)->sizeOptions('grooming', 'dogs')['small'])
+        ->toMatchArray([
+            'label' => 'Small',
+            'examples' => 'Chihuahua, Yorkshire Terrier, Toy Poodle',
+        ]);
+});
+
 it('shows size-aware ranges beside dog grooming package choices', function (): void {
     $catalog = app(BookingPricingCatalog::class);
 
@@ -69,6 +88,22 @@ it('calculates dog boarding from weight, tier, and nights', function (): void {
             'max_amount' => 72000,
             'size' => 'medium',
         ]);
+});
+
+it('rejects pets that do not match the selected service variant', function (): void {
+    $catalog = app(BookingPricingCatalog::class);
+
+    expect($catalog->isPetCompatible('boarding', 'dogs', 'dog'))->toBeTrue()
+        ->and($catalog->isPetCompatible('boarding', 'dogs', 'cat'))->toBeFalse()
+        ->and($catalog->petCompatibilityReason('boarding', 'dogs', 'cat'))
+        ->toBe('Only dogs can be assigned to this service.');
+});
+
+it('uses service-level compatibility rules for dog training', function (): void {
+    $catalog = app(BookingPricingCatalog::class);
+
+    expect($catalog->isPetCompatible('training', null, 'dog'))->toBeTrue()
+        ->and($catalog->isPetCompatible('training', null, 'cat'))->toBeFalse();
 });
 
 it('applies the configurable boarding discount only to additional pets in one service item', function (): void {

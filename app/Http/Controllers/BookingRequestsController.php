@@ -100,6 +100,7 @@ final class BookingRequestsController extends Controller
                 'service_key' => $validated['service_key'],
                 'service_variant' => $validated['service_variant'] ?? null,
                 'pricing_tier' => $validated['pricing_tier'] ?? null,
+                'assigned_pet_ids' => [0],
                 'requested_date' => $validated['requested_date'],
                 'requested_time' => $validated['requested_time'] ?? null,
                 'location' => $validated['location'] ?? null,

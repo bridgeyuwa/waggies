@@ -76,6 +76,100 @@ final class BookingPricingCatalog
     }
 
     /**
+     * @return list<string>|null
+     */
+    public function allowedPetTypes(string $service, ?string $variant = null): ?array
+    {
+        $definition = $this->services()[$service] ?? null;
+
+        if ($definition === null) {
+            return null;
+        }
+
+        if ($variant !== null && $variant !== '') {
+            $variantDefinition = $this->variants($service)[$variant] ?? null;
+
+            if ($variantDefinition !== null) {
+                if (isset($variantDefinition['pet_types']) && is_array($variantDefinition['pet_types'])) {
+                    return array_values($variantDefinition['pet_types']);
+                }
+
+                if (isset($variantDefinition['pet_type']) && is_string($variantDefinition['pet_type'])) {
+                    return [$variantDefinition['pet_type']];
+                }
+            }
+        }
+
+        if (isset($definition['pet_types']) && is_array($definition['pet_types'])) {
+            return array_values($definition['pet_types']);
+        }
+
+        return null;
+    }
+
+    public function isPetCompatible(string $service, ?string $variant, ?string $petType): bool
+    {
+        if ($petType === null || $petType === '') {
+            return true;
+        }
+
+        $allowedPetTypes = $this->allowedPetTypes($service, $variant);
+
+        return $allowedPetTypes === null || in_array($petType, $allowedPetTypes, true);
+    }
+
+    public function petCompatibilityReason(string $service, ?string $variant, ?string $petType): ?string
+    {
+        if ($this->isPetCompatible($service, $variant, $petType)) {
+            return null;
+        }
+
+        $allowedPetTypes = $this->allowedPetTypes($service, $variant) ?? [];
+        $labels = [
+            'dog' => 'dogs',
+            'cat' => 'cats',
+            'other' => 'other pets',
+        ];
+        $allowedLabel = collect($allowedPetTypes)
+            ->map(fn (string $type): string => $labels[$type] ?? $type)
+            ->join(' or ');
+
+        return "Only {$allowedLabel} can be assigned to this service.";
+    }
+
+    public function requiresPetWeight(string $service, ?string $variant): bool
+    {
+        return $this->requiresPetSize($service, $variant);
+    }
+
+    public function requiresPetSize(string $service, ?string $variant): bool
+    {
+        if ($variant === null || $variant === '') {
+            return false;
+        }
+
+        $variantDefinition = $this->variants($service)[$variant] ?? [];
+
+        return (bool) (($variantDefinition['size_rates'] ?? []) !== [])
+            || (bool) ($variantDefinition['weight_required'] ?? false);
+    }
+
+    /**
+     * @return array<string, array{label: string, examples: string|null}>
+     */
+    public function sizeOptions(string $service, ?string $variant): array
+    {
+        return collect($this->sizeRates($service, $variant))
+            ->mapWithKeys(static fn (array $rate, string $key): array => [
+                $key => [
+                    'label' => $rate['booking_label'] ?? $rate['label'] ?? Str::headline($key),
+                    'examples' => $rate['examples'] ?? null,
+                ],
+            ])
+            ->all();
+    }
+
+    /**
      * @return array<string, array<string, mixed>>
      */
     public function tiers(?string $service, ?string $variant = null, bool $availableOnly = false, string $channel = 'booking'): array
@@ -198,6 +292,13 @@ final class BookingPricingCatalog
             }
         } elseif ($variant !== null && $variant !== '') {
             return ['status' => 'unavailable', 'reason' => 'This service does not use a pet type selection.'];
+        }
+
+        if (! $this->isPetCompatible($service, $variant, $pet['species'] ?? null)) {
+            return [
+                'status' => 'unavailable',
+                'reason' => $this->petCompatibilityReason($service, $variant, $pet['species'] ?? null),
+            ];
         }
 
         $tierDefinition = $this->tiers($service, $variant)[$tier ?? ''] ?? null;
@@ -324,8 +425,8 @@ final class BookingPricingCatalog
             return [
                 'status' => 'needs_input',
                 'reason' => $service === 'boarding'
-                    ? 'Add your dog\'s weight so we can estimate boarding cost.'
-                    : 'Add your dog\'s weight so we can estimate grooming cost.',
+                    ? 'Choose your dog\'s size so we can estimate boarding cost.'
+                    : 'Choose your dog\'s size so we can estimate grooming cost.',
             ];
         }
 

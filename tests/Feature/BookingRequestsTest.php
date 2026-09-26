@@ -34,8 +34,8 @@ it('renders the public booking page with service choices and required controls',
     $this->get(route('book'))
         ->assertOk()
         ->assertSee('Tell us what your pet needs')
-        ->assertSee('What service do you need?')
-        ->assertSee('Choose every service you are considering')
+        ->assertSee('Choose and configure services')
+        ->assertSee('Choose each service you need')
         ->assertSee('Local Transport')
         ->assertSee('Pet Relocation')
         ->assertSee('Your request')
@@ -56,6 +56,8 @@ it('uses five focused steps with explicit pet matching before contact and review
         ->assertSet('step', 2)
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
+        ->set('pets.0.sex', 'male')
+        ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.weight_kg', 12)
         ->call('nextStep')
         ->assertSet('step', 3)
@@ -99,6 +101,50 @@ it('updates dependent booking choices through one server-side action per select'
         ->call('variantChanged', 0, 'dogs')
         ->call('tierChanged', 0, 'full')
         ->assertSet('services.0.pricing_tier', 'full');
+});
+
+it('uses the empty first service slot when adding a service from a new request', function (): void {
+    Livewire::test('booking-request-wizard')
+        ->call('addService')
+        ->call('chooseAdditionalService', 'boarding')
+        ->assertSet('services.0.service_key', 'boarding')
+        ->assertSet('choosingService', false)
+        ->assertCount('services', 1);
+});
+
+it('rejects identical service items while allowing separate service contexts', function (): void {
+    $checkIn = now()->addDays(4)->toDateString();
+    $checkOut = now()->addDays(7)->toDateString();
+
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding'],
+    ])
+        ->set('services.0.service_variant', 'dogs')
+        ->set('services.0.pricing_tier', 'basic')
+        ->set('services.0.details.check_in', $checkIn)
+        ->set('services.0.details.check_out', $checkOut)
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.size', 'medium')
+        ->set('pets.0.sex', 'male')
+        ->call('addService')
+        ->call('chooseAdditionalService', 'boarding')
+        ->set('services.1.service_variant', 'dogs')
+        ->set('services.1.pricing_tier', 'basic')
+        ->set('services.1.details.check_in', $checkIn)
+        ->set('services.1.details.check_out', $checkOut)
+        ->set('services.1.assigned_pet_ids', [0])
+        ->set('contact.name', 'Ada Obi')
+        ->set('contact.email', 'duplicate@example.com')
+        ->set('contact.phone', '0808 081 1902')
+        ->set('step', 5)
+        ->call('submit')
+        ->assertHasErrors('services.0.assigned_pet_ids')
+        ->assertHasErrors('services.1.assigned_pet_ids')
+        ->assertSet('submitted', false);
+
+    expect(BookingRequest::query()->where('email', 'duplicate@example.com')->exists())->toBeFalse();
 });
 
 it('persists a valid booking request as a UUIDv7 and shows a truthful success state', function (): void {
@@ -152,6 +198,7 @@ it('persists a progressive Livewire request with normalized services and pets', 
         ->set('services.0.assigned_pet_ids', [0])
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
+        ->set('pets.0.sex', 'male')
         ->set('pets.0.weight_kg', 12)
         ->set('pets.0.breed', 'Mixed breed')
         ->set('contact.name', 'Ada Obi')
@@ -172,7 +219,7 @@ it('persists a progressive Livewire request with normalized services and pets', 
         ->and($bookingRequest->services->first()->price_snapshot['lines'][0]['weight_kg'])->toBe(12);
 });
 
-it('persists only the pets assigned to each service and keeps separate service price snapshots', function (): void {
+it('persists only the pets assigned to each compatible service and keeps separate price snapshots', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'grooming'],
     ])
@@ -182,10 +229,20 @@ it('persists only the pets assigned to each service and keeps separate service p
         ->set('services.0.assigned_pet_ids', [0])
         ->set('pets.0.name', 'Bruno')
         ->set('pets.0.species', 'dog')
+        ->set('pets.0.sex', 'male')
+        ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.weight_kg', 22)
         ->call('addPet')
         ->set('pets.1.name', 'Luna')
         ->set('pets.1.species', 'cat')
+        ->set('pets.1.sex', 'female')
+        ->call('addService')
+        ->call('chooseAdditionalService', 'boarding')
+        ->set('services.1.service_variant', 'cats')
+        ->set('services.1.pricing_tier', 'cozy')
+        ->set('services.1.details.check_in', now()->addDays(4)->toDateString())
+        ->set('services.1.details.check_out', now()->addDays(7)->toDateString())
+        ->set('services.1.assigned_pet_ids', [1])
         ->set('contact.name', 'Ada Obi')
         ->set('contact.email', 'assignment@example.com')
         ->set('contact.phone', '0808 081 1902')
@@ -194,10 +251,38 @@ it('persists only the pets assigned to each service and keeps separate service p
 
     $bookingRequest = BookingRequest::query()->where('email', 'assignment@example.com')->firstOrFail();
     $service = $bookingRequest->services->firstOrFail();
+    $catService = $bookingRequest->services->last();
+
+    expect($catService)->not->toBeNull();
 
     expect($service->pets)->toHaveCount(1)
         ->and($service->pets->first()->name)->toBe('Bruno')
-        ->and($service->price_snapshot['amount'])->toBe(16000);
+        ->and($service->price_snapshot['amount'])->toBe(16000)
+        ->and($catService->pets)->toHaveCount(1)
+        ->and($catService->pets->first()->name)->toBe('Luna');
+});
+
+it('rejects a cat assigned to dog boarding before persistence', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding'],
+    ])
+        ->set('services.0.service_variant', 'dogs')
+        ->set('services.0.pricing_tier', 'basic')
+        ->set('services.0.details.check_in', now()->addDays(4)->toDateString())
+        ->set('services.0.details.check_out', now()->addDays(7)->toDateString())
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('pets.0.name', 'Luna')
+        ->set('pets.0.species', 'cat')
+        ->set('pets.0.sex', 'female')
+        ->set('contact.name', 'Ada Obi')
+        ->set('contact.email', 'incompatible@example.com')
+        ->set('contact.phone', '0808 081 1902')
+        ->set('step', 5)
+        ->call('submit')
+        ->assertHasErrors('services.0.assigned_pet_ids')
+        ->assertSet('submitted', false);
+
+    expect(BookingRequest::query()->where('email', 'incompatible@example.com')->exists())->toBeFalse();
 });
 
 it('rejects invalid booking input without persisting a request', function (): void {

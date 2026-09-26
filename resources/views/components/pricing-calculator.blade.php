@@ -22,6 +22,9 @@ new class extends Component
     public ?float $weightKg = null;
 
     #[Url]
+    public ?string $size = null;
+
+    #[Url]
     public ?string $source = null;
 
     public string $step = 'form';
@@ -71,6 +74,7 @@ new class extends Component
     public function updatedVariant(): void
     {
         $this->tier = null;
+        $this->size = null;
         $this->step = 'form';
         $this->result = [];
         $this->normaliseSelection();
@@ -91,6 +95,7 @@ new class extends Component
         $this->service = $service;
         $this->variant = null;
         $this->tier = null;
+        $this->size = null;
         $this->step = 'form';
         $this->result = [];
         $this->normaliseSelection();
@@ -122,6 +127,11 @@ new class extends Component
         return app(BookingPricingCatalog::class)->variantOptions($this->service, availableOnly: true, channel: 'pricing');
     }
 
+    public function allVariantOptions(): array
+    {
+        return app(BookingPricingCatalog::class)->variantOptions($this->service, availableOnly: false, channel: 'pricing');
+    }
+
     public function tierDefinitions(): array
     {
         return app(BookingPricingCatalog::class)->tiers($this->service, $this->variant, availableOnly: true, channel: 'pricing');
@@ -139,12 +149,25 @@ new class extends Component
 
     public function hasVariants(): bool
     {
-        return app(BookingPricingCatalog::class)->variants($this->service ?? '', availableOnly: true, channel: 'pricing') !== [];
+        return app(BookingPricingCatalog::class)->variants($this->service ?? '', availableOnly: false, channel: 'pricing') !== [];
     }
 
     public function needsWeight(): bool
     {
-        return $this->service === 'grooming' && $this->variant === 'dogs';
+        return $this->needsSize();
+    }
+
+    public function needsSize(): bool
+    {
+        return app(BookingPricingCatalog::class)->requiresPetSize($this->service ?? '', $this->variant);
+    }
+
+    /**
+     * @return array<string, array{label: string, examples: string|null}>
+     */
+    public function sizeOptions(): array
+    {
+        return app(BookingPricingCatalog::class)->sizeOptions($this->service ?? '', $this->variant);
     }
 
     public function quantityLabel(): string
@@ -177,7 +200,7 @@ new class extends Component
             return false;
         }
 
-        return ! $this->needsWeight() || ($this->weightKg !== null && $this->weightKg >= 0);
+        return ! $this->needsSize() || $this->size !== null || ($this->weightKg !== null && $this->weightKg >= 0);
     }
 
     public function calculate(): void
@@ -189,6 +212,7 @@ new class extends Component
         $quantity = max(1, min($this->quantity ?? 1, $this->service === 'boarding' ? 30 : 12));
         $pet = [
             'species' => $this->variant === 'cats' ? 'cat' : 'dog',
+            'size' => $this->size,
             'weight_kg' => $this->weightKg,
         ];
         $quote = app(BookingPricingCatalog::class)->quote($this->service, $this->variant, $this->tier, $pet, $quantity, 'pricing');
@@ -223,6 +247,7 @@ new class extends Component
         $this->variant = null;
         $this->tier = null;
         $this->quantity = 1;
+        $this->size = null;
         $this->weightKg = null;
         $this->step = 'form';
         $this->result = [];
@@ -238,13 +263,18 @@ new class extends Component
             return;
         }
 
-        if ($this->variant && ! array_key_exists($this->variant, $this->variantOptions())) {
+        if ($this->variant && ! array_key_exists($this->variant, $this->allVariantOptions())) {
             $this->variant = null;
+            $this->tier = null;
+            $this->size = null;
+        }
+
+        if ($this->tier && ! array_key_exists($this->tier, $this->allTierDefinitions())) {
             $this->tier = null;
         }
 
-        if ($this->tier && ! array_key_exists($this->tier, $this->tierDefinitions())) {
-            $this->tier = null;
+        if ($this->size && ! array_key_exists($this->size, $this->sizeOptions())) {
+            $this->size = null;
         }
     }
 
@@ -287,7 +317,7 @@ new class extends Component
                     @if($this->hasVariants())
                         <x-waggies.select id="pricing-variant" label="2. Who is this for?" wire:model.live="variant" :plain="true" required>
                             <option value="">Choose a pet type</option>
-                            @foreach($this->variantOptions() as $key => $label)<option value="{{ $key }}">{{ $label }}</option>@endforeach
+                            @foreach($this->allVariantOptions() as $key => $label)<option value="{{ $key }}" @disabled(! array_key_exists($key, $this->variantOptions()))>{{ $label }}{{ ! array_key_exists($key, $this->variantOptions()) ? ' — Temporarily unavailable' : '' }}</option>@endforeach
                         </x-waggies.select>
                     @endif
 
@@ -309,27 +339,39 @@ new class extends Component
                         </div>
                     @endif
 
-                    @if($this->tierDefinitions() && (! $this->hasVariants() || $variant))
-                        <div>
-                            <p class="text-sm font-semibold text-primary-dark">{{ $this->hasVariants() ? '3' : '2' }}. Choose a package</p>
-                            <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                                @foreach($this->tierDefinitions() as $key => $tier)
-                                    <button type="button" wire:click="selectTier('{{ $key }}')" aria-pressed="{{ $this->tier === $key ? 'true' : 'false' }}" class="relative min-h-24 rounded-xl border-2 p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary {{ $this->tier === $key ? 'border-primary bg-surface-purple shadow-sm' : 'border-primary/10 hover:border-primary/40' }}">
+                        @if($this->allTierDefinitions() && (! $this->hasVariants() || $variant))
+                            <div>
+                                <p class="text-sm font-semibold text-primary-dark">{{ $this->hasVariants() ? '3' : '2' }}. Choose a package</p>
+                                <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                                    @foreach($this->allTierDefinitions() as $key => $tier)
+                                        @php $available = array_key_exists($key, $this->tierDefinitions()); @endphp
+                                        <button type="button" @if($available) wire:click="selectTier('{{ $key }}')" @else disabled @endif aria-pressed="{{ $this->tier === $key ? 'true' : 'false' }}" class="relative min-h-24 rounded-xl border-2 p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary {{ $this->tier === $key ? 'border-primary bg-surface-purple shadow-sm' : 'border-primary/10 hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : '' }}">
                                         <span class="block pr-7 text-sm font-bold text-primary-dark">{{ $tier['label'] ?? $key }}</span>
                                         <span class="mt-1 block text-sm text-primary-dark/60">{{ $this->tierPriceLabel($tier) }}</span>
+                                        @if(! $available)<span class="mt-1 block text-xs font-medium text-primary-dark/55">Temporarily unavailable</span>@endif
                                         @if($this->tier === $key)<span class="absolute right-3 top-3 text-primary"><x-waggies.icon name="check-circle" variant="filled" size="18" /></span>@endif
-                                    </button>
-                                @endforeach
+                                        </button>
+                                    @endforeach
+                                </div>
                             </div>
-                        </div>
                     @elseif($this->hasVariants() && ! $variant)
                         <p class="rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a pet type first to see the packages and size-aware prices for that pet.</p>
                     @endif
 
-                    @if($this->needsWeight())
-                        <x-waggies.field id="pricing-weight" label="Dog weight in kilograms" help="Dog grooming prices use weight bands. Cats do not need a size selection.">
-                            <input id="pricing-weight" wire:model.live="weightKg" type="number" min="0" max="300" step="0.1" inputmode="decimal" class="contact-input">
-                        </x-waggies.field>
+                    @if($this->needsSize())
+                        <fieldset aria-labelledby="pricing-size-heading">
+                            <legend id="pricing-size-heading" class="text-sm font-semibold text-primary-dark">Dog size <span class="text-danger" aria-hidden="true">*</span></legend>
+                            <p class="mt-1 text-xs leading-relaxed text-primary-dark/60">Choose the closest size. You do not need to know your dog’s exact weight.</p>
+                            <div class="mt-3 grid gap-3 sm:grid-cols-3">
+                                @foreach($this->sizeOptions() as $key => $sizeOption)
+                                    <label class="cursor-pointer rounded-xl border p-4 transition-colors {{ $size === $key ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }}">
+                                        <input type="radio" name="pricing-size" value="{{ $key }}" wire:model.live="size" class="sr-only peer">
+                                        <span class="block font-semibold text-primary-dark">{{ $sizeOption['label'] }}</span>
+                                        @if($sizeOption['examples'])<span class="mt-1 block text-xs leading-relaxed text-primary-dark/60">{{ $sizeOption['examples'] }}</span>@endif
+                                    </label>
+                                @endforeach
+                            </div>
+                        </fieldset>
                     @endif
 
                     @if(in_array($service, ['boarding', 'grooming'], true))
