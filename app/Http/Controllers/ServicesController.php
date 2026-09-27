@@ -32,7 +32,6 @@ final class ServicesController extends Controller
                 'imageAlt' => 'Dog resting during a Waggies boarding stay',
                 'actions' => [
                     ['label' => 'Submit Booking Request', 'url' => route('book'), 'icon' => 'arrow-forward'],
-                    ['label' => 'View Policies', 'url' => route('policies'), 'variant' => 'secondary'],
                 ],
             ],
             'cards' => [
@@ -66,7 +65,7 @@ final class ServicesController extends Controller
                 'imageAlt' => 'Dog resting during a boarding stay',
                 'actions' => [
                     ['label' => 'Submit Booking Request', 'url' => route('book', ['service' => 'boarding']), 'icon' => 'arrow-forward'],
-                    ['label' => 'Boarding policies', 'url' => route('policies.boarding'), 'variant' => 'secondary'],
+                    ['label' => 'Boarding policy', 'url' => route('boarding-policy'), 'variant' => 'secondary'],
                 ],
             ],
             'inclusions' => config('waggies_pricing.services.boarding.inclusions', []),

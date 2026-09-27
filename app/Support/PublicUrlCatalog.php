@@ -24,10 +24,8 @@ final class PublicUrlCatalog
             'tools.vaccination', 'tools.nutrition',
             'tools.emergency', 'tools.new-pet-checklist', 'tools.parasite', 'tools.behavior-tips',
             'tools.breed-finder', 'faq', 'shop.index', 'contact', 'book', 'loyalty', 'privacy-policy',
-            'terms-of-service', 'cookies-policy', 'policies', 'policies.boarding',
-            'policies.cancellation', 'policies.check-in', 'policies.medication',
-            'policies.emergency-veterinary', 'policies.behaviour-safety', 'policies.relocation',
-            'policies.general-terms',
+            'terms-of-service', 'cookies-policy', 'boarding-policy', 'cancellation-policy',
+            'relocation-policy',
         ];
 
         $urls = array_map(static fn (string $route): string => route($route), $staticRoutes);
