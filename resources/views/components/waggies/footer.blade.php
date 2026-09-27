@@ -23,7 +23,7 @@
             ['Knowledge Base', route('knowledge-base.index')],
             ['Tools', route('tools.index')],
         ],
-        'Policies' => [
+        'Waggies Policies' => [
             ['Boarding Policy', route('boarding-policy')],
             ['Cancellation Policy', route('cancellation-policy')],
             ['Relocation Policy', route('relocation-policy')],
@@ -149,7 +149,8 @@
 
                 <x-waggies.footer-business-hours :schedule="$businessSchedule" />
             </div>
-            <div class="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6 lg:gap-6">
+            <div
+                class="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3 md:gap-x-8 lg:grid-cols-5 lg:gap-x-10 lg:gap-y-10">
                 @foreach ($footerColumns as $heading => $links)
                     <div>
                         <h3 class="mb-5 text-xs font-semibold uppercase tracking-[0.14em] text-secondary">
