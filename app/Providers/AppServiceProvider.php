@@ -81,23 +81,18 @@ class AppServiceProvider extends ServiceProvider
             $hrefs = [
                 'boarding-dogs' => route('services.boarding.species', ['species' => 'dogs']),
                 'boarding-cats' => route('services.boarding.species', ['species' => 'cats']),
-                'boarding-exotic' => route('services.boarding.species', ['species' => 'exotic']),
-                'grooming' => route('services.grooming'),
                 'vet-care' => route('services.vet-care'),
-                'training' => route('services.training'),
                 'relocation-import' => route('relocation.import'),
                 'relocation-export' => route('relocation.export'),
-                'local-transport' => route('relocation.transport'),
                 'general' => route('about.testimonials'),
             ];
             $variant = $view->getData()['variant'] ?? 'overview';
             $serviceFilter = match ($variant) {
-                'relocation' => ['relocation-import', 'relocation-export', 'local-transport'],
-                'boarding' => ['boarding-dogs', 'boarding-cats', 'boarding-exotic'],
+                'relocation' => ['relocation-import', 'relocation-export'],
+                'boarding' => ['boarding-dogs', 'boarding-cats'],
                 'boarding-dogs' => ['boarding-dogs'],
                 'boarding-cats' => ['boarding-cats'],
-                'boarding-exotic' => ['boarding-exotic'],
-                default => ['boarding-dogs', 'grooming', 'relocation-import'],
+                default => ['boarding-dogs', 'vet-care', 'relocation-import'],
             };
 
             $testimonials = Testimonial::query()
@@ -138,7 +133,7 @@ class AppServiceProvider extends ServiceProvider
 
         Head::defaults(function (HeadBuilder $head): void {
             $head->title('Waggies - Pet Care, Abuja', exact: true)
-                ->description('Waggies provides boarding, grooming, vet care, training, relocation and local transport services in Abuja, Nigeria.');
+                ->description('Waggies provides boarding, veterinary care, and pet relocation services in Abuja, Nigeria.');
         });
 
         Head::errors(function ($errors): void {

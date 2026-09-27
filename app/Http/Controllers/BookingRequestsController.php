@@ -17,7 +17,7 @@ final class BookingRequestsController extends Controller
     {
         $metadata = [
             'title' => 'Request a Service - Waggies Pet Care Abuja',
-            'description' => 'Send Waggies a booking request for boarding, grooming, veterinary care, training, relocation or local transport in Abuja.',
+            'description' => 'Send Waggies a booking request for boarding, veterinary care, or pet relocation in Abuja.',
             'canonical' => route('book'),
             'ogTitle' => 'Request a Service - Waggies Pet Care Abuja',
             'ogDescription' => 'Tell Waggies what your pet needs and our team will confirm the details with you.',
@@ -31,11 +31,18 @@ final class BookingRequestsController extends Controller
                 ->toArray(),
         ]);
 
-        $service = trim((string) $request->query('service', ''));
-        $variant = trim((string) $request->query('variant', ''));
-        $tier = trim((string) $request->query('tier', ''));
+        $requestedService = trim((string) $request->query('service', ''));
+        $aliases = [
+            'boarding-dogs' => ['service' => 'boarding', 'variant' => 'dogs'],
+            'boarding-cats' => ['service' => 'boarding', 'variant' => 'cats'],
+            'relocation-import' => ['service' => 'relocation', 'variant' => 'import'],
+            'relocation-export' => ['service' => 'relocation', 'variant' => 'export'],
+            'vet' => ['service' => 'vet-care'],
+        ];
+        $resolved = $aliases[$requestedService] ?? ['service' => $requestedService, 'variant' => (string) $request->query('variant', '')];
+        $service = $resolved['service'];
+        $variant = (string) ($request->query('variant', '') ?: ($resolved['variant'] ?? ''));
         $source = trim((string) $request->query('source', ''));
-        $pricingTransportContext = session()->pull('pricing_transport_context', []);
         $serviceOptions = app(BookingPricingCatalog::class)->serviceOptions();
         $whatsappUrl = BusinessProfile::current()->whatsapp_url;
 
@@ -44,7 +51,6 @@ final class BookingRequestsController extends Controller
             'serviceOptions' => $serviceOptions,
             'selectedService' => array_key_exists($service, $serviceOptions) ? $service : null,
             'selectedVariant' => $variant,
-            'selectedTier' => $tier,
             'source' => $source,
             'whatsappUrl' => $whatsappUrl.'?text='.rawurlencode('Hello Waggies, I submitted a booking request and would like to continue the conversation.'),
             'minimumDate' => now()->toDateString(),
@@ -53,9 +59,8 @@ final class BookingRequestsController extends Controller
             'bookingContext' => [
                 'service' => array_key_exists($service, $serviceOptions) ? $service : null,
                 'variant' => $variant !== '' ? $variant : null,
-                'tier' => $tier !== '' ? $tier : null,
+                'tier' => null,
                 'source' => $source !== '' ? $source : null,
-                'transport' => is_array($pricingTransportContext) ? $pricingTransportContext : [],
                 'whatsappUrl' => $whatsappUrl.'?text='.rawurlencode('Hello Waggies, I submitted a booking request and would like to continue the conversation.'),
             ],
         ]);
@@ -70,7 +75,6 @@ final class BookingRequestsController extends Controller
             'preferred_contact_method',
             'service_key',
             'service_variant',
-            'pricing_tier',
             'source',
             'requested_date',
             'requested_time',
@@ -83,7 +87,6 @@ final class BookingRequestsController extends Controller
         $context = array_filter([
             'service' => $validated['service_key'] ?? null,
             'variant' => $validated['service_variant'] ?? null,
-            'tier' => $validated['pricing_tier'] ?? null,
             'source' => $validated['source'] ?? null,
         ]);
 
@@ -101,7 +104,7 @@ final class BookingRequestsController extends Controller
             'services' => [[
                 'service_key' => $validated['service_key'],
                 'service_variant' => $validated['service_variant'] ?? null,
-                'pricing_tier' => $validated['pricing_tier'] ?? null,
+                'pricing_tier' => null,
                 'assigned_pet_ids' => [0],
                 'requested_date' => $validated['requested_date'],
                 'requested_time' => $validated['requested_time'] ?? null,

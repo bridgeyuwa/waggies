@@ -9,7 +9,7 @@
             'items' => [
                 [
                     'label' => 'Request a service',
-                    'description' => 'Boarding, grooming, veterinary care, training, relocation, or local transport',
+                    'description' => 'Boarding, veterinary care, or pet relocation',
                     'icon' => 'pets',
                     'href' => route('book'),
                 ],
@@ -261,7 +261,6 @@
                                                                             <option value="">Select...</option>
                                                                             <option value="dog">Dog</option>
                                                                             <option value="cat">Cat</option>
-                                                                            <option value="exotic">Exotic pet</option>
                                                                         </select></template>
                                                                     <p x-show="lockedSpecies()"
                                                                         class="mt-1 text-xs text-primary-dark/50"
@@ -279,18 +278,7 @@
                                                                         (optional)</label><input :id="`pet-${pet.id}-age`"
                                                                         x-model="pet.age" placeholder="e.g. 2 years"
                                                                         class="contact-input"></div>
-                                                            </div><template x-if="pet.species === 'exotic'">
-                                                                <div class="mt-3"><label :for="`pet-${pet.id}-exotic`"
-                                                                        class="text-sm font-medium text-primary-dark">Exotic
-                                                                        pet type</label><input :id="`pet-${pet.id}-exotic`"
-                                                                        x-model="pet.extra.exoticPetType"
-                                                                        placeholder="e.g. African Grey parrot, bearded dragon, rabbit"
-                                                                        class="contact-input">
-                                                                    <p class="mt-1 text-xs text-primary-dark/50">Tell us
-                                                                        the species so we can prepare the right enclosure.
-                                                                    </p>
-                                                                </div>
-                                                            </template>
+                                                            </div>
                                                             <div class="mt-3"><label :for="`pet-${pet.id}-notes`"
                                                                     class="text-sm font-medium text-primary-dark">Notes
                                                                     (optional)</label>
@@ -610,8 +598,8 @@
                             <h3 class="text-base font-semibold text-primary-dark">Opening Hours</h3>
                         </div>
                         <x-waggies.opening-hours :schedule="$business['openingHours']" />
-                        <p class="mt-2 text-xs leading-relaxed text-primary-dark/50">Boarding guests receive 24/7
-                            supervision regardless of office hours.</p>
+                        <p class="mt-2 text-xs leading-relaxed text-primary-dark/50">Boarding availability and
+                            supervision arrangements are confirmed during the request review.</p>
                     </div>
                 </div>
             </div>

@@ -7,7 +7,7 @@
                 class="inline-flex max-w-full items-center gap-2 rounded-full border border-primary/10 bg-white px-3.5 py-1.5 shadow-sm">
                 <x-waggies.icon name="verified" size="18" variant="filled" class="shrink-0 text-primary" />
                 <span class="whitespace-nowrap text-xs font-semibold tracking-wide text-primary-dark/80 sm:text-sm">
-                    Five services. One trusted team.
+                    Three services. One trusted team.
                 </span>
             </span>
         </x-slot:supporting>
@@ -85,7 +85,7 @@
                     <h2 class="text-h2">Trusted by Abuja Pet Parents</h2>
                 </div>
                 <p class="max-w-md text-body-sm text-primary-dark/70">Real stories from pet owners who entrust their
-                    companions to Waggies for boarding, grooming, and relocation.</p>
+                    companions to Waggies for boarding, veterinary care, and relocation.</p>
             </div>
             <div class="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-12">
                 <div class="order-2 flex flex-col justify-center space-y-3 transition-[opacity,transform] duration-[280ms] ease-[cubic-bezier(0.23,1,0.32,1)] lg:order-1 lg:col-span-4 motion-reduce:transition-opacity motion-reduce:duration-180 motion-reduce:transform-none"
@@ -193,7 +193,7 @@
 
     <section class="section-pad bg-surface">
         <div class="page-container">
-            @php($homeBookingCta = ['heading' => 'Ready to', 'headingAccent' => 'book?', 'body' => 'Start a booking request for your pet, or contact the care team if you have a general question.', 'primaryLabel' => 'Request a booking', 'primaryRoute' => 'book', 'secondaryLabel' => 'See Pricing', 'secondaryRoute' => 'services.pricing'])
+            @php($homeBookingCta = ['heading' => 'Ready to', 'headingAccent' => 'request care?', 'body' => 'Start a booking request for your pet, or contact the care team if you have a general question.', 'primaryLabel' => 'Submit Booking Request', 'primaryRoute' => 'book', 'secondaryLabel' => 'See Pricing', 'secondaryRoute' => 'services.pricing'])
             <div class="relative overflow-hidden rounded-3xl bg-primary-dark px-8 py-16 md:px-16 md:py-20">
                 <div class="pointer-events-none absolute inset-x-8 top-0 h-px bg-secondary/60 md:inset-x-16"></div>
                 <x-waggies.cta-centered :cta="$homeBookingCta" />

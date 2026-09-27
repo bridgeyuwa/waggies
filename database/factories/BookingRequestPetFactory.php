@@ -21,7 +21,7 @@ class BookingRequestPetFactory extends Factory
         return [
             'booking_request_id' => BookingRequest::factory(),
             'name' => fake()->firstName(),
-            'species' => fake()->randomElement(['dog', 'cat', 'bird', 'rabbit', 'reptile', 'other']),
+            'species' => fake()->randomElement(['dog', 'cat']),
             'breed' => fake()->optional()->word(),
             'age' => fake()->optional()->randomElement(['puppy', 'adult', 'senior']),
             'sex' => fake()->optional()->randomElement(['female', 'male']),

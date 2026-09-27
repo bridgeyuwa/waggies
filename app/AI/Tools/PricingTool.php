@@ -19,11 +19,14 @@ final class PricingTool implements Tool
             return [
                 'label' => $service['label'] ?? null,
                 'unit' => $service['unit'] ?? null,
-                'tiers' => collect($service['tiers'] ?? collect($service['variants'] ?? [])->flatMap(fn (array $variant): array => $variant['tiers'] ?? []))->map(fn (array $tier): array => [
-                    'label' => $tier['label'] ?? null,
-                    'type' => $tier['type'] ?? null,
-                    'amount' => $tier['amount'] ?? null,
-                    'max_amount' => $tier['max_amount'] ?? null,
+                'pricing_mode' => $service['pricing_mode'] ?? 'manual_quote',
+                'options' => collect($service['variants'] ?? [])->map(fn (array $variant): array => [
+                    'label' => $variant['label'] ?? null,
+                    'category' => $variant['category'] ?? null,
+                    'type' => $variant['type'] ?? null,
+                    'amount' => $variant['amount'] ?? null,
+                    'max_amount' => $variant['max_amount'] ?? null,
+                    'request_only' => $variant['request_only'] ?? false,
                 ])->values()->all(),
             ];
         })->all();

@@ -7,9 +7,7 @@
     $footerColumns = [
         'Services' => [
             ['Boarding', route('services.boarding')],
-            ['Grooming', route('services.grooming')],
             ['Veterinary Care', route('services.vet-care')],
-            ['Training', route('services.training')],
             ['Relocation', route('services.relocation')],
         ],
         'Company' => [
@@ -21,13 +19,14 @@
         ],
         'Resources' => [
             ['FAQ', route('faq')],
+            ['Policies', route('policies')],
             ['Guides', route('guides.index')],
             ['Knowledge Base', route('knowledge-base.index')],
             ['Tools', route('tools.index')],
         ],
         'Support' => [
             ['Contact', route('contact')],
-            ['Request a booking', route('book')],
+            ['Submit Booking Request', route('book')],
             ['Phone', $phoneHref],
             ['WhatsApp', $whatsappHref],
         ],
@@ -125,7 +124,7 @@
                                 class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary"><x-waggies.icon
                                     name="pets" size="20" class="text-white" /></span><span
                                 class="font-serif text-xl font-bold text-white">Waggies</span></a>
-                        <p class="max-w-md text-sm text-white/70">Pet boarding, grooming, vet care, training, and relocation
+                        <p class="max-w-md text-sm text-white/70">Pet boarding, veterinary care, and relocation
                             services in Abuja, Nigeria.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-4"><span

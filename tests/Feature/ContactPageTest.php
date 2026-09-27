@@ -23,26 +23,15 @@ class ContactPageTest extends TestCase
         Livewire::test('booking-request-wizard', [
             'initialContext' => ['service' => 'boarding', 'variant' => 'cats'],
         ])
-            ->assertSee('Cozy')
-            ->set('services.0.pricing_tier', 'cozy')
+            ->assertSee('Cats')
             ->set('pets.0.name', 'Milo')
             ->set('pets.0.species', 'cat')
             ->set('services.0.assigned_pet_ids', [0])
             ->set('step', 3)
-            ->assertSee('Feeding routine')
+            ->assertSee('Feeding instructions')
             ->assertSee('Medication or health notes')
-            ->assertSee('Special care needs');
-
-        Livewire::test('booking-request-wizard', [
-            'initialContext' => ['service' => 'local-transport'],
-        ])
-            ->set('pets.0.name', 'Milo')
-            ->set('pets.0.species', 'dog')
-            ->set('services.0.assigned_pet_ids', [0])
-            ->set('step', 3)
-            ->assertSee('Pickup point')
-            ->assertSee('Drop-off point')
-            ->assertSee('Trip type');
+            ->assertSee('Special care needs')
+            ->assertSee('Primary emergency contact');
     }
 
     public function test_old_transport_context_is_removed_from_contact(): void
@@ -58,7 +47,9 @@ class ContactPageTest extends TestCase
         ], JSON_THROW_ON_ERROR);
 
         $this->get('/contact?intent=transport&service=local-transport&transportRoute='.urlencode($route))
-            ->assertNotFound();
+            ->assertOk()
+            ->assertDontSee('Local Transport')
+            ->assertDontSee('Pickup point');
     }
 
     public function test_general_inquiry_keeps_optional_contact_fields_optional(): void

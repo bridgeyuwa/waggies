@@ -8,37 +8,38 @@ test('primary public booking CTAs use the booking request flow and preserve serv
     $this->get(route('home'))
         ->assertOk()
         ->assertSee(route('book'))
-        ->assertSeeText('Request a booking');
+        ->assertSeeText('Submit Booking Request');
 
-    $this->get(route('services.grooming'))
+    $this->get(route('services.vet-care'))
         ->assertOk()
-        ->assertSee(route('book', ['service' => 'grooming']))
-        ->assertSeeText('Request Grooming');
+        ->assertSee(route('book', ['service' => 'vet-care']))
+        ->assertSeeText('Submit Veterinary Request');
 
     $this->get(route('services.boarding.species', ['species' => 'dogs']))
         ->assertOk()
         ->assertSee(route('book', ['service' => 'boarding']))
-        ->assertSeeText('Request boarding');
+        ->assertSeeText('Submit Booking Request');
 });
 
-test('standard service detail pages retain package pricing and faq composition', function () {
-    $response = $this->get(route('services.grooming'));
+test('veterinary service detail pages retain request-only pricing and faq composition', function () {
+    $response = $this->get(route('services.vet-care'));
 
     $response
         ->assertOk()
-        ->assertSeeText("What's Included")
-        ->assertSeeText('₦10,000')
-        ->assertSeeText('Frequently Asked Questions')
-        ->assertSeeText('Ready to Get Started?');
+        ->assertSeeText('What you can request')
+        ->assertSeeText('Vaccination request')
+        ->assertSeeText('Microchip implantation')
+        ->assertSeeText('Veterinary care questions')
+        ->assertSeeText('Submit Veterinary Request')
+        ->assertDontSeeText('Grooming');
 });
 
-test('transport uses the shared service detail composition with quote pricing', function () {
-    $response = $this->get(route('relocation.transport'));
-
-    $response
+test('relocation transport is only described as part of a quote-only relocation request', function () {
+    $this->get(route('relocation.import'))
         ->assertOk()
-        ->assertSee('Provisional route estimate')
-        ->assertSee('Final charges confirmed on WhatsApp')
-        ->assertSee('A simple handoff from door to door')
-        ->assertSee('Safe &amp; Climate-Controlled Pet Taxi', false);
+        ->assertSeeText('Airport transfers')
+        ->assertSeeText('Submit Booking Request')
+        ->assertDontSeeText('Local Transport');
+
+    $this->get('/services/relocation/transport')->assertNotFound();
 });

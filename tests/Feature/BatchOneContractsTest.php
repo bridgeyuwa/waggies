@@ -17,7 +17,7 @@ class BatchOneContractsTest extends TestCase
         $booking = BookingRequest::factory()->create([
             'service_key' => 'boarding',
             'service_variant' => 'dogs',
-            'pricing_tier' => 'standard',
+            'pricing_tier' => null,
             'source' => 'pricing',
             'context' => ['estimate' => ['min' => 10000, 'max' => 15000]],
         ]);

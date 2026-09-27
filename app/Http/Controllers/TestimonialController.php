@@ -15,7 +15,7 @@ final class TestimonialController extends Controller
         $validated = $request->validate([
             'website' => ['nullable', 'string', 'max:0'],
             'rating' => ['required', 'integer', 'between:1,5'],
-            'service' => ['required', 'string', Rule::in(array_merge(array_keys(Testimonial::serviceOptions()), ['Boarding', 'Grooming', 'Vet Care', 'Training', 'Transport', 'Relocation']))],
+            'service' => ['required', 'string', Rule::in(array_merge(array_keys(Testimonial::serviceOptions()), ['Boarding', 'Vet Care', 'Relocation']))],
             'story' => ['required', 'string', 'min:50', 'max:2000'],
             'author_name' => ['required', 'string', 'min:2', 'max:60'],
             'author_location' => ['required', 'string', 'min:2', 'max:80'],

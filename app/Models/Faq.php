@@ -100,11 +100,8 @@ final class Faq extends Model
     {
         return [
             'boarding' => 'Boarding',
-            'grooming' => 'Grooming',
             'vet-care' => 'Veterinary Care',
-            'training' => 'Training',
             'relocation' => 'Pet Relocation',
-            'transport' => 'Local Transport',
             'general' => 'General',
             'services' => 'Services',
         ];

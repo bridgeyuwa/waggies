@@ -16,21 +16,23 @@ final class PublicUrlCatalog
     public function urls(): array
     {
         $staticRoutes = [
-            'home', 'services.index', 'services.boarding',
-            'services.grooming', 'services.vet-care', 'services.training', 'services.pricing',
+            'home', 'services.index', 'services.boarding', 'services.vet-care', 'services.pricing',
             'services.relocation', 'relocation.import', 'relocation.export',
-            'relocation.transport', 'relocation.checklist', 'about', 'about.testimonials',
+            'relocation.checklist', 'about', 'about.testimonials',
             'about.gallery', 'about.careers', 'about.partnerships', 'guides.index',
             'knowledge-base.index', 'tools.index', 'tools.symptom-checker', 'tools.pet-age',
             'tools.vaccination', 'tools.nutrition',
             'tools.emergency', 'tools.new-pet-checklist', 'tools.parasite', 'tools.behavior-tips',
             'tools.breed-finder', 'faq', 'shop.index', 'contact', 'book', 'loyalty', 'privacy-policy',
-            'terms-of-service', 'cookies-policy',
+            'terms-of-service', 'cookies-policy', 'policies', 'policies.boarding',
+            'policies.cancellation', 'policies.check-in', 'policies.medication',
+            'policies.emergency-veterinary', 'policies.behaviour-safety', 'policies.relocation',
+            'policies.general-terms',
         ];
 
         $urls = array_map(static fn (string $route): string => route($route), $staticRoutes);
 
-        foreach (['dogs', 'cats', 'exotic'] as $species) {
+        foreach (['dogs', 'cats'] as $species) {
             $urls[] = route('services.boarding.species', ['species' => $species]);
         }
 

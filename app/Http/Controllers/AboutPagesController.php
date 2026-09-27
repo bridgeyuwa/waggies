@@ -21,7 +21,7 @@ final class AboutPagesController extends Controller
             ->get()
             ->map(fn (Testimonial $testimonial): array => $testimonial->toPublicArray())
             ->all();
-        $metadata = ['title' => 'Client Testimonials', 'description' => 'Read what pet owners across Abuja share about their Waggies boarding, grooming, vet care, training and relocation experience.', 'canonical' => route('about.testimonials'), 'ogTitle' => 'Client Testimonials - Waggies Pet Care Abuja', 'ogDescription' => 'Read what pet owners across Abuja share about their Waggies boarding, grooming, vet care, training and relocation experience.'];
+        $metadata = ['title' => 'Client Testimonials', 'description' => 'Read what pet owners across Abuja share about their Waggies boarding, veterinary care, and relocation experience.', 'canonical' => route('about.testimonials'), 'ogTitle' => 'Client Testimonials - Waggies Pet Care Abuja', 'ogDescription' => 'Read what pet owners across Abuja share about their Waggies boarding, veterinary care, and relocation experience.'];
         $this->setPageHead($metadata, [$this->webPageSchema($metadata)]);
 
         return view('pages.about.testimonials', $metadata + [
@@ -42,7 +42,7 @@ final class AboutPagesController extends Controller
             ->map(fn (GalleryItem $item): array => $item->toPublicArray())
             ->filter(fn (array $image): bool => filled($image['src'] ?? null))
             ->all();
-        $metadata = ['title' => 'Photo Gallery', 'description' => "Browse Waggies' boarding suites, grooming spa, veterinary clinic, training grounds, and happy guest photos.", 'canonical' => route('about.gallery'), 'ogTitle' => 'Photo Gallery - Waggies Pet Care Abuja', 'ogDescription' => "Browse Waggies' boarding suites, grooming spa, veterinary clinic, training grounds, and happy guest photos."];
+        $metadata = ['title' => 'Photo Gallery', 'description' => "Browse Waggies' boarding, veterinary care, relocation preparation, and happy guest photos.", 'canonical' => route('about.gallery'), 'ogTitle' => 'Photo Gallery - Waggies Pet Care Abuja', 'ogDescription' => "Browse Waggies' boarding, veterinary care, relocation preparation, and happy guest photos."];
         $this->setPageHead($metadata, [$this->webPageSchema($metadata)]);
 
         return view('pages.about.gallery', $metadata + [
@@ -127,41 +127,25 @@ final class AboutPagesController extends Controller
                     'label' => 'Cat Boarding',
                 ],
                 3 => [
-                    'value' => 'boarding-exotic',
-                    'label' => 'Exotic Pet Boarding',
-                ],
-                4 => [
-                    'value' => 'grooming',
-                    'label' => 'Grooming',
-                ],
-                5 => [
                     'value' => 'vet-care',
                     'label' => 'Veterinary Care',
                 ],
-                6 => [
-                    'value' => 'training',
-                    'label' => 'Training',
-                ],
-                7 => [
+                4 => [
                     'value' => 'relocation-import',
                     'label' => 'Pet Import',
                 ],
-                8 => [
+                5 => [
                     'value' => 'relocation-export',
                     'label' => 'Pet Export',
                 ],
-                9 => [
-                    'value' => 'local-transport',
-                    'label' => 'Local Transport',
-                ],
-                10 => [
+                6 => [
                     'value' => 'general',
                     'label' => 'General',
                 ],
             ],
             'bottomCta' => [
                 'heading' => 'See for yourself',
-                'body' => 'Trusted by pet owners across Abuja for boarding, grooming, vet care, training and relocation.',
+                'body' => 'Trusted by pet owners across Abuja for boarding, veterinary care, and relocation.',
                 'ctaLabel' => 'Get in Touch',
                 'ctaRoute' => 'contact',
             ],
@@ -174,7 +158,7 @@ final class AboutPagesController extends Controller
             'hero' => [
                 'eyebrow' => 'Photo Gallery',
                 'title' => 'Take a Look Inside',
-                'description' => 'Our facilities speak for themselves. Browse our boarding suites, grooming spa, veterinary clinic, training grounds, and the happy faces of our guests.',
+                'description' => 'Our facilities speak for themselves. Browse our boarding, veterinary care, relocation preparation, and the happy faces of our guests.',
             ],
         ];
     }

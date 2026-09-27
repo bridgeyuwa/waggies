@@ -17,7 +17,7 @@ final class WaggiesPageHead
     public function apply(array $metadata, array $schemas = []): void
     {
         $title = (string) ($metadata['title'] ?? 'Waggies - Pet Care, Abuja');
-        $description = (string) ($metadata['description'] ?? 'Waggies provides boarding, grooming, vet care, training, relocation and local transport services in Abuja, Nigeria.');
+        $description = (string) ($metadata['description'] ?? 'Waggies provides boarding, veterinary care, and pet relocation services in Abuja, Nigeria.');
         $canonical = $this->normalizeCanonical($metadata['canonical'] ?? null);
         $hasQueryState = request()->query() !== [];
         $robots = $hasQueryState ? ['noindex', 'follow'] : ($metadata['robots'] ?? ['index', 'follow']);
@@ -38,7 +38,7 @@ final class WaggiesPageHead
             ->applicationName('Waggies')
             ->meta('author', 'Waggies')
             ->meta('generator', 'Laravel')
-            ->meta('keywords', 'pet boarding Abuja,pet care Abuja,pet relocation Nigeria,dog grooming Abuja,veterinary care,Waggies')
+            ->meta('keywords', 'pet boarding Abuja,pet care Abuja,pet relocation Nigeria,veterinary care,Waggies')
             ->referrer('origin-when-cross-origin')
             ->og(
                 type: $metadata['ogType'] ?? 'website',

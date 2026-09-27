@@ -6,71 +6,55 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-test('public service comparison derives published prices from canonical service rates', function () {
+test('only the three core services appear on the public services page', function (): void {
     $this->get(route('services.index'))
         ->assertOk()
-        ->assertSeeText('From ₦6,000/night')
-        ->assertSeeText('From ₦10,000/session')
-        ->assertSeeText('From ₦12,000/visit')
-        ->assertSeeText('From ₦80,000/programme')
-        ->assertSeeText('Custom quote')
-        ->assertSeeText('Route estimate/trip');
+        ->assertSeeText('Boarding')
+        ->assertSeeText('Veterinary Care')
+        ->assertSeeText('Relocation')
+        ->assertDontSeeText('Grooming')
+        ->assertDontSeeText('Dog Training')
+        ->assertDontSeeText('Local Transport')
+        ->assertDontSeeText('Exotic Pet Boarding');
 });
 
-test('boarding pages derive tier displays from canonical boarding rates', function () {
-    $this->get(route('services.boarding.species', ['species' => 'exotic']))
+test('boarding pages use direct size guidance and have no package choices', function (): void {
+    $this->get(route('services.boarding.species', ['species' => 'dogs']))
         ->assertOk()
-        ->assertSeeText('₦6,000 - ₦8,000')
-        ->assertSeeText('₦12,000 - ₦15,000')
-        ->assertSeeText('Quote');
+        ->assertSeeText('Small — up to 10kg')
+        ->assertSeeText('Medium — over 10kg through 25kg')
+        ->assertSeeText('Large — over 25kg through 40kg')
+        ->assertSeeText('Above 40kg or unusual size')
+        ->assertDontSeeText('Basic package')
+        ->assertDontSeeText('Premium package');
+
+    $this->get('/services/boarding/exotic')->assertNotFound();
 });
 
-test('service detail packages derive numeric prices and preserve quote-only packages', function () {
+test('veterinary page includes request-only vaccination and standalone microchipping', function (): void {
     $this->get(route('services.vet-care'))
         ->assertOk()
-        ->assertSeeText('₦12,000')
-        ->assertSeeText('₦15,000')
-        ->assertSeeText('₦18,000')
-        ->assertDontSeeText('₦15,000 - ₦35,000')
-        ->assertSeeText('Custom quote');
+        ->assertSeeText('Vaccination request')
+        ->assertSeeText('Microchip implantation')
+        ->assertSeeText('Request review')
+        ->assertDontSeeText('Generic vaccination price');
 });
 
-test('booking wizard reads canonical pricing data for service choices', function () {
-    $training = config('waggies_pricing.services.training.tiers.puppy');
-
-    Livewire::test('booking-request-wizard', [
-        'initialContext' => ['service' => 'training'],
-    ])
-        ->assertSee('Puppy Foundation')
-        ->assertSee('Basic Obedience')
-        ->assertSee('Behaviour Modification');
-
-    expect($training['amount'])->toBe(80000)
-        ->and($training['max_amount'])->toBe(120000);
+test('booking wizard exposes only active services and no tier field', function (): void {
+    Livewire::test('booking-request-wizard')
+        ->assertSee('Boarding')
+        ->assertSee('Veterinary Care')
+        ->assertSee('Relocation')
+        ->assertDontSee('Grooming')
+        ->assertDontSee('Dog Training')
+        ->assertDontSee('Local Transport')
+        ->assertDontSee('Choose a package');
 });
 
-test('public service detail uses version controlled pricing configuration', function () {
-    $this->get(route('services.grooming'))
-        ->assertOk()
-        ->assertSeeText('₦10,000')
-        ->assertSeeText('₦18,000')
-        ->assertSeeText('₦28,000');
-});
-
-test('pricing configuration preserves distance bands and transport surcharges', function () {
-    $pricing = config('waggies_pricing');
-
-    expect($pricing['transport']['products']['transport-city-transfer']['pricing']['rates'])
-        ->toBe([
-            ['max_distance_km' => 10, 'amount' => 10000],
-            ['max_distance_km' => 25, 'amount' => 15000],
-            ['max_distance_km' => 40, 'amount' => 20000],
-        ])
-        ->and($pricing['transport']['rules']['waiting_increment_amount'])->toBe(2500)
-        ->and($pricing['transport']['rules']['additional_stop_amount'])->toBe(3000);
-});
-
-test('service pricing has no database runtime authority', function (): void {
+test('pricing has no database runtime authority and no retired service configuration', function (): void {
     expect(Schema::hasTable('service_prices'))->toBeFalse()
-        ->and(config('waggies_pricing.services.grooming.tiers.bath.amount'))->toBe(10000);
+        ->and(config('waggies_pricing.services'))->toHaveKeys(['boarding', 'vet-care', 'relocation'])
+        ->and(config('waggies_pricing.services'))->not->toHaveKey('grooming')
+        ->and(config('waggies_pricing.services'))->not->toHaveKey('training')
+        ->and(config('waggies_pricing.services'))->not->toHaveKey('local-transport');
 });
