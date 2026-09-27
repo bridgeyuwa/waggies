@@ -29,7 +29,7 @@ final class DevelopmentSeederTest extends TestCase
             'business_profiles' => 1,
             'guides' => 4,
             'knowledge_articles' => 10,
-            'faqs' => 22,
+            'faqs' => 52,
             'gallery_items' => 23,
             'testimonials' => 12,
             'products' => 10,

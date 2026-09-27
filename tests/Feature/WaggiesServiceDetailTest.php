@@ -8,38 +8,37 @@ test('primary public booking CTAs use the booking request flow and preserve serv
     $this->get(route('home'))
         ->assertOk()
         ->assertSee(route('book'))
-        ->assertSeeText('Submit Booking Request');
+        ->assertSeeText('Request a booking');
 
-    $this->get(route('services.vet-care'))
+    $this->get(route('services.grooming'))
         ->assertOk()
-        ->assertSee(route('book', ['service' => 'vet-care']))
-        ->assertSeeText('Submit Veterinary Request');
+        ->assertSee(route('book', ['service' => 'grooming']))
+        ->assertSeeText('Request Grooming');
 
     $this->get(route('services.boarding.species', ['species' => 'dogs']))
         ->assertOk()
         ->assertSee(route('book', ['service' => 'boarding']))
-        ->assertSeeText('Submit Booking Request');
+        ->assertSeeText('Request boarding');
 });
 
-test('veterinary service detail pages retain request-only pricing and faq composition', function () {
-    $response = $this->get(route('services.vet-care'));
+test('standard service detail pages retain package pricing and faq composition', function () {
+    $response = $this->get(route('services.grooming'));
 
     $response
         ->assertOk()
-        ->assertSeeText('What you can request')
-        ->assertSeeText('Vaccination request')
-        ->assertSeeText('Microchip implantation')
-        ->assertSeeText('Veterinary care questions')
-        ->assertSeeText('Submit Veterinary Request')
-        ->assertDontSeeText('Grooming');
+        ->assertSeeText("What's Included")
+        ->assertSeeText('₦10,000')
+        ->assertSeeText('Frequently Asked Questions')
+        ->assertSeeText('Ready to Get Started?');
 });
 
-test('relocation transport is only described as part of a quote-only relocation request', function () {
-    $this->get(route('relocation.import'))
-        ->assertOk()
-        ->assertSeeText('Airport transfers')
-        ->assertSeeText('Submit Booking Request')
-        ->assertDontSeeText('Local Transport');
+test('transport uses the shared service detail composition with quote pricing', function () {
+    $response = $this->get(route('relocation.transport'));
 
-    $this->get('/services/relocation/transport')->assertNotFound();
+    $response
+        ->assertOk()
+        ->assertSee('Provisional route estimate')
+        ->assertSee('Final charges confirmed on WhatsApp')
+        ->assertSee('A simple handoff from door to door')
+        ->assertSee('Safe &amp; Climate-Controlled Pet Taxi', false);
 });

@@ -23,14 +23,17 @@ final class FaqController extends Controller
         $categories = collect($faqs)->pluck('category')->unique()->values()->all();
 
         $categoryMeta = [
-            'boarding' => ['title' => 'Boarding FAQs', 'description' => 'Frequently asked questions about pet boarding at Waggies Abuja — admission, check-in, stay duration, special care, and pickup.'],
-            'vet-care' => ['title' => 'Veterinary Care FAQs', 'description' => 'Frequently asked questions about veterinary care at Waggies Abuja — consultations, examinations, vaccination requests, microchipping, and emergencies.'],
-            'relocation' => ['title' => 'Pet Relocation FAQs', 'description' => 'Frequently asked questions about pet relocation at Waggies Abuja — import, export, documentation, timelines, and airport coordination.'],
+            'boarding' => ['title' => 'Boarding FAQs', 'description' => 'Frequently asked questions about pet boarding at Waggies Abuja — check-in requirements, daily updates, stay durations, shared boarding, and what happens if your pet becomes unwell.'],
+            'grooming' => ['title' => 'Grooming FAQs', 'description' => 'Frequently asked questions about pet grooming at Waggies Abuja — cat and dog grooming, appointment booking, grooming duration, and available services.'],
+            'vet-care' => ['title' => 'Veterinary Care FAQs', 'description' => 'Frequently asked questions about veterinary care at Waggies Abuja — appointments, vaccinations, microchipping, and emergency care.'],
+            'training' => ['title' => 'Training FAQs', 'description' => 'Frequently asked questions about dog training at Waggies Abuja — training methods, programme structure, and behaviour modification.'],
+            'relocation' => ['title' => 'Pet Relocation FAQs', 'description' => 'Frequently asked questions about pet relocation at Waggies Abuja — import and export permits, documentation, timelines, and airport pickup.'],
+            'transport' => ['title' => 'Local Transport FAQs', 'description' => 'Frequently asked questions about local pet transport at Waggies Abuja — door-to-door pickup, vehicle standards, and booking.'],
             'general' => ['title' => 'General FAQs', 'description' => 'General frequently asked questions about Waggies Abuja — location, opening hours, booking process, and breed policies.'],
         ];
         $category = (string) $request->query('category', '');
         $category = $category === '' ? null : $category;
-        $meta = $categoryMeta[$category] ?? ['title' => 'Frequently Asked Questions', 'description' => 'Quick answers to the questions we hear most often about Waggies boarding, veterinary care, relocation, and general pet care in Abuja.'];
+        $meta = $categoryMeta[$category] ?? ['title' => 'Frequently Asked Questions', 'description' => 'Quick answers to the questions we hear most often about Waggies pet boarding, grooming, vet care, training, relocation and local transport services in Abuja.'];
         $isPublishedCategory = isset($categoryMeta[$category]);
         $canonical = $isPublishedCategory ? route('faq', ['category' => $category]) : route('faq');
         $schemaFaqs = $isPublishedCategory

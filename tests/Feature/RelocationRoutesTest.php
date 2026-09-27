@@ -15,6 +15,7 @@ class RelocationRoutesTest extends TestCase
             'services.relocation' => '/services/relocation',
             'relocation.import' => '/services/relocation/import',
             'relocation.export' => '/services/relocation/export',
+            'relocation.transport' => '/services/relocation/transport',
             'relocation.checklist' => '/services/relocation/checklist',
         ];
 
@@ -32,7 +33,6 @@ class RelocationRoutesTest extends TestCase
             '/relocation/export',
             '/relocation/transport',
             '/relocation/checklist',
-            '/services/relocation/transport',
         ] as $path) {
             $this->get($path)->assertNotFound();
         }
@@ -50,6 +50,7 @@ class RelocationRoutesTest extends TestCase
             '/services/relocation',
             '/services/relocation/import',
             '/services/relocation/export',
+            '/services/relocation/transport',
             '/services/relocation/checklist',
         ] as $path) {
             $this->assertNotSame([], array_filter($locations, static fn (string $location): bool => parse_url($location, PHP_URL_PATH) === $path));
@@ -61,7 +62,6 @@ class RelocationRoutesTest extends TestCase
             '/relocation/export',
             '/relocation/transport',
             '/relocation/checklist',
-            '/services/relocation/transport',
         ] as $path) {
             $this->assertSame([], array_filter($locations, static fn (string $location): bool => parse_url($location, PHP_URL_PATH) === $path));
         }
@@ -75,29 +75,5 @@ class RelocationRoutesTest extends TestCase
             ->assertOk()
             ->assertSeeText('Open Relocation Checklist')
             ->assertSee('href="'.route('relocation.checklist').'"', false);
-    }
-
-    public function test_policy_hub_and_dedicated_policy_pages_are_public(): void
-    {
-        $routes = [
-            'policies',
-            'policies.boarding',
-            'policies.cancellation',
-            'policies.check-in',
-            'policies.medication',
-            'policies.emergency-veterinary',
-            'policies.behaviour-safety',
-            'policies.relocation',
-            'policies.general-terms',
-        ];
-
-        foreach ($routes as $routeName) {
-            $this->get(route($routeName))->assertOk();
-        }
-
-        $this->get(route('policies'))
-            ->assertSeeText('Boarding Requirements & Admission')
-            ->assertSeeText('Cancellation, Rescheduling & Refunds')
-            ->assertSeeText('Relocation');
     }
 }

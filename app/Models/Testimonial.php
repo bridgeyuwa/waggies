@@ -106,9 +106,13 @@ final class Testimonial extends Model
         return [
             'boarding-dogs' => 'Dog Boarding',
             'boarding-cats' => 'Cat Boarding',
+            'boarding-exotic' => 'Exotic Pet Boarding',
+            'grooming' => 'Grooming',
             'vet-care' => 'Veterinary Care',
+            'training' => 'Training',
             'relocation-import' => 'Pet Import',
             'relocation-export' => 'Pet Export',
+            'local-transport' => 'Local Transport',
             'general' => 'General',
         ];
     }
@@ -117,7 +121,10 @@ final class Testimonial extends Model
     {
         return [
             'Boarding' => 'boarding-dogs',
+            'Grooming' => 'grooming',
             'Vet Care' => 'vet-care',
+            'Training' => 'training',
+            'Transport' => 'local-transport',
             'Relocation' => 'relocation-import',
         ][$service] ?? $service;
     }

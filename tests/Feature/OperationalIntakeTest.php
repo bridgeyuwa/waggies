@@ -83,14 +83,14 @@ it('rejects newsletter submissions that trip the honeypot', function (): void {
 
 it('publishes only approved testimonials and preserves their display order', function (): void {
     $first = Testimonial::factory()->create([
-        'service' => 'boarding-dogs',
+        'service' => 'grooming',
         'story' => 'First database testimonial that should appear before the second database testimonial.',
         'author_name' => 'First Owner',
         'status' => Testimonial::STATUS_APPROVED,
         'sort_order' => 1,
     ]);
     $second = Testimonial::factory()->create([
-        'service' => 'boarding-dogs',
+        'service' => 'grooming',
         'story' => 'Second database testimonial that should appear after the first database testimonial.',
         'author_name' => 'Second Owner',
         'status' => Testimonial::STATUS_APPROVED,

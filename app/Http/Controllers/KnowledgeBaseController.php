@@ -30,10 +30,10 @@ final class KnowledgeBaseController extends Controller
 
         $metadata = [
             'title' => 'Knowledge Base - Pet Care Answers - Waggies',
-            'description' => 'Quick answers to common questions about pet boarding, coat care, health, and general pet care from Waggies.',
+            'description' => 'Quick answers to common questions about pet boarding, grooming, health, and general pet care from Waggies.',
             'canonical' => route('knowledge-base.index'),
             'ogTitle' => 'Knowledge Base - Pet Care Answers - Waggies',
-            'ogDescription' => 'Quick answers to common questions about pet boarding, coat care, health, and general pet care from Waggies.',
+            'ogDescription' => 'Quick answers to common questions about pet boarding, grooming, health, and general pet care from Waggies.',
             'robots' => $request->query() === [] ? ['index', 'follow'] : ['noindex', 'follow'],
         ];
         $this->setPageHead($metadata, [Schema::collectionPage()->name('Knowledge Base')->description('Pet care answers from Waggies')->url($metadata['canonical'])->toArray()]);

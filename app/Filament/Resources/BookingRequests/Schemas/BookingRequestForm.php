@@ -51,7 +51,8 @@ class BookingRequestForm
                             TextInput::make('pet_name')->label('Pet name')->disabled()->dehydrated(false),
                             TextInput::make('pet_type')->label('Pet type')->disabled()->dehydrated(false),
                             TextInput::make('location')->label('Location')->disabled()->dehydrated(false)->columnSpanFull(),
-                            TextInput::make('service_variant')->label('Service option')->disabled()->dehydrated(false),
+                            TextInput::make('service_variant')->label('Variant')->disabled()->dehydrated(false),
+                            TextInput::make('pricing_tier')->label('Pricing tier')->disabled()->dehydrated(false),
                             TextInput::make('source')->label('Source')->disabled()->dehydrated(false),
                         ]),
                     ])
@@ -70,7 +71,7 @@ class BookingRequestForm
                             ->helperText('Never shown on public pages or in customer messages.')
                             ->columnSpanFull(),
                         Grid::make(2)->schema([
-                            TextInput::make('quote_amount')->label('Staff quote amount')->numeric()->integer()->minValue(0),
+                            TextInput::make('quote_amount')->label('Quote amount')->numeric()->integer()->minValue(0),
                             TextInput::make('quote_currency')->label('Currency')->default('NGN')->maxLength(3),
                             Textarea::make('quote_notes')->label('Quote notes')->rows(3)->columnSpanFull(),
                         ]),

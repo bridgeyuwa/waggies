@@ -35,7 +35,7 @@ it('falls back to the guide title when a source image alt description is unavail
 
     $this->get(route('guides.show', ['slug' => $guide->slug]))
         ->assertOk()
-        ->assertSee('alt="'.$guide->title.'"', false)
+        ->assertSee('alt="Pet Transport: What You Need to Know"', false)
         ->assertDontSee('Pet receiving attentive grooming care');
 });
 
@@ -101,7 +101,7 @@ it('preserves published guide canonical and search behavior', function (): void 
         ->assertSee('<meta name="robots" content="index, follow">', false)
         ->assertSee('"@type":"Article"', false);
 
-    $this->get(route('search', ['q' => 'comfortable boarding']))
+    $this->get(route('search', ['q' => 'stress-free boarding']))
         ->assertOk()
         ->assertJsonFragment(['href' => $url]);
 });

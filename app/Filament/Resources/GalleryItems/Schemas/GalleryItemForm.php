@@ -57,7 +57,7 @@ class GalleryItemForm
                             TextInput::make('category')
                                 ->required()
                                 ->maxLength(80)
-                                ->helperText('Examples: Boarding, Veterinary Care, Relocation, Educational.'),
+                                ->helperText('Examples: Boarding, Grooming, Veterinary, Training.'),
                             TextInput::make('sort_order')
                                 ->label('Display order')
                                 ->numeric()

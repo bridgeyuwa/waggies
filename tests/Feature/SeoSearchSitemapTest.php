@@ -20,7 +20,7 @@ class SeoSearchSitemapTest extends TestCase
         $siteUrl = rtrim((string) config('app.url'), '/');
 
         $response->assertOk()
-            ->assertSee('<title>Pet Boarding, Veterinary Care &amp; Relocation in Abuja</title>', false)
+            ->assertSee('<title>Pet Boarding, Grooming &amp; Vet Care in Abuja</title>', false)
             ->assertSee('<link rel="canonical" href="'.$siteUrl.'/">', false)
             ->assertSee('<meta name="robots" content="index, follow">', false)
             ->assertSee('property="og:image" content="'.$siteUrl.'/social-card.svg"', false)
@@ -56,23 +56,17 @@ class SeoSearchSitemapTest extends TestCase
     {
         $siteUrl = rtrim((string) config('app.url'), '/');
 
-        $this->get('/book?service=boarding')
+        $this->get('/book?service=grooming')
             ->assertOk()
             ->assertSee('<link rel="canonical" href="'.$siteUrl.'/book">', false)
             ->assertSee('<meta name="robots" content="noindex, follow">', false);
 
         $this->get('/contact?intent=booking')->assertNotFound();
 
-        $groomingSearch = $this->get('/api/search?q=grooming');
-
-        $groomingSearch
+        $this->get('/api/search?q=grooming')
             ->assertOk()
-            ->assertHeader('X-Robots-Tag', 'noindex, nofollow');
-
-        $this->assertSame([], array_values(array_filter(
-            $groomingSearch->json('results'),
-            static fn (array $result): bool => ($result['type'] ?? null) === 'service',
-        )));
+            ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
+            ->assertJsonFragment(['href' => route('services.grooming')]);
 
         $this->get('/api/search?q=relocation')
             ->assertOk()

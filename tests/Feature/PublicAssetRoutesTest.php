@@ -11,6 +11,7 @@ final class PublicAssetRoutesTest extends TestCase
         $redirects = [
             '/service-hero-boarding-cats.jpg' => '/media/services/boarding/hero-cats.jpg',
             '/service-hero-boarding-dogs.jpg' => '/media/services/boarding/hero-dogs.jpg',
+            '/service-hero-boarding-exotic.jpg' => '/media/services/boarding/hero-exotic.jpg',
         ];
 
         foreach ($redirects as $legacyPath => $canonicalPath) {

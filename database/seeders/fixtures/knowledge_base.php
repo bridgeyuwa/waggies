@@ -76,16 +76,16 @@ HTML,
         [
             'id' => 4,
             'slug' => 'grooming-routine-at-home',
-            'title' => 'At-Home Coat Care Basics for Dogs',
-            'excerpt' => 'Educational guidance for gentle at-home coat care that helps keep your dog comfortable and clean. This is not a Waggies grooming service or booking menu.',
+            'title' => 'A Complete At-Home Grooming Routine for Dogs',
+            'excerpt' => 'Professional grooming is important, but regular at-home maintenance between visits keeps your dog comfortable, clean, and looking their best.',
             'category' => 'Care Tips',
             'author' => 'Chioma Adeyemi',
             'date' => '2025-10-22',
             'image' => '/media/knowledge-base/grooming-routine-at-home/cover.jpg',
             'readTime' => '4 min read',
             'content' => <<<'HTML'
-<h2>Why Home Coat Care Matters</h2>
-<p>Gentle at-home coat care supports your dog's comfort and health. In Nigeria's dusty, humid climate, dirt and moisture can contribute to skin irritation, matting, and hot spots. This educational article covers simple owner-led care and does not offer a Waggies grooming service.</p>
+<h2>Why Home Grooming Matters</h2>
+<p>Regular grooming isn't just about appearance—it's essential for your dog's health and comfort. In Nigeria's dusty, humid climate, dirt and moisture can quickly lead to skin infections, matting, and hot spots. A consistent home grooming routine between professional visits helps prevent these issues and strengthens the bond between you and your pet.</p>
 <h2>Brushing</h2>
 <p>Brush your dog at least two to three times per week, daily for long-haired breeds. Use a slicker brush for removing loose fur and tangles, followed by a bristle brush to distribute natural oils. For breeds like Golden Retrievers and German Shepherds, an undercoat rake during shedding season makes a significant difference. Always brush in the direction of hair growth and be gentle around sensitive areas like the belly and ears.</p>
 <h2>Bathing</h2>
@@ -136,10 +136,10 @@ HTML,
 <p>Puppies need a veterinarian-led initial vaccination plan. The product, timing, number of doses, rabies context, and any travel or public-health requirement must be confirmed against current product information and applicable Nigerian authority guidance; this article does not establish a universal calendar or legal requirement.</p>
 <h2>Kitten Vaccination Planning</h2>
 <p>Kittens need a veterinarian-led initial vaccination plan based on age, health, exposure, local risk, and the selected product. Adult booster timing is not universal; keep the record and ask a veterinarian to review it.</p>
-<h2>Other Vaccination Options</h2>
-<p>Depending on your pet's lifestyle and risk factors, a veterinarian may recommend additional products. Ask the veterinary team to review the available product, assessment, administration, and record requirements rather than choosing from a generic online list.</p>
+<h2>Non-Core Vaccines</h2>
+<p>Depending on your pet's lifestyle and risk factors, your vet may recommend additional vaccines. For dogs, these can include Bordetella (kennel cough)—especially important if your dog frequents boarding facilities or dog parks—and canine coronavirus. Discuss your pet's specific risk profile with your veterinarian to create a tailored vaccination plan.</p>
 <h2>Keeping Records</h2>
-<p>Always keep a vaccination card for your pet. You may need it for boarding, travel, and veterinary visits. Ask Waggies during request review which current records are needed for the specific stay; this article does not establish a universal boarding requirement. If you're unsure whether your pet's vaccinations are current, contact your vet to schedule a review appointment rather than guessing.</p>
+<p>Always keep a vaccination card for your pet. You'll need it for boarding, travel, and veterinary visits. Waggies requires up-to-date vaccination records for all boarding stays. If you're unsure whether your pet's vaccinations are current, contact your vet to schedule a review appointment rather than guessing.</p>
 HTML,
         ],
         [
@@ -223,8 +223,8 @@ HTML,
 <p>Not every symptom means a vet visit is needed immediately, but you should monitor closely. These include mild lethargy lasting less than 24 hours, a single episode of vomiting (with no other symptoms), slight decrease in appetite, and occasional sneezing. If any of these persist beyond 24 hours or worsen, schedule a visit.</p>
 <h2>Regular Check-Ups</h2>
 <p>Preventive care is just as important as treating illness. Adult pets should see the vet at least once a year for a wellness check, with senior pets (dogs over seven years, cats over ten) benefiting from twice-yearly visits. These appointments catch problems early when they're easier and less expensive to treat.</p>
-<h2>When a Boarding Pet Seems Unwell</h2>
-<p>If a boarding pet appears unwell, Waggies may decline admission or coordinate veterinary review as needed and contact the owner. Boarding does not include daily veterinary checks, and urgent symptoms should be assessed by a veterinary professional.</p>
+<h2>Waggies On-Site Vet Care</h2>
+<p>Waggies has veterinary support available on-site. If your pet is boarding with us and shows any signs of illness, our team will consult with our vet immediately and contact you with a recommended course of action. We never wait when your pet's health is concerned.</p>
 HTML,
         ],
     ],

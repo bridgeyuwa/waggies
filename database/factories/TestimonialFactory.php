@@ -19,7 +19,7 @@ class TestimonialFactory extends Factory
     {
         return [
             'rating' => 5,
-            'service' => 'boarding-dogs',
+            'service' => 'grooming',
             'story' => 'The Waggies team took excellent care of our pet and kept us updated throughout the visit.',
             'author_name' => fake()->name(),
             'author_location' => 'Maitama, Abuja',

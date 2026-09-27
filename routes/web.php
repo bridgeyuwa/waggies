@@ -39,6 +39,7 @@ if (app()->isLocal()) {
 Route::get('/', HomeController::class)->name('home');
 Route::permanentRedirect('/service-hero-boarding-cats.jpg', '/media/services/boarding/hero-cats.jpg');
 Route::permanentRedirect('/service-hero-boarding-dogs.jpg', '/media/services/boarding/hero-dogs.jpg');
+Route::permanentRedirect('/service-hero-boarding-exotic.jpg', '/media/services/boarding/hero-exotic.jpg');
 Route::get('/about', AboutController::class)->name('about');
 Route::controller(AboutPagesController::class)->group(function (): void {
     Route::get('/about/testimonials', 'testimonials')->name('about.testimonials');
@@ -49,7 +50,9 @@ Route::controller(AboutPagesController::class)->group(function (): void {
 Route::controller(ServicesController::class)->group(function (): void {
     Route::get('/services', 'index')->name('services.index');
     Route::get('/services/boarding', 'boarding')->name('services.boarding');
-    Route::get('/services/boarding/{species}', 'boardingSpecies')->whereIn('species', ['dogs', 'cats'])->name('services.boarding.species');
+    Route::get('/services/boarding/{species}', 'boardingSpecies')->whereIn('species', ['dogs', 'cats', 'exotic'])->name('services.boarding.species');
+    Route::get('/services/grooming', 'grooming')->name('services.grooming');
+    Route::get('/services/training', 'training')->name('services.training');
     Route::get('/services/vet-care', 'vetCare')->name('services.vet-care');
 });
 Route::get('/services/pricing', [PricingController::class, 'index'])->name('services.pricing');
@@ -57,20 +60,10 @@ Route::controller(RelocationController::class)->group(function (): void {
     Route::get('/services/relocation', 'index')->name('services.relocation');
     Route::get('/services/relocation/import', 'import')->name('relocation.import');
     Route::get('/services/relocation/export', 'export')->name('relocation.export');
+    Route::get('/services/relocation/transport', 'transport')->name('relocation.transport');
     Route::get('/services/relocation/checklist', 'checklist')->name('relocation.checklist');
 });
 Route::get('/faq', [FaqController::class, 'index'])->name('faq');
-Route::controller(LegalController::class)->prefix('policies')->group(function (): void {
-    Route::get('/', 'policies')->name('policies');
-    Route::get('/boarding-requirements', 'boardingPolicy')->name('policies.boarding');
-    Route::get('/cancellation-rescheduling-refunds', 'cancellationPolicy')->name('policies.cancellation');
-    Route::get('/check-in-check-out-late-pickup', 'checkInPolicy')->name('policies.check-in');
-    Route::get('/medication-special-care', 'medicationPolicy')->name('policies.medication');
-    Route::get('/emergency-veterinary-care', 'emergencyVeterinaryPolicy')->name('policies.emergency-veterinary');
-    Route::get('/pet-behaviour-safety', 'behaviourSafetyPolicy')->name('policies.behaviour-safety');
-    Route::get('/relocation', 'relocationPolicy')->name('policies.relocation');
-    Route::get('/general-service-terms', 'generalTermsPolicy')->name('policies.general-terms');
-});
 Route::get('/privacy-policy', [LegalController::class, 'privacy'])->name('privacy-policy');
 Route::get('/terms-of-service', [LegalController::class, 'terms'])->name('terms-of-service');
 Route::get('/cookies-policy', [LegalController::class, 'cookies'])->name('cookies-policy');

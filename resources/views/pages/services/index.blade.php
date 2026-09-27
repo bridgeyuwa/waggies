@@ -1,59 +1,30 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-waggies.breadcrumb-strip class="border-b border-primary/5 bg-white" :items="[['label' => 'Services', 'route' => 'services.index']]" />
-    <x-waggies.cover-hero :hero="$hero" />
+<x-waggies.breadcrumb-strip class="border-b border-primary/5 bg-white" :items="[['label' => 'Services', 'route' => 'services.index']]" />
 
-    <section class="bg-white py-20">
-        <div class="page-container">
-            <x-waggies.section-heading eyebrow="WHAT WE OFFER" title="Three services, one careful review" subtitle="Waggies keeps the public catalogue focused on the care requests our team can review and coordinate." />
-            <div class="mt-10 grid gap-6 md:grid-cols-3">
-                @foreach($cards as $card)
-                    <x-waggies.service-card :card="$card" />
-                @endforeach
-            </div>
+<x-waggies.cover-hero :hero="$hero" />
+
+<section id="services" class="bg-white py-20">
+    <div class="page-container">
+        <div class="mb-12 max-w-2xl"><span class="text-eyebrow mb-2 block">What We Offer</span><h2 class="text-h2">Services Built Around<br/>Your Pet’s Wellbeing</h2><p class="mt-3 text-primary-dark/60">Every service is designed with your pet's comfort, health, and happiness at the centre.</p></div>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6">
+            @foreach($cards as $i => $card)
+                <div class="lg:col-span-2 {{ ['lg:col-start-1','lg:col-start-3','lg:col-start-5','lg:col-start-2','lg:col-start-4'][$i] }} {{ $i === 4 ? 'sm:col-span-2 sm:mx-auto sm:max-w-sm' : '' }}"><x-waggies.service-card :card="$card" /></div>
+            @endforeach
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="border-t border-primary/5 bg-surface py-20">
-        <div class="page-container grid gap-12 lg:grid-cols-2 lg:items-start">
-            <div>
-                <p class="text-eyebrow">HOW REQUESTS WORK</p>
-                <h2 class="mt-2 font-serif text-3xl font-bold text-primary-dark md:text-4xl">A request is the start of the conversation.</h2>
-                <p class="mt-4 max-w-xl text-base leading-relaxed text-primary-dark/70">Submitting a request does not reserve a slot or confirm a price. Waggies reviews availability, pet details, service suitability, and any special requirements before sending the next steps.</p>
-            </div>
-            <ol class="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-                @foreach([
-                    ['title' => 'Request received', 'body' => 'We acknowledge the details you send.'],
-                    ['title' => 'Under review', 'body' => 'Staff check availability, suitability, and route or clinical requirements.'],
-                    ['title' => 'Quote and confirmation', 'body' => 'We send the final price, payment instructions, and confirmation manually.'],
-                ] as $step)
-                    <li class="rounded-2xl border border-primary/10 bg-white p-5">
-                        <h3 class="font-serif text-lg font-bold text-primary-dark">{{ $step['title'] }}</h3>
-                        <p class="mt-2 text-sm leading-relaxed text-primary-dark/65">{{ $step['body'] }}</p>
-                    </li>
-                @endforeach
-            </ol>
-        </div>
-    </section>
+<x-waggies.service-comparison :services="$comparisonServices" :features="$comparisonFeatures" />
 
-    <section class="bg-primary-dark py-16 text-white">
-        <div class="page-container flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-            <div>
-                <p class="text-eyebrow text-secondary">READY WHEN YOU ARE</p>
-                <h2 class="mt-2 font-serif text-3xl font-bold text-white">Submit a Booking Request</h2>
-                <p class="mt-3 max-w-2xl text-sm leading-relaxed text-white/70">Tell us what your pet needs and our team will review the request with you.</p>
-            </div>
-            <x-waggies.button href="{{ route('book') }}" class="shrink-0 bg-secondary! text-primary-dark!">Submit Booking Request <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
-        </div>
-    </section>
+<section id="standards" class="w-full border-t border-white/10 bg-primary-dark py-20 text-white"><div class="page-container"><div class="mb-16 grid grid-cols-2 gap-6 border-b border-white/10 pb-14 text-center md:grid-cols-4">@foreach($stats as $stat)<div class="flex flex-col items-center gap-2"><div class="flex size-10 items-center justify-center rounded-full bg-white/10 text-secondary"><x-waggies.icon name="{{ $stat['icon'] }}" size="20" /></div><p class="text-sm font-bold text-white">{{ $stat['title'] }}</p><p class="text-xs text-white/60">{{ $stat['subtitle'] }}</p></div>@endforeach</div><div class="grid items-center gap-12 lg:grid-cols-2"><div class="max-w-xl"><span class="text-label mb-2 block text-secondary">The Waggies Standard</span><h2 class="text-h2 leading-tight text-white">Why Our Care System<br/><span class="text-secondary italic">Works So Well</span></h2><p class="mt-4 text-sm leading-relaxed text-white/70 md:text-base">Every pet is handled through structured care protocols designed to ensure safety, comfort, and emotional wellbeing.</p></div><div class="flex flex-col gap-4">@foreach($standards as $standard)<div class="rounded-2xl border border-white/10 bg-white/5 p-5"><h3 class="mb-1 text-base font-bold text-white">{{ $standard['title'] }}</h3><p class="text-sm text-white/65">{{ $standard['desc'] }}</p></div>@endforeach</div></div></div></section>
 
-    @if($faqs !== [])
-        <section class="bg-surface py-16">
-            <div class="page-container">
-                <x-waggies.section-heading title="Questions before you request?" spacing="mb-8" />
-                <x-waggies.faq-accordion :faqs="$faqs" />
-            </div>
-        </section>
-    @endif
+<x-waggies.proof-band />
+
+<section class="bg-surface py-20"><div class="page-container"><x-waggies.section-heading title="Before You Book, Here&apos;s What You Should Know" subtitle="Quick answers to help you choose the right service for your pet with confidence." spacing="mb-14" /><x-waggies.faq-accordion :faqs="$faqs" /></div></section>
+
+@php($servicesCta = ['heading' => 'Request Your Pet\'s', 'headingAccent' => 'Next Visit', 'body' => 'Send a service request or speak with our care team today.', 'primaryLabel' => 'Request a Service', 'primaryRoute' => 'book', 'secondaryLabel' => 'Call Us Now', 'secondaryHref' => 'tel:+2349080811902', 'secondaryIcon' => 'phone'])
+<section class="w-full py-20"><div class="page-container"><x-waggies.cta-primary :cta="$servicesCta" /></div></section>
+
 @endsection

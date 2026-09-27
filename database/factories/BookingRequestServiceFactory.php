@@ -20,9 +20,9 @@ class BookingRequestServiceFactory extends Factory
     {
         return [
             'booking_request_id' => BookingRequest::factory(),
-            'service_key' => 'boarding',
-            'service_variant' => 'dogs',
-            'pricing_tier' => null,
+            'service_key' => 'grooming',
+            'service_variant' => null,
+            'pricing_tier' => 'full',
             'requested_date' => fake()->dateTimeBetween('+1 day', '+30 days')->format('Y-m-d'),
             'requested_time' => fake()->optional()->time('H:i'),
             'location' => fake()->optional()->address(),

@@ -14,8 +14,6 @@ enum BookingRequestStatus: string
 
     case Confirmed = 'confirmed';
 
-    case Completed = 'completed';
-
     case Declined = 'declined';
 
     case Cancelled = 'cancelled';
@@ -26,12 +24,11 @@ enum BookingRequestStatus: string
     public static function options(): array
     {
         return [
-            self::New->value => 'Request received',
-            self::Reviewing->value => 'Under review',
-            self::AwaitingCustomer->value => 'Awaiting customer/payment',
-            self::Quoted->value => 'Quote/confirmation sent',
+            self::New->value => 'Pending',
+            self::Reviewing->value => 'Reviewing',
+            self::AwaitingCustomer->value => 'Awaiting customer',
+            self::Quoted->value => 'Quoted',
             self::Confirmed->value => 'Confirmed',
-            self::Completed->value => 'Completed',
             self::Declined->value => 'Declined',
             self::Cancelled->value => 'Cancelled',
         ];
@@ -44,8 +41,7 @@ enum BookingRequestStatus: string
             self::Reviewing => [self::AwaitingCustomer, self::Quoted, self::Confirmed, self::Declined, self::Cancelled],
             self::AwaitingCustomer => [self::Reviewing, self::Quoted, self::Confirmed, self::Declined, self::Cancelled],
             self::Quoted => [self::AwaitingCustomer, self::Confirmed, self::Declined, self::Cancelled],
-            self::Confirmed => [self::Completed, self::Cancelled],
-            self::Completed => [],
+            self::Confirmed => [self::Cancelled],
             self::Declined => [],
             self::Cancelled => [],
         }, true);

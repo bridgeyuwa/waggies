@@ -47,7 +47,7 @@ final class BookingPricingCatalog
             return [];
         }
 
-        $variants = $definition['variants'] ?? [];
+        $variants = $definition['variants'] ?? $definition['pricing']['pet_variants'] ?? [];
 
         if (! $availableOnly) {
             return $variants;
@@ -89,12 +89,22 @@ final class BookingPricingCatalog
         if ($variant !== null && $variant !== '') {
             $variantDefinition = $this->variants($service)[$variant] ?? null;
 
-            if (is_array($variantDefinition) && isset($variantDefinition['pet_types'])) {
-                return array_values($variantDefinition['pet_types']);
+            if ($variantDefinition !== null) {
+                if (isset($variantDefinition['pet_types']) && is_array($variantDefinition['pet_types'])) {
+                    return array_values($variantDefinition['pet_types']);
+                }
+
+                if (isset($variantDefinition['pet_type']) && is_string($variantDefinition['pet_type'])) {
+                    return [$variantDefinition['pet_type']];
+                }
             }
         }
 
-        return isset($definition['pet_types']) ? array_values($definition['pet_types']) : null;
+        if (isset($definition['pet_types']) && is_array($definition['pet_types'])) {
+            return array_values($definition['pet_types']);
+        }
+
+        return null;
     }
 
     public function isPetCompatible(string $service, ?string $variant, ?string $petType): bool
@@ -114,8 +124,13 @@ final class BookingPricingCatalog
             return null;
         }
 
-        $labels = ['dog' => 'dogs', 'cat' => 'cats'];
-        $allowedLabel = collect($this->allowedPetTypes($service, $variant) ?? [])
+        $allowedPetTypes = $this->allowedPetTypes($service, $variant) ?? [];
+        $labels = [
+            'dog' => 'dogs',
+            'cat' => 'cats',
+            'other' => 'other pets',
+        ];
+        $allowedLabel = collect($allowedPetTypes)
             ->map(fn (string $type): string => $labels[$type] ?? $type)
             ->join(' or ');
 
@@ -124,16 +139,23 @@ final class BookingPricingCatalog
 
     public function requiresPetWeight(string $service, ?string $variant): bool
     {
-        return false;
+        return $this->requiresPetSize($service, $variant);
     }
 
     public function requiresPetSize(string $service, ?string $variant): bool
     {
-        return $service === 'boarding' && $variant === 'dogs' && $this->sizeRates($service, $variant) !== [];
+        if ($variant === null || $variant === '') {
+            return false;
+        }
+
+        $variantDefinition = $this->variants($service)[$variant] ?? [];
+
+        return (bool) (($variantDefinition['size_rates'] ?? []) !== [])
+            || (bool) ($variantDefinition['weight_required'] ?? false);
     }
 
     /**
-     * @return array<string, array{label: string, examples: string|null, guidance: string|null, manual_review: bool}>
+     * @return array<string, array{label: string, examples: string|null}>
      */
     public function sizeOptions(string $service, ?string $variant): array
     {
@@ -142,22 +164,58 @@ final class BookingPricingCatalog
                 $key => [
                     'label' => $rate['booking_label'] ?? $rate['label'] ?? Str::headline($key),
                     'examples' => $rate['examples'] ?? null,
-                    'guidance' => $rate['guidance'] ?? null,
-                    'manual_review' => (bool) ($rate['manual_review'] ?? false),
                 ],
             ])
             ->all();
     }
 
     /**
-     * Packages and tiers are intentionally not part of the active catalogue.
-     * The legacy methods remain as empty compatibility contracts for old callers.
-     *
      * @return array<string, array<string, mixed>>
      */
     public function tiers(?string $service, ?string $variant = null, bool $availableOnly = false, string $channel = 'booking'): array
     {
-        return [];
+        if ($service === null || $service === '') {
+            return [];
+        }
+
+        $definition = $this->services()[$service] ?? [];
+
+        if ($availableOnly && ! $this->isAvailable($definition, $channel)) {
+            return [];
+        }
+
+        $tiers = $definition['tiers'] ?? [];
+
+        if ($variant !== null && $variant !== '') {
+            $variantDefinition = $this->variants($service)[$variant] ?? [];
+            $tiers = $variantDefinition['tiers'] ?? $tiers;
+
+            if (($definition['pricing']['pet_variants'][$variant]['tiers'] ?? null) !== null) {
+                $baseTiers = $definition['tiers'] ?? [];
+                $variantTiers = $definition['pricing']['pet_variants'][$variant]['tiers'];
+                $tiers = [];
+
+                foreach ($baseTiers as $tierKey => $baseTier) {
+                    $variantTier = $variantTiers[$tierKey] ?? [];
+                    $tier = array_replace_recursive($baseTier, $variantTier);
+
+                    if (($baseTier['enabled'] ?? true) === false || ($variantTier['enabled'] ?? true) === false) {
+                        $tier['enabled'] = false;
+                    }
+
+                    $tiers[$tierKey] = $tier;
+                }
+            }
+        }
+
+        if (! $availableOnly) {
+            return $tiers;
+        }
+
+        return array_filter(
+            $tiers,
+            fn (array $tier): bool => $this->isAvailable($tier, $channel),
+        );
     }
 
     /**
@@ -165,7 +223,11 @@ final class BookingPricingCatalog
      */
     public function tierOptions(?string $service, ?string $variant = null, bool $availableOnly = false, string $channel = 'booking'): array
     {
-        return [];
+        return collect($this->tiers($service, $variant, $availableOnly, $channel))
+            ->mapWithKeys(static fn (array $tier, string $key): array => [
+                $key => $tier['label'] ?? Str::headline($key),
+            ])
+            ->all();
     }
 
     public function isAvailable(array $definition, string $channel = 'booking'): bool
@@ -180,39 +242,57 @@ final class BookingPricingCatalog
         };
     }
 
-    public function priceLabel(string $service, ?string $variant, array $definition): string
+    public function priceLabel(string $service, ?string $variant, array $tier): string
     {
-        if (($definition['type'] ?? null) === 'quote' || ($definition['manual_review'] ?? false)) {
-            return 'Staff review required';
+        if (($tier['type'] ?? 'fixed') === 'quote') {
+            return 'Custom quote';
         }
 
-        $amount = $definition['amount'] ?? null;
-        $maximum = $definition['max_amount'] ?? $amount;
+        $rates = $this->sizeRates($service, $variant);
 
-        if (! is_numeric($amount)) {
-            return 'Request review';
+        if ($rates !== []) {
+            $adjustment = (int) ($tier['adjustment'] ?? 0);
+            $minimum = collect($rates)->min(fn (array $rate): int => (int) $rate['amount']) + $adjustment;
+            $maximum = collect($rates)->max(fn (array $rate): int => (int) $rate['max_amount']) + $adjustment;
+
+            return sprintf('From %s–%s', $this->formatAmount($minimum), $this->formatAmount($maximum));
         }
 
-        $amount = (int) $amount;
-        $maximum = is_numeric($maximum) ? (int) $maximum : $amount;
+        $amount = (int) ($tier['amount'] ?? 0);
+        $maximum = (int) ($tier['max_amount'] ?? $amount);
 
-        return $amount === $maximum
-            ? $this->formatAmount($amount)
-            : $this->formatAmount($amount).'–'.$this->formatAmount($maximum);
+        if ($amount === $maximum) {
+            return $this->formatAmount($amount);
+        }
+
+        return sprintf('%s–%s', $this->formatAmount($amount), $this->formatAmount($maximum));
     }
 
     public function tierDescription(array $tier): ?string
     {
-        return null;
+        $description = $tier['booking_description'] ?? $tier['description'] ?? null;
+
+        if (is_string($description) && trim($description) !== '') {
+            return trim($description);
+        }
+
+        $features = collect($tier['features'] ?? [])
+            ->map(static fn (mixed $feature): ?string => is_array($feature)
+                ? (($feature['included'] ?? true) ? ($feature['label'] ?? null) : null)
+                : (is_string($feature) ? $feature : null))
+            ->filter(static fn (?string $feature): bool => $feature !== null && trim($feature) !== '')
+            ->take(2)
+            ->values()
+            ->all();
+
+        return $features === [] ? null : implode(' · ', $features);
     }
 
     /**
-     * Return an indicative draft only. Staff quotation remains authoritative.
-     *
      * @param  array<string, mixed>  $pet
      * @return array<string, mixed>
      */
-    public function quote(string $service, ?string $variant, ?string $legacyTier, array $pet = [], int $quantity = 1, string $channel = 'booking'): array
+    public function quote(string $service, ?string $variant, ?string $tier, array $pet = [], int $quantity = 1, string $channel = 'booking'): array
     {
         $serviceDefinition = $this->services()[$service] ?? null;
 
@@ -224,12 +304,14 @@ final class BookingPricingCatalog
 
         if ($variantDefinitions !== []) {
             if ($variant === null || ! array_key_exists($variant, $variantDefinitions)) {
-                return ['status' => 'needs_input', 'reason' => 'Choose a service option.'];
+                return ['status' => 'unavailable', 'reason' => 'Choose the pet type for this service.'];
             }
 
             if (! $this->isAvailable($variantDefinitions[$variant], $channel)) {
-                return ['status' => 'unavailable', 'reason' => 'This service option is temporarily unavailable.'];
+                return ['status' => 'unavailable', 'reason' => 'This pet type is temporarily unavailable.'];
             }
+        } elseif ($variant !== null && $variant !== '') {
+            return ['status' => 'unavailable', 'reason' => 'This service does not use a pet type selection.'];
         }
 
         if (! $this->isPetCompatible($service, $variant, $pet['species'] ?? null)) {
@@ -239,36 +321,30 @@ final class BookingPricingCatalog
             ];
         }
 
-        $variantDefinition = $variantDefinitions[$variant ?? ''] ?? $serviceDefinition;
+        $tierDefinition = $this->tiers($service, $variant)[$tier ?? ''] ?? null;
 
-        if ($service === 'boarding' && $variant === 'dogs') {
-            return $this->dogBoardingQuote($serviceDefinition, $variantDefinition, $pet, $quantity);
+        if ($tierDefinition === null || ! $this->isAvailable($tierDefinition, $channel)) {
+            return ['status' => 'unavailable', 'reason' => 'This package is temporarily unavailable.'];
         }
 
-        if ($service === 'boarding' && $variant === 'cats') {
+        if ($this->sizeRates($service, $variant) !== []) {
+            return $this->sizeBasedQuote($service, $variant, $tierDefinition, $pet, $quantity);
+        }
+
+        if (($tierDefinition['type'] ?? 'fixed') === 'quote') {
             return [
                 'status' => 'quote',
                 'type' => 'quote',
-                'reason' => $variantDefinition['pricing_note'] ?? 'Cat boarding rate requires staff confirmation.',
                 'currency' => config('waggies_pricing.currency', 'NGN'),
             ];
         }
 
-        if (($variantDefinition['type'] ?? 'quote') === 'quote') {
-            return [
-                'status' => 'quote',
-                'type' => 'quote',
-                'reason' => $variantDefinition['description'] ?? 'Waggies will review this request and confirm the final quote.',
-                'currency' => config('waggies_pricing.currency', 'NGN'),
-            ];
-        }
-
-        $amount = (int) ($variantDefinition['amount'] ?? 0) * max(1, $quantity);
-        $maximum = (int) ($variantDefinition['max_amount'] ?? $variantDefinition['amount'] ?? 0) * max(1, $quantity);
+        $amount = (int) ($tierDefinition['amount'] ?? 0) * max(1, $quantity);
+        $maximum = (int) ($tierDefinition['max_amount'] ?? $tierDefinition['amount'] ?? 0) * max(1, $quantity);
 
         return [
-            'status' => 'estimate',
-            'type' => 'estimate',
+            'status' => ($tierDefinition['type'] ?? 'fixed') === 'estimate' ? 'estimate' : 'fixed',
+            'type' => $tierDefinition['type'] ?? 'fixed',
             'amount' => $amount,
             'max_amount' => $maximum,
             'currency' => config('waggies_pricing.currency', 'NGN'),
@@ -285,18 +361,17 @@ final class BookingPricingCatalog
     {
         $serviceKey = (string) ($service['service_key'] ?? '');
         $variant = $service['service_variant'] ?? null;
-        $details = is_array($service['details'] ?? null) ? $service['details'] : [];
+        $tier = $service['pricing_tier'] ?? null;
+        $details = $service['details'] ?? [];
         $quantity = $this->boardingNights($serviceKey, $details);
         $lines = [];
 
         foreach ($pets as $pet) {
-            $quote = $this->quote($serviceKey, $variant, null, $pet, $quantity, $channel);
+            $quote = $this->quote($serviceKey, $variant, $tier, $pet, $quantity, $channel);
 
             if (in_array($quote['status'] ?? null, ['unavailable', 'needs_input'], true)) {
                 return [
                     ...$quote,
-                    'authority' => 'staff_quotation',
-                    'draft' => true,
                     'lines' => $lines,
                     'nights' => $quantity,
                 ];
@@ -308,6 +383,7 @@ final class BookingPricingCatalog
                 'amount' => $quote['amount'] ?? null,
                 'max_amount' => $quote['max_amount'] ?? null,
                 'size' => $quote['size'] ?? null,
+                'weight_kg' => $quote['weight_kg'] ?? ($pet['weight_kg'] ?? null),
             ];
         }
 
@@ -315,8 +391,6 @@ final class BookingPricingCatalog
             return [
                 'status' => 'needs_input',
                 'reason' => 'Assign at least one pet to this service.',
-                'authority' => 'staff_quotation',
-                'draft' => true,
                 'lines' => [],
                 'nights' => $quantity,
             ];
@@ -326,8 +400,6 @@ final class BookingPricingCatalog
             return [
                 'status' => 'quote',
                 'type' => 'quote',
-                'authority' => 'staff_quotation',
-                'draft' => true,
                 'lines' => $lines,
                 'nights' => $quantity,
                 'currency' => config('waggies_pricing.currency', 'NGN'),
@@ -342,8 +414,6 @@ final class BookingPricingCatalog
         return [
             'status' => $status,
             'type' => $status,
-            'authority' => 'staff_quotation',
-            'draft' => true,
             'amount' => $amount - $discount['amount'],
             'max_amount' => $maximum - $discount['max_amount'],
             'subtotal' => $amount,
@@ -360,41 +430,38 @@ final class BookingPricingCatalog
      */
     public function sizeRates(string $service, ?string $variant): array
     {
-        return $this->services()[$service]['variants'][$variant]['size_rates'] ?? [];
+        return $this->services()[$service]['pricing']['pet_variants'][$variant]['size_rates']
+            ?? $this->services()[$service]['variants'][$variant]['size_rates']
+            ?? [];
     }
 
-    private function dogBoardingQuote(array $serviceDefinition, array $variantDefinition, array $pet, int $quantity): array
+    private function sizeBasedQuote(string $service, ?string $variant, array $tierDefinition, array $pet, int $quantity): array
     {
-        $size = $pet['size'] ?? null;
-        $sizeRate = $this->sizeRates('boarding', 'dogs')[$size] ?? null;
+        $weight = $pet['weight_kg'] ?? null;
+        $size = $pet['size'] ?? $this->dogSizeForWeight($weight);
+        $sizeRate = $this->sizeRates($service, $variant)[$size] ?? null;
 
         if ($sizeRate === null) {
             return [
                 'status' => 'needs_input',
-                'reason' => 'Choose your dog\'s size so we can prepare an indicative boarding estimate.',
-            ];
-        }
-
-        if (($sizeRate['manual_review'] ?? false) === true) {
-            return [
-                'status' => 'quote',
-                'type' => 'quote',
-                'size' => $size,
-                'reason' => $sizeRate['guidance'] ?? 'This dog requires manual boarding review.',
-                'currency' => config('waggies_pricing.currency', 'NGN'),
+                'reason' => $service === 'boarding'
+                    ? 'Choose your dog\'s size so we can estimate boarding cost.'
+                    : 'Choose your dog\'s size so we can estimate grooming cost.',
             ];
         }
 
         $multiplier = max(1, $quantity);
+        $adjustment = (int) ($tierDefinition['adjustment'] ?? 0);
 
         return [
             'status' => 'estimate',
             'type' => 'estimate',
-            'amount' => ((int) $sizeRate['amount']) * $multiplier,
-            'max_amount' => ((int) ($sizeRate['max_amount'] ?? $sizeRate['amount'])) * $multiplier,
+            'amount' => ((int) $sizeRate['amount'] + $adjustment) * $multiplier,
+            'max_amount' => ((int) $sizeRate['max_amount'] + $adjustment) * $multiplier,
             'currency' => config('waggies_pricing.currency', 'NGN'),
-            'unit' => $serviceDefinition['unit'] ?? null,
+            'unit' => $this->services()[$service]['unit'] ?? null,
             'size' => $size,
+            'weight_kg' => $weight,
         ];
     }
 
@@ -404,7 +471,7 @@ final class BookingPricingCatalog
             return 1;
         }
 
-        return max(1, (int) Carbon::parse($details['check_in'])->diffInDays(Carbon::parse($details['check_out'])));
+        return max(1, Carbon::parse($details['check_in'])->diffInDays(Carbon::parse($details['check_out'])));
     }
 
     /**
@@ -442,6 +509,25 @@ final class BookingPricingCatalog
             'base_amount' => $baseAmount,
             'max_base_amount' => $maxBaseAmount,
         ];
+    }
+
+    private function dogSizeForWeight(mixed $weight): ?string
+    {
+        if (! is_numeric($weight) || (float) $weight < 0) {
+            return null;
+        }
+
+        $weight = (float) $weight;
+
+        if ($weight <= 10) {
+            return 'small';
+        }
+
+        if ($weight <= 25) {
+            return 'medium';
+        }
+
+        return 'large';
     }
 
     private function formatAmount(int $amount): string

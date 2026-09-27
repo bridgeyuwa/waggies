@@ -50,9 +50,9 @@ it('limits category FAQ structured data to the selected category', function (): 
         'sort_order' => 0,
     ]);
     Faq::factory()->create([
-        'category' => 'vet-care',
-        'question' => 'How are vaccination requests handled?',
-        'answer' => 'The veterinary team reviews the requested vaccine and confirms the appropriate quote.',
+        'category' => 'grooming',
+        'question' => 'Do you groom cats?',
+        'answer' => 'Yes, our grooming team works with cats.',
         'status' => Faq::STATUS_PUBLISHED,
         'sort_order' => 1,
     ]);
@@ -67,24 +67,24 @@ it('limits category FAQ structured data to the selected category', function (): 
 
     expect($questions)
         ->toContain($boarding->question)
-        ->not->toContain('How are vaccination requests handled?');
+        ->not->toContain('Do you groom cats?');
 });
 
 it('preserves persisted FAQ ordering in service compositions', function (): void {
     $first = Faq::factory()->create([
-        'category' => 'boarding',
-        'question' => 'First persisted boarding question',
+        'category' => 'grooming',
+        'question' => 'First persisted grooming question',
         'sort_order' => 1,
         'status' => Faq::STATUS_PUBLISHED,
     ]);
     $second = Faq::factory()->create([
-        'category' => 'boarding',
-        'question' => 'Second persisted boarding question',
+        'category' => 'grooming',
+        'question' => 'Second persisted grooming question',
         'sort_order' => 2,
         'status' => Faq::STATUS_PUBLISHED,
     ]);
 
-    $content = $this->get(route('services.boarding'))->getContent();
+    $content = $this->get(route('services.grooming'))->getContent();
 
     expect(strpos($content, $first->question))->toBeLessThan(strpos($content, $second->question));
 });

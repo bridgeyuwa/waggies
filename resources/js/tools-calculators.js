@@ -66,6 +66,34 @@ const petAgeCalculator = () => ({
     },
 });
 
+const costCalculator = (data) => ({
+    petType: 'dog',
+    petSize: 'medium',
+    service: 'boarding',
+    duration: 7,
+    petTypes: data.pet_types,
+    services: data.services,
+    rates: data.rates,
+    fallbackRate: data.fallback_rate,
+    validSizes() {
+        return this.petTypes[this.petType].sizes;
+    },
+    effectiveSize() {
+        return this.validSizes().includes(this.petSize) ? this.petSize : this.validSizes()[0];
+    },
+    setPetType(type) {
+        this.petType = type;
+    },
+    estimate() {
+        const rates = this.rates[this.service]?.[this.effectiveSize()] ?? this.fallbackRate;
+        const multiplier = this.service === 'grooming' || this.service === 'vet' ? 1 : Number(this.duration);
+        return { min: rates[0] * multiplier, max: rates[1] * multiplier };
+    },
+    formatNaira(value) {
+        return `₦${Number(value).toLocaleString()}`;
+    },
+});
+
 const nutritionStages = {
     Dog: ['Puppy (under 1 year)', 'Adult (1-7 years)', 'Senior (7+ years)'],
     Cat: ['Kitten (under 1 year)', 'Adult (1-10 years)', 'Senior (10+ years)'],
@@ -299,6 +327,7 @@ const newPetChecklist = (categories) => ({
 
 export function registerToolComponents(Alpine) {
     Alpine.data('petAgeCalculator', petAgeCalculator);
+    Alpine.data('costCalculator', costCalculator);
     Alpine.data('nutritionCalculator', nutritionCalculator);
     Alpine.data('breedFinder', breedFinder);
     Alpine.data('behaviorTips', behaviorTips);

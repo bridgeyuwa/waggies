@@ -37,16 +37,14 @@ final class WaggiesCardSemanticsTest extends TestCase
         }
     }
 
-    public function test_services_page_exposes_only_the_active_request_based_catalogue(): void
+    public function test_service_comparison_exposes_semantic_headers_and_availability_state(): void
     {
         $this->get('/services')
             ->assertOk()
-            ->assertSee('Boarding')
-            ->assertSee('Veterinary Care')
-            ->assertSee('Relocation')
-            ->assertDontSee('Dog Training')
-            ->assertDontSee('Local Transport')
-            ->assertDontSee('Standalone Grooming');
+            ->assertSee('<caption class="sr-only">Compare Waggies services and included features</caption>', false)
+            ->assertSee('<th scope="col"', false)
+            ->assertSee('<th scope="row"', false)
+            ->assertSee('Not included', false);
     }
 
     /**
