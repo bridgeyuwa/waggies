@@ -77,9 +77,7 @@ return [
             'flyoutLabel' => 'Resources',
             'items' => [
                 ['label' => 'FAQ', 'route' => 'faq', 'description' => 'Quick answers', 'icon' => 'help'],
-                ['label' => 'Boarding Policy', 'route' => 'boarding-policy', 'description' => 'Boarding requirements and admission', 'icon' => 'document'],
-                ['label' => 'Cancellation Policy', 'route' => 'cancellation-policy', 'description' => 'Cancellations, refunds, and changes', 'icon' => 'document'],
-                ['label' => 'Relocation Policy', 'route' => 'relocation-policy', 'description' => 'Import and export requirements', 'icon' => 'document'],
+                ['label' => 'Policies', 'route' => 'policies', 'description' => 'Service requirements and terms', 'icon' => 'document'],
                 ['label' => 'Guides', 'route' => 'guides.index', 'description' => 'In-depth pet care guides', 'icon' => 'guide'],
                 ['label' => 'Knowledge Base', 'route' => 'knowledge-base.index', 'description' => 'Pet care answers', 'icon' => 'knowledge-base'],
             ],

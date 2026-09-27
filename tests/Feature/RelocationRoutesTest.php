@@ -77,49 +77,27 @@ class RelocationRoutesTest extends TestCase
             ->assertSee('href="'.route('relocation.checklist').'"', false);
     }
 
-    public function test_operational_policy_pages_are_public(): void
+    public function test_policy_hub_and_dedicated_policy_pages_are_public(): void
     {
         $routes = [
-            'boarding-policy',
-            'cancellation-policy',
-            'relocation-policy',
+            'policies',
+            'policies.boarding',
+            'policies.cancellation',
+            'policies.check-in',
+            'policies.medication',
+            'policies.emergency-veterinary',
+            'policies.behaviour-safety',
+            'policies.relocation',
+            'policies.general-terms',
         ];
 
         foreach ($routes as $routeName) {
             $this->get(route($routeName))->assertOk();
         }
 
-        $this->get(route('boarding-policy'))
-            ->assertSeeText('Boarding Policy')
-            ->assertSeeText('Last updated: 1 January 2026')
-            ->assertSeeText('Accepted species and admission')
-            ->assertSeeText('Dog size guidance')
-            ->assertSeeText('Check-in, check-out and late pickup');
-
-        $this->get(route('cancellation-policy'))
-            ->assertSeeText('Cancellation Policy')
-            ->assertSeeText('More than 48 hours before check-in')
-            ->assertSeeText('No-show');
-
-        $this->get(route('relocation-policy'))
-            ->assertSeeText('Relocation Policy')
-            ->assertSeeText('Import')
-            ->assertSeeText('Export')
-            ->assertSeeText('Quotes and deposits');
-
-        foreach ([
-            '/policies' => 'boarding-policy',
-            '/policy' => 'boarding-policy',
-            '/policies/boarding-requirements' => 'boarding-policy',
-            '/policies/cancellation-rescheduling-refunds' => 'cancellation-policy',
-            '/policies/check-in-check-out-late-pickup' => 'boarding-policy',
-            '/policies/medication-special-care' => 'boarding-policy',
-            '/policies/emergency-veterinary-care' => 'boarding-policy',
-            '/policies/pet-behaviour-safety' => 'boarding-policy',
-            '/policies/relocation' => 'relocation-policy',
-            '/policies/general-service-terms' => 'terms-of-service',
-        ] as $path => $routeName) {
-            $this->get($path)->assertRedirect(route($routeName));
-        }
+        $this->get(route('policies'))
+            ->assertSeeText('Boarding Requirements & Admission')
+            ->assertSeeText('Cancellation, Rescheduling & Refunds')
+            ->assertSeeText('Relocation');
     }
 }

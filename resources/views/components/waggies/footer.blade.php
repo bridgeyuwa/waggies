@@ -19,14 +19,10 @@
         ],
         'Resources' => [
             ['FAQ', route('faq')],
+            ['Policies', route('policies')],
             ['Guides', route('guides.index')],
             ['Knowledge Base', route('knowledge-base.index')],
             ['Tools', route('tools.index')],
-        ],
-        'Policies' => [
-            ['Boarding Policy', route('boarding-policy')],
-            ['Cancellation Policy', route('cancellation-policy')],
-            ['Relocation Policy', route('relocation-policy')],
         ],
         'Support' => [
             ['Contact', route('contact')],
@@ -34,11 +30,11 @@
             ['Phone', $phoneHref],
             ['WhatsApp', $whatsappHref],
         ],
-        // 'Legal' => [
-        //     ['Privacy Policy', route('privacy-policy')],
-        //     ['Terms of Service', route('terms-of-service')],
-        //     ['Cookies Policy', route('cookies-policy')],
-        // ],
+        'Legal' => [
+            ['Privacy Policy', route('privacy-policy')],
+            ['Terms of Service', route('terms-of-service')],
+            ['Cookies Policy', route('cookies-policy')],
+        ],
     ];
     $socials = [
         ['Instagram', 'instagram'],
@@ -112,8 +108,7 @@
                     @if (session('newsletter_status'))
                         <p class="mt-3 flex items-center gap-1.5 text-sm font-medium text-secondary" role="status">
                             <x-waggies.icon name="check-circle" size="16"
-                                variant="filled" />{{ session('newsletter_status') }}
-                        </p>
+                                variant="filled" />{{ session('newsletter_status') }}</p>
                     @endif
                     @if (session('newsletter_error'))
                         <p class="mt-3 text-sm font-medium text-red-200" role="alert">
@@ -139,8 +134,8 @@
                                 @php($socialHref = $businessProfile->socialLinks()[$icon] ?? null) @if ($socialHref)
                                     <a href="{{ $socialHref }}" target="_blank" rel="noopener noreferrer"
                                         class="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/70 transition-colors hover:border-primary hover:bg-primary hover:text-white"
-                                        aria-label="{{ $label }}"><x-waggies.brand-icon
-                                            name="{{ $icon }}" size="18" /></a>
+                                        aria-label="{{ $label }}"><x-waggies.brand-icon name="{{ $icon }}"
+                                            size="18" /></a>
                                 @endif
                             @endforeach
                         </div>
@@ -149,7 +144,7 @@
 
                 <x-waggies.footer-business-hours :schedule="$businessSchedule" />
             </div>
-            <div class="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6 lg:gap-6">
+            <div class="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5 lg:gap-6">
                 @foreach ($footerColumns as $heading => $links)
                     <div>
                         <h3 class="mb-5 text-xs font-semibold uppercase tracking-[0.14em] text-secondary">

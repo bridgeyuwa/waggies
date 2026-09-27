@@ -9,7 +9,7 @@
                 <p class="text-eyebrow text-secondary">{{ strtoupper($species) }} BOARDING</p>
                 <h1 class="mt-3 font-serif text-4xl font-bold leading-tight text-white md:text-6xl">A considered stay for your {{ $species === 'dogs' ? 'dog' : 'cat' }}.</h1>
                 <p class="mt-5 max-w-2xl text-base leading-relaxed text-white/75">Boarding is requested by the night and confirmed manually. Every boarded pet receives an individual enclosure, with care details agreed before the stay.</p>
-                <div class="mt-7 flex flex-col gap-3 sm:flex-row"><x-waggies.button href="{{ route('book', ['service' => 'boarding', 'variant' => $variant]) }}" class="bg-secondary! text-primary-dark!">Submit Booking Request <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button><x-waggies.button href="{{ route('boarding-policy') }}" variant="secondary" class="border-white/20 bg-white/5 text-white!">Read boarding policy</x-waggies.button></div>
+                <div class="mt-7 flex flex-col gap-3 sm:flex-row"><x-waggies.button href="{{ route('book', ['service' => 'boarding', 'variant' => $variant]) }}" class="bg-secondary! text-primary-dark!">Submit Booking Request <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button><x-waggies.button href="{{ route('policies.boarding') }}" variant="secondary" class="border-white/20 bg-white/5 text-white!">Read boarding policy</x-waggies.button></div>
             </div>
             <div class="aspect-4/3 overflow-hidden rounded-3xl border border-white/10"><img src="{{ $species === 'dogs' ? '/media/services/boarding/hero-dogs.jpg' : '/media/services/boarding/hero-cats.jpg' }}" alt="{{ ucfirst($species) }} during a boarding stay" class="h-full w-full object-cover" /></div>
         </div>

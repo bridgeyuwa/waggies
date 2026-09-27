@@ -135,7 +135,7 @@ final class RelocationController extends Controller
                     'primaryRoute' => 'book',
                     'primaryParams' => ['service' => 'relocation', 'variant' => $type],
                     'secondaryLabel' => 'Open Relocation Policy',
-                    'secondaryRoute' => 'relocation-policy',
+                    'secondaryRoute' => 'policies.relocation',
                     'secondaryIcon' => 'document',
                 ],
             ],
