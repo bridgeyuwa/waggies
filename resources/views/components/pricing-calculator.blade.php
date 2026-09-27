@@ -147,6 +147,11 @@ new class extends Component
         return app(BookingPricingCatalog::class)->priceLabel($this->service ?? '', $this->variant, $tier);
     }
 
+    public function tierDescription(array $tier): ?string
+    {
+        return app(BookingPricingCatalog::class)->tierDescription($tier);
+    }
+
     public function hasVariants(): bool
     {
         return app(BookingPricingCatalog::class)->variants($this->service ?? '', availableOnly: false, channel: 'pricing') !== [];
@@ -200,6 +205,11 @@ new class extends Component
             return false;
         }
 
+        if ($this->service === 'local-transport') {
+            return filled($this->transport['pickup'] ?? null)
+                && filled($this->transport['dropoff'] ?? null);
+        }
+
         return ! $this->needsSize() || $this->size !== null || ($this->weightKg !== null && $this->weightKg >= 0);
     }
 
@@ -219,6 +229,14 @@ new class extends Component
         $tier = $this->allTierDefinitions()[$this->tier] ?? [];
         $serviceLabel = $this->serviceOptions()[$this->service] ?? 'Selected service';
         $variantLabel = app(BookingPricingCatalog::class)->variantOptions($this->service, availableOnly: false, channel: 'pricing')[$this->variant ?? ''] ?? null;
+
+        if ($this->service === 'local-transport') {
+            session()->put('pricing_transport_context', [
+                'pickup' => trim((string) ($this->transport['pickup'] ?? '')),
+                'dropoff' => trim((string) ($this->transport['dropoff'] ?? '')),
+                'trip_type' => $this->transport['journey_type'] ?? 'one-way',
+            ]);
+        }
 
         $params = array_filter([
             'service' => $this->service,
@@ -297,6 +315,9 @@ new class extends Component
 ?>
 
 <div>
+    <div wire:loading wire:target="service,variant,tier,size,weightKg,quantity,transport" class="mb-4 rounded-xl border border-primary/15 bg-surface-purple/45 px-4 py-3 text-sm font-medium text-primary-dark/70" role="status" aria-live="polite">
+        Updating your estimate…
+    </div>
     @if($step === 'form')
         <div class="mt-10 rounded-2xl border border-primary/10 bg-white p-6 shadow-sm md:p-8">
             <div class="flex flex-col gap-6">
@@ -315,9 +336,9 @@ new class extends Component
 
                 @if($service)
                     @if($this->hasVariants())
-                        <x-waggies.select id="pricing-variant" label="2. Who is this for?" wire:model.live="variant" :plain="true" required>
+                        <x-waggies.select id="pricing-variant" label="2. Who is this for?" wire:model.live="variant" required>
                             <option value="">Choose a pet type</option>
-                            @foreach($this->allVariantOptions() as $key => $label)<option value="{{ $key }}" @disabled(! array_key_exists($key, $this->variantOptions()))>{{ $label }}{{ ! array_key_exists($key, $this->variantOptions()) ? ' — Temporarily unavailable' : '' }}</option>@endforeach
+                            @foreach($this->allVariantOptions() as $key => $label)<option value="{{ $key }}" @selected($variant === $key) @disabled(! array_key_exists($key, $this->variantOptions()))>{{ $label }}{{ ! array_key_exists($key, $this->variantOptions()) ? ' — Temporarily unavailable' : '' }}</option>@endforeach
                         </x-waggies.select>
                     @endif
 
@@ -325,34 +346,41 @@ new class extends Component
                         <div class="rounded-xl border border-primary/10 bg-surface-purple/45 p-4">
                             <p class="text-sm font-semibold text-primary-dark">Route details</p>
                             <div class="mt-4 grid gap-5 sm:grid-cols-2">
-                                <x-waggies.field id="pricing-pickup" label="Pickup location"><input id="pricing-pickup" wire:model.live="transport.pickup" class="contact-input"></x-waggies.field>
-                                <x-waggies.field id="pricing-dropoff" label="Drop-off location"><input id="pricing-dropoff" wire:model.live="transport.dropoff" class="contact-input"></x-waggies.field>
+                                 <x-waggies.field id="pricing-pickup" label="Pickup location" help="Required for a route quote." required><input id="pricing-pickup" wire:model.live.blur="transport.pickup" class="contact-input"></x-waggies.field>
+                                 <x-waggies.field id="pricing-dropoff" label="Drop-off location" help="Required for a route quote." required><input id="pricing-dropoff" wire:model.live.blur="transport.dropoff" class="contact-input"></x-waggies.field>
                                 <x-waggies.field id="pricing-distance" label="Distance (km)"><input id="pricing-distance" wire:model.live="transport.distance_km" type="number" min="1" class="contact-input"></x-waggies.field>
                                 <x-waggies.field id="pricing-pet-species" label="Pet species"><input id="pricing-pet-species" wire:model.live="transport.pet_species" class="contact-input"></x-waggies.field>
                                 <x-waggies.field id="pricing-pet-count" label="Number of pets"><input id="pricing-pet-count" wire:model.live="transport.pet_count" type="number" min="1" class="contact-input"></x-waggies.field>
-                                <x-waggies.select id="pricing-journey" label="Journey type" wire:model.live="transport.journey_type" :plain="true"><option value="one-way">One way</option><option value="return">Return</option></x-waggies.select>
+                                 <x-waggies.select id="pricing-journey" label="Journey type" wire:model.live="transport.journey_type"><option value="one-way">One way</option><option value="return">Return</option></x-waggies.select>
                                 @if($tier === 'airport')
                                     <x-waggies.field id="pricing-airport-details" label="Airport details"><input id="pricing-airport-details" wire:model.live="transport.airport_details" class="contact-input"></x-waggies.field>
                                 @endif
-                            </div>
-                            <p class="mt-4 text-xs leading-relaxed text-primary-dark/60">Special handling, extra stops, waiting, urgency, and after-hours requests may require a confirmed quote.</p>
+                             </div>
+                             @if(! filled($transport['pickup'] ?? null) || ! filled($transport['dropoff'] ?? null))
+                                 <p class="mt-4 text-xs font-medium text-primary-dark/60">Add both a pickup and drop-off point to request a route quote.</p>
+                             @endif
+                             <p class="mt-4 text-xs leading-relaxed text-primary-dark/60">Special handling, extra stops, waiting, urgency, and after-hours requests may require a confirmed quote.</p>
                         </div>
                     @endif
 
                         @if($this->allTierDefinitions() && (! $this->hasVariants() || $variant))
                             <div>
-                                <p class="text-sm font-semibold text-primary-dark">{{ $this->hasVariants() ? '3' : '2' }}. Choose a package</p>
+                                <fieldset>
+                                <legend class="text-sm font-semibold text-primary-dark">{{ $this->hasVariants() ? '3' : '2' }}. Choose a package <span class="text-danger" aria-hidden="true">*</span></legend>
                                 <div class="mt-3 grid gap-3 sm:grid-cols-2">
                                     @foreach($this->allTierDefinitions() as $key => $tier)
                                         @php $available = array_key_exists($key, $this->tierDefinitions()); @endphp
-                                        <button type="button" @if($available) wire:click="selectTier('{{ $key }}')" @else disabled @endif aria-pressed="{{ $this->tier === $key ? 'true' : 'false' }}" class="relative min-h-24 rounded-xl border-2 p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary {{ $this->tier === $key ? 'border-primary bg-surface-purple shadow-sm' : 'border-primary/10 hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : '' }}">
-                                        <span class="block pr-7 text-sm font-bold text-primary-dark">{{ $tier['label'] ?? $key }}</span>
-                                        <span class="mt-1 block text-sm text-primary-dark/60">{{ $this->tierPriceLabel($tier) }}</span>
-                                        @if(! $available)<span class="mt-1 block text-xs font-medium text-primary-dark/55">Temporarily unavailable</span>@endif
-                                        @if($this->tier === $key)<span class="absolute right-3 top-3 text-primary"><x-waggies.icon name="check-circle" variant="filled" size="18" /></span>@endif
-                                        </button>
+                                        <label class="relative min-h-24 rounded-xl border-2 p-4 text-left transition focus-within:outline-none focus-within:ring-2 focus-within:ring-primary {{ $this->tier === $key ? 'border-primary bg-surface-purple shadow-sm' : 'border-primary/10 hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : 'cursor-pointer' }}">
+                                            <input type="radio" name="pricing-tier" value="{{ $key }}" @checked($this->tier === $key) @disabled(! $available) wire:click="selectTier('{{ $key }}')" class="sr-only peer">
+                                            <span class="block pr-7 text-sm font-bold text-primary-dark">{{ $tier['label'] ?? $key }}</span>
+                                            <span class="mt-1 block text-sm text-primary-dark/60">{{ $this->tierPriceLabel($tier) }}</span>
+                                            @if($this->tierDescription($tier))<span class="mt-2 block text-xs leading-relaxed text-primary-dark/60">{{ $this->tierDescription($tier) }}</span>@endif
+                                            @if(! $available)<span class="mt-1 block text-xs font-medium text-primary-dark/55">Temporarily unavailable</span>@endif
+                                            @if($this->tier === $key)<span class="absolute right-3 top-3 text-primary"><x-waggies.icon name="check-circle" variant="filled" size="18" /></span>@endif
+                                        </label>
                                     @endforeach
                                 </div>
+                                </fieldset>
                             </div>
                     @elseif($this->hasVariants() && ! $variant)
                         <p class="rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a pet type first to see the packages and size-aware prices for that pet.</p>
@@ -385,7 +413,7 @@ new class extends Component
                         <x-waggies.button type="button" wire:click="calculate" wire:loading.attr="disabled" wire:target="calculate" :disabled="! $this->canCalculate()" class="w-full justify-center sm:w-auto">{{ $this->actionLabel() }} <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
                     </div>
                 @else
-                    <p class="rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a service to see the right pet type, package, size, or quantity fields. Nothing is preselected.</p>
+                    <p class="rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a service to see the pet type, package, size, or quantity fields that apply to it.</p>
                 @endif
             </div>
         </div>
@@ -408,7 +436,7 @@ new class extends Component
                     <p class="mb-3 text-eyebrow text-primary-dark/55">PRICE SUMMARY</p>
                     <p class="mb-2 font-serif text-3xl font-bold text-primary-dark md:text-4xl">{{ $result['display'] ?? 'Custom quote' }}</p>
                     <p class="mb-5 text-xs leading-relaxed text-primary-dark/60">{{ $result['notice'] ?? '' }}</p>
-                    <x-waggies.button href="{{ $result['href'] ?? route('book') }}" class="w-full justify-center">Request this service <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
+                    <x-waggies.button :href="$result['href'] ?? route('book')" class="w-full justify-center">Request this service <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
                 </div>
             </div>
         </div>

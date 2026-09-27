@@ -1,3 +1,132 @@
+const toIsoDate = date => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+};
+
+const parseIsoDate = value => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return null;
+
+    const [year, month, day] = value.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+
+    return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
+        ? date
+        : null;
+};
+
+export const registerBookingCalendar = Alpine => {
+    Alpine.data('waggiesDatePicker', (config = {}) => ({
+        value: config.value || '',
+        minimum: config.minimum || '',
+        open: false,
+        month: '',
+
+        init() {
+            this.month = this.toMonth(this.value || this.minimum || toIsoDate(new Date()));
+            this.nativeInputHandler = () => {
+                this.value = this.$refs.native.value;
+                if (this.value) this.month = this.toMonth(this.value);
+            };
+            this.$refs.native.addEventListener('input', this.nativeInputHandler);
+            this.$refs.native.addEventListener('change', this.nativeInputHandler);
+            this.minimumObserver = new MutationObserver(() => {
+                this.minimum = this.$refs.native.min || this.minimum;
+
+                if (this.minimum && this.month < this.toMonth(this.minimum)) {
+                    this.month = this.toMonth(this.minimum);
+                }
+            });
+            this.minimumObserver.observe(this.$refs.native, { attributes: true, attributeFilter: ['min'] });
+        },
+
+        destroy() {
+            this.$refs.native?.removeEventListener('input', this.nativeInputHandler);
+            this.$refs.native?.removeEventListener('change', this.nativeInputHandler);
+            this.minimumObserver?.disconnect();
+        },
+
+        toMonth(value) {
+            const date = parseIsoDate(value) || new Date();
+
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
+        },
+
+        monthDate() {
+            return parseIsoDate(this.month) || new Date();
+        },
+
+        monthLabel() {
+            return new Intl.DateTimeFormat('en-NG', { month: 'long', year: 'numeric' }).format(this.monthDate());
+        },
+
+        weekdays() {
+            const monday = new Date(2024, 0, 1);
+
+            return Array.from({ length: 7 }, (_, index) => new Intl.DateTimeFormat('en-NG', { weekday: 'short' }).format(new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + index)));
+        },
+
+        days() {
+            const month = this.monthDate();
+            const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
+            const leadingDays = (firstDay.getDay() + 6) % 7;
+            const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+            const totalDays = Math.ceil((leadingDays + daysInMonth) / 7) * 7;
+
+            return Array.from({ length: totalDays }, (_, index) => {
+                if (index < leadingDays || index >= leadingDays + daysInMonth) return null;
+
+                return toIsoDate(new Date(month.getFullYear(), month.getMonth(), index - leadingDays + 1));
+            });
+        },
+
+        isDisabled(value) {
+            return !value || (this.minimum && value < this.minimum);
+        },
+
+        isSelected(value) {
+            return value === this.value;
+        },
+
+        isToday(value) {
+            return value === toIsoDate(new Date());
+        },
+
+        isBeforeMinimumMonth() {
+            return this.minimum && this.month < this.toMonth(this.minimum);
+        },
+
+        changeMonth(offset) {
+            const month = this.monthDate();
+            const next = new Date(month.getFullYear(), month.getMonth() + offset, 1);
+            const nextMonth = toIsoDate(next);
+
+            if (offset < 0 && this.minimum && nextMonth < this.toMonth(this.minimum)) return;
+
+            this.month = nextMonth;
+        },
+
+        choose(value) {
+            if (this.isDisabled(value)) return;
+
+            this.value = value;
+            this.$refs.native.value = value;
+            this.$refs.native.dispatchEvent(new Event('input', { bubbles: true }));
+            this.$refs.native.dispatchEvent(new Event('change', { bubbles: true }));
+            this.open = false;
+            this.$nextTick(() => this.$refs.trigger?.focus());
+        },
+
+        formattedValue() {
+            if (!this.value) return '';
+
+            return new Intl.DateTimeFormat('en-NG', { dateStyle: 'medium', timeZone: 'Africa/Lagos' }).format(new Date(`${this.value}T00:00:00`));
+        },
+    }));
+};
+
 export const registerBookingDraftPersistence = () => {
     const root = document.querySelector('[data-booking-draft]');
 

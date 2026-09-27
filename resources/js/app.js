@@ -8,7 +8,7 @@ import { registerShopComponents } from './alpine/shop';
 import { registerWaggiesSelectEnhancement, syncWaggiesLivewireSelects, syncWaggiesSelects } from './alpine/selects';
 import { registerPricingCalculator } from './pricing-calculator';
 import { registerToolComponents } from './tools-calculators';
-import { registerBookingDraftPersistence } from './booking-wizard';
+import { registerBookingCalendar, registerBookingDraftPersistence } from './booking-wizard';
 
 window.Alpine = Alpine;
 window.Livewire = Livewire;
@@ -21,6 +21,7 @@ registerCareersComponents(Alpine);
 registerShopComponents(Alpine);
 registerRequestComponents(Alpine);
 registerContentComponents(Alpine);
+registerBookingCalendar(Alpine);
 
 document.addEventListener('click', event => {
     const link = event.target.closest?.('a[href]');

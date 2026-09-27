@@ -86,6 +86,54 @@ it('preserves service context passed from public booking CTAs', function (): voi
         ->assertSet('services.0.pricing_tier', 'premium');
 });
 
+it('prefills route details handed off from the pricing calculator', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => [
+            'service' => 'local-transport',
+            'tier' => 'city',
+            'transport' => [
+                'pickup' => 'Maitama',
+                'dropoff' => 'Wuse 2',
+                'trip_type' => 'return',
+            ],
+        ],
+    ])
+        ->assertSet('services.0.details.pickup', 'Maitama')
+        ->assertSet('services.0.details.dropoff', 'Wuse 2')
+        ->assertSet('services.0.details.trip_type', 'return');
+});
+
+it('requires age or life stage for pets assigned to veterinary care', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'vet-care', 'tier' => 'consultation'],
+    ])
+        ->set('services.0.requested_date', now()->addDays(4)->toDateString())
+        ->set('services.0.details.reason', 'Annual wellness check')
+        ->set('services.0.details.urgency', 'routine')
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.sex', 'male')
+        ->set('step', 3)
+        ->call('nextStep')
+        ->assertHasErrors('pets.0.age')
+        ->set('pets.0.age', 'not-sure')
+        ->call('nextStep')
+        ->assertSet('step', 4);
+});
+
+it('stops adding pets after the configured eight-pet limit', function (): void {
+    $component = Livewire::test('booking-request-wizard');
+
+    foreach (range(1, 8) as $unused) {
+        $component->call('addPet');
+    }
+
+    $component->assertCount('pets', 8)
+        ->call('addPet')
+        ->assertCount('pets', 8);
+});
+
 it('updates dependent booking choices through one server-side action per select', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'boarding'],

@@ -39,7 +39,7 @@ $dogBoardingSizeRates = [
         'max_weight_kg' => 10,
         'amount' => 8000,
         'max_amount' => 12000,
-    ],
+    ], 
     'medium' => [
         'label' => 'Medium',
         'booking_label' => 'Medium',
@@ -61,7 +61,7 @@ $dogBoardingSizeRates = [
 ];
 
 $multiplePetDiscount = [
-    'enabled' => true,
+    'enabled' => false,
     'percentage' => 10,
     'applies_to' => ['boarding'],
     'applies_from_pet' => 2,
@@ -70,30 +70,14 @@ $multiplePetDiscount = [
 return [
     'currency' => 'NGN',
     'max_service_items' => 12,
-    'cost_calculator' => [
-        'pet_types' => [
-            'dog' => ['sizes' => ['small', 'medium', 'large'], 'labels' => ['small' => 'Small (0–10kg)', 'medium' => 'Medium (over 10–25kg)', 'large' => 'Large (over 25kg)']],
-            'cat' => ['sizes' => [], 'labels' => []],
-        ],
-        'services' => [
-            'boarding' => ['label' => 'Boarding', 'description' => 'Per night'],
-            'grooming' => ['label' => 'Grooming', 'description' => 'Per session'],
-            'vet' => ['label' => 'Vet Care', 'description' => 'Per visit'],
-            'training' => ['label' => 'Training', 'description' => 'Per session'],
-        ],
-        'rates' => [
-            'boarding' => array_map(
-                static fn (array $rate): array => [$rate['amount'], $rate['max_amount']],
-                $dogBoardingSizeRates,
-            ),
-            'grooming' => array_map(
-                static fn (array $rate): array => [$rate['amount'], $rate['max_amount']],
-                $dogGroomingSizeRates,
-            ),
-            'vet' => ['small' => [3000, 8000], 'medium' => [5000, 12000], 'large' => [8000, 20000]],
-            'training' => ['small' => [10000, 15000], 'medium' => [15000, 25000], 'large' => [20000, 35000]],
-        ],
-        'fallback_rate' => [5000, 10000],
+    'pet_age_options' => [
+        'under-6-months' => 'Under 6 months',
+        '6-12-months' => '6–12 months',
+        '1-3-years' => '1–3 years',
+        '4-7-years' => '4–7 years',
+        '8-10-years' => '8–10 years',
+        '11-plus-years' => '11+ years',
+        'not-sure' => 'Not sure',
     ],
     'discounts' => [
         'multiple_pet' => $multiplePetDiscount,

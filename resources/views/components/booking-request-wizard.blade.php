@@ -40,7 +40,7 @@ new class extends Component
     ];
 
     /**
-     * @param  array{service?: ?string, variant?: ?string, tier?: ?string, source?: ?string, whatsappUrl?: string}  $initialContext
+     * @param  array{service?: ?string, variant?: ?string, tier?: ?string, source?: ?string, transport?: array<string, mixed>, whatsappUrl?: string}  $initialContext
      */
     public function mount(array $initialContext = []): void
     {
@@ -59,6 +59,15 @@ new class extends Component
         $this->source = $initialContext['source'] ?? null;
         $this->whatsappUrl = $initialContext['whatsappUrl'] ?? '#';
         $this->services = [$this->newService($service, $variant, $tier)];
+        $transport = $initialContext['transport'] ?? [];
+
+        if ($service === 'local-transport' && is_array($transport)) {
+            $this->services[0]['details'] = array_filter([
+                'pickup' => $transport['pickup'] ?? null,
+                'dropoff' => $transport['dropoff'] ?? null,
+                'trip_type' => $transport['trip_type'] ?? null,
+            ], static fn (mixed $value): bool => filled($value));
+        }
         $this->pets = [$this->newPet()];
     }
 
@@ -199,6 +208,12 @@ new class extends Component
 
     public function addPet(): void
     {
+        if (count($this->pets) >= 8) {
+            $this->dispatch('booking-wizard-announcement', message: 'You can add up to 8 pets to one request.');
+
+            return;
+        }
+
         $this->pets[] = $this->newPet();
         $index = count($this->pets) - 1;
         $this->dispatch('booking-wizard-focus-target', target: "booking-pet-{$index}-heading");
@@ -423,6 +438,48 @@ new class extends Component
         return app(BookingPricingCatalog::class)->priceLabel($service, $variant, $tier);
     }
 
+    public function tierDescription(array $tier): ?string
+    {
+        return app(BookingPricingCatalog::class)->tierDescription($tier);
+    }
+
+    public function maxPets(): int
+    {
+        return 8;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function validationAttributes(): array
+    {
+        return [
+            'services.*.service_key' => 'service',
+            'services.*.service_variant' => 'animal type',
+            'services.*.pricing_tier' => 'package',
+            'services.*.assigned_pet_ids' => 'assigned pet',
+            'services.*.details.check_in' => 'check-in date',
+            'services.*.details.check_out' => 'check-out date',
+            'services.*.details.reason' => 'what your pet needs help with',
+            'services.*.details.urgency' => 'urgency',
+            'services.*.details.pickup' => 'pickup point',
+            'services.*.details.dropoff' => 'drop-off point',
+            'services.*.details.trip_type' => 'trip type',
+            'services.*.details.origin_country' => 'country your pet is coming from',
+            'services.*.details.destination_country' => 'country your pet is going to',
+            'services.*.details.documentation_status' => 'documentation status',
+            'pets.*.name' => 'pet name',
+            'pets.*.species' => 'pet type',
+            'pets.*.size' => 'dog size',
+            'pets.*.breed' => 'breed',
+            'pets.*.age' => 'age or life stage',
+            'pets.*.sex' => 'sex',
+            'contact.name' => 'your name',
+            'contact.email' => 'email address',
+            'contact.phone' => 'phone or WhatsApp number',
+        ];
+    }
+
     /**
      * @return array<string, array{label: string, examples: string|null}>
      */
@@ -561,6 +618,34 @@ new class extends Component
         return $this->petRequiresBreed($petIndex)
             ? 'Required for this assigned service. Use Mixed breed or Unknown if needed.'
             : 'Optional. Use Mixed breed or Unknown if needed.';
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function petAgeOptions(): array
+    {
+        return config('waggies_pricing.pet_age_options', []);
+    }
+
+    public function petAgeRequired(int $petIndex): bool
+    {
+        return collect($this->services)->contains(
+            fn (array $service): bool => in_array($service['service_key'] ?? null, ['vet-care', 'relocation'], true)
+                && in_array($petIndex, array_map('intval', $service['assigned_pet_ids'] ?? []), true),
+        );
+    }
+
+    public function petAgeHelp(int $petIndex): string
+    {
+        return $this->petAgeRequired($petIndex)
+            ? 'Required for veterinary care or relocation. Choose Not sure if you do not know.'
+            : 'Optional. Choose the closest life stage; Not sure is okay.';
+    }
+
+    public function petAgeLabel(?string $age): ?string
+    {
+        return $this->petAgeOptions()[$age ?? ''] ?? $age;
     }
 
     public function servicePetRequirement(array $service): string
@@ -855,7 +940,7 @@ new class extends Component
             'pets.*.size' => ['nullable', Rule::in(array_keys($this->petSizeOptions()))],
             'pets.*.weight_kg' => ['nullable', 'numeric', 'min:0', 'max:300'],
             'pets.*.breed' => ['nullable', 'string', 'max:120'],
-            'pets.*.age' => ['nullable', 'string', 'max:40'],
+            'pets.*.age' => ['nullable', Rule::in(array_keys($this->petAgeOptions()))],
             'pets.*.sex' => ['required', Rule::in(['male', 'female'])],
             'pets.*.notes' => ['nullable', 'string', 'max:1000'],
             'pets.*.details.other_description' => ['nullable', 'string', 'max:2000'],
@@ -905,6 +990,10 @@ new class extends Component
 
                 if (in_array($service['service_key'] ?? null, ['grooming', 'relocation'], true)) {
                     $rules["pets.{$petIndex}.breed"] = ['required', 'string', 'max:120'];
+                }
+
+                if (in_array($service['service_key'] ?? null, ['vet-care', 'relocation'], true)) {
+                    $rules["pets.{$petIndex}.age"] = ['required', Rule::in(array_keys($this->petAgeOptions()))];
                 }
             }
         }
@@ -1126,7 +1215,7 @@ new class extends Component
     @else
         @php
             $stepHeadings = [
-                1 => ['eyebrow' => 'STEP 1 OF 5', 'title' => 'Choose and configure services', 'description' => 'Choose each service you need, then select its animal type and package. Nothing is preselected.'],
+                1 => ['eyebrow' => 'STEP 1 OF 5', 'title' => 'Choose and configure services', 'description' => 'Choose each service you need, then select its animal type and package.'],
                 2 => ['eyebrow' => 'STEP 2 OF 5', 'title' => 'Add your pet'.(count($pets) > 1 ? 's' : ''), 'description' => 'Add each pet once. This is your pet list; we will match pets to services next.'],
                 3 => ['eyebrow' => 'STEP 3 OF 5', 'title' => 'Assign pets to services', 'description' => 'Choose which pet receives each service, then add the details that service needs.'],
                 4 => ['eyebrow' => 'STEP 4 OF 5', 'title' => 'How should we contact you?', 'description' => 'Give us enough information to confirm availability and clarify anything important.'],
@@ -1180,6 +1269,11 @@ new class extends Component
                     </div>
                 @endif
 
+                <div wire:loading class="mb-5 flex items-center gap-2 rounded-xl border border-primary/15 bg-surface-purple/45 px-4 py-3 text-sm font-medium text-primary-dark/70" role="status" aria-live="polite">
+                    <span class="inline-block size-2 animate-pulse rounded-full bg-primary" aria-hidden="true"></span>
+                    Updating your request…
+                </div>
+
                 <form wire:submit="submit" novalidate>
                     @if($step === 1)
                         <fieldset class="flex flex-col gap-5">
@@ -1193,7 +1287,7 @@ new class extends Component
                                             <p class="mt-1 text-sm text-primary-dark/60">Select the care your pet needs. You can add another service below.</p>
                                         </div>
                                         @if(count($services) > 1)
-                                            <button type="button" wire:click="removeService({{ $index }})" class="min-h-11 shrink-0 rounded-lg px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Remove</button>
+                                            <button type="button" wire:click="removeService({{ $index }})" aria-label="Remove {{ $this->serviceLabel($service['service_key'] ?? null) }} service" class="min-h-11 shrink-0 rounded-lg border border-transparent px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 transition-colors hover:border-error/30 hover:bg-error-light hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">Remove</button>
                                         @endif
                                     </div>
 
@@ -1261,7 +1355,10 @@ new class extends Component
                                                                     </span>
                                                                     <span class="shrink-0 text-sm font-semibold text-primary-dark/75">{{ $this->tierPriceLabel($service['service_key'], $service['service_variant'], $tier) }}</span>
                                                                     </label>
-                                                                    @if(! empty($tier['features']))
+                                                                     @if($this->tierDescription($tier))
+                                                                         <p class="px-4 pb-2.5 text-xs leading-relaxed text-primary-dark/60">{{ $this->tierDescription($tier) }}</p>
+                                                                     @endif
+                                                                     @if(! empty($tier['features']))
                                                                         <details class="border-t border-primary/10 px-4 py-2.5 text-xs text-primary-dark/65">
                                                                             <summary class="cursor-pointer font-semibold text-primary-dark/75">What’s included</summary>
                                                                             <ul class="mt-2 space-y-1.5">
@@ -1331,7 +1428,7 @@ new class extends Component
                                             <h3 id="booking-pet-{{ $index }}-heading" tabindex="-1" class="mt-1 font-serif text-xl font-bold text-primary-dark focus:outline-none">{{ $pet['name'] ? 'About '.$pet['name'] : 'Add a pet' }}</h3>
                                         </div>
                                         @if(count($pets) > 1)
-                                            <button type="button" wire:click="removePet({{ $index }})" class="min-h-11 shrink-0 rounded-lg px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Remove</button>
+                                            <button type="button" wire:click="removePet({{ $index }})" aria-label="Remove {{ $pet['name'] ?: 'pet '.($index + 1) }}" class="min-h-11 shrink-0 rounded-lg border border-transparent px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 transition-colors hover:border-error/30 hover:bg-error-light hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">Remove</button>
                                         @endif
                                     </div>
 
@@ -1339,7 +1436,7 @@ new class extends Component
                                         <x-waggies.field id="booking-pet-{{ $index }}-name" label="Pet name" :error="$errors->first('pets.'.$index.'.name')" required>
                                             <input id="booking-pet-{{ $index }}-name" wire:model.live.blur="pets.{{ $index }}.name" type="text" maxlength="80" autocomplete="off" class="contact-input">
                                         </x-waggies.field>
-                                        <x-waggies.select id="booking-pet-{{ $index }}-species" label="Pet type" wire:model.live="pets.{{ $index }}.species" :error="$errors->first('pets.'.$index.'.species')" :plain="true" required>
+                                            <x-waggies.select id="booking-pet-{{ $index }}-species" label="Pet type" wire:model.live="pets.{{ $index }}.species" :error="$errors->first('pets.'.$index.'.species')" required>
                                             <option value="">Choose a type</option>
                                             @foreach(['dog' => 'Dog', 'cat' => 'Cat', 'other' => 'Other'] as $key => $label)
                                                 <option value="{{ $key }}">{{ $label }}</option>
@@ -1377,10 +1474,13 @@ new class extends Component
                                             <x-waggies.field id="booking-pet-{{ $index }}-breed" label="Breed" :error="$errors->first('pets.'.$index.'.breed')" :help="$this->petBreedHelp($index)">
                                                 <input id="booking-pet-{{ $index }}-breed" wire:model.live.blur="pets.{{ $index }}.breed" type="text" maxlength="120" class="contact-input">
                                             </x-waggies.field>
-                                            <x-waggies.field id="booking-pet-{{ $index }}-age" label="Age or life stage" :error="$errors->first('pets.'.$index.'.age')" help="Optional">
-                                                <input id="booking-pet-{{ $index }}-age" wire:model.live.blur="pets.{{ $index }}.age" type="text" maxlength="40" placeholder="For example: 3 years" class="contact-input">
-                                            </x-waggies.field>
-                                            <x-waggies.select id="booking-pet-{{ $index }}-sex" label="Sex" wire:model.live="pets.{{ $index }}.sex" :error="$errors->first('pets.'.$index.'.sex')" :plain="true" required>
+                                            <x-waggies.select id="booking-pet-{{ $index }}-age" label="Age or life stage" wire:model.live="pets.{{ $index }}.age" :error="$errors->first('pets.'.$index.'.age')" :help="$this->petAgeHelp($index)" :required="$this->petAgeRequired($index)">
+                                                <option value="">Choose age or life stage</option>
+                                                @foreach($this->petAgeOptions() as $ageKey => $ageLabel)
+                                                    <option value="{{ $ageKey }}">{{ $ageLabel }}</option>
+                                                @endforeach
+                                            </x-waggies.select>
+                                            <x-waggies.select id="booking-pet-{{ $index }}-sex" label="Sex" wire:model.live="pets.{{ $index }}.sex" :error="$errors->first('pets.'.$index.'.sex')" required>
                                                 <option value="">Choose sex</option>
                                                 <option value="male">Male</option>
                                                 <option value="female">Female</option>
@@ -1393,9 +1493,10 @@ new class extends Component
                                 </div>
                             @endforeach
 
-                            <button type="button" wire:click="addPet" class="inline-flex min-h-12 w-fit items-center gap-2 rounded-xl border border-primary/25 px-4 text-sm font-semibold text-primary-dark hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-                                <span aria-hidden="true" class="text-lg leading-none">+</span> Add another pet
+                            <button type="button" wire:click="addPet" @disabled(count($pets) >= $this->maxPets()) aria-describedby="booking-pet-limit" class="inline-flex min-h-12 w-fit items-center gap-2 rounded-xl border border-primary/25 px-4 text-sm font-semibold text-primary-dark transition-colors hover:border-primary hover:bg-surface-purple disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                                <span aria-hidden="true" class="text-lg leading-none">+</span> {{ count($pets) >= $this->maxPets() ? 'Maximum pets reached' : 'Add another pet' }}
                             </button>
+                            <p id="booking-pet-limit" class="text-xs text-primary-dark/55">You can add up to {{ $this->maxPets() }} pets. Each pet can receive one or more of your selected services.</p>
                         </fieldset>
                     @endif
 
@@ -1479,7 +1580,7 @@ new class extends Component
                                                             <textarea id="{{ $fieldId }}" wire:model.live.blur="{{ $model }}" rows="3" maxlength="2000" class="contact-input resize-y"></textarea>
                                                         </x-waggies.field>
                                                     @elseif($field['type'] === 'select')
-                                                        <x-waggies.select :id="$fieldId" :label="$field['label']" wire:model.live="{{ $model }}" :error="$errors->first($model)" :required="$field['required']" :plain="true">
+                                                        <x-waggies.select :id="$fieldId" :label="$field['label']" wire:model.live="{{ $model }}" :error="$errors->first($model)" :required="$field['required']">
                                                             <option value="">Choose an option</option>
                                                             @foreach($field['options'] as $key => $label)
                                                                 <option value="{{ $key }}">{{ $label }}</option>
@@ -1487,10 +1588,31 @@ new class extends Component
                                                         </x-waggies.select>
                                                     @elseif($field['type'] === 'date')
                                                         <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['help'] ?? null" :required="$field['required']">
-                                                            <div x-data="{ value: @js($fieldValue), focused: false, format(value) { if (! value) return ''; return new Intl.DateTimeFormat('en-NG', { dateStyle: 'medium', timeZone: 'Africa/Lagos' }).format(new Date(`${value}T00:00:00`)); } }" class="relative">
-                                                                <input id="{{ $fieldId }}" wire:model.live="{{ $model }}" x-model="value" x-on:focus="focused = true" x-on:blur="focused = false" type="date" min="{{ $this->dateMinimum($service, $field) }}" class="contact-input pr-11" :class="focused ? 'ring-2 ring-primary/40' : ''">
-                                                                <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-primary/65" aria-hidden="true"><x-waggies.icon name="calendar" size="18" /></span>
-                                                                <p x-show="value" x-cloak class="mt-2 text-xs font-medium text-primary-dark/55" x-text="'Selected: ' + format(value)"></p>
+                                                            @php $fieldMinimum = $this->dateMinimum($service, $field); @endphp
+                                                            <div x-data="waggiesDatePicker({ value: @js($fieldValue), minimum: @js($fieldMinimum) })" @keydown.escape="open = false" class="relative">
+                                                                <input id="{{ $fieldId }}-native" x-ref="native" wire:model.live="{{ $model }}" x-on:input="value = $event.target.value" x-on:change="value = $event.target.value" type="date" min="{{ $fieldMinimum }}" hidden aria-hidden="true" tabindex="-1">
+                                                                <button id="{{ $fieldId }}" x-ref="trigger" type="button" @click="open = ! open" :aria-expanded="open" aria-haspopup="dialog" class="contact-input flex items-center justify-between gap-3 text-left focus-visible:outline-none" :class="open ? 'ring-2 ring-primary/40' : ''">
+                                                                    <span class="min-w-0 flex-1 truncate" :class="value ? 'text-primary-dark' : 'text-primary-dark/45'" x-text="formattedValue() || 'Choose a date'"></span>
+                                                                    <x-waggies.icon name="calendar" size="18" class="shrink-0 text-primary/65" />
+                                                                </button>
+                                                                <div x-show="open" x-cloak @click.outside="open = false" role="dialog" aria-modal="false" aria-label="Choose a date" class="absolute left-0 top-[calc(100%+0.5rem)] z-20 w-full min-w-[18rem] rounded-2xl border border-primary/15 bg-white p-4 shadow-lg">
+                                                                    <div class="flex items-center justify-between gap-3">
+                                                                        <button type="button" @click="changeMonth(-1)" :disabled="isBeforeMinimumMonth()" aria-label="Previous month" class="flex size-10 items-center justify-center rounded-lg text-primary transition-colors hover:bg-surface-purple disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><x-waggies.icon name="arrow-back" size="18" /></button>
+                                                                        <p class="text-sm font-bold text-primary-dark" aria-live="polite" x-text="monthLabel()"></p>
+                                                                        <button type="button" @click="changeMonth(1)" aria-label="Next month" class="flex size-10 items-center justify-center rounded-lg text-primary transition-colors hover:bg-surface-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><x-waggies.icon name="arrow-forward" size="18" /></button>
+                                                                    </div>
+                                                                    <div class="mt-3 grid grid-cols-7 gap-1 text-center text-[0.68rem] font-bold uppercase tracking-wide text-primary-dark/45" aria-hidden="true">
+                                                                        <template x-for="weekday in weekdays()" :key="weekday"><span x-text="weekday"></span></template>
+                                                                    </div>
+                                                                    <div class="mt-2 grid grid-cols-7 gap-1" role="grid" aria-label="Calendar dates">
+                                                                        <template x-for="(day, dayIndex) in days()" :key="day || `empty-${dayIndex}`">
+                                                                            <span class="flex aspect-square items-center justify-center">
+                                                                                <button x-show="day" type="button" @click="choose(day)" :disabled="isDisabled(day)" :aria-current="isToday(day) ? 'date' : null" :aria-pressed="isSelected(day)" :class="{ 'bg-primary text-white': isSelected(day), 'ring-1 ring-primary': isToday(day) && ! isSelected(day), 'text-primary-dark/30': isDisabled(day), 'text-primary-dark hover:bg-surface-purple': ! isDisabled(day) && ! isSelected(day) }" class="flex size-9 items-center justify-center rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" x-text="day ? Number(day.slice(-2)) : ''"></button>
+                                                                            </span>
+                                                                        </template>
+                                                                    </div>
+                                                                </div>
+                                                                <p x-show="value" x-cloak class="mt-2 text-xs font-medium text-primary-dark/55" x-text="'Selected: ' + formattedValue()"></p>
                                                             </div>
                                                         </x-waggies.field>
                                                     @else
@@ -1506,8 +1628,9 @@ new class extends Component
                                     @php $quote = $this->serviceQuote($service); @endphp
                                     <div class="mt-6 rounded-xl bg-surface-purple/55 p-4" aria-live="polite">
                                         <div class="flex flex-wrap items-center justify-between gap-3">
-                                            <p class="text-sm font-semibold text-primary-dark">Current estimate</p>
-                                            <p class="font-semibold text-primary-dark">{{ $this->quoteDisplay($quote) }}</p>
+                                            <p class="text-sm font-semibold text-primary-dark" wire:loading.remove>Current estimate</p>
+                                            <p class="text-sm font-semibold text-primary-dark" wire:loading>Updating estimate…</p>
+                                            <p class="font-semibold text-primary-dark" wire:loading.remove>{{ $this->quoteDisplay($quote) }}</p>
                                         </div>
                                         @if($this->quoteQuantitySummary($service, $quote))
                                             <p class="mt-1 text-xs font-semibold text-primary-dark/60">{{ $this->quoteQuantitySummary($service, $quote) }}</p>
@@ -1537,7 +1660,7 @@ new class extends Component
                             <x-waggies.field id="booking-contact-phone" label="Phone or WhatsApp number" :error="$errors->first('contact.phone')" required>
                                 <input id="booking-contact-phone" wire:model.live.blur="contact.phone" type="tel" autocomplete="tel" maxlength="40" class="contact-input">
                             </x-waggies.field>
-                            <x-waggies.select id="booking-contact-method" label="Preferred contact method" wire:model.live="contact.preferred_contact_method" :error="$errors->first('contact.preferred_contact_method')" :plain="true">
+                            <x-waggies.select id="booking-contact-method" label="Preferred contact method" wire:model.live="contact.preferred_contact_method" :error="$errors->first('contact.preferred_contact_method')">
                                 <option value="">No preference</option>
                                 <option value="phone">Phone</option>
                                 <option value="email">Email</option>
@@ -1599,7 +1722,7 @@ new class extends Component
                                             <p class="font-semibold text-primary-dark">{{ $pet['name'] ?: 'Unnamed pet' }} · {{ $this->petSpeciesLabel($pet['species'] ?? null) }}</p>
                                             <p class="mt-1 text-xs text-primary-dark/55">{{ $this->petAssignedTo($loop->index) }}</p>
                                             @if(($pet['size'] ?? null) || $pet['breed'] || $pet['age'] || $pet['sex'])
-                                                <p class="mt-1">{{ implode(' · ', array_filter([$pet['size'] ? ucfirst($pet['size']).' size' : null, $pet['breed'], $pet['age'], $pet['sex'] ? ucfirst($pet['sex']) : null])) }}</p>
+                                                <p class="mt-1">{{ implode(' · ', array_filter([$pet['size'] ? ucfirst($pet['size']).' size' : null, $pet['breed'], $this->petAgeLabel($pet['age'] ?? null), $pet['sex'] ? ucfirst($pet['sex']) : null])) }}</p>
                                             @endif
                                             @if($pet['notes'] || ($pet['details']['other_description'] ?? null))<p class="mt-2">{{ $pet['notes'] ?: $pet['details']['other_description'] }}</p>@endif
                                         </li>

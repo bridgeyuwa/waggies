@@ -30,6 +30,7 @@
         <select
             @if($nativeControlId) id="{{ $nativeControlId }}" @endif
             @if($useEnhancedLivewireSelect) x-ref="native" aria-hidden="true" tabindex="-1" @endif
+            @if($useEnhancedLivewireSelect) hidden @endif
             @if($required) required @endif
             @if($error) aria-invalid="true" @endif
             @if($describedBy) aria-describedby="{{ $describedBy }}" @endif

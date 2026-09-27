@@ -268,6 +268,26 @@ final class BookingPricingCatalog
         return sprintf('%s–%s', $this->formatAmount($amount), $this->formatAmount($maximum));
     }
 
+    public function tierDescription(array $tier): ?string
+    {
+        $description = $tier['booking_description'] ?? $tier['description'] ?? null;
+
+        if (is_string($description) && trim($description) !== '') {
+            return trim($description);
+        }
+
+        $features = collect($tier['features'] ?? [])
+            ->map(static fn (mixed $feature): ?string => is_array($feature)
+                ? (($feature['included'] ?? true) ? ($feature['label'] ?? null) : null)
+                : (is_string($feature) ? $feature : null))
+            ->filter(static fn (?string $feature): bool => $feature !== null && trim($feature) !== '')
+            ->take(2)
+            ->values()
+            ->all();
+
+        return $features === [] ? null : implode(' · ', $features);
+    }
+
     /**
      * @param  array<string, mixed>  $pet
      * @return array<string, mixed>
@@ -388,7 +408,7 @@ final class BookingPricingCatalog
 
         $amount = (int) collect($lines)->sum('amount');
         $maximum = (int) collect($lines)->sum('max_amount');
-        $discount = $this->multiplePetDiscount($serviceKey, count($lines), $amount, $maximum);
+        $discount = $this->multiplePetDiscount($serviceKey, $lines);
         $status = collect($lines)->contains(fn (array $line): bool => $line['status'] === 'estimate') ? 'estimate' : 'fixed';
 
         return [
@@ -455,25 +475,39 @@ final class BookingPricingCatalog
     }
 
     /**
-     * @return array{amount: int, max_amount: int, percentage: int}
+     * @param  array<int, array<string, mixed>>  $lines
+     * @return array{amount: int, max_amount: int, percentage: int, base_amount: int, max_base_amount: int}
      */
-    private function multiplePetDiscount(string $service, int $petCount, int $amount, int $maximum): array
+    private function multiplePetDiscount(string $service, array $lines): array
     {
         $discount = config('waggies_pricing.discounts.multiple_pet', []);
         $percentage = (int) ($discount['percentage'] ?? 0);
         $appliesFrom = (int) ($discount['applies_from_pet'] ?? 2);
+        $petCount = count($lines);
 
         if (($discount['enabled'] ?? false) !== true
             || ! in_array($service, $discount['applies_to'] ?? [], true)
             || $petCount < $appliesFrom
         ) {
-            return ['amount' => 0, 'max_amount' => 0, 'percentage' => 0];
+            return [
+                'amount' => 0,
+                'max_amount' => 0,
+                'percentage' => 0,
+                'base_amount' => 0,
+                'max_base_amount' => 0,
+            ];
         }
 
+        $discountedLines = array_slice($lines, max(0, $appliesFrom - 1));
+        $baseAmount = (int) collect($discountedLines)->sum('amount');
+        $maxBaseAmount = (int) collect($discountedLines)->sum('max_amount');
+
         return [
-            'amount' => (int) round($amount * $percentage / 100),
-            'max_amount' => (int) round($maximum * $percentage / 100),
+            'amount' => (int) round($baseAmount * $percentage / 100),
+            'max_amount' => (int) round($maxBaseAmount * $percentage / 100),
             'percentage' => $percentage,
+            'base_amount' => $baseAmount,
+            'max_base_amount' => $maxBaseAmount,
         ];
     }
 

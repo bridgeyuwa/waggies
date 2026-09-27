@@ -11,7 +11,7 @@ function initWaggiesSelect(select) {
     wrapper.className = 'relative w-full';
     select.parentNode.insertBefore(wrapper, select);
     wrapper.appendChild(select);
-    select.hidden = false;
+    select.hidden = true;
     select.classList.add('sr-only');
     select.setAttribute('aria-hidden', 'true');
     select.tabIndex = -1;

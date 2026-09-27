@@ -117,6 +117,8 @@ it('applies the configurable boarding discount only to additional pets in one se
         ],
     ];
 
+    config()->set('waggies_pricing.discounts.multiple_pet.percentage', 10);
+
     $quote = app(BookingPricingCatalog::class)->quoteForService($service, [
         ['name' => 'Bruno', 'weight_kg' => 8],
         ['name' => 'Milo', 'weight_kg' => 8],
@@ -125,9 +127,35 @@ it('applies the configurable boarding discount only to additional pets in one se
     expect($quote)
         ->toMatchArray([
             'status' => 'estimate',
-            'amount' => 43200,
-            'max_amount' => 64800,
+            'amount' => 45600,
+            'max_amount' => 68400,
             'nights' => 3,
         ])
         ->and($quote['discount']['percentage'])->toBe(10);
+});
+
+it('honours the configured zero percent multiple-pet discount', function (): void {
+    $service = [
+        'service_key' => 'boarding',
+        'service_variant' => 'dogs',
+        'pricing_tier' => 'basic',
+        'details' => [
+            'check_in' => '2026-10-01',
+            'check_out' => '2026-10-04',
+        ],
+    ];
+
+    $quote = app(BookingPricingCatalog::class)->quoteForService($service, [
+        ['name' => 'Bruno', 'weight_kg' => 8],
+        ['name' => 'Milo', 'weight_kg' => 8],
+    ]);
+
+    expect($quote)
+        ->toMatchArray([
+            'amount' => 48000,
+            'max_amount' => 72000,
+            'subtotal' => 48000,
+            'max_subtotal' => 72000,
+        ])
+        ->and($quote['discount']['percentage'])->toBe(0);
 });

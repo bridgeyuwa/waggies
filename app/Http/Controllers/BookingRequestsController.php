@@ -35,6 +35,7 @@ final class BookingRequestsController extends Controller
         $variant = trim((string) $request->query('variant', ''));
         $tier = trim((string) $request->query('tier', ''));
         $source = trim((string) $request->query('source', ''));
+        $pricingTransportContext = session()->pull('pricing_transport_context', []);
         $serviceOptions = app(BookingPricingCatalog::class)->serviceOptions();
         $whatsappUrl = BusinessProfile::current()->whatsapp_url;
 
@@ -54,6 +55,7 @@ final class BookingRequestsController extends Controller
                 'variant' => $variant !== '' ? $variant : null,
                 'tier' => $tier !== '' ? $tier : null,
                 'source' => $source !== '' ? $source : null,
+                'transport' => is_array($pricingTransportContext) ? $pricingTransportContext : [],
                 'whatsappUrl' => $whatsappUrl.'?text='.rawurlencode('Hello Waggies, I submitted a booking request and would like to continue the conversation.'),
             ],
         ]);

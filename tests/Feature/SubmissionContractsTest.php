@@ -81,13 +81,16 @@ class SubmissionContractsTest extends TestCase
         $this->get(route('about.testimonials'))->assertDontSee($testimonial->story);
     }
 
-    public function test_cost_calculator_receives_rates_from_pricing_configuration(): void
+    public function test_pricing_page_is_the_single_cost_calculator_entry_point(): void
     {
-        $rates = config('waggies_pricing.cost_calculator.rates');
+        $services = config('waggies_pricing.services');
 
         $this->get(route('tools.cost'))
             ->assertMovedPermanently()
             ->assertRedirect(route('services.pricing'));
+
+        $this->assertSame(12000, $services['vet-care']['tiers']['consultation']['amount']);
+        $this->assertArrayNotHasKey('cost_calculator', config('waggies_pricing'));
     }
 
     /**
