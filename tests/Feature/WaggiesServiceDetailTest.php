@@ -4,41 +4,32 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('primary public booking CTAs use the booking request flow and preserve service context', function () {
-    $this->get(route('home'))
-        ->assertOk()
-        ->assertSee(route('book'))
-        ->assertSeeText('Request a booking');
-
-    $this->get(route('services.grooming'))
-        ->assertOk()
-        ->assertSee(route('book', ['service' => 'grooming']))
-        ->assertSeeText('Request Grooming');
-
+test('active service pages keep the existing public service composition', function () {
     $this->get(route('services.boarding.species', ['species' => 'dogs']))
         ->assertOk()
-        ->assertSee(route('book', ['service' => 'boarding']))
-        ->assertSeeText('Request boarding');
+        ->assertSeeText('Individual enclosure')
+        ->assertSeeText('Light Bath or Wash')
+        ->assertSeeText('Request boarding')
+        ->assertDontSeeText('Daily photos')
+        ->assertDontSeeText('Structured play');
+
+    $this->get(route('services.vet-care'))
+        ->assertOk()
+        ->assertSeeText('Wellness consultation')
+        ->assertSeeText('Comprehensive examination')
+        ->assertSeeText('Vaccination request')
+        ->assertSeeText('Microchip implantation');
 });
 
-test('standard service detail pages retain package pricing and faq composition', function () {
-    $response = $this->get(route('services.grooming'));
+test('removed service pages no longer resolve or appear as active calls to action', function () {
+    foreach (['/services/grooming', '/services/training', '/services/local-transport', '/services/boarding/exotic'] as $path) {
+        $this->get($path)->assertNotFound();
+    }
 
-    $response
+    $this->get(route('services.index'))
         ->assertOk()
-        ->assertSeeText("What's Included")
-        ->assertSeeText('₦10,000')
-        ->assertSeeText('Frequently Asked Questions')
-        ->assertSeeText('Ready to Get Started?');
-});
-
-test('transport uses the shared service detail composition with quote pricing', function () {
-    $response = $this->get(route('relocation.transport'));
-
-    $response
-        ->assertOk()
-        ->assertSee('Provisional route estimate')
-        ->assertSee('Final charges confirmed on WhatsApp')
-        ->assertSee('A simple handoff from door to door')
-        ->assertSee('Safe &amp; Climate-Controlled Pet Taxi', false);
+        ->assertDontSeeText('Grooming')
+        ->assertDontSeeText('Dog Training')
+        ->assertDontSeeText('Local Transport')
+        ->assertDontSeeText('Exotic Boarding');
 });

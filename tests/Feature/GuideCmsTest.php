@@ -29,14 +29,13 @@ it('imports the guide seed fixture into the persisted guide source', function ()
 });
 
 it('falls back to the guide title when a source image alt description is unavailable', function (): void {
-    $guide = Guide::query()->where('slug', 'pet-transport-what-to-know')->firstOrFail();
+    $guide = Guide::query()->where('slug', 'preparing-pet-boarding')->firstOrFail();
 
     $guide->update(['image_alt' => null]);
 
     $this->get(route('guides.show', ['slug' => $guide->slug]))
         ->assertOk()
-        ->assertSee('alt="Pet Transport: What You Need to Know"', false)
-        ->assertDontSee('Pet receiving attentive grooming care');
+        ->assertSee('alt="How to Prepare Your Pet for Boarding"', false);
 });
 
 it('uses package-owned guide slug uniqueness and protects status invariants', function (): void {
@@ -101,7 +100,7 @@ it('preserves published guide canonical and search behavior', function (): void 
         ->assertSee('<meta name="robots" content="index, follow">', false)
         ->assertSee('"@type":"Article"', false);
 
-    $this->get(route('search', ['q' => 'stress-free boarding']))
+    $this->get(route('search', ['q' => 'boarding request']))
         ->assertOk()
         ->assertJsonFragment(['href' => $url]);
 });

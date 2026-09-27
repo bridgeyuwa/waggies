@@ -25,10 +25,10 @@ final class LegalController extends Controller
     {
         return $this->page('Terms of Service', 'terms-of-service', [
             ['heading' => null, 'paragraph' => 'These Terms of Service govern your use of Waggies\' services and website. By using our services, you agree to these terms in full. Please read them carefully.'],
-            ['heading' => '1. Services', 'paragraph' => 'Waggies provides pet boarding, grooming, veterinary care, training, transport, and relocation services. Services are subject to availability, and requests should be made in advance where possible.'],
+            ['heading' => '1. Services', 'paragraph' => 'Waggies provides boarding, veterinary care, and dog and cat relocation services. Services are subject to availability and manual review.'],
             ['heading' => '2. Service Requests', 'paragraph' => 'A booking request or other enquiry is not a confirmed appointment or reservation. Waggies will review the request, confirm availability and agreed details directly, and explain any payment arrangements before service begins. This website does not currently provide online checkout or payment processing.'],
             ['heading' => '3. Changes and Cancellations', 'paragraph' => 'Please contact Waggies as soon as possible if you need to change or cancel a request. Any service-specific cancellation terms or payment arrangements will be agreed directly when the request is confirmed.'],
-            ['heading' => '4. Pet Health Requirements', 'paragraph' => 'All pets using our boarding and grooming services must be up to date with core vaccinations. We reserve the right to refuse or terminate a booking if a pet presents a health risk to other animals or staff.'],
+            ['heading' => '4. Pet Health Requirements', 'paragraph' => 'Waggies may request relevant health information or records during review and may refuse or end a booking when a pet presents a health or safety risk. Specific operational admission requirements are set out in the applicable policy pages and confirmed with the owner.'],
             ['heading' => '5. Owner Responsibilities', 'paragraph' => 'You are responsible for providing accurate information about your pet\'s health, temperament, and any special requirements. Failure to disclose relevant information may result in cancellation without refund.'],
             ['heading' => '6. Liability', 'paragraph' => 'Waggies takes every precaution to ensure the safety and wellbeing of all pets in our care. However, we cannot accept liability for illness or injury arising from pre-existing undisclosed conditions. We carry appropriate insurance for the services we provide.'],
             ['heading' => '7. Use of Our Website', 'paragraph' => 'You may use our website for lawful purposes only. You must not attempt to gain unauthorised access to any part of our website or its systems.'],
@@ -47,6 +47,83 @@ final class LegalController extends Controller
             ['heading' => '4. Managing Cookies', 'paragraph' => 'This build does not display a banner or preferences dialog because no non-essential Waggies cookies or scripts are active. Most browsers allow you to manage site storage through their settings. Disabling browser storage may prevent the cart, request draft, product history, checklist, or search history from persisting.'],
             ['heading' => '5. Changes to This Policy', 'paragraph' => 'We may update this Cookies Policy from time to time. Please check back periodically to stay informed.'],
             ['heading' => '6. Contact', 'paragraph' => 'If you have any questions about how we use cookies, please <a href="'.route('contact').'">contact us</a>.'],
+        ]);
+    }
+
+    public function boardingPolicy(): View
+    {
+        return $this->policyPage('Boarding Requirements & Admission', 'boarding-policy', [
+            ['heading' => null, 'paragraph' => 'This policy explains the practical requirements for a boarding request. Boarding is available for dogs and cats, is priced per pet per overnight stay, and is confirmed only after staff review.'],
+            ['heading' => 'Accepted species and admission', 'paragraph' => 'The public boarding service accepts dogs and cats only. Every boarding pet receives an individual enclosure. Waggies may decline admission when a pet appears ill, has a contagious condition, has an active parasite concern, or cannot be cared for safely in the available setting.'],
+            ['heading' => 'Information to share before arrival', 'paragraph' => 'Please provide accurate information so the team can review suitability and prepare for the stay.', 'list' => [
+                'Relevant health information or records, where applicable.',
+                'Feeding instructions and the owner-supplied food the pet normally eats.',
+                'Medication, mobility needs, handling instructions, or other special-care needs.',
+                'One primary and one secondary emergency contact.',
+                'Any aggression, escape behaviour, bite history, severe anxiety, resource guarding, or handling difficulty.',
+            ]],
+            ['heading' => 'Food and routine care', 'paragraph' => 'Owner-supplied food is the default. If food is not supplied, Waggies may provide approved food only after confirmation, with any applicable cost handled manually. Standard boarding includes water, routine cleaning, basic welfare checks, and a light bath or wash for boarded dogs before pickup where safe and appropriate. The light wash is not professional grooming and does not include styling, clipping, or spa treatment.'],
+            ['heading' => 'Medication, special care and emergency veterinary care', 'paragraph' => 'Medication, special handling, intensive supervision, mobility needs, severe anxiety, and other special-care needs require staff review before confirmation and may require a separate charge or quote. Provide clear written instructions and supplies where applicable. Boarding requests should include emergency veterinary authorization, or a clear instruction to discuss it during review. If an emergency occurs, Waggies may contact the listed emergency contacts and facilitate veterinary care where reasonably possible. Veterinary treatment and third-party charges remain separate unless confirmed otherwise.'],
+            ['heading' => 'Dog size guidance', 'paragraph' => 'Customers select the dog size during the request. These bands are operational guidance for the request and are not a medical or legal classification:', 'list' => [
+                'Small: up to 10kg.',
+                'Medium: over 10kg through 25kg.',
+                'Large: over 25kg through 40kg.',
+                'Above 40kg or an unusual size: manual review is required.',
+            ]],
+            ['heading' => 'Check-in, check-out and late pickup', 'paragraph' => 'Agreed arrival and pickup times are confirmed during review. The checkout date is not another overnight stay unless the pet remains past the agreed cutoff. Waggies will define the applicable grace period in the confirmation. After that period, a late fee or an additional night may apply. Tell the team as early as possible if your timing changes so availability and care can be reassessed.'],
+            ['heading' => 'What is not a standard boarding promise', 'paragraph' => 'Boarding does not automatically include daily photos, scheduled owner updates, outdoor walks, structured play, enrichment programmes, daily veterinary checks, or 24/7 supervision. Any such arrangement must be discussed and confirmed separately.'],
+        ]);
+    }
+
+    public function cancellationPolicy(): View
+    {
+        return $this->policyPage('Cancellation, Rescheduling & Refunds', 'cancellation-policy', [
+            ['heading' => null, 'paragraph' => 'This policy explains how Waggies handles cancellations, rescheduling, refunds, and changes after a request has been reviewed and confirmed. A booking request is not a confirmed booking until Waggies confirms the arrangements with you.'],
+            ['heading' => 'More than 48 hours before check-in', 'paragraph' => 'A cancellation made more than 48 hours before the agreed check-in time generally qualifies for a full refund. Any refund is processed against the payment arrangement confirmed for the booking.'],
+            ['heading' => 'Within 48 hours of check-in', 'paragraph' => 'A cancellation made within 48 hours may qualify for a partial refund or credit after staff review. The outcome depends on the timing, arrangements already made, and whether the released space can be used.'],
+            ['heading' => 'No-show', 'paragraph' => 'A no-show is not refundable. Contact Waggies as early as possible if you may not be able to arrive so the team can review the situation before the agreed check-in time.'],
+            ['heading' => 'Rescheduling and early pickup', 'paragraph' => 'Rescheduling is subject to availability and must be confirmed by Waggies. An early pickup remains chargeable for the confirmed nights unless Waggies can resell the released nights. Any credit or refund is confirmed manually.'],
+            ['heading' => 'Relocation deposits and third-party costs', 'paragraph' => 'Relocation is custom quoted. A deposit is required before Waggies commits to airline or other non-refundable third-party bookings. Deposits and third-party charges may be non-refundable once committed; the applicable terms are included in the itemized quote before commitment.'],
+            ['heading' => 'Request a change', 'paragraph' => 'Send the request as soon as your plans change, including the booking details, the requested change, and any new dates or timing. Waggies will review availability, charges, credits, and refunds manually before confirming the outcome.'],
+        ]);
+    }
+
+    public function relocationPolicy(): View
+    {
+        return $this->policyPage('Relocation Policy', 'relocation-policy', [
+            ['heading' => null, 'paragraph' => 'Relocation is a request-based, custom-quoted service for dogs and cats. Waggies manually reviews route feasibility, requirements, timing, providers, and the information supplied before confirming the next step.'],
+            ['heading' => 'Import', 'paragraph' => 'Import support may include arrival coordination, pickup from the arrival airport, required document coordination, veterinary facilitation, and third-party provider coordination. Microchipping is included only when required by the destination or route. If a chip already exists, Waggies scans and records it rather than implanting another.'],
+            ['heading' => 'Export', 'paragraph' => 'Export support may include airline booking, transport to the departure airport, required document coordination, veterinary facilitation, and third-party provider coordination. If no existing chip is found, microchipping is included by default. If a chip exists, Waggies scans and records it rather than implanting another. Where the provider supports registration, Waggies handles it; otherwise the owner receives the chip number and registration instructions.'],
+            ['heading' => 'Information to provide', 'paragraph' => 'Provide the following details as early as possible:', 'list' => [
+                'Import or export direction, origin country, and destination country.',
+                'Preferred travel date, route or timing notes, and known airline or airport details.',
+                'Pet species and existing microchip status.',
+                'Documentation status, pickup details, and destination details.',
+                'Any route constraints, timing concerns, or additional requirements.',
+            ]],
+            ['heading' => 'Coordination, documents and costs', 'paragraph' => 'The owner supplies original documents. Waggies helps coordinate and facilitate the required process with airlines, airports, veterinarians, and other relevant providers. Airport transport is an internal component of an Import or Export relocation booking, not a standalone Waggies service. Where practical, the quote itemizes airline costs, airport or third-party charges, veterinary and documentation costs, crate or travel equipment, airport transfer costs, and Waggies coordination fees.'],
+            ['heading' => 'Quotes and deposits', 'paragraph' => 'Relocation remains subject to route and provider confirmation. A deposit is required before Waggies commits to airline or other non-refundable third-party bookings. The final quote, payment instructions, and confirmation status are handled manually.'],
+        ]);
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $sections
+     */
+    private function policyPage(string $title, string $routeName, array $sections): View
+    {
+        $metadata = [
+            'title' => $title.' - Waggies',
+            'description' => $title.' for Waggies pet care requests.',
+            'canonical' => route($routeName),
+            'ogTitle' => $title.' - Waggies',
+            'ogDescription' => $title.' for Waggies pet care requests.',
+        ];
+        $this->setPageHead($metadata, [Schema::webPage()->name($title.' - Waggies')->description($metadata['description'])->url($metadata['canonical'])->toArray()]);
+
+        return view('pages.legal', $metadata + [
+            'sections' => $sections,
+            'legalTitle' => $title,
+            'legalRoute' => $routeName,
         ]);
     }
 

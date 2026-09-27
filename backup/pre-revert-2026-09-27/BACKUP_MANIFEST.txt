@@ -1,0 +1,22 @@
+Waggies pre-revert backup
+
+Source for current policy implementation: HEAD (37837d8).
+Source for the earlier standalone policy view: a131c44.
+
+Backed-up files:
+- backup/pre-revert-2026-09-27/WAGGIES_IMPLEMENTATION_BRIEF.md
+- backup/pre-revert-2026-09-27/app/Http/Controllers/LegalController.php
+- backup/pre-revert-2026-09-27/routes/web.php
+- backup/pre-revert-2026-09-27/resources/views/pages/legal.blade.php
+- backup/pre-revert-2026-09-27/resources/views/pages/policies.blade.php
+- backup/pre-revert-2026-09-27/resources/views/components/waggies/footer.blade.php
+
+Logic backups, generated as patches from 5300062 to 37837d8:
+- backup/pre-revert-2026-09-27/logic/app-config-database-routes-tests.patch
+- backup/pre-revert-2026-09-27/logic/javascript.patch
+- backup/pre-revert-2026-09-27/logic/functional-blade-components.patch
+
+A local Git backup branch also points to 37837d8:
+- backup/waggies-pre-revert-2026-09-27
+
+Visual page/layout changes are intentionally not included in the logic patches.

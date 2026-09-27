@@ -40,7 +40,7 @@ new class extends Component
     ];
 
     /**
-     * @param  array{service?: ?string, variant?: ?string, tier?: ?string, source?: ?string, transport?: array<string, mixed>, whatsappUrl?: string}  $initialContext
+     * @param  array{service?: ?string, variant?: ?string, source?: ?string, whatsappUrl?: string}  $initialContext
      */
     public function mount(array $initialContext = []): void
     {
@@ -50,24 +50,11 @@ new class extends Component
         $variantOptions = BookingRequestSchema::variantOptions($service);
         $variant = $initialContext['variant'] ?? null;
         $variant = is_string($variant) && array_key_exists($variant, $variantOptions) ? $variant : null;
-        $tierOptions = BookingRequestSchema::tierOptions($service, $variant);
-        $tier = $initialContext['tier'] ?? null;
-        $tier = is_string($tier) && array_key_exists($tier, $tierOptions) ? $tier : null;
-
         $this->minimumDate = now()->toDateString();
-        $this->draftContextKey = implode('|', [$service ?? '', $variant ?? '', $tier ?? '', $initialContext['source'] ?? '']);
+        $this->draftContextKey = implode('|', [$service ?? '', $variant ?? '', $initialContext['source'] ?? '']);
         $this->source = $initialContext['source'] ?? null;
         $this->whatsappUrl = $initialContext['whatsappUrl'] ?? '#';
-        $this->services = [$this->newService($service, $variant, $tier)];
-        $transport = $initialContext['transport'] ?? [];
-
-        if ($service === 'local-transport' && is_array($transport)) {
-            $this->services[0]['details'] = array_filter([
-                'pickup' => $transport['pickup'] ?? null,
-                'dropoff' => $transport['dropoff'] ?? null,
-                'trip_type' => $transport['trip_type'] ?? null,
-            ], static fn (mixed $value): bool => filled($value));
-        }
+        $this->services = [$this->newService($service, $variant)];
         $this->pets = [$this->newPet()];
     }
 
@@ -76,7 +63,7 @@ new class extends Component
         $serviceOptions = BookingRequestSchema::serviceOptions();
 
         if ($service === null || ! array_key_exists($service, $serviceOptions)) {
-            $this->services[$index] = $this->newService(null, null, null);
+            $this->services[$index] = $this->newService(null, null);
             $this->resetValidation();
 
             return;
@@ -84,7 +71,6 @@ new class extends Component
 
         $this->services[$index]['service_key'] = $service;
         $this->services[$index]['service_variant'] = null;
-        $this->services[$index]['pricing_tier'] = null;
         $this->services[$index]['assigned_pet_ids'] = [];
         $this->services[$index]['requested_date'] = null;
         $this->services[$index]['requested_time'] = null;
@@ -103,7 +89,6 @@ new class extends Component
         if (Str::is('services.*.service_variant', $property)) {
             $parts = explode('.', $property);
             $index = (int) ($parts[1] ?? 0);
-            $this->services[$index]['pricing_tier'] = null;
             $this->services[$index]['assigned_pet_ids'] = [];
         }
 
@@ -122,18 +107,7 @@ new class extends Component
         $service = (string) ($this->services[$index]['service_key'] ?? '');
         $variantOptions = BookingRequestSchema::variantOptions($service);
         $this->services[$index]['service_variant'] = array_key_exists((string) $variant, $variantOptions) ? $variant : null;
-        $this->services[$index]['pricing_tier'] = null;
         $this->services[$index]['assigned_pet_ids'] = [];
-        $this->resetValidation();
-    }
-
-    public function tierChanged(int $index, ?string $tier): void
-    {
-        $service = (string) ($this->services[$index]['service_key'] ?? '');
-        $variant = $this->services[$index]['service_variant'] ?? null;
-        $tierOptions = BookingRequestSchema::tierOptions($service, $variant);
-
-        $this->services[$index]['pricing_tier'] = array_key_exists((string) $tier, $tierOptions) ? $tier : null;
         $this->resetValidation();
     }
 
@@ -160,7 +134,7 @@ new class extends Component
         );
 
         if ($emptyIndex !== false) {
-            $this->services[$emptyIndex] = $this->newService($service, null, null);
+            $this->services[$emptyIndex] = $this->newService($service, null);
             $this->choosingService = false;
             $this->dispatch('booking-wizard-focus-target', target: "booking-service-{$emptyIndex}");
             $this->dispatch('booking-wizard-announcement', message: $this->serviceLabel($service).' added to your request.');
@@ -171,8 +145,7 @@ new class extends Component
 
         $existingIndex = collect($this->services)->search(
             fn (array $existing): bool => ($existing['service_key'] ?? null) === $service
-                && empty($existing['service_variant'])
-                && empty($existing['pricing_tier']),
+                && empty($existing['service_variant']),
         );
 
         if ($existingIndex !== false) {
@@ -183,7 +156,7 @@ new class extends Component
             return;
         }
 
-        $this->services[] = $this->newService($service, null, null);
+        $this->services[] = $this->newService($service, null);
         $this->choosingService = false;
         $this->dispatch('booking-wizard-focus-target', target: 'booking-service-'.(count($this->services) - 1));
         $this->dispatch('booking-wizard-announcement', message: $this->serviceLabel($service).' added to your request.');
@@ -327,7 +300,6 @@ new class extends Component
 
             return match ($parts[2] ?? null) {
                 'service_variant' => "booking-service-{$index}-variant",
-                'pricing_tier' => "booking-service-{$index}-tier",
                 'assigned_pet_ids' => "booking-service-{$index}-assignment",
                 'details' => 'booking-'.$index.'-'.($parts[3] ?? 'service'),
                 default => 'booking-'.$index.'-'.($parts[2] ?? 'service'),
@@ -366,7 +338,7 @@ new class extends Component
         }
 
         if (($parts[0] ?? null) === 'services') {
-            return in_array($parts[2] ?? null, ['service_key', 'service_variant', 'pricing_tier'], true) ? 1 : 3;
+                return in_array($parts[2] ?? null, ['service_key', 'service_variant'], true) ? 1 : 3;
         }
 
         return 3;
@@ -418,31 +390,6 @@ new class extends Component
         return array_key_exists($variant, $this->variantOptions($service));
     }
 
-    public function tierDefinitions(?string $service, ?string $variant): array
-    {
-        return app(BookingPricingCatalog::class)->tiers($service, $variant, availableOnly: true);
-    }
-
-    public function allTierDefinitions(?string $service, ?string $variant): array
-    {
-        return app(BookingPricingCatalog::class)->tiers($service, $variant);
-    }
-
-    public function tierAvailable(?string $service, ?string $variant, string $tier): bool
-    {
-        return array_key_exists($tier, $this->tierDefinitions($service, $variant));
-    }
-
-    public function tierPriceLabel(string $service, ?string $variant, array $tier): string
-    {
-        return app(BookingPricingCatalog::class)->priceLabel($service, $variant, $tier);
-    }
-
-    public function tierDescription(array $tier): ?string
-    {
-        return app(BookingPricingCatalog::class)->tierDescription($tier);
-    }
-
     public function maxPets(): int
     {
         return 8;
@@ -456,7 +403,6 @@ new class extends Component
         return [
             'services.*.service_key' => 'service',
             'services.*.service_variant' => 'animal type',
-            'services.*.pricing_tier' => 'package',
             'services.*.assigned_pet_ids' => 'assigned pet',
             'services.*.details.check_in' => 'check-in date',
             'services.*.details.check_out' => 'check-out date',
@@ -501,7 +447,7 @@ new class extends Component
 
     public function serviceFields(array $service): array
     {
-        return BookingRequestSchema::serviceFields((string) ($service['service_key'] ?? ''), $service['pricing_tier'] ?? null);
+        return BookingRequestSchema::serviceFields((string) ($service['service_key'] ?? ''), $service['service_variant'] ?? null);
     }
 
     public function fieldModel(int $index, array $field): string
@@ -515,15 +461,13 @@ new class extends Component
 
     public function fieldVisible(array $field, array $service): bool
     {
-        return ! isset($field['when_tier']) || $field['when_tier'] === ($service['pricing_tier'] ?? null);
+        return true;
     }
 
     public function serviceSummary(array $service): string
     {
         $variantLabel = BookingRequestSchema::allVariantOptions($service['service_key'] ?? null)[$service['service_variant'] ?? ''] ?? null;
-        $tierLabel = BookingRequestSchema::allTierOptions($service['service_key'] ?? null, $service['service_variant'] ?? null)[$service['pricing_tier'] ?? ''] ?? null;
-
-        return implode(' · ', array_filter([$this->serviceLabel($service['service_key'] ?? null), $variantLabel, $tierLabel]));
+        return implode(' · ', array_filter([$this->serviceLabel($service['service_key'] ?? null), $variantLabel]));
     }
 
     public function serviceStatus(array $service): string
@@ -540,12 +484,6 @@ new class extends Component
 
         if ($variantOptions !== [] && ! $service['service_variant']) {
             return 'Choose an animal type';
-        }
-
-        $tierDefinitions = $this->allTierDefinitions($service['service_key'], $service['service_variant']);
-
-        if ($tierDefinitions !== [] && ! $service['pricing_tier']) {
-            return 'Choose a package';
         }
 
         if ($this->step >= 3 && count($service['assigned_pet_ids'] ?? []) === 0) {
@@ -602,13 +540,13 @@ new class extends Component
 
     public function petNeedsWeight(int $petIndex): bool
     {
-        return $this->petNeedsSize($petIndex);
+        return false;
     }
 
     public function petRequiresBreed(int $petIndex): bool
     {
         return collect($this->services)->contains(
-            fn (array $service): bool => in_array($service['service_key'] ?? null, ['grooming', 'relocation'], true)
+            fn (array $service): bool => ($service['service_key'] ?? null) === 'relocation'
                 && in_array($petIndex, array_map('intval', $service['assigned_pet_ids'] ?? []), true),
         );
     }
@@ -688,20 +626,11 @@ new class extends Component
             $dateLabel .= ' · '.Carbon::parse($details['check_in'])->diffInDays(Carbon::parse($details['check_out'])).' nights';
         }
 
-        if ($service['service_key'] === 'local-transport') {
-            return implode(' · ', array_filter([$dateLabel, '1 trip', $details['pickup'] ?? null, $details['dropoff'] ?? null]));
-        }
-
         if ($service['service_key'] === 'relocation') {
             return implode(' · ', array_filter([$dateLabel, '1 relocation', $details['origin_country'] ?? null, $details['destination_country'] ?? null]));
         }
 
-        $unit = match ($service['service_key'] ?? null) {
-            'grooming' => '1 session',
-            'vet-care' => '1 consultation',
-            'training' => '1 programme',
-            default => null,
-        };
+        $unit = $service['service_key'] === 'vet-care' ? '1 veterinary request' : null;
 
         return implode(' · ', array_filter([$dateLabel ?: 'Date not added yet', $unit]));
     }
@@ -728,11 +657,8 @@ new class extends Component
         }
 
         return match ($service['service_key'] ?? null) {
-            'grooming' => '1 grooming session',
-            'vet-care' => '1 veterinary consultation',
-            'training' => '1 training programme',
-            'local-transport' => '1 transport trip',
-            'relocation' => '1 relocation journey',
+            'vet-care' => '1 veterinary request',
+            'relocation' => '1 relocation request',
             default => null,
         };
     }
@@ -801,7 +727,6 @@ new class extends Component
         return [
             'dog' => 'Dog',
             'cat' => 'Cat',
-            'other' => 'Other',
         ][$species] ?? 'Type not selected';
     }
 
@@ -913,15 +838,9 @@ new class extends Component
 
         foreach ($this->services as $index => $service) {
             $variantOptions = BookingRequestSchema::variantOptions($service['service_key'] ?? null);
-            $tierOptions = BookingRequestSchema::tierOptions($service['service_key'] ?? null, $service['service_variant'] ?? null);
-
             $rules["services.{$index}.service_variant"] = [
                 empty($variantOptions) ? 'nullable' : 'required',
                 Rule::in(array_keys($variantOptions)),
-            ];
-            $rules["services.{$index}.pricing_tier"] = [
-                empty($tierOptions) ? 'nullable' : 'required',
-                Rule::in(array_keys($tierOptions)),
             ];
         }
 
@@ -936,23 +855,13 @@ new class extends Component
         $rules = [
             'pets' => ['required', 'array', 'min:1', 'max:8'],
             'pets.*.name' => ['required', 'string', 'max:80'],
-            'pets.*.species' => ['required', Rule::in(['dog', 'cat', 'other'])],
+            'pets.*.species' => ['required', Rule::in(['dog', 'cat'])],
             'pets.*.size' => ['nullable', Rule::in(array_keys($this->petSizeOptions()))],
-            'pets.*.weight_kg' => ['nullable', 'numeric', 'min:0', 'max:300'],
             'pets.*.breed' => ['nullable', 'string', 'max:120'],
             'pets.*.age' => ['nullable', Rule::in(array_keys($this->petAgeOptions()))],
             'pets.*.sex' => ['required', Rule::in(['male', 'female'])],
             'pets.*.notes' => ['nullable', 'string', 'max:1000'],
-            'pets.*.details.other_description' => ['nullable', 'string', 'max:2000'],
         ];
-
-        foreach ($this->pets as $index => $pet) {
-            $rules["pets.{$index}.details.other_description"] = [
-                $pet['species'] === 'other' ? 'required' : 'nullable',
-                'string',
-                'max:2000',
-            ];
-        }
 
         return $rules;
     }
@@ -981,14 +890,13 @@ new class extends Component
                     (string) ($service['service_key'] ?? ''),
                     $service['service_variant'] ?? null,
                 ) && ($this->pets[$petIndex]['species'] ?? null) === 'dog') {
-                    $hasLegacyWeight = filled($this->pets[$petIndex]['weight_kg'] ?? null);
                     $rules["pets.{$petIndex}.size"] = [
-                        $hasLegacyWeight ? 'nullable' : 'required',
+                        'required',
                         Rule::in(array_keys($this->petSizeOptions())),
                     ];
                 }
 
-                if (in_array($service['service_key'] ?? null, ['grooming', 'relocation'], true)) {
+                if (($service['service_key'] ?? null) === 'relocation') {
                     $rules["pets.{$petIndex}.breed"] = ['required', 'string', 'max:120'];
                 }
 
@@ -1106,7 +1014,6 @@ new class extends Component
         $identity = [
             'service_key' => $service['service_key'] ?? null,
             'service_variant' => $service['service_variant'] ?? null,
-            'pricing_tier' => $service['pricing_tier'] ?? null,
             'requested_date' => $service['requested_date'] ?? null,
             'requested_time' => $service['requested_time'] ?? null,
             'location' => $service['location'] ?? null,
@@ -1160,12 +1067,11 @@ new class extends Component
     /**
      * @return array<string, mixed>
      */
-    private function newService(?string $service, ?string $variant, ?string $tier): array
+    private function newService(?string $service, ?string $variant): array
     {
         return [
             'service_key' => $service,
             'service_variant' => $variant,
-            'pricing_tier' => $tier,
             'assigned_pet_ids' => [],
             'requested_date' => null,
             'requested_time' => null,
@@ -1183,7 +1089,6 @@ new class extends Component
             'name' => null,
             'species' => null,
             'size' => null,
-            'weight_kg' => null,
             'breed' => null,
             'age' => null,
             'sex' => null,
@@ -1215,7 +1120,7 @@ new class extends Component
     @else
         @php
             $stepHeadings = [
-                1 => ['eyebrow' => 'STEP 1 OF 5', 'title' => 'Choose and configure services', 'description' => 'Choose each service you need, then select its animal type and package.'],
+                1 => ['eyebrow' => 'STEP 1 OF 5', 'title' => 'Choose and configure services', 'description' => 'Choose each service you need, then select the service option that applies.'],
                 2 => ['eyebrow' => 'STEP 2 OF 5', 'title' => 'Add your pet'.(count($pets) > 1 ? 's' : ''), 'description' => 'Add each pet once. This is your pet list; we will match pets to services next.'],
                 3 => ['eyebrow' => 'STEP 3 OF 5', 'title' => 'Assign pets to services', 'description' => 'Choose which pet receives each service, then add the details that service needs.'],
                 4 => ['eyebrow' => 'STEP 4 OF 5', 'title' => 'How should we contact you?', 'description' => 'Give us enough information to confirm availability and clarify anything important.'],
@@ -1313,12 +1218,11 @@ new class extends Component
                                     @if($service['service_key'])
                                             @php
                                                 $variantOptions = $this->allVariantOptions($service['service_key']);
-                                                $tierDefinitions = $this->allTierDefinitions($service['service_key'], $service['service_variant']);
                                             @endphp
                                             <div class="mt-6 border-t border-primary/10 pt-5">
                                                 <p class="text-eyebrow text-primary-dark/50">NEXT</p>
                                                 <h4 class="mt-1 text-base font-bold text-primary-dark">Configure this service</h4>
-                                                <p class="mt-1 text-sm leading-relaxed text-primary-dark/60">Now choose the animal type and package for {{ $this->serviceLabel($service['service_key']) }}.</p>
+                                                <p class="mt-1 text-sm leading-relaxed text-primary-dark/60">Now choose the animal type or service option for {{ $this->serviceLabel($service['service_key']) }}.</p>
                                             </div>
                                             <div class="mt-5 grid gap-5 sm:grid-cols-2">
                                                 @if($variantOptions)
@@ -1340,48 +1244,12 @@ new class extends Component
                                                     </fieldset>
                                                 @endif
 
-                                                @if($tierDefinitions && (! $variantOptions || $service['service_variant']))
-                                                    <fieldset id="booking-service-{{ $index }}-tier" tabindex="-1" class="rounded-2xl border border-primary/15 bg-surface-purple/30 p-4 {{ $errors->has('services.'.$index.'.pricing_tier') ? 'border-danger/60 ring-2 ring-danger/15' : '' }}">
-                                                        <legend class="px-1 text-sm font-semibold text-primary-dark">Choose a package <span class="text-danger" aria-hidden="true">*</span></legend>
-                                                        <div class="mt-3 grid gap-3">
-                                                            @foreach($tierDefinitions as $key => $tier)
-                                                                @php $available = $this->tierAvailable($service['service_key'], $service['service_variant'], $key); @endphp
-                                                                <div class="rounded-xl border transition-colors {{ $service['pricing_tier'] === $key ? 'border-primary bg-white ring-1 ring-primary' : 'border-primary/15 bg-white' }} {{ ! $available ? 'opacity-55' : '' }}">
-                                                                    <label class="flex min-h-14 cursor-pointer items-center justify-between gap-4 px-4 py-3 text-left {{ ! $available ? 'cursor-not-allowed' : '' }}">
-                                                                        <input type="radio" name="booking-service-{{ $index }}-tier" value="{{ $key }}" @checked($service['pricing_tier'] === $key) @disabled(! $available) wire:click="tierChanged({{ $index }}, '{{ $key }}')" class="sr-only peer">
-                                                                    <span>
-                                                                        <span class="block text-sm font-semibold text-primary-dark">{{ $tier['label'] ?? Str::headline($key) }}</span>
-                                                                        @if(! $available)<span class="mt-1 block text-xs font-medium text-primary-dark/60">Temporarily unavailable</span>@endif
-                                                                    </span>
-                                                                    <span class="shrink-0 text-sm font-semibold text-primary-dark/75">{{ $this->tierPriceLabel($service['service_key'], $service['service_variant'], $tier) }}</span>
-                                                                    </label>
-                                                                     @if($this->tierDescription($tier))
-                                                                         <p class="px-4 pb-2.5 text-xs leading-relaxed text-primary-dark/60">{{ $this->tierDescription($tier) }}</p>
-                                                                     @endif
-                                                                     @if(! empty($tier['features']))
-                                                                        <details class="border-t border-primary/10 px-4 py-2.5 text-xs text-primary-dark/65">
-                                                                            <summary class="cursor-pointer font-semibold text-primary-dark/75">What’s included</summary>
-                                                                            <ul class="mt-2 space-y-1.5">
-                                                                                @foreach($tier['features'] as $feature)
-                                                                                    @php $featureLabel = is_array($feature) ? ($feature['label'] ?? '') : $feature; $included = ! is_array($feature) || ($feature['included'] ?? true); @endphp
-                                                                                    <li class="flex gap-2 {{ $included ? '' : 'text-primary-dark/45' }}"><span aria-hidden="true">{{ $included ? '✓' : '—' }}</span><span>{{ $featureLabel }}</span></li>
-                                                                                @endforeach
-                                                                            </ul>
-                                                                        </details>
-                                                                    @endif
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                        @if($errors->has('services.'.$index.'.pricing_tier'))
-                                                            <p class="mt-2 text-sm font-medium text-danger" role="alert">{{ $errors->first('services.'.$index.'.pricing_tier') }}</p>
-                                                        @endif
-                                                    </fieldset>
-                                                @elseif($variantOptions && ! $service['service_variant'])
-                                                    <p class="self-end rounded-xl bg-surface-purple/55 p-3 text-sm leading-relaxed text-primary-dark/65">Choose an animal type first to see the packages and prices for that service.</p>
+                                                @if($variantOptions && ! $service['service_variant'])
+                                                    <p class="self-end rounded-xl bg-surface-purple/55 p-3 text-sm leading-relaxed text-primary-dark/65">Choose an animal type first to see the service options and details for that service.</p>
                                                 @endif
                                             </div>
                                     @else
-                                        <p class="mt-5 rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a service above to see the package options and details it needs.</p>
+                                        <p class="mt-5 rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a service above to see the service option and details it needs.</p>
                                     @endif
                                 </div>
                             @endforeach
@@ -1392,7 +1260,7 @@ new class extends Component
                                         <div>
                                             <p class="text-eyebrow text-primary-dark/50">ADD TO YOUR REQUEST</p>
                                             <h3 id="add-service-heading" class="mt-1 font-serif text-xl font-bold text-primary-dark">Which service do you also need?</h3>
-                                            <p class="mt-2 text-sm leading-relaxed text-primary-dark/65">Choose a service first. We will then show only the animal type, package, and details that belong to it.</p>
+                                            <p class="mt-2 text-sm leading-relaxed text-primary-dark/65">Choose a service first. We will then show only the animal type, service option, and details that belong to it.</p>
                                         </div>
                                         <button type="button" wire:click="cancelAddService" class="min-h-11 shrink-0 rounded-lg px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Cancel</button>
                                     </div>
@@ -1438,7 +1306,7 @@ new class extends Component
                                         </x-waggies.field>
                                             <x-waggies.select id="booking-pet-{{ $index }}-species" label="Pet type" wire:model.live="pets.{{ $index }}.species" :error="$errors->first('pets.'.$index.'.species')" required>
                                             <option value="">Choose a type</option>
-                                            @foreach(['dog' => 'Dog', 'cat' => 'Cat', 'other' => 'Other'] as $key => $label)
+                                            @foreach(['dog' => 'Dog', 'cat' => 'Cat'] as $key => $label)
                                                 <option value="{{ $key }}">{{ $label }}</option>
                                             @endforeach
                                         </x-waggies.select>
@@ -1460,13 +1328,6 @@ new class extends Component
                                         @endif
                                     </div>
 
-                                    @if($pet['species'] === 'other')
-                                        <div class="mt-5 rounded-xl border border-primary/10 bg-surface-purple/45 p-4">
-                                            <x-waggies.field id="booking-pet-{{ $index }}-other" label="What kind of pet is this?" :error="$errors->first('pets.'.$index.'.details.other_description')" help="We do not use a fixed exotic-pet list. A free-form description helps us prepare a quote." required>
-                                                <textarea id="booking-pet-{{ $index }}-other" wire:model.live.blur="pets.{{ $index }}.details.other_description" rows="3" maxlength="2000" class="contact-input resize-y"></textarea>
-                                            </x-waggies.field>
-                                        </div>
-                                    @endif
 
                                     <div class="mt-6 border-t border-primary/10 pt-5">
                                         <p class="text-sm font-semibold text-primary-dark">Optional details about this pet</p>
@@ -1759,8 +1620,8 @@ new class extends Component
                                 <x-waggies.button type="button" wire:click="nextStep" wire:loading.attr="disabled" wire:target="nextStep" class="w-full sm:w-auto">Continue <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
                             @else
                                 <x-waggies.button type="submit" wire:loading.attr="disabled" wire:target="submit" class="w-full sm:w-auto">
-                                    <span wire:loading.remove wire:target="submit">Send request</span>
-                                    <span wire:loading wire:target="submit">Sending request...</span>
+                                    <span wire:loading.remove wire:target="submit">Submit Booking Request</span>
+                                    <span wire:loading wire:target="submit">Submitting request...</span>
                                     <x-waggies.icon name="arrow-forward" size="16" />
                                 </x-waggies.button>
                             @endif

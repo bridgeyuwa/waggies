@@ -19,12 +19,24 @@ final class PricingTool implements Tool
             return [
                 'label' => $service['label'] ?? null,
                 'unit' => $service['unit'] ?? null,
-                'tiers' => collect($service['tiers'] ?? collect($service['variants'] ?? [])->flatMap(fn (array $variant): array => $variant['tiers'] ?? []))->map(fn (array $tier): array => [
-                    'label' => $tier['label'] ?? null,
-                    'type' => $tier['type'] ?? null,
-                    'amount' => $tier['amount'] ?? null,
-                    'max_amount' => $tier['max_amount'] ?? null,
-                ])->values()->all(),
+                'pricing_mode' => $service['pricing_mode'] ?? null,
+                'variants' => collect($service['variants'] ?? [])->map(function (array $variant): array {
+                    return [
+                        'label' => $variant['label'] ?? null,
+                        'type' => $variant['type'] ?? null,
+                        'request_only' => $variant['request_only'] ?? false,
+                        'pricing_note' => $variant['pricing_note'] ?? null,
+                        'amount' => $variant['amount'] ?? null,
+                        'max_amount' => $variant['max_amount'] ?? null,
+                        'size_rates' => collect($variant['size_rates'] ?? [])->map(fn (array $rate): array => [
+                            'label' => $rate['label'] ?? null,
+                            'guidance' => $rate['guidance'] ?? null,
+                            'manual_review' => $rate['manual_review'] ?? false,
+                            'amount' => $rate['amount'] ?? null,
+                            'max_amount' => $rate['max_amount'] ?? null,
+                        ])->values()->all(),
+                    ];
+                })->values()->all(),
             ];
         })->all();
 

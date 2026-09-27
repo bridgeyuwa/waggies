@@ -1,76 +1,67 @@
 <?php
 
+use App\Support\BookingPricingCatalog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Schema;
-use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-test('public service comparison derives published prices from canonical service rates', function () {
-    $this->get(route('services.index'))
-        ->assertOk()
-        ->assertSeeText('From ₦6,000/night')
-        ->assertSeeText('From ₦10,000/session')
-        ->assertSeeText('From ₦12,000/visit')
-        ->assertSeeText('From ₦80,000/programme')
-        ->assertSeeText('Custom quote')
-        ->assertSeeText('Route estimate/trip');
-});
-
-test('boarding pages derive tier displays from canonical boarding rates', function () {
-    $this->get(route('services.boarding.species', ['species' => 'exotic']))
-        ->assertOk()
-        ->assertSeeText('₦6,000 - ₦8,000')
-        ->assertSeeText('₦12,000 - ₦15,000')
-        ->assertSeeText('Quote');
-});
-
-test('service detail packages derive numeric prices and preserve quote-only packages', function () {
-    $this->get(route('services.vet-care'))
-        ->assertOk()
-        ->assertSeeText('₦12,000')
-        ->assertSeeText('₦15,000')
-        ->assertSeeText('₦18,000')
-        ->assertDontSeeText('₦15,000 - ₦35,000')
-        ->assertSeeText('Custom quote');
-});
-
-test('booking wizard reads canonical pricing data for service choices', function () {
-    $training = config('waggies_pricing.services.training.tiers.puppy');
-
-    Livewire::test('booking-request-wizard', [
-        'initialContext' => ['service' => 'training'],
-    ])
-        ->assertSee('Puppy Foundation')
-        ->assertSee('Basic Obedience')
-        ->assertSee('Behaviour Modification');
-
-    expect($training['amount'])->toBe(80000)
-        ->and($training['max_amount'])->toBe(120000);
-});
-
-test('public service detail uses version controlled pricing configuration', function () {
-    $this->get(route('services.grooming'))
-        ->assertOk()
-        ->assertSeeText('₦10,000')
-        ->assertSeeText('₦18,000')
-        ->assertSeeText('₦28,000');
-});
-
-test('pricing configuration preserves distance bands and transport surcharges', function () {
-    $pricing = config('waggies_pricing');
-
-    expect($pricing['transport']['products']['transport-city-transfer']['pricing']['rates'])
+test('the public catalogue contains only the three active services', function () {
+    expect(app(BookingPricingCatalog::class)->serviceOptions())
         ->toBe([
-            ['max_distance_km' => 10, 'amount' => 10000],
-            ['max_distance_km' => 25, 'amount' => 15000],
-            ['max_distance_km' => 40, 'amount' => 20000],
-        ])
-        ->and($pricing['transport']['rules']['waiting_increment_amount'])->toBe(2500)
-        ->and($pricing['transport']['rules']['additional_stop_amount'])->toBe(3000);
+            'boarding' => 'Boarding',
+            'vet-care' => 'Veterinary Care',
+            'relocation' => 'Relocation',
+        ]);
 });
 
-test('service pricing has no database runtime authority', function (): void {
-    expect(Schema::hasTable('service_prices'))->toBeFalse()
-        ->and(config('waggies_pricing.services.grooming.tiers.bath.amount'))->toBe(10000);
+test('boarding has no package or tier catalogue', function () {
+    $catalog = app(BookingPricingCatalog::class);
+
+    expect($catalog->tiers('boarding', 'dogs'))
+        ->toBe([])
+        ->and($catalog->tierOptions('boarding', 'dogs'))
+        ->toBe([])
+        ->and($catalog->requiresPetWeight('boarding', 'dogs'))
+        ->toBeFalse();
+});
+
+test('manual quotation remains authoritative over indicative boarding calculations', function () {
+    $catalog = app(BookingPricingCatalog::class);
+    $quote = $catalog->quoteForService([
+        'service_key' => 'boarding',
+        'service_variant' => 'dogs',
+        'details' => [
+            'check_in' => now()->addDays(4)->toDateString(),
+            'check_out' => now()->addDays(7)->toDateString(),
+        ],
+    ], [
+        ['name' => 'Milo', 'species' => 'dog', 'size' => 'small'],
+        ['name' => 'Luna', 'species' => 'dog', 'size' => 'medium'],
+    ]);
+
+    expect($quote['draft'])
+        ->toBeTrue()
+        ->and($quote['authority'])->toBe('staff_quotation')
+        ->and($quote['discount_authority'])->toBe('manual_quotation')
+        ->and($quote['amount'])->toBe(60000)
+        ->and($quote['discount']['amount'])->toBe(0);
+});
+
+test('multiple pet discounts remain configurable but disabled and boarding-only', function () {
+    $discount = config('waggies_pricing.discounts.multiple_pet');
+
+    expect($discount['enabled'])->toBeFalse()
+        ->and($discount['applies_to'])->toBe(['boarding'])
+        ->and($discount['calculation'])->toBe('manual_during_quotation');
+});
+
+test('vaccine and microchip options are request-only while relocation is quote-only', function () {
+    $services = config('waggies_pricing.services');
+
+    expect($services['vet-care']['variants']['vaccination-request']['request_only'])->toBeTrue()
+        ->and($services['vet-care']['variants']['vaccination-request'])->not->toHaveKey('amount')
+        ->and($services['vet-care']['variants']['microchip']['category'])->toBe('Identification')
+        ->and($services['vet-care']['variants']['microchip']['request_only'])->toBeTrue()
+        ->and($services['relocation']['pricing_mode'])->toBe('manual_quote')
+        ->and($services['relocation']['variants'])->toHaveKeys(['import', 'export']);
 });

@@ -26,7 +26,6 @@ class CreateBookingRequest
         $this->validateAssignments($data['pets'], $data['services']);
 
         return DB::transaction(function () use ($data): BookingRequest {
-            $pricingCatalog = $this->pricingCatalog;
             $contact = $data['contact'];
             $pets = array_values($data['pets']);
             $services = array_values($data['services']);
@@ -81,13 +80,8 @@ class CreateBookingRequest
                     array_map(static fn (mixed $index): int => (int) $index, $service['assigned_pet_ids'] ?? []),
                     static fn (int $index): bool => array_key_exists($index, $pets),
                 ));
-                $servicePets = array_map(static fn (int|string $index): array => $pets[(int) $index], $servicePetIndexes);
-                $priceSnapshot = $pricingCatalog->quoteForService($service, $servicePets);
                 $requestedDate = $service['requested_date'] ?? $details['check_in'] ?? null;
                 $requestedEndDate = $service['requested_end_date'] ?? $details['check_out'] ?? null;
-                $quoteAmount = in_array($priceSnapshot['status'] ?? null, ['fixed', 'estimate'], true)
-                    ? ($priceSnapshot['amount'] ?? null)
-                    : null;
 
                 $bookingService = $bookingRequest->services()->create([
                     'service_key' => $service['service_key'],
@@ -98,9 +92,9 @@ class CreateBookingRequest
                     'requested_time' => $service['requested_time'] ?? null,
                     'location' => $service['location'] ?? null,
                     'details' => $details,
-                    'quote_amount' => $quoteAmount,
+                    'quote_amount' => null,
                     'quote_currency' => config('waggies_pricing.currency', 'NGN'),
-                    'price_snapshot' => $priceSnapshot,
+                    'price_snapshot' => null,
                 ]);
 
                 $bookingService->pets()->attach(array_map(

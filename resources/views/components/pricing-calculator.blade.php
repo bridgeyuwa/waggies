@@ -13,13 +13,7 @@ new class extends Component
     public ?string $variant = null;
 
     #[Url]
-    public ?string $tier = null;
-
-    #[Url]
     public ?int $quantity = null;
-
-    #[Url]
-    public ?float $weightKg = null;
 
     #[Url]
     public ?string $size = null;
@@ -32,31 +26,15 @@ new class extends Component
     /** @var array<string, mixed> */
     public array $result = [];
 
-    /** @var array<string, string|null> */
-    public array $transport = [
-        'pickup' => null,
-        'dropoff' => null,
-        'distance_km' => null,
-        'pet_species' => null,
-        'pet_count' => '1',
-        'journey_type' => 'one-way',
-        'airport_details' => null,
-    ];
-
     /**
-     * @param  array{service?: ?string, variant?: ?string, tier?: ?string, source?: ?string}  $initialContext
+     * @param  array{service?: ?string, variant?: ?string, source?: ?string}  $initialContext
      */
     public function mount(array $initialContext = []): void
     {
         $service = $this->service ?: ($initialContext['service'] ?? null);
 
-        if ($service === 'transport') {
-            $service = 'local-transport';
-        }
-
         $this->service = $service ?: null;
         $this->variant = $this->variant ?: ($initialContext['variant'] ?? null);
-        $this->tier = $this->tier ?: ($initialContext['tier'] ?? null);
         $this->source = $this->source ?: ($initialContext['source'] ?? null);
         $this->quantity = $this->quantity ?: 1;
         $this->normaliseSelection();
@@ -65,7 +43,6 @@ new class extends Component
     public function updatedService(): void
     {
         $this->variant = null;
-        $this->tier = null;
         $this->step = 'form';
         $this->result = [];
         $this->normaliseSelection();
@@ -73,17 +50,10 @@ new class extends Component
 
     public function updatedVariant(): void
     {
-        $this->tier = null;
         $this->size = null;
         $this->step = 'form';
         $this->result = [];
         $this->normaliseSelection();
-    }
-
-    public function updatedTier(): void
-    {
-        $this->step = 'form';
-        $this->result = [];
     }
 
     public function selectService(string $service): void
@@ -94,22 +64,10 @@ new class extends Component
 
         $this->service = $service;
         $this->variant = null;
-        $this->tier = null;
         $this->size = null;
         $this->step = 'form';
         $this->result = [];
         $this->normaliseSelection();
-    }
-
-    public function selectTier(string $tier): void
-    {
-        if (! array_key_exists($tier, $this->tierDefinitions())) {
-            return;
-        }
-
-        $this->tier = $tier;
-        $this->step = 'form';
-        $this->result = [];
     }
 
     public function serviceOptions(): array
@@ -132,34 +90,9 @@ new class extends Component
         return app(BookingPricingCatalog::class)->variantOptions($this->service, availableOnly: false, channel: 'pricing');
     }
 
-    public function tierDefinitions(): array
-    {
-        return app(BookingPricingCatalog::class)->tiers($this->service, $this->variant, availableOnly: true, channel: 'pricing');
-    }
-
-    public function allTierDefinitions(): array
-    {
-        return app(BookingPricingCatalog::class)->tiers($this->service, $this->variant, availableOnly: false, channel: 'pricing');
-    }
-
-    public function tierPriceLabel(array $tier): string
-    {
-        return app(BookingPricingCatalog::class)->priceLabel($this->service ?? '', $this->variant, $tier);
-    }
-
-    public function tierDescription(array $tier): ?string
-    {
-        return app(BookingPricingCatalog::class)->tierDescription($tier);
-    }
-
     public function hasVariants(): bool
     {
         return app(BookingPricingCatalog::class)->variants($this->service ?? '', availableOnly: false, channel: 'pricing') !== [];
-    }
-
-    public function needsWeight(): bool
-    {
-        return $this->needsSize();
     }
 
     public function needsSize(): bool
@@ -177,18 +110,21 @@ new class extends Component
 
     public function quantityLabel(): string
     {
-        return match ($this->service) {
-            'boarding' => 'Nights',
-            'grooming' => 'Sessions',
-            default => 'Quantity',
-        };
+        return 'Overnight stays (per pet per night)';
+    }
+
+    public function variantPricingNote(): ?string
+    {
+        $variant = app(BookingPricingCatalog::class)->variants($this->service ?? '', availableOnly: false, channel: 'pricing')[$this->variant ?? ''] ?? [];
+
+        return $variant['pricing_note'] ?? null;
     }
 
     public function actionLabel(): string
     {
-        $tier = $this->tierDefinitions()[$this->tier ?? ''] ?? [];
+        $variant = app(BookingPricingCatalog::class)->variants($this->service ?? '', availableOnly: false, channel: 'pricing')[$this->variant ?? ''] ?? [];
 
-        return ($tier['type'] ?? 'fixed') === 'quote' ? 'Request a quote' : 'Calculate price';
+        return ($variant['type'] ?? 'fixed') === 'quote' ? 'Request a quote' : 'Calculate estimate';
     }
 
     public function canCalculate(): bool
@@ -201,16 +137,7 @@ new class extends Component
             return false;
         }
 
-        if (! $this->tier || ! array_key_exists($this->tier, $this->tierDefinitions())) {
-            return false;
-        }
-
-        if ($this->service === 'local-transport') {
-            return filled($this->transport['pickup'] ?? null)
-                && filled($this->transport['dropoff'] ?? null);
-        }
-
-        return ! $this->needsSize() || $this->size !== null || ($this->weightKg !== null && $this->weightKg >= 0);
+        return ! $this->needsSize() || $this->size !== null;
     }
 
     public function calculate(): void
@@ -219,29 +146,19 @@ new class extends Component
             return;
         }
 
-        $quantity = max(1, min($this->quantity ?? 1, $this->service === 'boarding' ? 30 : 12));
+        $quantity = max(1, (int) ($this->quantity ?? 1));
         $pet = [
             'species' => $this->variant === 'cats' ? 'cat' : 'dog',
             'size' => $this->size,
-            'weight_kg' => $this->weightKg,
         ];
-        $quote = app(BookingPricingCatalog::class)->quote($this->service, $this->variant, $this->tier, $pet, $quantity, 'pricing');
-        $tier = $this->allTierDefinitions()[$this->tier] ?? [];
+        $quote = app(BookingPricingCatalog::class)->quote($this->service, $this->variant, null, $pet, $quantity, 'pricing');
+        $variantDefinition = app(BookingPricingCatalog::class)->variants($this->service ?? '', availableOnly: false, channel: 'pricing')[$this->variant ?? ''] ?? config("waggies_pricing.services.{$this->service}", []);
         $serviceLabel = $this->serviceOptions()[$this->service] ?? 'Selected service';
         $variantLabel = app(BookingPricingCatalog::class)->variantOptions($this->service, availableOnly: false, channel: 'pricing')[$this->variant ?? ''] ?? null;
-
-        if ($this->service === 'local-transport') {
-            session()->put('pricing_transport_context', [
-                'pickup' => trim((string) ($this->transport['pickup'] ?? '')),
-                'dropoff' => trim((string) ($this->transport['dropoff'] ?? '')),
-                'trip_type' => $this->transport['journey_type'] ?? 'one-way',
-            ]);
-        }
 
         $params = array_filter([
             'service' => $this->service,
             'variant' => $this->variant,
-            'tier' => $this->tier,
             'source' => 'pricing',
         ]);
 
@@ -249,8 +166,8 @@ new class extends Component
             'status' => $quote['status'] ?? 'quote',
             'display' => $this->quoteDisplay($quote),
             'service' => implode(' · ', array_filter([$serviceLabel, $variantLabel])),
-            'tier' => $tier['label'] ?? $this->tier,
-            'features' => $tier['features'] ?? [],
+            'option' => $variantDefinition['label'] ?? 'Service option',
+            'features' => $variantDefinition['features'] ?? [],
             'href' => route('book', $params),
             'notice' => ($quote['status'] ?? null) === 'quote'
                 ? 'Waggies will review the route or care details and confirm the final quote with you.'
@@ -263,10 +180,8 @@ new class extends Component
     {
         $this->service = null;
         $this->variant = null;
-        $this->tier = null;
         $this->quantity = 1;
         $this->size = null;
-        $this->weightKg = null;
         $this->step = 'form';
         $this->result = [];
     }
@@ -276,19 +191,13 @@ new class extends Component
         if ($this->service && ! array_key_exists($this->service, $this->serviceOptions())) {
             $this->service = null;
             $this->variant = null;
-            $this->tier = null;
 
             return;
         }
 
         if ($this->variant && ! array_key_exists($this->variant, $this->allVariantOptions())) {
             $this->variant = null;
-            $this->tier = null;
             $this->size = null;
-        }
-
-        if ($this->tier && ! array_key_exists($this->tier, $this->allTierDefinitions())) {
-            $this->tier = null;
         }
 
         if ($this->size && ! array_key_exists($this->size, $this->sizeOptions())) {
@@ -315,7 +224,7 @@ new class extends Component
 ?>
 
 <div>
-    <div wire:loading wire:target="service,variant,tier,size,weightKg,quantity,transport" class="mb-4 rounded-xl border border-primary/15 bg-surface-purple/45 px-4 py-3 text-sm font-medium text-primary-dark/70" role="status" aria-live="polite">
+    <div wire:loading wire:target="service,variant,size,quantity" class="mb-4 rounded-xl border border-primary/15 bg-surface-purple/45 px-4 py-3 text-sm font-medium text-primary-dark/70" role="status" aria-live="polite">
         Updating your estimate…
     </div>
     @if($step === 'form')
@@ -342,48 +251,12 @@ new class extends Component
                         </x-waggies.select>
                     @endif
 
-                    @if($service === 'local-transport')
-                        <div class="rounded-xl border border-primary/10 bg-surface-purple/45 p-4">
-                            <p class="text-sm font-semibold text-primary-dark">Route details</p>
-                            <div class="mt-4 grid gap-5 sm:grid-cols-2">
-                                 <x-waggies.field id="pricing-pickup" label="Pickup location" help="Required for a route quote." required><input id="pricing-pickup" wire:model.live.blur="transport.pickup" class="contact-input"></x-waggies.field>
-                                 <x-waggies.field id="pricing-dropoff" label="Drop-off location" help="Required for a route quote." required><input id="pricing-dropoff" wire:model.live.blur="transport.dropoff" class="contact-input"></x-waggies.field>
-                                <x-waggies.field id="pricing-distance" label="Distance (km)"><input id="pricing-distance" wire:model.live="transport.distance_km" type="number" min="1" class="contact-input"></x-waggies.field>
-                                <x-waggies.field id="pricing-pet-species" label="Pet species"><input id="pricing-pet-species" wire:model.live="transport.pet_species" class="contact-input"></x-waggies.field>
-                                <x-waggies.field id="pricing-pet-count" label="Number of pets"><input id="pricing-pet-count" wire:model.live="transport.pet_count" type="number" min="1" class="contact-input"></x-waggies.field>
-                                 <x-waggies.select id="pricing-journey" label="Journey type" wire:model.live="transport.journey_type"><option value="one-way">One way</option><option value="return">Return</option></x-waggies.select>
-                                @if($tier === 'airport')
-                                    <x-waggies.field id="pricing-airport-details" label="Airport details"><input id="pricing-airport-details" wire:model.live="transport.airport_details" class="contact-input"></x-waggies.field>
-                                @endif
-                             </div>
-                             @if(! filled($transport['pickup'] ?? null) || ! filled($transport['dropoff'] ?? null))
-                                 <p class="mt-4 text-xs font-medium text-primary-dark/60">Add both a pickup and drop-off point to request a route quote.</p>
-                             @endif
-                             <p class="mt-4 text-xs leading-relaxed text-primary-dark/60">Special handling, extra stops, waiting, urgency, and after-hours requests may require a confirmed quote.</p>
-                        </div>
+                    @if($this->hasVariants() && ! $variant)
+                        <p class="rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a pet type first to see the service option and any guidance that applies to that pet.</p>
                     @endif
 
-                        @if($this->allTierDefinitions() && (! $this->hasVariants() || $variant))
-                            <div>
-                                <fieldset>
-                                <legend class="text-sm font-semibold text-primary-dark">{{ $this->hasVariants() ? '3' : '2' }}. Choose a package <span class="text-danger" aria-hidden="true">*</span></legend>
-                                <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                                    @foreach($this->allTierDefinitions() as $key => $tier)
-                                        @php $available = array_key_exists($key, $this->tierDefinitions()); @endphp
-                                        <label class="relative min-h-24 rounded-xl border-2 p-4 text-left transition focus-within:outline-none focus-within:ring-2 focus-within:ring-primary {{ $this->tier === $key ? 'border-primary bg-surface-purple shadow-sm' : 'border-primary/10 hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : 'cursor-pointer' }}">
-                                            <input type="radio" name="pricing-tier" value="{{ $key }}" @checked($this->tier === $key) @disabled(! $available) wire:click="selectTier('{{ $key }}')" class="sr-only peer">
-                                            <span class="block pr-7 text-sm font-bold text-primary-dark">{{ $tier['label'] ?? $key }}</span>
-                                            <span class="mt-1 block text-sm text-primary-dark/60">{{ $this->tierPriceLabel($tier) }}</span>
-                                            @if($this->tierDescription($tier))<span class="mt-2 block text-xs leading-relaxed text-primary-dark/60">{{ $this->tierDescription($tier) }}</span>@endif
-                                            @if(! $available)<span class="mt-1 block text-xs font-medium text-primary-dark/55">Temporarily unavailable</span>@endif
-                                            @if($this->tier === $key)<span class="absolute right-3 top-3 text-primary"><x-waggies.icon name="check-circle" variant="filled" size="18" /></span>@endif
-                                        </label>
-                                    @endforeach
-                                </div>
-                                </fieldset>
-                            </div>
-                    @elseif($this->hasVariants() && ! $variant)
-                        <p class="rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a pet type first to see the packages and size-aware prices for that pet.</p>
+                    @if($this->variantPricingNote())
+                        <p class="rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">{{ $this->variantPricingNote() }}</p>
                     @endif
 
                     @if($this->needsSize())
@@ -402,9 +275,9 @@ new class extends Component
                         </fieldset>
                     @endif
 
-                    @if(in_array($service, ['boarding', 'grooming'], true))
+                    @if($service === 'boarding')
                         <x-waggies.field id="pricing-quantity" :label="$this->quantityLabel()">
-                            <input id="pricing-quantity" wire:model.live="quantity" type="number" min="1" max="{{ $service === 'boarding' ? 30 : 12 }}" class="contact-input">
+                            <input id="pricing-quantity" wire:model.live="quantity" type="number" min="1" class="contact-input">
                         </x-waggies.field>
                     @endif
 
@@ -413,7 +286,7 @@ new class extends Component
                         <x-waggies.button type="button" wire:click="calculate" wire:loading.attr="disabled" wire:target="calculate" :disabled="! $this->canCalculate()" class="w-full justify-center sm:w-auto">{{ $this->actionLabel() }} <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
                     </div>
                 @else
-                    <p class="rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a service to see the pet type, package, size, or quantity fields that apply to it.</p>
+                    <p class="rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a service to see the pet type, size, or overnight-stay fields that apply to it.</p>
                 @endif
             </div>
         </div>
@@ -423,7 +296,7 @@ new class extends Component
                 <div class="border-b border-primary/10 p-6 md:p-8 lg:border-b-0 lg:border-r">
                     <p class="mb-2 text-eyebrow text-primary-dark/55">YOUR SELECTION</p>
                     <p class="text-sm text-primary-dark/60">{{ $result['service'] ?? '' }}</p>
-                    <p class="mb-6 text-sm text-primary-dark/50">{{ $result['tier'] ?? '' }}</p>
+                    <p class="mb-6 text-sm text-primary-dark/50">{{ $result['option'] ?? '' }}</p>
                     <h3 class="mb-4 flex items-center gap-2 font-serif text-lg font-bold text-primary-dark"><x-waggies.icon name="checklist" size="20" class="text-primary" />What's included</h3>
                     <ul class="space-y-2.5">
                         @foreach($result['features'] ?? [] as $feature)

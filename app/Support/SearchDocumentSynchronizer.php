@@ -84,7 +84,7 @@ final class SearchDocumentSynchronizer
             ...Guide::query()->indexable()->get()->all(),
             ...KnowledgeArticle::query()->indexable()->get()->all(),
             ...Product::query()->indexable()->get()->all(),
-            ...Faq::query()->published()->get()->all(),
+            ...Faq::query()->published()->whereIn('category', ['boarding', 'vet-care', 'relocation', 'general'])->get()->all(),
             ...JobOpening::query()->open()->get()->all(),
         ];
     }
@@ -124,6 +124,10 @@ final class SearchDocumentSynchronizer
         }
 
         if ($model instanceof Faq) {
+            if (! in_array($model->category, ['boarding', 'vet-care', 'relocation', 'general'], true)) {
+                return null;
+            }
+
             return [
                 'source_type' => 'faq',
                 'source_key' => (string) $model->getKey(),

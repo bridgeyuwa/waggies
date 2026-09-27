@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Faq;
 use Illuminate\View\View;
-use Spatie\SchemaOrg\Contracts\ThingContract;
 use Spatie\SchemaOrg\Schema;
 
 final class RelocationController extends Controller
 {
     public function index(): View
     {
-        $metadata = ['title' => 'Pet Relocation Services - Waggies', 'description' => 'Full-service international pet import, export, and local transit in Abuja. Complete permit handling, health certificates, IATA flight crates, and customs clearance.', 'canonical' => route('services.relocation'), 'ogTitle' => 'Pet Relocation Services Abuja - Waggies', 'ogDescription' => 'Full-service international pet import, export, and local transit in Abuja. Complete permit handling, health certificates, IATA flight crates, and customs clearance.'];
+        $metadata = ['title' => 'Pet Relocation Services - Waggies', 'description' => 'Custom-quoted pet import and export coordination for dogs and cats, including document, veterinary, airline, and airport coordination.', 'canonical' => route('services.relocation'), 'ogTitle' => 'Pet Relocation Services Abuja - Waggies', 'ogDescription' => 'Custom-quoted pet import and export coordination for dogs and cats, including document, veterinary, airline, and airport coordination.'];
         $this->setPageHead($metadata, [$this->serviceSchema('Pet Relocation Services Abuja - Waggies', $metadata)]);
 
         return view('pages.services.relocation', $metadata + [
@@ -20,7 +19,6 @@ final class RelocationController extends Controller
             'cards' => [
                 ['title' => 'Pet Import to Nigeria', 'description' => 'Full-service pet import into Nigeria including Ministry import permits, rabies titer verification, veterinary health clearance, and Abuja airport pickup.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
                 ['title' => 'Pet Export from Nigeria', 'description' => 'Seamless international pet export matching UK, EU, US, and global destination requirements — export permits, rabies titers, IATA crates, and flight bookings.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
-                ['title' => 'Local Pet Transport', 'description' => 'Air-conditioned, door-to-door pet taxi service across Abuja with trained animal handlers, IATA-approved crates, and live GPS tracking.', 'route' => 'relocation.transport', 'imageSrc' => '/media/services/relocation/card-transport.jpg', 'imageAlt' => 'Pet transport service', 'icon' => 'transport'],
             ],
             'faqs' => $this->serviceFaqs(),
         ]);
@@ -34,22 +32,6 @@ final class RelocationController extends Controller
     public function export(): View
     {
         return $this->detail('export');
-    }
-
-    public function transport(): View
-    {
-        $page = $this->relocationPages()['transport'];
-        $metadata = ['title' => $page['metaTitle'].' - Waggies', 'description' => $page['description'], 'canonical' => route('relocation.transport'), 'ogTitle' => $page['ogTitle'], 'ogDescription' => $page['description']];
-        $faqSchema = array_map(static fn (array $faq): ThingContract => Schema::question()
-            ->name($faq['question'])
-            ->acceptedAnswer(Schema::answer()->text($faq['answer'])), $this->faqs('transport'));
-        $this->setPageHead($metadata, [$this->serviceSchema($page['ogTitle'], $metadata), Schema::faqPage()->mainEntity($faqSchema)->toArray()]);
-
-        return view('pages.relocation.transport', $metadata + [
-            'navSection' => 'services',
-            'page' => $page,
-            'faqs' => $this->faqs('transport'),
-        ]);
     }
 
     public function checklist(): View
@@ -83,7 +65,7 @@ final class RelocationController extends Controller
                             'route' => 'services.pricing',
                             'params' => [
                                 'service' => 'relocation',
-                                'tier' => 'import',
+                                'variant' => 'import',
                             ],
                             'icon' => 'calculator',
                         ],
@@ -181,7 +163,7 @@ final class RelocationController extends Controller
                             'route' => 'services.pricing',
                             'params' => [
                                 'service' => 'relocation',
-                                'tier' => 'export',
+                                'variant' => 'export',
                             ],
                             'icon' => 'calculator',
                         ],
@@ -261,96 +243,6 @@ final class RelocationController extends Controller
                     ],
                     'secondaryLabel' => 'View Checklist',
                     'secondaryRoute' => 'relocation.checklist',
-                ],
-            ],
-            'transport' => [
-                'metaTitle' => 'Local Transport',
-                'description' => 'Air-conditioned, door-to-door pet transport and pickup across Abuja by trained handlers. Part of Waggies relocation services.',
-                'ogTitle' => 'Local Transport Abuja - Waggies',
-                'hero' => [
-                    'imageSrc' => '/media/services/relocation/transport/hero.jpg',
-                    'imageAlt' => 'Pet transport service at Waggies Abuja',
-                ],
-                'ctaText' => 'Request Transport',
-                'ctaRoute' => 'book',
-                'ctaParams' => [
-                    'service' => 'local-transport',
-                ],
-                'descriptionBlock' => 'Whether it\'s a trip to Waggies for boarding or grooming, a vet visit, or an airport transfer, our trained handlers and climate-controlled vehicles ensure your pet travels safely and comfortably — door to door.',
-                'features' => [
-                    0 => 'Door-to-door collection and return for all Waggies appointments',
-                    1 => 'Air-conditioned, climate-controlled vehicles for comfort',
-                    2 => 'Approved travel crates and harnesses for secure transit',
-                    3 => 'Drivers trained in animal handling and pet first aid',
-                    4 => 'Coverage across all major Abuja districts',
-                    5 => 'Time slots booked in advance for reliable scheduling',
-                    6 => 'Airport pickup and drop-off for arriving/departing pets',
-                    7 => 'Same-day transport for urgent vet visits',
-                    8 => 'GPS-tracked vehicles for real-time location updates',
-                    9 => 'Pet travel health certificate assistance',
-                    10 => 'Multi-pet transport for households with several animals',
-                    11 => 'Emergency transport available 24/7',
-                ],
-                'benefits' => [
-                    0 => 'Trained handlers — not just drivers. Our team knows how to keep pets calm and safe during transit.',
-                    1 => 'Climate-controlled vehicles keep your pet comfortable in any Abuja weather — hot or rainy.',
-                    2 => 'GPS tracking means you always know exactly where your pet is during the journey.',
-                    3 => 'Approved crates and harnesses ensure your pet is safe and secure — never loose in a vehicle.',
-                    4 => 'We cover all major districts — Maitama, Wuse, Asokoro, Garki, Gwarinpa, and beyond.',
-                    5 => 'Punctual, reliable scheduling so you can plan your day around the pickup time.',
-                ],
-                'packages' => [
-                    0 => [
-                        'name' => 'City Pet Transfer',
-                        'popular' => false,
-                    ],
-                    1 => [
-                        'name' => 'Vet Transfer',
-                        'popular' => false,
-                    ],
-                    2 => [
-                        'name' => 'Airport Transfer',
-                        'popular' => true,
-                    ],
-                ],
-                'processSteps' => [
-                    0 => [
-                        'step' => '01',
-                        'title' => 'Share the journey details',
-                        'description' => 'Tell us the pickup address, destination, pet needs, and preferred time so we can confirm the route.',
-                    ],
-                    1 => [
-                        'step' => '02',
-                        'title' => 'We collect your pet',
-                        'description' => 'A trained handler arrives in a climate-controlled vehicle and completes the handoff with care.',
-                    ],
-                    2 => [
-                        'step' => '03',
-                        'title' => 'Safe arrival and update',
-                        'description' => 'We deliver your pet to the destination and keep you informed throughout the transfer.',
-                    ],
-                ],
-                'safetyStandards' => [
-                    0 => [
-                        'icon' => 'transport',
-                        'title' => 'Climate-Controlled Fleet',
-                        'desc' => 'Every vehicle is fully air-conditioned and fitted specifically for comfortable, temperature-regulated pet travel in Abuja.',
-                    ],
-                    1 => [
-                        'icon' => 'safety',
-                        'title' => 'Approved Crates & Restraints',
-                        'desc' => 'Pets travel securely in IATA-approved crates or crash-tested harnesses — never unrestrained in a moving vehicle.',
-                    ],
-                    2 => [
-                        'icon' => 'medical',
-                        'title' => 'Trained Pet Handlers',
-                        'desc' => 'Our drivers are experienced animal handlers trained in low-stress transport, canine behaviour, and pet first aid.',
-                    ],
-                    3 => [
-                        'icon' => 'location',
-                        'title' => 'GPS Real-Time Tracking',
-                        'desc' => 'Every transport vehicle is equipped with live GPS tracking so our care team and pet parents know location status.',
-                    ],
                 ],
             ],
             'checklist' => [
@@ -433,13 +325,11 @@ final class RelocationController extends Controller
 
     private function faqs(?string $subcategory = null): array
     {
-        $category = $subcategory === 'transport' ? 'transport' : 'relocation';
-
         $query = Faq::query()
             ->published()
-            ->where('category', $category);
+            ->where('category', 'relocation');
 
-        if ($category !== 'transport' && $subcategory !== null) {
+        if ($subcategory !== null) {
             $query->where(function ($query) use ($subcategory): void {
                 $query
                     ->whereNull('subcategory')

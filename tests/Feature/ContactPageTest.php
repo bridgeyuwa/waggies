@@ -8,57 +8,35 @@ use Tests\TestCase;
 
 class ContactPageTest extends TestCase
 {
-    public function test_contact_gateway_and_contextual_requests_render(): void
+    public function test_contact_gateway_and_active_booking_contexts_render(): void
     {
-        $this->get('/contact')->assertOk()->assertSee('Choose a request type and')->assertSee('Request a service');
-        $this->get('/contact?intent=booking')->assertNotFound();
-        $this->get('/contact?intent=veterinary&service=vet-care')->assertNotFound();
+        $this->get('/contact')
+            ->assertOk()
+            ->assertSee('Choose a request type and')
+            ->assertSee('Request a service');
+
+        foreach ([
+            ['service' => 'boarding', 'variant' => 'cats'],
+            ['service' => 'vet-care', 'variant' => 'microchip'],
+            ['service' => 'relocation', 'variant' => 'import'],
+        ] as $context) {
+            Livewire::test('booking-request-wizard', ['initialContext' => $context])
+                ->assertSet('services.0.service_key', $context['service'])
+                ->assertSet('services.0.service_variant', $context['variant']);
+        }
     }
 
-    public function test_booking_contexts_are_removed_from_contact_and_render_in_the_progressive_wizard(): void
+    public function test_removed_contact_contexts_are_not_active_booking_services(): void
     {
-        $this->get('/contact?intent=service&service=boarding&variant=cats')->assertNotFound();
-        $this->get('/contact?intent=quote&service=relocation-import')->assertNotFound();
+        foreach (['grooming', 'training', 'local-transport', 'boarding-exotic'] as $service) {
+            Livewire::test('booking-request-wizard', ['initialContext' => ['service' => $service]])
+                ->assertSet('services.0.service_key', null)
+                ->assertSet('services.0.service_variant', null);
+        }
 
-        Livewire::test('booking-request-wizard', [
-            'initialContext' => ['service' => 'boarding', 'variant' => 'cats'],
-        ])
-            ->assertSee('Cozy')
-            ->set('services.0.pricing_tier', 'cozy')
-            ->set('pets.0.name', 'Milo')
-            ->set('pets.0.species', 'cat')
-            ->set('services.0.assigned_pet_ids', [0])
-            ->set('step', 3)
-            ->assertSee('Feeding routine')
-            ->assertSee('Medication or health notes')
-            ->assertSee('Special care needs');
-
-        Livewire::test('booking-request-wizard', [
-            'initialContext' => ['service' => 'local-transport'],
-        ])
-            ->set('pets.0.name', 'Milo')
-            ->set('pets.0.species', 'dog')
-            ->set('services.0.assigned_pet_ids', [0])
-            ->set('step', 3)
-            ->assertSee('Pickup point')
-            ->assertSee('Drop-off point')
-            ->assertSee('Trip type');
-    }
-
-    public function test_old_transport_context_is_removed_from_contact(): void
-    {
-        $route = json_encode([
-            'origin' => 'Maitama, Abuja',
-            'destination' => 'Wuse 2, Abuja',
-            'journeyType' => 'return',
-            'distanceKm' => 8,
-            'petCount' => 2,
-            'petSpecies' => 'dog',
-            'additionalPetSafe' => 'true',
-        ], JSON_THROW_ON_ERROR);
-
-        $this->get('/contact?intent=transport&service=local-transport&transportRoute='.urlencode($route))
-            ->assertNotFound();
+        $this->get('/contact?intent=transport&service=local-transport')
+            ->assertOk()
+            ->assertDontSee('Local Transport');
     }
 
     public function test_general_inquiry_keeps_optional_contact_fields_optional(): void
@@ -66,14 +44,7 @@ class ContactPageTest extends TestCase
         $this->get('/contact?intent=general')
             ->assertOk()
             ->assertSee('Your name (optional)')
-            ->assertSee('WhatsApp number (optional)');
-    }
-
-    public function test_contact_no_longer_serializes_booking_pricing_or_transport_rules(): void
-    {
-        $this->get('/contact?intent=general')
-            ->assertOk()
-            ->assertDontSee('Basic Obedience')
+            ->assertSee('WhatsApp number (optional)')
             ->assertDontSee('transportProduct')
             ->assertDontSee('pricingData');
     }
@@ -94,7 +65,7 @@ class ContactPageTest extends TestCase
             ->assertSee('"openingHoursSpecification"', false);
     }
 
-    public function test_contact_and_global_business_consumers_render_database_profile_values(): void
+    public function test_contact_consumers_render_database_profile_values(): void
     {
         $profile = BusinessProfile::current();
         $profile->update([
@@ -114,20 +85,7 @@ class ContactPageTest extends TestCase
 
         $response->assertOk()
             ->assertSee('0800 111 2233')
-            ->assertSee('href="tel:2348001112233"', false)
             ->assertSee('https://wa.example.test/database-profile', false)
-            ->assertSee('https://maps.example.test/database-profile', false)
-            ->assertSee('Database-owned Street, Database City, 123456, Database State, Database Country', false)
-            ->assertSee('https://social.example.test/database-profile', false);
-
-        $address = 'Database-owned Street, Database City, 123456, Database State, Database Country';
-        $directionsUrl = 'https://www.google.com/maps/dir/?api=1&destination='.urlencode($address);
-        $content = $response->getContent();
-
-        $this->assertIsString($content);
-        $this->assertSame(1, substr_count($content, $address));
-        $this->assertStringContainsString('href="'.e($directionsUrl).'"', $content);
-        $this->assertStringNotContainsString('https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d6484.734419313616', $content);
-        $this->assertStringNotContainsString('height="340"', $content);
+            ->assertSee('Database-owned Street, Database City, 123456, Database State, Database Country', false);
     }
 }

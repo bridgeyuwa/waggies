@@ -1,0 +1,7 @@
+@extends('layouts.app')
+
+@section('content')
+    <x-waggies.breadcrumb-strip :items="[['label' => 'Policies', 'route' => 'policies']]" class="border-b border-primary/5 bg-white" />
+    <section class="bg-primary-dark py-16 text-white md:py-24"><div class="page-container"><p class="text-eyebrow text-secondary">SERVICE POLICIES</p><h1 class="mt-3 max-w-3xl font-serif text-4xl font-bold leading-tight text-white md:text-6xl">Clear expectations for every request.</h1><p class="mt-5 max-w-2xl text-base leading-relaxed text-white/75">Read the policy that matches your pet's stay, care request, or relocation plan. Operational details are confirmed with you before a booking is final.</p></div></section>
+    <section class="bg-white py-20"><div class="page-container"><div class="grid gap-5 md:grid-cols-2">@foreach($policies as $policy)<a href="{{ route($policy['route']) }}" class="group rounded-2xl border border-primary/10 bg-surface p-6 transition hover:border-primary/40 hover:shadow-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"><div class="flex items-start justify-between gap-5"><h2 class="font-serif text-xl font-bold text-primary-dark">{{ $policy['title'] }}</h2><x-waggies.icon name="arrow-forward" size="20" class="shrink-0 text-primary transition-transform group-hover:translate-x-1" /></div><p class="mt-3 text-sm leading-relaxed text-primary-dark/65">{{ $policy['description'] }}</p></a>@endforeach</div></div></section>
+@endsection

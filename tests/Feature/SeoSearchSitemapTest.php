@@ -20,7 +20,7 @@ class SeoSearchSitemapTest extends TestCase
         $siteUrl = rtrim((string) config('app.url'), '/');
 
         $response->assertOk()
-            ->assertSee('<title>Pet Boarding, Grooming &amp; Vet Care in Abuja</title>', false)
+            ->assertSee('<title>Pet Boarding, Veterinary Care &amp; Relocation in Abuja</title>', false)
             ->assertSee('<link rel="canonical" href="'.$siteUrl.'/">', false)
             ->assertSee('<meta name="robots" content="index, follow">', false)
             ->assertSee('property="og:image" content="'.$siteUrl.'/social-card.svg"', false)
@@ -56,7 +56,7 @@ class SeoSearchSitemapTest extends TestCase
     {
         $siteUrl = rtrim((string) config('app.url'), '/');
 
-        $this->get('/book?service=grooming')
+        $this->get('/book?service=boarding')
             ->assertOk()
             ->assertSee('<link rel="canonical" href="'.$siteUrl.'/book">', false)
             ->assertSee('<meta name="robots" content="noindex, follow">', false);
@@ -66,7 +66,7 @@ class SeoSearchSitemapTest extends TestCase
         $this->get('/api/search?q=grooming')
             ->assertOk()
             ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
-            ->assertJsonFragment(['href' => route('services.grooming')]);
+            ->assertJsonMissing(['href' => $siteUrl.'/services/grooming']);
 
         $this->get('/api/search?q=relocation')
             ->assertOk()
@@ -164,6 +164,9 @@ class SeoSearchSitemapTest extends TestCase
         $this->assertSame([], array_filter($locations, fn (string $location): bool => str_contains($location, '?')));
         $this->assertSame([], array_filter($locations, fn (string $location): bool => str_contains($location, '/api/')));
         $this->assertContains($siteUrl.'/privacy-policy', $locations);
+        $this->assertContains($siteUrl.'/boarding-policy', $locations);
+        $this->assertContains($siteUrl.'/cancellation-policy', $locations);
+        $this->assertContains($siteUrl.'/relocation-policy', $locations);
         $this->assertContains($siteUrl.'/guides/preparing-pet-boarding', $locations);
         $this->assertContains($siteUrl.'/services/pricing', $locations);
         $this->assertNotContains($siteUrl.'/tools/cost-calculator', $locations);

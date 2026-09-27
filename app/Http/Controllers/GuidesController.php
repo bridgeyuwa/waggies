@@ -37,10 +37,10 @@ final class GuidesController extends Controller
 
         $metadata = [
             'title' => 'Guides - Pet Care Guides - Waggies',
-            'description' => 'In-depth pet care guides from Waggies covering getting started, everyday care, and training for dogs and cats.',
+            'description' => 'In-depth pet care guides from Waggies covering getting started, everyday care, health, and relocation for dogs and cats.',
             'canonical' => route('guides.index'),
             'ogTitle' => 'Guides - Pet Care Guides - Waggies',
-            'ogDescription' => 'In-depth pet care guides from Waggies covering getting started, everyday care, and training for dogs and cats.',
+            'ogDescription' => 'In-depth pet care guides from Waggies covering getting started, everyday care, health, and relocation for dogs and cats.',
             'robots' => $request->query() === [] ? ['index', 'follow'] : ['noindex', 'follow'],
         ];
         $this->setPageHead($metadata, [Schema::collectionPage()->name('Guides')->description('In-depth pet care guides from Waggies')->url($metadata['canonical'])->toArray()]);

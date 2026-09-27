@@ -9,71 +9,70 @@ class RelocationRoutesTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_relocation_service_routes_use_the_canonical_services_hierarchy(): void
+    public function test_relocation_hub_and_import_export_routes_are_public(): void
     {
-        $routes = [
+        foreach ([
             'services.relocation' => '/services/relocation',
             'relocation.import' => '/services/relocation/import',
             'relocation.export' => '/services/relocation/export',
-            'relocation.transport' => '/services/relocation/transport',
             'relocation.checklist' => '/services/relocation/checklist',
-        ];
-
-        foreach ($routes as $name => $path) {
+        ] as $name => $path) {
             $this->assertSame($path, route($name, absolute: false));
             $this->get($path)->assertOk();
         }
     }
 
-    public function test_retired_relocation_routes_return_not_found(): void
+    public function test_local_transport_is_not_a_relocation_route_or_public_link(): void
     {
-        foreach ([
-            '/relocation',
-            '/relocation/import',
-            '/relocation/export',
-            '/relocation/transport',
-            '/relocation/checklist',
-        ] as $path) {
-            $this->get($path)->assertNotFound();
-        }
+        $this->get('/services/relocation/transport')->assertNotFound();
+        $this->get('/relocation/transport')->assertNotFound();
+
+        $this->get(route('services.relocation'))
+            ->assertOk()
+            ->assertDontSee('Local Transport')
+            ->assertDontSee('href="'.url('/services/relocation/transport').'"', false);
     }
 
-    public function test_sitemap_contains_canonical_relocation_routes_only(): void
+    public function test_sitemap_contains_active_relocation_urls_and_policy(): void
     {
         $xml = simplexml_load_string($this->get('/sitemap.xml')->assertOk()->getContent());
         $locations = [];
+
         foreach ($xml->url as $url) {
             $locations[] = (string) $url->loc;
         }
+        $siteUrl = rtrim((string) config('app.url'), '/');
 
         foreach ([
             '/services/relocation',
             '/services/relocation/import',
             '/services/relocation/export',
-            '/services/relocation/transport',
-            '/services/relocation/checklist',
+            '/relocation-policy',
         ] as $path) {
-            $this->assertNotSame([], array_filter($locations, static fn (string $location): bool => parse_url($location, PHP_URL_PATH) === $path));
+            $this->assertContains($siteUrl.$path, $locations);
         }
 
-        foreach ([
-            '/relocation',
-            '/relocation/import',
-            '/relocation/export',
-            '/relocation/transport',
-            '/relocation/checklist',
-        ] as $path) {
-            $this->assertSame([], array_filter($locations, static fn (string $location): bool => parse_url($location, PHP_URL_PATH) === $path));
+        foreach (['/services/relocation/transport', '/relocation/transport'] as $path) {
+            $this->assertNotContains($siteUrl.$path, $locations);
         }
 
         $this->assertSame($locations, array_values(array_unique($locations)));
     }
 
-    public function test_relocation_hub_secondary_actions_open_the_checklist(): void
+    public function test_relocation_pages_explain_request_based_import_and_export(): void
     {
         $this->get(route('services.relocation'))
             ->assertOk()
-            ->assertSeeText('Open Relocation Checklist')
-            ->assertSee('href="'.route('relocation.checklist').'"', false);
+            ->assertSee('Pet Import to Nigeria')
+            ->assertSee('Pet Export from Nigeria')
+            ->assertSee('Request-based import and export coordination');
+
+        $this->get(route('relocation.import'))
+            ->assertOk()
+            ->assertSee('Request Quote');
+
+        $this->get(route('relocation.export'))
+            ->assertOk()
+            ->assertSee('Request Quote');
     }
 }

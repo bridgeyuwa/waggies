@@ -21,10 +21,7 @@ class ServicesRelationManager extends RelationManager
                     ->label('Service')
                     ->formatStateUsing(fn (?string $state): string => BookingRequest::serviceOptions()[$state] ?? (string) $state),
                 TextColumn::make('service_variant')
-                    ->label('Variant')
-                    ->placeholder('Not specified'),
-                TextColumn::make('pricing_tier')
-                    ->label('Tier')
+                    ->label('Service option')
                     ->placeholder('Not specified'),
                 TextColumn::make('requested_date')
                     ->label('Requested date')

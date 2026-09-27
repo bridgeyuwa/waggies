@@ -91,21 +91,16 @@ class ContactController extends Controller
             'BOOKING_REQUEST',
             'SERVICE_REQUEST',
             'VETERINARY_REQUEST',
-            'TRANSPORT_REQUEST',
             'QUOTE_REQUEST',
             'RELOCATION_REQUEST',
         ], true) || in_array($resolvedService, [
             'boarding',
             'boarding-dogs',
             'boarding-cats',
-            'boarding-exotic',
-            'grooming',
             'vet-care',
-            'training',
             'relocation',
             'relocation-import',
             'relocation-export',
-            'local-transport',
         ], true);
     }
 

@@ -5,7 +5,7 @@
 @if($proofTestimonials !== [])
     <section class="border-y border-primary/5 bg-surface-purple/30 py-20">
         <div class="page-container">
-            <div class="mx-auto mb-14 max-w-2xl text-center"><span class="text-eyebrow mb-2 block">PROVEN CARE OUTCOMES</span><h2 class="text-h2 mb-3">What Pet Owners Experience</h2><p class="text-body-sm text-primary-dark/70">Real feedback from pet owners across Abuja who count on Waggies for boarding, grooming, and relocation.</p></div>
+            <div class="mx-auto mb-14 max-w-2xl text-center"><span class="text-eyebrow mb-2 block">PROVEN CARE OUTCOMES</span><h2 class="text-h2 mb-3">What Pet Owners Experience</h2><p class="text-body-sm text-primary-dark/70">Real feedback from pet owners across Abuja who count on Waggies for boarding, veterinary care, and relocation.</p></div>
             <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
                 @foreach ($proofTestimonials as $testimonial)
                     <x-waggies.card hover class="flex flex-col justify-between border border-primary/10 bg-white p-7">

@@ -89,7 +89,7 @@ class SubmissionContractsTest extends TestCase
             ->assertMovedPermanently()
             ->assertRedirect(route('services.pricing'));
 
-        $this->assertSame(12000, $services['vet-care']['tiers']['consultation']['amount']);
+        $this->assertSame(12000, $services['vet-care']['variants']['wellness-consultation']['amount']);
         $this->assertArrayNotHasKey('cost_calculator', config('waggies_pricing'));
     }
 

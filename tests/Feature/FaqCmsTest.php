@@ -70,21 +70,21 @@ it('limits category FAQ structured data to the selected category', function (): 
         ->not->toContain('Do you groom cats?');
 });
 
-it('preserves persisted FAQ ordering in service compositions', function (): void {
+it('preserves persisted FAQ ordering in active service compositions', function (): void {
     $first = Faq::factory()->create([
-        'category' => 'grooming',
-        'question' => 'First persisted grooming question',
+        'category' => 'vet-care',
+        'question' => 'First persisted veterinary question',
         'sort_order' => 1,
         'status' => Faq::STATUS_PUBLISHED,
     ]);
     $second = Faq::factory()->create([
-        'category' => 'grooming',
-        'question' => 'Second persisted grooming question',
+        'category' => 'vet-care',
+        'question' => 'Second persisted veterinary question',
         'sort_order' => 2,
         'status' => Faq::STATUS_PUBLISHED,
     ]);
 
-    $content = $this->get(route('services.grooming'))->getContent();
+    $content = $this->get(route('services.vet-care'))->getContent();
 
     expect(strpos($content, $first->question))->toBeLessThan(strpos($content, $second->question));
 });

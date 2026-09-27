@@ -7,18 +7,14 @@ return [
                 ['label' => 'Boarding', 'route' => 'services.boarding', 'description' => 'Overnight stays', 'icon' => 'boarding', 'variant' => 'overview'],
                 ['label' => 'Dog Boarding', 'route' => 'services.boarding.species', 'params' => ['species' => 'dogs'], 'description' => 'Tailored for your dog', 'icon' => 'dog', 'variant' => 'child'],
                 ['label' => 'Cat Boarding', 'route' => 'services.boarding.species', 'params' => ['species' => 'cats'], 'description' => 'Calm feline retreat', 'icon' => 'cat', 'variant' => 'child'],
-                ['label' => 'Exotic Pets', 'route' => 'services.boarding.species', 'params' => ['species' => 'exotic'], 'description' => 'Specialist care', 'icon' => 'exotic-pet', 'variant' => 'child'],
             ]],
             ['label' => 'Wellness', 'items' => [
-                ['label' => 'Grooming', 'route' => 'services.grooming', 'description' => 'Breed-specific treatments', 'icon' => 'grooming'],
                 ['label' => 'Vet Care', 'route' => 'services.vet-care', 'description' => 'On-site veterinary support', 'icon' => 'veterinary-care'],
-                ['label' => 'Dog Training', 'route' => 'services.training', 'description' => 'Positive-reinforcement methods', 'icon' => 'training'],
             ]],
             ['label' => 'Relocation', 'items' => [
                 ['label' => 'Relocation', 'route' => 'services.relocation', 'description' => 'International pet moves', 'icon' => 'relocation', 'variant' => 'overview'],
                 ['label' => 'Pet Import', 'route' => 'relocation.import', 'description' => 'Bringing pets into Nigeria', 'icon' => 'airport-arrival', 'variant' => 'child'],
                 ['label' => 'Pet Export', 'route' => 'relocation.export', 'description' => 'Moving pets abroad', 'icon' => 'airport-departure', 'variant' => 'child'],
-                ['label' => 'Local Transport', 'route' => 'relocation.transport', 'description' => 'Door-to-door pickup', 'icon' => 'transport', 'variant' => 'child'],
             ]],
         ]],
         'about' => ['label' => 'About', 'route' => 'about', 'kind' => 'stacked', 'flyoutLabel' => 'About Waggies', 'items' => [

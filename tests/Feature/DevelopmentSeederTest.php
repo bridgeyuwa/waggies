@@ -27,24 +27,24 @@ final class DevelopmentSeederTest extends TestCase
         foreach ([
             'users' => 1,
             'business_profiles' => 1,
-            'guides' => 4,
+            'guides' => 2,
             'knowledge_articles' => 10,
-            'faqs' => 52,
-            'gallery_items' => 23,
-            'testimonials' => 12,
+            'faqs' => 19,
+            'gallery_items' => 13,
+            'testimonials' => 7,
             'products' => 10,
             'job_openings' => 2,
             'booking_requests' => 0,
             'contact_enquiries' => 0,
             'newsletter_subscriptions' => 0,
-            'media' => 37,
+            'media' => 25,
         ] as $table => $count) {
             $this->assertDatabaseCount($table, $count);
         }
 
         $this->assertSame(7, DB::table('business_hours')->where('kind', 'weekly')->count());
-        $this->assertSame(14, DB::table('media')->where('collection_name', 'cover')->count());
-        $this->assertSame(23, DB::table('media')->where('collection_name', 'image')->count());
+        $this->assertSame(12, DB::table('media')->where('collection_name', 'cover')->count());
+        $this->assertSame(13, DB::table('media')->where('collection_name', 'image')->count());
     }
 
     public function test_reseeding_preserves_editorial_changes_and_existing_media(): void
@@ -71,6 +71,6 @@ final class DevelopmentSeederTest extends TestCase
             'model_id' => $guide->getKey(),
             'collection_name' => 'cover',
         ]);
-        $this->assertSame(23, GalleryItem::query()->count());
+        $this->assertSame(13, GalleryItem::query()->count());
     }
 }

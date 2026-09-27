@@ -3,10 +3,12 @@
 namespace App\Http\Requests;
 
 use App\Models\BookingRequest;
+use App\Support\BookingPricingCatalog;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreBookingRequest extends FormRequest
 {
@@ -34,7 +36,6 @@ class StoreBookingRequest extends FormRequest
             'message' => $this->filled('message') ? trim((string) $this->input('message')) : null,
             'source' => $this->filled('source') ? trim((string) $this->input('source')) : null,
             'service_variant' => $this->filled('service_variant') ? trim((string) $this->input('service_variant')) : null,
-            'pricing_tier' => $this->filled('pricing_tier') ? trim((string) $this->input('pricing_tier')) : null,
         ]);
     }
 
@@ -54,13 +55,33 @@ class StoreBookingRequest extends FormRequest
             'requested_date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'requested_time' => ['nullable', 'date_format:H:i'],
             'pet_name' => ['required', 'string', 'max:80'],
-            'pet_type' => ['required', 'string', Rule::in(['dog', 'cat', 'bird', 'rabbit', 'reptile', 'other'])],
+            'pet_type' => ['required', 'string', Rule::in(['dog', 'cat'])],
             'location' => ['nullable', 'string', 'max:255'],
             'message' => ['nullable', 'string', 'max:2000'],
             'service_variant' => ['nullable', 'string', 'max:80'],
-            'pricing_tier' => ['nullable', 'string', 'max:80'],
+            'pricing_tier' => ['prohibited'],
             'source' => ['nullable', 'string', 'max:120'],
             'website' => ['nullable', 'max:0'],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $service = (string) $this->input('service_key');
+            $variant = $this->input('service_variant');
+            $catalog = app(BookingPricingCatalog::class);
+            $variantOptions = $catalog->variantOptions($service, availableOnly: true);
+
+            if (! is_string($variant) || ! array_key_exists($variant, $variantOptions)) {
+                $validator->errors()->add('service_variant', 'Choose an active service option.');
+
+                return;
+            }
+
+            if (! $catalog->isPetCompatible($service, $variant, $this->input('pet_type'))) {
+                $validator->errors()->add('pet_type', $catalog->petCompatibilityReason($service, $variant, $this->input('pet_type')) ?? 'Choose a compatible pet type.');
+            }
+        });
     }
 }

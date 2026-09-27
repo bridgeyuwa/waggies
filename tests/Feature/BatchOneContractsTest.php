@@ -17,14 +17,13 @@ class BatchOneContractsTest extends TestCase
         $booking = BookingRequest::factory()->create([
             'service_key' => 'boarding',
             'service_variant' => 'dogs',
-            'pricing_tier' => 'standard',
             'source' => 'pricing',
-            'context' => ['estimate' => ['min' => 10000, 'max' => 15000]],
+            'context' => ['pricing_review' => 'staff_quotation'],
         ]);
 
         $this->assertSame(BookingRequestStatus::New, $booking->status);
         $this->assertSame('pricing', $booking->source);
-        $this->assertSame(['estimate' => ['min' => 10000, 'max' => 15000]], $booking->context);
+        $this->assertSame(['pricing_review' => 'staff_quotation'], $booking->context);
 
         $booking->transitionTo(BookingRequestStatus::Reviewing);
         $this->assertSame(BookingRequestStatus::Reviewing, $booking->fresh()->status);

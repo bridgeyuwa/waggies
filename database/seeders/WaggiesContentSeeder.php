@@ -136,6 +136,10 @@ final class WaggiesContentSeeder extends Seeder
         $aboutPages = require database_path('seeders/fixtures/about_pages.php');
 
         foreach ($aboutPages['testimonials']['items'] ?? [] as $sortOrder => $testimonial) {
+            if (! array_key_exists($testimonial['service'], Testimonial::serviceOptions())) {
+                continue;
+            }
+
             Testimonial::query()->firstOrCreate(
                 [
                     'author_name' => $testimonial['authorName'],
@@ -159,6 +163,10 @@ final class WaggiesContentSeeder extends Seeder
         $aboutPages = require database_path('seeders/fixtures/about_pages.php');
 
         foreach ($aboutPages['gallery']['images'] ?? [] as $sortOrder => $image) {
+            if (! in_array($image['category'], ['Boarding', 'Veterinary', 'Relocation'], true)) {
+                continue;
+            }
+
             $record = GalleryItem::query()->firstOrCreate(
                 ['image' => $image['src']],
                 [

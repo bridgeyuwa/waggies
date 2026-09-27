@@ -7,7 +7,7 @@
                 class="inline-flex max-w-full items-center gap-2 rounded-full border border-primary/10 bg-white px-3.5 py-1.5 shadow-sm">
                 <x-waggies.icon name="verified" size="18" variant="filled" class="shrink-0 text-primary" />
                 <span class="whitespace-nowrap text-xs font-semibold tracking-wide text-primary-dark/80 sm:text-sm">
-                    Five services. One trusted team.
+                    Three services. One trusted team.
                 </span>
             </span>
         </x-slot:supporting>
@@ -51,10 +51,10 @@
             <div class="mt-12 grid grid-cols-1 gap-y-10 lg:mt-16 lg:grid-cols-12 lg:gap-x-14">
                 <figure class="lg:col-span-5">
                     <div class="relative aspect-square overflow-hidden rounded-2xl shadow-soft lg:aspect-4/5"><img
-                            src="/media/home/care-standards.jpg" alt="Puppy resting comfortably in a cozy boarding suite"
+                            src="/media/home/care-standards.jpg" alt="Puppy resting comfortably in an individual boarding enclosure"
                             loading="lazy" class="h-full w-full object-cover"></div>
                     <figcaption class="mt-3 text-xs leading-relaxed text-primary-dark/70">A young guest settling in for a
-                        rest in one of our boarding suites.</figcaption>
+                        rest in their own enclosure.</figcaption>
                 </figure>
                 <div class="flex flex-col lg:col-span-7">
                     <ul>
@@ -85,7 +85,7 @@
                     <h2 class="text-h2">Trusted by Abuja Pet Parents</h2>
                 </div>
                 <p class="max-w-md text-body-sm text-primary-dark/70">Real stories from pet owners who entrust their
-                    companions to Waggies for boarding, grooming, and relocation.</p>
+                    companions to Waggies for boarding, veterinary care, and dog and cat relocation.</p>
             </div>
             <div class="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-12">
                 <div class="order-2 flex flex-col justify-center space-y-3 transition-[opacity,transform] duration-[280ms] ease-[cubic-bezier(0.23,1,0.32,1)] lg:order-1 lg:col-span-4 motion-reduce:transition-opacity motion-reduce:duration-180 motion-reduce:transform-none"

@@ -188,6 +188,17 @@ final class Guide extends Model implements HasMedia, HasRichContent
     }
 
     /**
+     * @return list<string>
+     */
+    public static function retiredPublicSlugs(): array
+    {
+        return [
+            'grooming-services-explained',
+            'pet-transport-what-to-know',
+        ];
+    }
+
+    /**
      * Limit Guides to records that may render through the normal public route.
      *
      * @param  Builder<self>  $query
@@ -197,6 +208,7 @@ final class Guide extends Model implements HasMedia, HasRichContent
     {
         return $query
             ->where('status', self::STATUS_PUBLISHED)
+            ->whereNotIn('slug', self::retiredPublicSlugs())
             ->where(function (Builder $query): void {
                 $query
                     ->whereNull('published_at')
