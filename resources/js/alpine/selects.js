@@ -21,12 +21,9 @@ function initWaggiesSelect(select) {
     button.type = 'button';
     button.id = select.id || `waggies-select-${Math.random().toString(36).slice(2)}`;
     select.id = nativeId;
-    button.className = 'waggies-select-trigger flex w-full min-h-[44px] items-center justify-between gap-2 rounded-md border border-primary/20 bg-white px-4 py-3 text-left text-sm font-medium whitespace-nowrap text-primary-dark shadow-none transition-[color,box-shadow] focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50';
+    button.className = 'waggies-select-trigger flex w-full min-h-[44px] items-center justify-between gap-2 rounded-2xl border border-primary/20 bg-white px-4 py-3 text-left text-sm font-medium whitespace-nowrap text-primary-dark shadow-none transition-[color,box-shadow] focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50';
     button.style.height = '44px';
     button.style.minHeight = '44px';
-    if (select.classList.contains('contact-input')) {
-        button.style.borderRadius = select.classList.contains('contact-input--pet') || select.id.startsWith('pet-') ? 'var(--radius-xl)' : 'var(--radius-2xl)';
-    }
     button.setAttribute('role', 'combobox');
     button.setAttribute('aria-haspopup', 'listbox');
     button.setAttribute('aria-autocomplete', 'none');
@@ -48,7 +45,7 @@ function initWaggiesSelect(select) {
 
     const listbox = document.createElement('div');
     listbox.id = `${button.id}-listbox`;
-    listbox.className = 'waggies-select-options fixed z-layer-navigation min-w-32 overflow-x-hidden overflow-y-auto rounded-lg border border-primary/15 bg-white p-1 shadow-lg outline-none';
+    listbox.className = 'waggies-select-options fixed z-layer-navigation flex min-w-32 flex-col gap-1 overflow-x-hidden overflow-y-auto rounded-lg border border-primary/15 bg-white p-1 shadow-lg outline-none';
     listbox.setAttribute('role', 'listbox');
     listbox.dataset.state = 'closed';
     listbox.hidden = true;

@@ -59,7 +59,7 @@
                     @keydown.enter.prevent="toggle()"
                     @keydown.space.prevent="toggle()"
                     @keydown.escape.prevent="close()"
-                    class="waggies-select-trigger flex h-[44px] min-h-[44px] w-full items-center justify-between gap-2 rounded-md border border-primary/20 bg-white px-4 py-3 text-left text-sm font-medium whitespace-nowrap text-primary-dark shadow-none transition-[color,box-shadow] focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+                    class="waggies-select-trigger flex h-[44px] min-h-[44px] w-full items-center justify-between gap-2 rounded-2xl border border-primary/20 bg-white px-4 py-3 text-left text-sm font-medium whitespace-nowrap text-primary-dark shadow-none transition-[color,box-shadow] focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     <span x-text="selectedLabel" :class="isPlaceholder ? 'text-primary-dark/45' : 'text-primary-dark'" class="min-w-0 flex-1 truncate"></span>
                     <img src="{{ asset('icons/material-symbols/outlined/keyboard_arrow_down.svg') }}" alt="" class="h-4 w-4 shrink-0 opacity-50">
@@ -76,7 +76,7 @@
                         data-state="closed"
                         data-side="bottom"
                         @keydown="onListboxKeydown($event)"
-                        class="waggies-select-options fixed z-layer-navigation min-w-32 overflow-x-hidden overflow-y-auto rounded-lg border border-primary/15 bg-white p-1 shadow-lg outline-none"
+                        class="waggies-select-options fixed z-layer-navigation flex min-w-32 flex-col gap-1 overflow-x-hidden overflow-y-auto rounded-lg border border-primary/15 bg-white p-1 shadow-lg outline-none"
                     >
                         <template x-for="(option, index) in options" :key="option.value">
                             <button

@@ -3,6 +3,16 @@
 return [
     'currency' => 'NGN',
 
+    'pet_age_options' => [
+        'under-6-months' => 'Under 6 months',
+        '6-12-months' => '6–12 months',
+        '1-3-years' => '1–3 years',
+        '4-7-years' => '4–7 years',
+        '8-10-years' => '8–10 years',
+        '11-plus-years' => '11+ years',
+        'not-sure' => 'Not sure',
+    ],
+
     'max_service_items' => 12,
 
     'discounts' => [

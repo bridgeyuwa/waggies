@@ -55,6 +55,177 @@ it('preserves active service context without a tier', function (): void {
         ->assertSee('Cats');
 });
 
+it('renders the configured pet age and life-stage options', function (): void {
+    Livewire::test('booking-request-wizard')
+        ->set('step', 2)
+        ->assertSee('Under 6 months')
+        ->assertSee('6–12 months')
+        ->assertSee('1–3 years')
+        ->assertSee('4–7 years')
+        ->assertSee('8–10 years')
+        ->assertSee('11+ years')
+        ->assertSee('Not sure');
+});
+
+dataset('age-required booking variants', [
+    'wellness consultation' => [
+        'vet-care',
+        'wellness-consultation',
+        [
+            'requested_date' => '2026-10-05',
+            'reason' => 'Routine wellness check.',
+            'urgency' => 'routine',
+        ],
+    ],
+    'comprehensive examination' => [
+        'vet-care',
+        'comprehensive-examination',
+        [
+            'requested_date' => '2026-10-05',
+            'reason' => 'A full examination.',
+            'urgency' => 'routine',
+        ],
+    ],
+    'vaccination request' => [
+        'vet-care',
+        'vaccination-request',
+        [
+            'requested_date' => '2026-10-05',
+            'reason' => 'Vaccination request.',
+            'urgency' => 'routine',
+        ],
+    ],
+    'microchip' => [
+        'vet-care',
+        'microchip',
+        [
+            'requested_date' => '2026-10-05',
+            'reason' => 'Microchip implantation.',
+            'urgency' => 'routine',
+        ],
+    ],
+    'relocation import' => [
+        'relocation',
+        'import',
+        [
+            'requested_date' => '2026-10-05',
+            'origin_country' => 'Nigeria',
+            'destination_country' => 'Ghana',
+            'microchip_status' => 'yes',
+            'documentation_status' => 'ready',
+        ],
+    ],
+    'relocation export' => [
+        'relocation',
+        'export',
+        [
+            'requested_date' => '2026-10-05',
+            'origin_country' => 'Nigeria',
+            'destination_country' => 'Ghana',
+            'microchip_status' => 'yes',
+            'documentation_status' => 'ready',
+        ],
+    ],
+]);
+
+it('requires a valid age or life stage for every veterinary and relocation variant', function (string $service, string $variant, array $details): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => $service, 'variant' => $variant],
+    ])
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('services.0.requested_date', $details['requested_date'])
+        ->set('services.0.details', array_diff_key($details, ['requested_date' => true]))
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
+        ->set('pets.0.sex', 'male')
+        ->set('step', 3)
+        ->call('nextStep')
+        ->assertHasErrors(['pets.0.age' => 'required']);
+})->with('age-required booking variants');
+
+it('accepts not sure as a valid required pet life stage', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'vet-care', 'variant' => 'wellness-consultation'],
+    ])
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('services.0.requested_date', '2026-10-05')
+        ->set('services.0.details', [
+            'reason' => 'Routine wellness check.',
+            'urgency' => 'routine',
+        ])
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.age', 'not-sure')
+        ->set('pets.0.sex', 'male')
+        ->set('step', 3)
+        ->call('nextStep')
+        ->assertSet('step', 4)
+        ->assertHasNoErrors();
+});
+
+it('rejects an age value outside the configured pet life stages', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'vet-care', 'variant' => 'wellness-consultation'],
+    ])
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('services.0.requested_date', '2026-10-05')
+        ->set('services.0.details', [
+            'reason' => 'Routine wellness check.',
+            'urgency' => 'routine',
+        ])
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.age', 'unknown-value')
+        ->set('pets.0.sex', 'male')
+        ->set('step', 3)
+        ->call('nextStep')
+        ->assertHasErrors(['pets.0.age' => 'in']);
+});
+
+it('requires a size for an assigned boarding dog', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
+    ])
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('services.0.details', [
+            'check_in' => '2026-10-05',
+            'check_out' => '2026-10-08',
+            'emergency_contact_primary' => 'Chidi Obi — 0808 081 1903',
+            'emergency_contact_secondary' => 'Bola Obi — 0808 081 1904',
+            'emergency_vet_authorization' => 'authorized',
+        ])
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.sex', 'male')
+        ->set('step', 3)
+        ->call('nextStep')
+        ->assertHasErrors(['pets.0.size' => 'required']);
+});
+
+dataset('relocation variants', ['import', 'export']);
+
+it('requires breed for every relocation variant', function (string $variant): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => $variant],
+    ])
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('services.0.requested_date', '2026-10-05')
+        ->set('services.0.details', [
+            'origin_country' => 'Nigeria',
+            'destination_country' => 'Ghana',
+            'microchip_status' => 'yes',
+            'documentation_status' => 'ready',
+        ])
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.age', 'not-sure')
+        ->set('pets.0.sex', 'male')
+        ->set('step', 3)
+        ->call('nextStep')
+        ->assertHasErrors(['pets.0.breed' => 'required']);
+})->with('relocation variants');
+
 it('does not accept removed or tiered service context', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'grooming', 'variant' => 'dogs'],

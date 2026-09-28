@@ -155,3 +155,23 @@ it('keeps relocation limited to dog and cat import/export requests', function ()
         ->and($catalog->quote('relocation', 'import', null, ['species' => 'dog']))
         ->toMatchArray(['status' => 'quote', 'type' => 'quote']);
 });
+
+it('keeps every booking variant compatible with its declared pet types', function (): void {
+    $catalog = app(BookingPricingCatalog::class);
+
+    foreach ($catalog->services(availableOnly: true) as $serviceKey => $service) {
+        foreach ($catalog->variants($serviceKey, availableOnly: true) as $variantKey => $variant) {
+            $allowedPetTypes = array_values($variant['pet_types'] ?? $service['pet_types'] ?? []);
+
+            expect($catalog->variantOptions($serviceKey, availableOnly: true))
+                ->toHaveKey($variantKey)
+                ->and($catalog->allowedPetTypes($serviceKey, $variantKey))
+                ->toBe($allowedPetTypes);
+
+            foreach (['dog', 'cat', 'exotic'] as $petType) {
+                expect($catalog->isPetCompatible($serviceKey, $variantKey, $petType))
+                    ->toBe(in_array($petType, $allowedPetTypes, true));
+            }
+        }
+    }
+});

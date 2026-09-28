@@ -400,7 +400,7 @@ new class extends Component
      */
     protected function validationAttributes(): array
     {
-        return [
+        $attributes = [
             'services.*.service_key' => 'service',
             'services.*.service_variant' => 'animal type',
             'services.*.assigned_pet_ids' => 'assigned pet',
@@ -424,6 +424,12 @@ new class extends Component
             'contact.email' => 'email address',
             'contact.phone' => 'phone or WhatsApp number',
         ];
+
+        foreach ($this->services as $index => $service) {
+            $attributes["services.{$index}.service_variant"] = $this->serviceVariantAttribute($service['service_key'] ?? null);
+        }
+
+        return $attributes;
     }
 
     /**
@@ -483,7 +489,7 @@ new class extends Component
         $variantOptions = $this->allVariantOptions($service['service_key']);
 
         if ($variantOptions !== [] && ! $service['service_variant']) {
-            return 'Choose an animal type';
+            return $this->serviceVariantStatus($service['service_key']);
         }
 
         if ($this->step >= 3 && count($service['assigned_pet_ids'] ?? []) === 0) {
@@ -491,6 +497,36 @@ new class extends Component
         }
 
         return $this->step >= 3 ? 'Ready' : 'Ready to match';
+    }
+
+    public function serviceVariantQuestion(?string $service): string
+    {
+        return match ($service) {
+            'boarding' => 'Which animal type is this service for?',
+            'vet-care' => 'What type of care does your pet need?',
+            'relocation' => 'Which relocation option applies?',
+            default => 'Which option applies to this service?',
+        };
+    }
+
+    public function serviceVariantStatus(?string $service): string
+    {
+        return match ($service) {
+            'boarding' => 'Choose an animal type',
+            'vet-care' => 'Choose a service option',
+            'relocation' => 'Choose a relocation option',
+            default => 'Choose an option',
+        };
+    }
+
+    public function serviceVariantAttribute(?string $service): string
+    {
+        return match ($service) {
+            'boarding' => 'animal type',
+            'vet-care' => 'service option',
+            'relocation' => 'relocation option',
+            default => 'service option',
+        };
     }
 
     public function serviceAssignedCount(array $service): int
@@ -1174,8 +1210,7 @@ new class extends Component
                     </div>
                 @endif
 
-                <div wire:loading class="mb-5 flex items-center gap-2 rounded-xl border border-primary/15 bg-surface-purple/45 px-4 py-3 text-sm font-medium text-primary-dark/70" role="status" aria-live="polite">
-                    <span class="inline-block size-2 animate-pulse rounded-full bg-primary" aria-hidden="true"></span>
+                <div wire:loading class="sr-only" role="status" aria-live="polite">
                     Updating your request…
                 </div>
 
@@ -1221,17 +1256,17 @@ new class extends Component
                                             @endphp
                                             <div class="mt-6 border-t border-primary/10 pt-5">
                                                 <p class="text-eyebrow text-primary-dark/50">NEXT</p>
-                                                <h4 class="mt-1 text-base font-bold text-primary-dark">Configure this service</h4>
-                                                <p class="mt-1 text-sm leading-relaxed text-primary-dark/60">Now choose the animal type or service option for {{ $this->serviceLabel($service['service_key']) }}.</p>
+                                                <h4 class="mt-1 text-base font-bold text-primary-dark">Choose a service option</h4>
+                                                <p class="mt-1 text-sm leading-relaxed text-primary-dark/60">Choose the option that best matches what your pet needs.</p>
                                             </div>
-                                            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                                            <div class="mt-5">
                                                 @if($variantOptions)
                                                     <fieldset id="booking-service-{{ $index }}-variant" tabindex="-1" class="rounded-2xl border border-primary/15 bg-surface-purple/30 p-4 {{ $errors->has('services.'.$index.'.service_variant') ? 'border-danger/60 ring-2 ring-danger/15' : '' }}">
-                                                        <legend class="px-1 text-sm font-semibold text-primary-dark">Which animal type is this service for? <span class="text-danger" aria-hidden="true">*</span></legend>
-                                                        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                                                        <legend class="px-1 text-sm font-semibold text-primary-dark">{{ $this->serviceVariantQuestion($service['service_key']) }} <span class="text-danger" aria-hidden="true">*</span></legend>
+                                                        <div class="mt-3 flex flex-wrap gap-3">
                                                             @foreach($variantOptions as $key => $label)
                                                                 @php $available = $this->variantAvailable($service['service_key'], $key); @endphp
-                                                                <label class="flex min-h-14 items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-colors {{ $service['service_variant'] === $key ? 'border-primary bg-white ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : 'cursor-pointer' }}">
+                                                                <label class="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-colors sm:w-[calc(50%-0.375rem)] lg:w-auto lg:min-w-40 lg:flex-1 {{ $service['service_variant'] === $key ? 'border-primary bg-white ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : 'cursor-pointer' }}">
                                                                     <input type="radio" name="booking-service-{{ $index }}-variant" value="{{ $key }}" @checked($service['service_variant'] === $key) @disabled(! $available) wire:click="variantChanged({{ $index }}, '{{ $key }}')" class="sr-only peer">
                                                                     <span>{{ $label }}@if(! $available)<span class="mt-1 block text-xs font-medium text-primary-dark/60">Temporarily unavailable</span>@endif</span>
                                                                     <span class="hidden size-5 shrink-0 items-center justify-center rounded-full bg-primary text-white peer-checked:flex"><x-waggies.icon name="check" size="13" /></span>
@@ -1242,10 +1277,9 @@ new class extends Component
                                                             <p class="mt-2 text-sm font-medium text-danger" role="alert">{{ $errors->first('services.'.$index.'.service_variant') }}</p>
                                                         @endif
                                                     </fieldset>
-                                                @endif
-
-                                                @if($variantOptions && ! $service['service_variant'])
-                                                    <p class="self-end rounded-xl bg-surface-purple/55 p-3 text-sm leading-relaxed text-primary-dark/65">Choose an animal type first to see the service options and details for that service.</p>
+                                                    @if(! $service['service_variant'])
+                                                        <p class="mt-4 rounded-xl bg-surface-purple/55 p-3 text-sm leading-relaxed text-primary-dark/65">Choose one option to continue.</p>
+                                                    @endif
                                                 @endif
                                             </div>
                                     @else
