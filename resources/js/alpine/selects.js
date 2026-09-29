@@ -482,6 +482,220 @@ function waggiesLivewireSelect() {
     };
 }
 
+function waggiesSearchableSelect() {
+    return {
+        open: false,
+        query: '',
+        options: [],
+        filteredOptions: [],
+        selectedValue: '',
+        selectedLabel: 'Choose an option',
+        isPlaceholder: true,
+        isDisabled: false,
+        highlightedIndex: 0,
+
+        init() {
+            this.refreshOptions();
+            this.sync();
+
+            this.nativeChangeHandler = () => {
+                this.refreshOptions();
+                this.sync();
+            };
+            this.$refs.native.addEventListener('change', this.nativeChangeHandler);
+
+            this.optionObserver = new MutationObserver(() => {
+                this.refreshOptions();
+                this.sync();
+            });
+            this.optionObserver.observe(this.$refs.native, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['disabled', 'selected', 'required', 'aria-invalid', 'aria-describedby'],
+            });
+
+            this.syncEventHandler = () => {
+                this.refreshOptions();
+                this.sync();
+            };
+            window.addEventListener('waggies-livewire-selects-sync', this.syncEventHandler);
+
+            this.documentClickHandler = event => {
+                if (!this.$root.contains(event.target) && !this.$refs.menu?.contains(event.target)) this.close();
+            };
+            this.resizeHandler = () => this.close();
+            this.scrollHandler = () => { if (this.open) this.positionMenu(); };
+            document.addEventListener('click', this.documentClickHandler);
+            window.addEventListener('resize', this.resizeHandler);
+            window.addEventListener('blur', this.resizeHandler);
+            window.addEventListener('scroll', this.scrollHandler, true);
+        },
+
+        destroy() {
+            this.$refs.native?.removeEventListener('change', this.nativeChangeHandler);
+            this.optionObserver?.disconnect();
+            window.removeEventListener('waggies-livewire-selects-sync', this.syncEventHandler);
+            document.removeEventListener('click', this.documentClickHandler);
+            window.removeEventListener('resize', this.resizeHandler);
+            window.removeEventListener('blur', this.resizeHandler);
+            window.removeEventListener('scroll', this.scrollHandler, true);
+        },
+
+        refreshOptions() {
+            const native = this.$refs.native;
+
+            this.options = [...native.options].map(option => ({
+                value: option.value,
+                label: option.textContent?.trim() || '',
+                disabled: option.disabled || (native.required && option.value === ''),
+                search: `${option.textContent?.trim() || ''} ${option.dataset.search || ''}`.toLowerCase(),
+            }));
+            this.filterOptions();
+        },
+
+        filterOptions(queryValue = null) {
+            if (queryValue !== null) this.query = queryValue;
+
+            const query = this.query.trim().toLowerCase();
+
+            this.filteredOptions = this.options.filter(option =>
+                option.value !== ''
+                && !option.disabled
+                && (query === '' || option.search.includes(query)),
+            );
+            this.highlightedIndex = this.filteredOptions.length > 0 ? Math.min(this.highlightedIndex, this.filteredOptions.length - 1) : -1;
+
+            if (this.open) this.$nextTick(() => this.positionMenu());
+        },
+
+        sync() {
+            const native = this.$refs.native;
+            this.selectedValue = native.value;
+            this.selectedLabel = native.selectedOptions[0]?.textContent?.trim() || this.$root.dataset.placeholder || 'Choose an option';
+            this.isPlaceholder = native.value === '';
+            this.isDisabled = native.disabled;
+
+            if (this.$refs.trigger) {
+                if (native.required) this.$refs.trigger.setAttribute('aria-required', 'true');
+                else this.$refs.trigger.removeAttribute('aria-required');
+                if (native.getAttribute('aria-describedby')) this.$refs.trigger.setAttribute('aria-describedby', native.getAttribute('aria-describedby'));
+                else this.$refs.trigger.removeAttribute('aria-describedby');
+                if (native.getAttribute('aria-invalid')) this.$refs.trigger.setAttribute('aria-invalid', native.getAttribute('aria-invalid'));
+                else this.$refs.trigger.removeAttribute('aria-invalid');
+            }
+
+            if (this.open) this.$nextTick(() => this.positionMenu());
+        },
+
+        optionButtons() {
+            return this.$refs.listbox ? [...this.$refs.listbox.querySelectorAll('[role="option"]')] : [];
+        },
+
+        focusOption(index) {
+            if (!this.filteredOptions[index]) return;
+
+            this.highlightedIndex = index;
+            this.$nextTick(() => this.optionButtons()[index]?.focus({ preventScroll: true }));
+        },
+
+        moveHighlight(direction) {
+            if (this.filteredOptions.length === 0) return;
+
+            const currentIndex = this.highlightedIndex < 0 ? (direction > 0 ? -1 : this.filteredOptions.length) : this.highlightedIndex;
+            const nextIndex = (currentIndex + direction + this.filteredOptions.length) % this.filteredOptions.length;
+            this.focusOption(nextIndex);
+        },
+
+        toggle() {
+            if (this.isDisabled) return;
+            this.open ? this.close() : this.openMenu();
+        },
+
+        openMenu(direction = 0) {
+            if (this.isDisabled) return;
+
+            this.refreshOptions();
+            this.query = '';
+            this.filterOptions();
+            this.open = true;
+            this.highlightedIndex = direction < 0 ? this.filteredOptions.length - 1 : 0;
+            this.$nextTick(() => {
+                this.positionMenu();
+                this.$refs.menu?.setAttribute('data-state', 'open');
+                this.$refs.search?.focus();
+            });
+        },
+
+        close() {
+            this.open = false;
+            this.query = '';
+            this.highlightedIndex = 0;
+            this.$refs.menu?.setAttribute('data-state', 'closed');
+        },
+
+        closeAndFocus() {
+            this.close();
+            this.$nextTick(() => this.$refs.trigger?.focus());
+        },
+
+        chooseHighlighted() {
+            const option = this.filteredOptions[this.highlightedIndex] ?? this.filteredOptions[0];
+            if (option) this.choose(option.value);
+        },
+
+        choose(value) {
+            const option = [...this.$refs.native.options].find(candidate => candidate.value === value);
+            if (!option || option.disabled) return;
+
+            this.$refs.native.value = value;
+            this.$refs.native.dispatchEvent(new Event('change', { bubbles: true }));
+            this.close();
+            this.$nextTick(() => this.$refs.trigger?.focus());
+        },
+
+        onOptionKeydown(event, index) {
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                this.highlightedIndex = index;
+                this.moveHighlight(event.key === 'ArrowDown' ? 1 : -1);
+            } else if (event.key === 'Home' || event.key === 'End') {
+                event.preventDefault();
+                this.focusOption(event.key === 'Home' ? 0 : this.filteredOptions.length - 1);
+            } else if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                this.choose(this.filteredOptions[index]?.value);
+            } else if (event.key === 'Escape') {
+                event.preventDefault();
+                this.closeAndFocus();
+            }
+        },
+
+        positionMenu() {
+            const trigger = this.$refs.trigger;
+            const menu = this.$refs.menu;
+            if (!trigger || !menu || !this.open) return;
+
+            const rect = trigger.getBoundingClientRect();
+            const viewportPadding = 4;
+            const gap = 4;
+            const width = Math.round(rect.width);
+            const left = Math.min(Math.max(viewportPadding, Math.round(rect.left)), Math.max(viewportPadding, window.innerWidth - width - viewportPadding));
+            const spaceBelow = Math.floor(window.innerHeight - rect.bottom - gap - viewportPadding);
+            const spaceAbove = Math.floor(rect.top - gap - viewportPadding);
+            const opensAbove = spaceBelow < 220 && spaceAbove > spaceBelow;
+
+            menu.style.left = `${left}px`;
+            menu.style.width = `${width}px`;
+            menu.style.minWidth = `${width}px`;
+            menu.style.maxHeight = `${Math.max(120, opensAbove ? spaceAbove : spaceBelow)}px`;
+            menu.style.top = opensAbove ? 'auto' : `${Math.round(rect.bottom + gap)}px`;
+            menu.style.bottom = opensAbove ? `${Math.round(window.innerHeight - rect.top + gap)}px` : 'auto';
+            menu.dataset.side = opensAbove ? 'top' : 'bottom';
+        },
+    };
+}
+
 function syncWaggiesSelectPresentation(select) {
     const button = select.parentElement?.querySelector(':scope > button.waggies-select-trigger');
     if (!button) return;
@@ -522,6 +736,7 @@ const waggiesSelectObserver = new MutationObserver(mutations => {
 
 export function registerWaggiesSelectEnhancement(Alpine) {
     Alpine.data('waggiesLivewireSelect', waggiesLivewireSelect);
+    Alpine.data('waggiesSearchableSelect', waggiesSearchableSelect);
     enhanceWaggiesSelects();
 
     waggiesSelectObserver.observe(document.body, { childList: true, subtree: true });

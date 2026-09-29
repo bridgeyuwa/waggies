@@ -96,27 +96,90 @@ final class BookingRequestSchema
                     'urgent' => 'Urgent — please contact me promptly',
                 ], true),
             ],
-            'relocation' => [
-                self::dateField('requested_date', 'Travel date', 'Import and export requests are reviewed for route, documentation, and timing.', 'service'),
-                self::textField('origin_country', 'Origin country', 'Where the pet is travelling from.', true),
-                self::textField('destination_country', 'Destination country', 'Where the pet is travelling to.', true),
-                self::textField('airline_airport_details', 'Airline or airport details', 'Share any airline, airport, or flight information already known.'),
-                self::textField('pickup_details', 'Pickup details', 'Where should the pet be collected, if applicable?'),
-                self::textField('destination_details', 'Destination details', 'Where should the pet be delivered or collected, if applicable?'),
-                self::selectField('microchip_status', 'Existing microchip status', [
-                    'yes' => 'A chip already exists',
-                    'no' => 'No chip is currently recorded',
-                    'unknown' => 'I am not sure',
-                ], true),
-                self::selectField('documentation_status', 'Documentation status', [
-                    'ready' => 'Most documents are ready',
-                    'in-progress' => 'Documents are in progress',
-                    'not-sure' => 'I need help understanding the requirements',
-                ], true),
-                self::textarea('relocation_notes', 'Route or timing notes', 'Add timing constraints, route notes, or other requirements.'),
-            ],
+            'relocation' => self::relocationFields($variant),
             default => [],
         };
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function relocationRoute(?string $variant): array
+    {
+        $fixedCountryCode = strtoupper((string) config('waggies_booking.relocation.fixed_country_code', 'NG'));
+        $airport = config('waggies_booking.relocation.airport', []);
+        $countryCatalog = app(CountryCatalog::class);
+
+        return [
+            'direction' => $variant,
+            'fixed_country_code' => $fixedCountryCode,
+            'fixed_country_label' => $countryCatalog->label($fixedCountryCode) ?? $fixedCountryCode,
+            'airport' => is_array($airport) ? $airport : [],
+            'origin' => [
+                'fixed' => $variant === 'export',
+                'country_code' => $variant === 'export' ? $fixedCountryCode : null,
+            ],
+            'destination' => [
+                'fixed' => $variant === 'import',
+                'country_code' => $variant === 'import' ? $fixedCountryCode : null,
+            ],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $details
+     * @return array<string, mixed>
+     */
+    public static function relocationDetails(?string $variant, array $details = []): array
+    {
+        $route = self::relocationRoute($variant);
+        $details['origin_country'] = $route['origin']['country_code'];
+        $details['destination_country'] = $route['destination']['country_code'];
+
+        return $details;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private static function relocationFields(?string $variant): array
+    {
+        $route = self::relocationRoute($variant);
+        $countryCatalog = app(CountryCatalog::class);
+        $editableCountryOptions = $countryCatalog->options($route['fixed_country_code']);
+        $fixedCountryOptions = [$route['fixed_country_code'] => $route['fixed_country_label']];
+
+        return [
+            self::dateField('requested_date', 'Travel date', 'Import and export requests are reviewed for route, documentation, and timing.', 'service'),
+            self::countryField(
+                'origin_country',
+                'Origin country',
+                'Choose origin country',
+                $route['origin']['fixed'] ? $fixedCountryOptions : $editableCountryOptions,
+                true,
+                $route['origin']['fixed'],
+            ),
+            self::countryField(
+                'destination_country',
+                'Destination country',
+                'Choose destination country',
+                $route['destination']['fixed'] ? $fixedCountryOptions : $editableCountryOptions,
+                true,
+                $route['destination']['fixed'],
+            ),
+            self::textField('airline_airport_details', 'Airline or flight details', 'Share any airline, airport, or flight information already known.'),
+            self::selectField('microchip_status', 'Existing microchip status', [
+                'yes' => 'A chip already exists',
+                'no' => 'No chip is currently recorded',
+                'unknown' => 'I am not sure',
+            ], true),
+            self::selectField('documentation_status', 'Documentation status', [
+                'ready' => 'Most documents are ready',
+                'in-progress' => 'Documents are in progress',
+                'not-sure' => 'I need help understanding the requirements',
+            ], true),
+            self::textarea('relocation_notes', 'Route or timing notes', 'Add timing constraints, route notes, or other requirements.'),
+        ];
     }
 
     /**
@@ -145,6 +208,24 @@ final class BookingRequestSchema
             'type' => 'text',
             'required' => $required,
             'placeholder' => $placeholder,
+            'scope' => 'details',
+        ];
+    }
+
+    /**
+     * @param  array<string, string>  $options
+     * @return array<string, mixed>
+     */
+    private static function countryField(string $key, string $label, string $placeholder, array $options, bool $required = false, bool $fixed = false): array
+    {
+        return [
+            'key' => $key,
+            'label' => $label,
+            'type' => 'country',
+            'required' => $required,
+            'options' => $options,
+            'placeholder' => $placeholder,
+            'fixed' => $fixed,
             'scope' => 'details',
         ];
     }

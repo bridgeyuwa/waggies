@@ -86,6 +86,16 @@ it('requires at least one veterinary care need before leaving the services step'
         ->assertHasNoErrors();
 });
 
+it('initializes veterinary care needs as an array for checkbox binding', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'vet-care'],
+    ])
+        ->assertSet('services.0.details.care_needs', [])
+        ->set('services.0.details.care_needs', ['wellness-consultation'])
+        ->assertSet('services.0.details.care_needs', ['wellness-consultation'])
+        ->assertSee('Wellness consultation');
+});
+
 it('preserves an incompatible pet type and blocks stage two with a clear validation error', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
@@ -167,8 +177,8 @@ dataset('age-required booking variants', [
         'import',
         [
             'requested_date' => '2026-10-05',
-            'origin_country' => 'Nigeria',
-            'destination_country' => 'Ghana',
+            'origin_country' => 'GH',
+            'destination_country' => 'NG',
             'microchip_status' => 'yes',
             'documentation_status' => 'ready',
         ],
@@ -178,8 +188,8 @@ dataset('age-required booking variants', [
         'export',
         [
             'requested_date' => '2026-10-05',
-            'origin_country' => 'Nigeria',
-            'destination_country' => 'Ghana',
+            'origin_country' => 'NG',
+            'destination_country' => 'GH',
             'microchip_status' => 'yes',
             'documentation_status' => 'ready',
         ],
@@ -270,8 +280,8 @@ it('requires breed for every relocation variant', function (string $variant): vo
         ->set('services.0.assigned_pet_ids', [0])
         ->set('services.0.requested_date', '2026-10-05')
         ->set('services.0.details', [
-            'origin_country' => 'Nigeria',
-            'destination_country' => 'Ghana',
+            'origin_country' => $variant === 'import' ? 'GH' : 'NG',
+            'destination_country' => $variant === 'import' ? 'NG' : 'GH',
             'microchip_status' => 'yes',
             'documentation_status' => 'ready',
         ])
@@ -344,9 +354,50 @@ it('supports relocation requests for dogs and cats without a local transport ser
     ])
         ->assertSet('services.0.service_key', 'relocation')
         ->assertSet('services.0.service_variant', 'export')
+        ->assertSet('services.0.details.origin_country', 'NG')
+        ->assertSet('services.0.details.destination_country', null)
         ->set('step', 3)
-        ->assertSee('Origin country')
-        ->assertSee('Destination country');
+        ->assertSee('Nnamdi Azikiwe International Airport (ABV), Abuja, Nigeria')
+        ->assertSee('Choose destination country')
+        ->assertSee('Search countries…')
+        ->assertSee('<option value="GH">Ghana</option>', false)
+        ->assertDontSee('<option value="NG">Nigeria</option>', false)
+        ->assertSee('Airline or flight details')
+        ->assertDontSee('Pickup details')
+        ->assertDontSee('Destination details')
+        ->assertDontSee('Choose origin country');
+});
+
+it('validates relocation country codes against the selected direction', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => 'import'],
+    ])
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('services.0.requested_date', '2026-10-05')
+        ->set('services.0.details.origin_country', 'NG')
+        ->set('services.0.details.destination_country', 'GH')
+        ->set('services.0.details.microchip_status', 'yes')
+        ->set('services.0.details.documentation_status', 'ready')
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
+        ->set('pets.0.age', 'not-sure')
+        ->set('pets.0.sex', 'male')
+        ->set('step', 3)
+        ->call('nextStep')
+        ->assertHasErrors(['services.0.details.origin_country' => 'in']);
+});
+
+it('clears the editable relocation country when the direction changes', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => 'import'],
+    ])
+        ->assertSet('services.0.details.origin_country', null)
+        ->assertSet('services.0.details.destination_country', 'NG')
+        ->set('services.0.details.origin_country', 'GH')
+        ->call('variantChanged', 0, 'export')
+        ->assertSet('services.0.details.origin_country', 'NG')
+        ->assertSet('services.0.details.destination_country', null);
 });
 
 it('persists a valid request as received and leaves quotation authority with staff', function (): void {

@@ -3,6 +3,7 @@
 use App\Actions\CreateBookingRequest;
 use App\Support\BookingPricingCatalog;
 use App\Support\BookingRequestSchema;
+use App\Support\CountryCatalog;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -107,6 +108,14 @@ new class extends Component
         $variantOptions = BookingRequestSchema::variantOptions($service);
         $this->services[$index]['service_variant'] = array_key_exists((string) $variant, $variantOptions) ? $variant : null;
         $this->services[$index]['assigned_pet_ids'] = [];
+
+        if ($service === 'relocation') {
+            $this->services[$index]['details'] = BookingRequestSchema::relocationDetails(
+                $this->services[$index]['service_variant'],
+                $this->services[$index]['details'] ?? [],
+            );
+        }
+
         $this->resetValidation();
     }
 
@@ -704,12 +713,43 @@ new class extends Component
         }
 
         if ($service['service_key'] === 'relocation') {
-            return implode(' · ', array_filter([$dateLabel, '1 relocation', $details['origin_country'] ?? null, $details['destination_country'] ?? null]));
+            return implode(' · ', array_filter([
+                $dateLabel,
+                '1 relocation',
+                app(CountryCatalog::class)->label($details['origin_country'] ?? null),
+                app(CountryCatalog::class)->label($details['destination_country'] ?? null),
+            ]));
         }
 
         $unit = $service['service_key'] === 'vet-care' ? '1 veterinary request' : null;
 
         return implode(' · ', array_filter([$dateLabel ?: 'Date not added yet', $unit]));
+    }
+
+    public function relocationEndpointLabel(array $service, string $side): string
+    {
+        $route = BookingRequestSchema::relocationRoute($service['service_variant'] ?? null);
+        $endpoint = $route[$side] ?? [];
+
+        if (($endpoint['fixed'] ?? false) === true) {
+            $airport = $route['airport'];
+            $airportName = (string) ($airport['name'] ?? 'Nnamdi Azikiwe International Airport');
+
+            if (filled($airport['code'] ?? null)) {
+                $airportName .= ' ('.$airport['code'].')';
+            }
+
+            return implode(', ', array_filter([
+                $airportName,
+                $airport['city'] ?? 'Abuja',
+                $route['fixed_country_label'] ?? 'Nigeria',
+            ]));
+        }
+
+        $countryCode = $service['details'][$side.'_country'] ?? null;
+
+        return app(CountryCatalog::class)->label($countryCode)
+            ?? ($side === 'origin' ? 'Choose origin country' : 'Choose destination country');
     }
 
     public function dateMinimum(array $service, array $field): string
@@ -768,7 +808,9 @@ new class extends Component
                 continue;
             }
 
-            $details[$field['label']] = (string) $value;
+            $details[$field['label']] = ($field['type'] ?? null) === 'country'
+                ? (app(CountryCatalog::class)->label((string) $value) ?? (string) $value)
+                : (string) $value;
         }
 
         return $details;
@@ -1022,7 +1064,7 @@ new class extends Component
                     if ($field['key'] === 'check_out') {
                         $fieldRules[] = "after:services.{$index}.details.check_in";
                     }
-                } elseif ($field['type'] === 'select') {
+                } elseif (in_array($field['type'], ['select', 'country'], true)) {
                     $fieldRules[] = Rule::in(array_keys($field['options'] ?? []));
                 } else {
                     $fieldRules[] = 'string';
@@ -1189,15 +1231,20 @@ new class extends Component
      */
     private function newService(?string $service, ?string $variant): array
     {
-        $details = [];
+        $selectionMode = BookingRequestSchema::serviceSelectionMode($service);
+        $details = $selectionMode === 'multiple' ? ['care_needs' => []] : [];
 
-        if (BookingRequestSchema::serviceSelectionMode($service) === 'multiple' && filled($variant)) {
+        if ($selectionMode === 'multiple' && filled($variant)) {
             $details['care_needs'] = [$variant];
             $variant = null;
         }
 
-        if (BookingRequestSchema::serviceSelectionMode($service) === 'pet_types') {
+        if ($selectionMode === 'pet_types') {
             $variant = null;
+        }
+
+        if ($service === 'relocation') {
+            $details = BookingRequestSchema::relocationDetails($variant, $details);
         }
 
         return [
@@ -1357,6 +1404,11 @@ new class extends Component
                                                     <p class="mt-2 text-sm leading-relaxed text-primary-dark/65">This boarding service can include dogs, cats, or both. Add each pet in the next step and we will match them to this stay.</p>
                                                 </div>
                                             @elseif($selectionMode === 'multiple')
+                                                @php
+                                                    $careNeeds = is_array($service['details']['care_needs'] ?? null)
+                                                        ? $service['details']['care_needs']
+                                                        : [];
+                                                @endphp
                                                 <div class="mt-6 border-t border-primary/10 pt-5">
                                                     <p class="text-eyebrow text-primary-dark/50">NEXT</p>
                                                     <h4 class="mt-1 text-base font-bold text-primary-dark">Choose all care needs that apply</h4>
@@ -1368,8 +1420,8 @@ new class extends Component
                                                         <div class="mt-3 grid gap-3 sm:grid-cols-2">
                                                             @foreach($variantOptions as $key => $label)
                                                                 @php $available = $this->variantAvailable($service['service_key'], $key); @endphp
-                                                                <label wire:key="booking-service-{{ $index }}-care-need-{{ $key }}" class="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-colors {{ in_array($key, $service['details']['care_needs'] ?? [], true) ? 'border-primary bg-white ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : 'cursor-pointer' }}">
-                                                                    <input type="checkbox" name="booking-service-{{ $index }}-care-needs" value="{{ $key }}" @checked(in_array($key, $service['details']['care_needs'] ?? [], true)) @disabled(! $available) wire:model.live="services.{{ $index }}.details.care_needs" class="sr-only peer">
+                                                                <label wire:key="booking-service-{{ $index }}-care-need-{{ $key }}" class="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-colors {{ in_array($key, $careNeeds, true) ? 'border-primary bg-white ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : 'cursor-pointer' }}">
+                                                                    <input type="checkbox" name="booking-service-{{ $index }}-care-needs" value="{{ $key }}" @checked(in_array($key, $careNeeds, true)) @disabled(! $available) wire:model.live="services.{{ $index }}.details.care_needs" class="sr-only peer">
                                                                     <span>{{ $label }}@if(! $available)<span class="mt-1 block text-xs font-medium text-primary-dark/60">Temporarily unavailable</span>@endif</span>
                                                                     <span class="hidden size-5 shrink-0 items-center justify-center rounded-full bg-primary text-white peer-checked:flex"><x-waggies.icon name="check" size="13" /></span>
                                                                 </label>
@@ -1584,6 +1636,24 @@ new class extends Component
                                     @if($service['service_key'])
                                         <div class="mt-6 border-t border-primary/10 pt-5">
                                             <p class="text-sm font-semibold text-primary-dark">Details for this service</p>
+                                            @if($service['service_key'] === 'relocation' && $service['service_variant'])
+                                                <div class="mt-4 rounded-2xl border border-primary/15 bg-surface-purple/30 p-4" aria-labelledby="booking-service-{{ $index }}-route-heading">
+                                                    <p id="booking-service-{{ $index }}-route-heading" class="text-eyebrow text-primary-dark/50">FLIGHT ROUTE</p>
+                                                    <div class="mt-3 grid items-stretch gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
+                                                        <div class="rounded-xl border border-primary/10 bg-white p-3">
+                                                            <p class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-primary-dark/45">From</p>
+                                                            <p class="mt-1 text-sm font-semibold leading-relaxed text-primary-dark">{{ $this->relocationEndpointLabel($service, 'origin') }}</p>
+                                                        </div>
+                                                        <span class="hidden text-xl font-semibold text-primary/55 sm:block" aria-hidden="true">→</span>
+                                                        <span class="text-center text-xl font-semibold text-primary/55 sm:hidden" aria-hidden="true">↓</span>
+                                                        <div class="rounded-xl border border-primary/10 bg-white p-3">
+                                                            <p class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-primary-dark/45">To</p>
+                                                            <p class="mt-1 text-sm font-semibold leading-relaxed text-primary-dark">{{ $this->relocationEndpointLabel($service, 'destination') }}</p>
+                                                        </div>
+                                                    </div>
+                                                    <p class="mt-3 text-xs leading-relaxed text-primary-dark/55">The Abuja airport endpoint is fixed. Choose the other country below, then add any flight details you already have.</p>
+                                                </div>
+                                            @endif
                                             @if($this->serviceAssignedCount($service) > 1)
                                                 <p class="mt-2 rounded-lg bg-surface-purple/45 p-3 text-xs leading-relaxed text-primary-dark/65">This information applies to every pet assigned to this service. If their needs differ, mention each pet by name.</p>
                                             @endif
@@ -1594,6 +1664,7 @@ new class extends Component
                                             <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
                                                 @foreach($fields as $field)
                                                     @continue(! $this->fieldVisible($field, $service))
+                                                    @continue(($field['fixed'] ?? false) === true)
                                                     @php
                                                         $model = $this->fieldModel($index, $field);
                                                         $fieldId = 'booking-'.$index.'-'.$field['key'];
@@ -1603,6 +1674,8 @@ new class extends Component
                                                         <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['placeholder'] ?? null" :required="$field['required']" class="sm:col-span-2">
                                                             <textarea id="{{ $fieldId }}" wire:model.live.blur="{{ $model }}" rows="3" maxlength="2000" class="contact-input resize-y"></textarea>
                                                         </x-waggies.field>
+                                                    @elseif($field['type'] === 'country')
+                                                        <x-waggies.searchable-select :id="$fieldId" :label="$field['label']" :options="$field['options']" :placeholder="$field['placeholder']" wire:model.live="{{ $model }}" :error="$errors->first($model)" :required="$field['required']" />
                                                     @elseif($field['type'] === 'select')
                                                         <x-waggies.select :id="$fieldId" :label="$field['label']" wire:model.live="{{ $model }}" :error="$errors->first($model)" :required="$field['required']">
                                                             <option value="">Choose an option</option>

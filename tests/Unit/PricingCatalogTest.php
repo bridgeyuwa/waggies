@@ -219,8 +219,8 @@ it('keeps relocation limited to dog and cat import/export requests', function ()
     $catalog = app(BookingPricingCatalog::class);
 
     expect($catalog->variantOptions('relocation', availableOnly: true))->toBe([
-        'import' => 'Import',
-        'export' => 'Export',
+        'import' => 'Import to Nigeria',
+        'export' => 'Export from Nigeria',
     ])
         ->and($catalog->isPetCompatible('relocation', 'import', 'dog'))->toBeTrue()
         ->and($catalog->isPetCompatible('relocation', 'export', 'cat'))->toBeTrue()

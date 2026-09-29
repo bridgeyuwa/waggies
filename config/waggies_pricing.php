@@ -178,7 +178,7 @@ return [
             'pet_types' => ['dog', 'cat'],
             'variants' => [
                 'import' => [
-                    'label' => 'Import',
+                    'label' => 'Import to Nigeria',
                     'type' => 'quote',
                     'enabled' => true,
                     'booking_enabled' => true,
@@ -186,7 +186,7 @@ return [
                     'pet_types' => ['dog', 'cat'],
                 ],
                 'export' => [
-                    'label' => 'Export',
+                    'label' => 'Export from Nigeria',
                     'type' => 'quote',
                     'enabled' => true,
                     'booking_enabled' => true,
