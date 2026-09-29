@@ -51,7 +51,11 @@ class BookingRequestForm
                             TextInput::make('pet_name')->label('Pet name')->disabled()->dehydrated(false),
                             TextInput::make('pet_type')->label('Pet type')->disabled()->dehydrated(false),
                             TextInput::make('location')->label('Location')->disabled()->dehydrated(false)->columnSpanFull(),
-                            TextInput::make('service_variant')->label('Service option')->disabled()->dehydrated(false),
+                            TextInput::make('service_variant')
+                                ->label('Primary service option')
+                                ->helperText('Multi-option details are shown in the Services section below.')
+                                ->disabled()
+                                ->dehydrated(false),
                             TextInput::make('source')->label('Source')->disabled()->dehydrated(false),
                         ]),
                     ])

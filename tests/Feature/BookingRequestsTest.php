@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\CreateBookingRequest;
 use App\Enums\BookingRequestStatus;
 use App\Filament\Resources\BookingRequests\Pages\EditBookingRequest;
 use App\Filament\Resources\BookingRequests\RelationManagers\PetsRelationManager;
@@ -46,13 +47,70 @@ it('renders only active services and no package or tier controls', function (): 
         ->assertSee('Nothing is charged yet');
 });
 
-it('preserves active service context without a tier', function (): void {
+it('preserves active boarding context while moving pet type selection into pet assignment', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'boarding', 'variant' => 'cats'],
     ])
         ->assertSet('services.0.service_key', 'boarding')
-        ->assertSet('services.0.service_variant', 'cats')
-        ->assertSee('Cats');
+        ->assertSet('services.0.service_variant', null)
+        ->set('step', 2)
+        ->assertSee('value="dog"', false)
+        ->assertSee('value="cat"', false);
+});
+
+it('offers both dog and cat choices for boarding and keeps the union across services', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
+    ])
+        ->set('step', 2)
+        ->assertSee('value="dog"', false)
+        ->assertSee('value="cat"', false)
+        ->call('addService')
+        ->call('chooseAdditionalService', 'relocation')
+        ->call('variantChanged', 1, 'import')
+        ->set('step', 2)
+        ->assertSee('value="dog"', false)
+        ->assertSee('value="cat"', false);
+});
+
+it('requires at least one veterinary care need before leaving the services step', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'vet-care'],
+    ])
+        ->call('nextStep')
+        ->assertSet('step', 1)
+        ->assertHasErrors(['services.0.details.care_needs' => 'required'])
+        ->set('services.0.details.care_needs', ['wellness-consultation', 'vaccination-request'])
+        ->call('nextStep')
+        ->assertSet('step', 2)
+        ->assertHasNoErrors();
+});
+
+it('preserves an incompatible pet type and blocks stage two with a clear validation error', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
+    ])
+        ->set('pets.0.name', 'Luna')
+        ->set('pets.0.species', 'other')
+        ->set('pets.0.sex', 'female')
+        ->set('step', 2)
+        ->call('nextStep')
+        ->assertSet('step', 2)
+        ->assertSet('pets.0.species', 'other')
+        ->assertHasErrors(['pets.0.species' => 'in'])
+        ->assertSee('This pet type is not compatible with the selected services.');
+});
+
+it('keeps booking select placeholders as empty values with field-specific labels', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
+    ])
+        ->set('step', 2)
+        ->assertSee('<option value="">Choose a type</option>', false)
+        ->assertSee('<option value="">Choose age or life stage</option>', false)
+        ->assertSee('<option value="">Choose sex</option>', false)
+        ->set('step', 3)
+        ->assertSee('<option value="">Choose an option</option>', false);
 });
 
 it('renders the configured pet age and life-stage options', function (): void {
@@ -306,7 +364,40 @@ it('persists a valid request as received and leaves quotation authority with sta
         ->and($bookingRequest->services->first()->price_snapshot)->toBeNull();
 });
 
-it('rejects incompatible pets and invalid booking services', function (): void {
+it('persists multiple veterinary care needs in service details without creating quote lines', function (): void {
+    $bookingRequest = app(CreateBookingRequest::class)->handle([
+        'contact' => [
+            'name' => 'Ada Obi',
+            'email' => 'veterinary@example.com',
+            'phone' => '0808 081 1902',
+        ],
+        'pets' => [[
+            'name' => 'Milo',
+            'species' => 'cat',
+            'age' => 'not-sure',
+            'sex' => 'male',
+        ]],
+        'services' => [[
+            'service_key' => 'vet-care',
+            'service_variant' => null,
+            'assigned_pet_ids' => [0],
+            'requested_date' => '2026-10-05',
+            'details' => [
+                'care_needs' => ['wellness-consultation', 'vaccination-request'],
+                'reason' => 'Routine check and vaccine review.',
+                'urgency' => 'routine',
+            ],
+        ]],
+    ]);
+
+    expect($bookingRequest->services->first()->service_variant)->toBeNull()
+        ->and($bookingRequest->services->first()->details['care_needs'])
+        ->toBe(['wellness-consultation', 'vaccination-request'])
+        ->and($bookingRequest->services->first()->quote_amount)->toBeNull()
+        ->and($bookingRequest->services->first()->price_snapshot)->toBeNull();
+});
+
+it('rejects unsupported pet types and invalid booking services', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
     ])
@@ -314,7 +405,7 @@ it('rejects incompatible pets and invalid booking services', function (): void {
         ->set('services.0.details.check_out', now()->addDays(7)->toDateString())
         ->set('services.0.assigned_pet_ids', [0])
         ->set('pets.0.name', 'Luna')
-        ->set('pets.0.species', 'cat')
+        ->set('pets.0.species', 'other')
         ->set('pets.0.sex', 'female')
         ->set('services.0.details.emergency_contact_primary', 'Chidi Obi — 0808 081 1903')
         ->set('services.0.details.emergency_contact_secondary', 'Bola Obi — 0808 081 1904')
@@ -324,7 +415,7 @@ it('rejects incompatible pets and invalid booking services', function (): void {
         ->set('contact.phone', '0808 081 1902')
         ->set('step', 5)
         ->call('submit')
-        ->assertHasErrors('services.0.assigned_pet_ids')
+        ->assertHasErrors('pets.0.species')
         ->assertSet('submitted', false);
 
     $this->from(route('book'))

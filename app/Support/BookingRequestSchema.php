@@ -36,6 +36,11 @@ final class BookingRequestSchema
         return app(BookingPricingCatalog::class)->variantOptions($service);
     }
 
+    public static function serviceSelectionMode(?string $service): string
+    {
+        return app(BookingPricingCatalog::class)->selectionMode($service);
+    }
+
     /**
      * @return array<string, string>
      */
@@ -84,7 +89,7 @@ final class BookingRequestSchema
             ],
             'vet-care' => [
                 self::dateField('requested_date', 'Preferred appointment date', 'The veterinary team confirms the appointment after reviewing your request.', 'service'),
-                self::textarea('reason', 'What does your pet need help with?', 'For example: wellness consultation, examination, vaccination request, or microchipping.', true),
+                self::textarea('reason', 'Additional notes about what your pet needs', 'Add symptoms, context, or details not covered by your selected care needs.', true),
                 self::selectField('urgency', 'Urgency', [
                     'routine' => 'Routine appointment',
                     'soon' => 'Needs attention soon',

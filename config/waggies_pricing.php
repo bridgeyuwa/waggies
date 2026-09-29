@@ -30,6 +30,7 @@ return [
         'boarding' => [
             'label' => 'Boarding',
             'description' => 'Overnight boarding for dogs and cats, priced per pet per night.',
+            'selection_mode' => 'pet_types',
             'enabled' => true,
             'booking_enabled' => true,
             'pricing_enabled' => true,
@@ -114,6 +115,7 @@ return [
         'vet-care' => [
             'label' => 'Veterinary Care',
             'description' => 'Request veterinary care for dogs and cats, with clinical review before confirmation.',
+            'selection_mode' => 'multiple',
             'enabled' => true,
             'booking_enabled' => true,
             'pricing_enabled' => true,
@@ -167,6 +169,7 @@ return [
         'relocation' => [
             'label' => 'Relocation',
             'description' => 'Custom-quoted import and export coordination for dogs and cats.',
+            'selection_mode' => 'single',
             'enabled' => true,
             'booking_enabled' => true,
             'pricing_enabled' => true,

@@ -72,6 +72,15 @@ class StoreBookingRequest extends FormRequest
             $variant = $this->input('service_variant');
             $catalog = app(BookingPricingCatalog::class);
             $variantOptions = $catalog->variantOptions($service, availableOnly: true);
+            $selectionMode = $catalog->selectionMode($service);
+
+            if ($selectionMode === 'pet_types' && $variant === null) {
+                if (! $catalog->isPetCompatible($service, null, $this->input('pet_type'))) {
+                    $validator->errors()->add('pet_type', $catalog->petCompatibilityReason($service, null, $this->input('pet_type')) ?? 'Choose a compatible pet type.');
+                }
+
+                return;
+            }
 
             if (! is_string($variant) || ! array_key_exists($variant, $variantOptions)) {
                 $validator->errors()->add('service_variant', 'Choose an active service option.');

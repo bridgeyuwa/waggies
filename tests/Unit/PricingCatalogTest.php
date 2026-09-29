@@ -17,6 +17,27 @@ it('exposes only the active public services', function (): void {
         ->and($catalog->serviceOptions())->not->toHaveKeys(['grooming', 'training', 'local-transport', 'boarding-exotic']);
 });
 
+it('describes the selection contract for each active service', function (): void {
+    $catalog = app(BookingPricingCatalog::class);
+
+    expect($catalog->selectionMode('boarding'))->toBe('pet_types')
+        ->and($catalog->selectionMode('vet-care'))->toBe('multiple')
+        ->and($catalog->selectionMode('relocation'))->toBe('single')
+        ->and($catalog->careNeedOptions())->toHaveKeys([
+            'wellness-consultation',
+            'comprehensive-examination',
+            'vaccination-request',
+            'microchip',
+        ])
+        ->and($catalog->careNeeds([
+            'wellness-consultation',
+            'wellness-consultation',
+            'not-a-care-need',
+        ]))->toBe(['wellness-consultation'])
+        ->and($catalog->careNeedsAreValid(['wellness-consultation', 'vaccination-request']))->toBeTrue()
+        ->and($catalog->careNeedsAreValid(['wellness-consultation', 'wellness-consultation']))->toBeFalse();
+});
+
 it('prices dog boarding from the selected size per pet per night', function (): void {
     $quote = app(BookingPricingCatalog::class)->quote(
         'boarding',
@@ -130,6 +151,58 @@ it('keeps multiple-pet discounts disabled and non-authoritative when enabled', f
         'discount_authority' => 'manual_quotation',
     ])
         ->and($quote['discount']['amount'])->toBe(2400);
+});
+
+it('quotes mixed dog and cat boarding from one shared service row', function (): void {
+    $quote = app(BookingPricingCatalog::class)->quoteForService([
+        'service_key' => 'boarding',
+        'service_variant' => null,
+        'details' => [
+            'check_in' => '2026-10-01',
+            'check_out' => '2026-10-04',
+        ],
+    ], [
+        ['name' => 'Luna', 'species' => 'dog', 'size' => 'small'],
+        ['name' => 'Milo', 'species' => 'cat'],
+    ]);
+
+    expect($quote)->toMatchArray([
+        'status' => 'quote',
+        'authority' => 'staff_quotation',
+        'draft' => true,
+        'nights' => 3,
+    ])
+        ->and($quote['lines'])->toHaveCount(2)
+        ->and($quote['lines'][0])->toMatchArray([
+            'pet_name' => 'Luna',
+            'status' => 'estimate',
+            'amount' => 24000,
+        ])
+        ->and($quote['lines'][1])->toMatchArray([
+            'pet_name' => 'Milo',
+            'status' => 'quote',
+        ]);
+});
+
+it('keeps multiple veterinary care needs together under one staff-reviewed service', function (): void {
+    $quote = app(BookingPricingCatalog::class)->quoteForService([
+        'service_key' => 'vet-care',
+        'service_variant' => null,
+        'details' => [
+            'care_needs' => ['wellness-consultation', 'vaccination-request'],
+        ],
+    ], [
+        ['name' => 'Luna', 'species' => 'cat'],
+    ]);
+
+    expect($quote)->toMatchArray([
+        'status' => 'quote',
+        'authority' => 'staff_quotation',
+        'draft' => true,
+        'care_needs' => ['wellness-consultation', 'vaccination-request'],
+    ])
+        ->and($quote['lines'])->toHaveCount(1)
+        ->and($quote['reason'])->toContain('final quote');
 });
 
 it('keeps vaccination request-only and exposes standalone microchipping under veterinary care', function (): void {

@@ -23,6 +23,7 @@ class CreateBookingRequest
      */
     public function handle(array $data): BookingRequest
     {
+        $this->validateServiceSelections($data['services']);
         $this->validateAssignments($data['pets'], $data['services']);
 
         return DB::transaction(function () use ($data): BookingRequest {
@@ -31,7 +32,7 @@ class CreateBookingRequest
             $services = array_values($data['services']);
             $primaryPet = $pets[0] ?? [];
             $primaryService = $services[0] ?? [];
-            $details = Arr::wrap($primaryService['details'] ?? []);
+            $details = $this->serviceDetails($primaryService);
 
             $bookingRequest = BookingRequest::create([
                 'name' => $contact['name'],
@@ -75,7 +76,7 @@ class CreateBookingRequest
             }
 
             foreach ($services as $service) {
-                $details = Arr::wrap($service['details'] ?? []);
+                $details = $this->serviceDetails($service);
                 $servicePetIndexes = array_values(array_filter(
                     array_map(static fn (mixed $index): int => (int) $index, $service['assigned_pet_ids'] ?? []),
                     static fn (int $index): bool => array_key_exists($index, $pets),
@@ -105,6 +106,77 @@ class CreateBookingRequest
 
             return $bookingRequest->load(['pets', 'services']);
         });
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $services
+     */
+    private function validateServiceSelections(array $services): void
+    {
+        $messages = [];
+        $catalogue = $this->pricingCatalog->services();
+
+        foreach ($services as $serviceIndex => $service) {
+            $serviceKey = (string) ($service['service_key'] ?? '');
+            $serviceDefinition = $catalogue[$serviceKey] ?? null;
+
+            if (! is_array($serviceDefinition) || ! $this->pricingCatalog->isAvailable($serviceDefinition)) {
+                $messages["services.{$serviceIndex}.service_key"] = 'Choose an available service.';
+
+                continue;
+            }
+
+            $variantOptions = $this->pricingCatalog->variantOptions($serviceKey, availableOnly: true);
+            $variant = $service['service_variant'] ?? null;
+            $selectionMode = $this->pricingCatalog->selectionMode($serviceKey);
+
+            if ($this->pricingCatalog->serviceOptionRequired($serviceKey)
+                && (! is_string($variant) || ! array_key_exists($variant, $variantOptions))) {
+                $messages["services.{$serviceIndex}.service_variant"] = 'Choose an active service option.';
+
+                continue;
+            }
+
+            if (in_array($selectionMode, ['pet_types', 'multiple'], true)
+                && filled($variant)
+                && (! is_string($variant) || ! array_key_exists($variant, $variantOptions))) {
+                $messages["services.{$serviceIndex}.service_variant"] = 'Choose a valid service option.';
+
+                continue;
+            }
+
+            if ($selectionMode !== 'multiple') {
+                continue;
+            }
+
+            $details = $this->serviceDetails($service);
+
+            if (! $this->pricingCatalog->careNeedsAreValid($details['care_needs'] ?? [])) {
+                $messages["services.{$serviceIndex}.details.care_needs"] = 'Choose at least one veterinary care need.';
+            }
+        }
+
+        if ($messages !== []) {
+            throw ValidationException::withMessages($messages);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $service
+     * @return array<string, mixed>
+     */
+    private function serviceDetails(array $service): array
+    {
+        $details = Arr::wrap($service['details'] ?? []);
+
+        if (($service['service_key'] ?? null) === 'vet-care'
+            && empty($details['care_needs'])
+            && is_string($service['service_variant'] ?? null)
+            && $service['service_variant'] !== '') {
+            $details['care_needs'] = [$service['service_variant']];
+        }
+
+        return $details;
     }
 
     /**

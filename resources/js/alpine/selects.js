@@ -57,9 +57,13 @@ function initWaggiesSelect(select) {
     let typeahead = '';
     let typeaheadTimer = null;
 
-    const options = () => [...select.options].filter(option => option.value !== '');
+    const options = () => [...select.options].map(option => ({
+        value: option.value,
+        label: option.textContent?.trim() || '',
+        disabled: option.disabled || (select.required && option.value === ''),
+    }));
     const enabledOptionButtons = () => optionButtons.filter(optionButton => optionButton.getAttribute('aria-disabled') !== 'true');
-    const selectedLabel = () => select.value === '' ? 'Select...' : (select.selectedOptions[0]?.textContent?.trim() || 'Select...');
+    const selectedLabel = () => select.selectedOptions[0]?.textContent?.trim() || 'Select...';
     const sync = () => {
         value.textContent = selectedLabel();
         value.classList.toggle('text-primary-dark/45', select.value === '');
@@ -93,11 +97,12 @@ function initWaggiesSelect(select) {
             optionButton.setAttribute('aria-disabled', option.disabled ? 'true' : 'false');
             optionButton.tabIndex = -1;
             optionButton.dataset.state = 'unchecked';
-            optionButton.textContent = option.textContent?.trim() || '';
+            optionButton.textContent = option.label;
             optionButton.dataset.label = optionButton.textContent;
             optionButton.classList.toggle('pointer-events-none', option.disabled);
             optionButton.classList.toggle('cursor-not-allowed', option.disabled);
             optionButton.classList.toggle('opacity-45', option.disabled);
+            optionButton.classList.toggle('text-primary-dark/45', option.value === '' && !option.disabled);
             const check = document.createElement('img');
             check.src = '/icons/material-symbols/outlined/check.svg';
             check.alt = '';
@@ -307,21 +312,19 @@ function waggiesLivewireSelect() {
         },
 
         refreshOptions() {
-            this.options = [...this.$refs.native.options]
-                .filter(option => option.value !== '')
-                .map(option => ({
-                    value: option.value,
-                    label: option.textContent?.trim() || '',
-                    disabled: option.disabled,
-                }));
+            const native = this.$refs.native;
+
+            this.options = [...native.options].map(option => ({
+                value: option.value,
+                label: option.textContent?.trim() || '',
+                disabled: option.disabled || (native.required && option.value === ''),
+            }));
         },
 
         sync() {
             const native = this.$refs.native;
             this.selectedValue = native.value;
-            this.selectedLabel = native.value === ''
-                ? 'Select...'
-                : (native.selectedOptions[0]?.textContent?.trim() || 'Select...');
+            this.selectedLabel = native.selectedOptions[0]?.textContent?.trim() || 'Select...';
             this.isPlaceholder = native.value === '';
             this.isDisabled = native.disabled;
             if (this.$refs.trigger) {
@@ -484,7 +487,7 @@ function syncWaggiesSelectPresentation(select) {
     if (!button) return;
 
     const selectedValue = select.value;
-    const selectedLabel = selectedValue === '' ? 'Select...' : (select.selectedOptions[0]?.textContent?.trim() || 'Select...');
+    const selectedLabel = select.selectedOptions[0]?.textContent?.trim() || 'Select...';
     const value = button.querySelector('span');
 
     if (value) {

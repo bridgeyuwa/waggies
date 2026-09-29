@@ -4,9 +4,12 @@ namespace App\Filament\Resources\BookingRequests\RelationManagers;
 
 use App\Enums\BookingRequestStatus;
 use App\Models\BookingRequest;
+use App\Models\BookingRequestService;
+use App\Support\BookingPricingCatalog;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ServicesRelationManager extends RelationManager
 {
@@ -16,12 +19,14 @@ class ServicesRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('service_key')
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('pets'))
             ->columns([
                 TextColumn::make('service_key')
                     ->label('Service')
                     ->formatStateUsing(fn (?string $state): string => BookingRequest::serviceOptions()[$state] ?? (string) $state),
                 TextColumn::make('service_variant')
-                    ->label('Service option')
+                    ->label('Options / care needs')
+                    ->formatStateUsing(fn (?string $state, BookingRequestService $record): ?string => app(BookingPricingCatalog::class)->serviceSelectionSummary($record->toArray(), $record->pets->toArray()))
                     ->placeholder('Not specified'),
                 TextColumn::make('requested_date')
                     ->label('Requested date')

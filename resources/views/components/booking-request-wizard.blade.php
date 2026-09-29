@@ -69,13 +69,7 @@ new class extends Component
             return;
         }
 
-        $this->services[$index]['service_key'] = $service;
-        $this->services[$index]['service_variant'] = null;
-        $this->services[$index]['assigned_pet_ids'] = [];
-        $this->services[$index]['requested_date'] = null;
-        $this->services[$index]['requested_time'] = null;
-        $this->services[$index]['location'] = null;
-        $this->services[$index]['details'] = [];
+        $this->services[$index] = $this->newService($service, null);
         $this->resetValidation();
     }
 
@@ -105,6 +99,11 @@ new class extends Component
     public function variantChanged(int $index, ?string $variant): void
     {
         $service = (string) ($this->services[$index]['service_key'] ?? '');
+
+        if (BookingRequestSchema::serviceSelectionMode($service) !== 'single') {
+            return;
+        }
+
         $variantOptions = BookingRequestSchema::variantOptions($service);
         $this->services[$index]['service_variant'] = array_key_exists((string) $variant, $variantOptions) ? $variant : null;
         $this->services[$index]['assigned_pet_ids'] = [];
@@ -145,7 +144,7 @@ new class extends Component
 
         $existingIndex = collect($this->services)->search(
             fn (array $existing): bool => ($existing['service_key'] ?? null) === $service
-                && empty($existing['service_variant']),
+                && $this->serviceNeedsSelection($existing),
         );
 
         if ($existingIndex !== false) {
@@ -301,7 +300,9 @@ new class extends Component
             return match ($parts[2] ?? null) {
                 'service_variant' => "booking-service-{$index}-variant",
                 'assigned_pet_ids' => "booking-service-{$index}-assignment",
-                'details' => 'booking-'.$index.'-'.($parts[3] ?? 'service'),
+                    'details' => ($parts[3] ?? null) === 'care_needs'
+                        ? "booking-service-{$index}-care-needs"
+                        : 'booking-'.$index.'-'.($parts[3] ?? 'service'),
                 default => 'booking-'.$index.'-'.($parts[2] ?? 'service'),
             };
         }
@@ -338,7 +339,11 @@ new class extends Component
         }
 
         if (($parts[0] ?? null) === 'services') {
-                return in_array($parts[2] ?? null, ['service_key', 'service_variant'], true) ? 1 : 3;
+            if (($parts[2] ?? null) === 'details' && ($parts[3] ?? null) === 'care_needs') {
+                return 1;
+            }
+
+            return in_array($parts[2] ?? null, ['service_key', 'service_variant'], true) ? 1 : 3;
         }
 
         return 3;
@@ -403,6 +408,8 @@ new class extends Component
         $attributes = [
             'services.*.service_key' => 'service',
             'services.*.service_variant' => 'animal type',
+            'services.*.details.care_needs' => 'veterinary care needs',
+            'services.*.details.care_needs.*' => 'veterinary care need',
             'services.*.assigned_pet_ids' => 'assigned pet',
             'services.*.details.check_in' => 'check-in date',
             'services.*.details.check_out' => 'check-out date',
@@ -430,6 +437,19 @@ new class extends Component
         }
 
         return $attributes;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function messages(): array
+    {
+        return [
+            'pets.*.species.in' => 'This pet type is not compatible with the selected services. Choose a compatible pet type or add a service that supports it.',
+            'services.*.details.care_needs.required' => 'Select at least one veterinary care need.',
+            'services.*.details.care_needs.min' => 'Select at least one veterinary care need.',
+            'services.*.details.care_needs.*.in' => 'Choose a valid veterinary care need.',
+        ];
     }
 
     /**
@@ -472,8 +492,7 @@ new class extends Component
 
     public function serviceSummary(array $service): string
     {
-        $variantLabel = BookingRequestSchema::allVariantOptions($service['service_key'] ?? null)[$service['service_variant'] ?? ''] ?? null;
-        return implode(' · ', array_filter([$this->serviceLabel($service['service_key'] ?? null), $variantLabel]));
+        return app(BookingPricingCatalog::class)->serviceSummary($service, $this->petsForService($service));
     }
 
     public function serviceStatus(array $service): string
@@ -486,9 +505,7 @@ new class extends Component
             return 'Unavailable';
         }
 
-        $variantOptions = $this->allVariantOptions($service['service_key']);
-
-        if ($variantOptions !== [] && ! $service['service_variant']) {
+        if ($this->serviceNeedsSelection($service)) {
             return $this->serviceVariantStatus($service['service_key']);
         }
 
@@ -502,8 +519,6 @@ new class extends Component
     public function serviceVariantQuestion(?string $service): string
     {
         return match ($service) {
-            'boarding' => 'Which animal type is this service for?',
-            'vet-care' => 'What type of care does your pet need?',
             'relocation' => 'Which relocation option applies?',
             default => 'Which option applies to this service?',
         };
@@ -512,8 +527,8 @@ new class extends Component
     public function serviceVariantStatus(?string $service): string
     {
         return match ($service) {
-            'boarding' => 'Choose an animal type',
-            'vet-care' => 'Choose a service option',
+            'boarding' => 'Choose compatible pets',
+            'vet-care' => 'Choose at least one care need',
             'relocation' => 'Choose a relocation option',
             default => 'Choose an option',
         };
@@ -522,8 +537,8 @@ new class extends Component
     public function serviceVariantAttribute(?string $service): string
     {
         return match ($service) {
-            'boarding' => 'animal type',
-            'vet-care' => 'service option',
+            'boarding' => 'pet assignment',
+            'vet-care' => 'veterinary care needs',
             'relocation' => 'relocation option',
             default => 'service option',
         };
@@ -600,6 +615,32 @@ new class extends Component
     public function petAgeOptions(): array
     {
         return config('waggies_pricing.pet_age_options', []);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function petTypeOptions(): array
+    {
+        $allowedPetTypes = collect($this->services)
+            ->filter(fn (array $service): bool => filled($service['service_key'] ?? null))
+            ->flatMap(function (array $service): array {
+                return app(BookingPricingCatalog::class)->allowedPetTypes(
+                    (string) ($service['service_key'] ?? ''),
+                    $service['service_variant'] ?? null,
+                ) ?? ['dog', 'cat'];
+            })
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($allowedPetTypes === []) {
+            $allowedPetTypes = ['dog', 'cat'];
+        }
+
+        return collect(['dog' => 'Dog', 'cat' => 'Cat'])
+            ->filter(fn (string $label, string $type): bool => in_array($type, $allowedPetTypes, true))
+            ->all();
     }
 
     public function petAgeRequired(int $petIndex): bool
@@ -705,6 +746,14 @@ new class extends Component
     public function serviceReviewDetails(array $service): array
     {
         $details = [];
+
+        if (($service['service_key'] ?? null) === 'vet-care') {
+            $careNeeds = app(BookingPricingCatalog::class)->serviceSelectionSummary($service);
+
+            if ($careNeeds !== null) {
+                $details['Care requested'] = $careNeeds;
+            }
+        }
 
         foreach ($this->serviceFields($service) as $field) {
             if (! $this->fieldVisible($field, $service)) {
@@ -834,7 +883,7 @@ new class extends Component
     {
         return [
             ...$this->rulesForStep(1),
-            ...$this->rulesForStep(2),
+            ...$this->petRules(false),
             ...$this->rulesForStep(3),
             ...$this->rulesForStep(4),
         ];
@@ -847,7 +896,7 @@ new class extends Component
     {
         return match ($step) {
             1 => $this->serviceRules(),
-            2 => $this->petRules(),
+            2 => $this->petRules(true),
             3 => [
                 ...$this->assignmentRules(),
                 ...$this->serviceDetailRules(),
@@ -874,10 +923,16 @@ new class extends Component
 
         foreach ($this->services as $index => $service) {
             $variantOptions = BookingRequestSchema::variantOptions($service['service_key'] ?? null);
+            $selectionMode = BookingRequestSchema::serviceSelectionMode($service['service_key'] ?? null);
             $rules["services.{$index}.service_variant"] = [
-                empty($variantOptions) ? 'nullable' : 'required',
+                $selectionMode === 'single' && $variantOptions !== [] ? 'required' : 'nullable',
                 Rule::in(array_keys($variantOptions)),
             ];
+
+            if ($selectionMode === 'multiple') {
+                $rules["services.{$index}.details.care_needs"] = ['required', 'array', 'min:1'];
+                $rules["services.{$index}.details.care_needs.*"] = ['string', Rule::in(array_keys($variantOptions)), 'distinct'];
+            }
         }
 
         return $rules;
@@ -886,12 +941,12 @@ new class extends Component
     /**
      * @return array<string, array<int, mixed>>
      */
-    private function petRules(): array
+    private function petRules(bool $enforceCompatibility): array
     {
         $rules = [
             'pets' => ['required', 'array', 'min:1', 'max:8'],
             'pets.*.name' => ['required', 'string', 'max:80'],
-            'pets.*.species' => ['required', Rule::in(['dog', 'cat'])],
+            'pets.*.species' => ['required', Rule::in($enforceCompatibility ? array_keys($this->petTypeOptions()) : ['dog', 'cat'])],
             'pets.*.size' => ['nullable', Rule::in(array_keys($this->petSizeOptions()))],
             'pets.*.breed' => ['nullable', 'string', 'max:120'],
             'pets.*.age' => ['nullable', Rule::in(array_keys($this->petAgeOptions()))],
@@ -1101,10 +1156,50 @@ new class extends Component
     }
 
     /**
+     * @param  array<string, mixed>  $service
+     */
+    public function serviceNeedsSelection(array $service): bool
+    {
+        $serviceKey = $service['service_key'] ?? null;
+        $selectionMode = BookingRequestSchema::serviceSelectionMode($serviceKey);
+
+        return match ($selectionMode) {
+            'multiple' => app(BookingPricingCatalog::class)->careNeeds($service['details']['care_needs'] ?? []) === [],
+            'single' => app(BookingPricingCatalog::class)->serviceOptionRequired($serviceKey)
+                && empty($service['service_variant']),
+            default => false,
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $service
+     * @return array<int, array<string, mixed>>
+     */
+    private function petsForService(array $service): array
+    {
+        return collect($service['assigned_pet_ids'] ?? [])
+            ->map(fn (mixed $petId): ?array => $this->pets[(int) $petId] ?? null)
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function newService(?string $service, ?string $variant): array
     {
+        $details = [];
+
+        if (BookingRequestSchema::serviceSelectionMode($service) === 'multiple' && filled($variant)) {
+            $details['care_needs'] = [$variant];
+            $variant = null;
+        }
+
+        if (BookingRequestSchema::serviceSelectionMode($service) === 'pet_types') {
+            $variant = null;
+        }
+
         return [
             'service_key' => $service,
             'service_variant' => $variant,
@@ -1112,7 +1207,7 @@ new class extends Component
             'requested_date' => null,
             'requested_time' => null,
             'location' => null,
-            'details' => [],
+            'details' => $details,
         ];
     }
 
@@ -1156,7 +1251,7 @@ new class extends Component
     @else
         @php
             $stepHeadings = [
-                1 => ['eyebrow' => 'STEP 1 OF 5', 'title' => 'Choose and configure services', 'description' => 'Choose each service you need, then select the service option that applies.'],
+                1 => ['eyebrow' => 'STEP 1 OF 5', 'title' => 'Choose and configure services', 'description' => 'Choose each service you need, then select the options that apply.'],
                 2 => ['eyebrow' => 'STEP 2 OF 5', 'title' => 'Add your pet'.(count($pets) > 1 ? 's' : ''), 'description' => 'Add each pet once. This is your pet list; we will match pets to services next.'],
                 3 => ['eyebrow' => 'STEP 3 OF 5', 'title' => 'Assign pets to services', 'description' => 'Choose which pet receives each service, then add the details that service needs.'],
                 4 => ['eyebrow' => 'STEP 4 OF 5', 'title' => 'How should we contact you?', 'description' => 'Give us enough information to confirm availability and clarify anything important.'],
@@ -1252,15 +1347,49 @@ new class extends Component
 
                                     @if($service['service_key'])
                                             @php
+                                                $selectionMode = BookingRequestSchema::serviceSelectionMode($service['service_key']);
                                                 $variantOptions = $this->allVariantOptions($service['service_key']);
                                             @endphp
-                                            <div class="mt-6 border-t border-primary/10 pt-5">
-                                                <p class="text-eyebrow text-primary-dark/50">NEXT</p>
-                                                <h4 class="mt-1 text-base font-bold text-primary-dark">Choose a service option</h4>
-                                                <p class="mt-1 text-sm leading-relaxed text-primary-dark/60">Choose the option that best matches what your pet needs.</p>
-                                            </div>
-                                            <div class="mt-5">
-                                                @if($variantOptions)
+                                            @if($selectionMode === 'pet_types')
+                                                <div class="mt-6 rounded-xl border border-primary/10 bg-surface-purple/45 p-4">
+                                                    <p class="text-eyebrow text-primary-dark/50">NEXT</p>
+                                                    <h4 class="mt-1 text-base font-bold text-primary-dark">Add your pets next</h4>
+                                                    <p class="mt-2 text-sm leading-relaxed text-primary-dark/65">This boarding service can include dogs, cats, or both. Add each pet in the next step and we will match them to this stay.</p>
+                                                </div>
+                                            @elseif($selectionMode === 'multiple')
+                                                <div class="mt-6 border-t border-primary/10 pt-5">
+                                                    <p class="text-eyebrow text-primary-dark/50">NEXT</p>
+                                                    <h4 class="mt-1 text-base font-bold text-primary-dark">Choose all care needs that apply</h4>
+                                                    <p class="mt-1 text-sm leading-relaxed text-primary-dark/60">Select one or more reasons for the veterinary request. The team will review them together.</p>
+                                                </div>
+                                                <div class="mt-5">
+                                                    <fieldset id="booking-service-{{ $index }}-care-needs" tabindex="-1" class="rounded-2xl border border-primary/15 bg-surface-purple/30 p-4 {{ $errors->has('services.'.$index.'.details.care_needs') || $errors->has('services.'.$index.'.details.care_needs.*') ? 'border-danger/60 ring-2 ring-danger/15' : '' }}">
+                                                        <legend class="px-1 text-sm font-semibold text-primary-dark">What does your pet need help with? <span class="text-danger" aria-hidden="true">*</span></legend>
+                                                        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                                                            @foreach($variantOptions as $key => $label)
+                                                                @php $available = $this->variantAvailable($service['service_key'], $key); @endphp
+                                                                <label wire:key="booking-service-{{ $index }}-care-need-{{ $key }}" class="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-colors {{ in_array($key, $service['details']['care_needs'] ?? [], true) ? 'border-primary bg-white ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : 'cursor-pointer' }}">
+                                                                    <input type="checkbox" name="booking-service-{{ $index }}-care-needs" value="{{ $key }}" @checked(in_array($key, $service['details']['care_needs'] ?? [], true)) @disabled(! $available) wire:model.live="services.{{ $index }}.details.care_needs" class="sr-only peer">
+                                                                    <span>{{ $label }}@if(! $available)<span class="mt-1 block text-xs font-medium text-primary-dark/60">Temporarily unavailable</span>@endif</span>
+                                                                    <span class="hidden size-5 shrink-0 items-center justify-center rounded-full bg-primary text-white peer-checked:flex"><x-waggies.icon name="check" size="13" /></span>
+                                                                </label>
+                                                            @endforeach
+                                                        </div>
+                                                        @if($errors->has('services.'.$index.'.details.care_needs') || $errors->has('services.'.$index.'.details.care_needs.*'))
+                                                            <p class="mt-2 text-sm font-medium text-danger" role="alert">{{ $errors->first('services.'.$index.'.details.care_needs') ?: $errors->first('services.'.$index.'.details.care_needs.*') }}</p>
+                                                        @endif
+                                                    </fieldset>
+                                                    @if($this->serviceNeedsSelection($service))
+                                                        <p class="mt-4 rounded-xl bg-surface-purple/55 p-3 text-sm leading-relaxed text-primary-dark/65">Choose at least one care need to continue.</p>
+                                                    @endif
+                                                </div>
+                                            @elseif($variantOptions)
+                                                <div class="mt-6 border-t border-primary/10 pt-5">
+                                                    <p class="text-eyebrow text-primary-dark/50">NEXT</p>
+                                                    <h4 class="mt-1 text-base font-bold text-primary-dark">Choose a service option</h4>
+                                                    <p class="mt-1 text-sm leading-relaxed text-primary-dark/60">Choose the option that best matches what your pet needs.</p>
+                                                </div>
+                                                <div class="mt-5">
                                                     <fieldset id="booking-service-{{ $index }}-variant" tabindex="-1" class="rounded-2xl border border-primary/15 bg-surface-purple/30 p-4 {{ $errors->has('services.'.$index.'.service_variant') ? 'border-danger/60 ring-2 ring-danger/15' : '' }}">
                                                         <legend class="px-1 text-sm font-semibold text-primary-dark">{{ $this->serviceVariantQuestion($service['service_key']) }} <span class="text-danger" aria-hidden="true">*</span></legend>
                                                         <div class="mt-3 flex flex-wrap gap-3">
@@ -1280,10 +1409,10 @@ new class extends Component
                                                     @if(! $service['service_variant'])
                                                         <p class="mt-4 rounded-xl bg-surface-purple/55 p-3 text-sm leading-relaxed text-primary-dark/65">Choose one option to continue.</p>
                                                     @endif
-                                                @endif
-                                            </div>
+                                                </div>
+                                            @endif
                                     @else
-                                        <p class="mt-5 rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a service above to see the service option and details it needs.</p>
+                                        <p class="mt-5 rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a service above to see the options and details it needs.</p>
                                     @endif
                                 </div>
                             @endforeach
@@ -1294,7 +1423,7 @@ new class extends Component
                                         <div>
                                             <p class="text-eyebrow text-primary-dark/50">ADD TO YOUR REQUEST</p>
                                             <h3 id="add-service-heading" class="mt-1 font-serif text-xl font-bold text-primary-dark">Which service do you also need?</h3>
-                                            <p class="mt-2 text-sm leading-relaxed text-primary-dark/65">Choose a service first. We will then show only the animal type, service option, and details that belong to it.</p>
+                                            <p class="mt-2 text-sm leading-relaxed text-primary-dark/65">Choose a service first. We will then show only the options and details that belong to it.</p>
                                         </div>
                                         <button type="button" wire:click="cancelAddService" class="min-h-11 shrink-0 rounded-lg px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Cancel</button>
                                     </div>
@@ -1340,7 +1469,7 @@ new class extends Component
                                         </x-waggies.field>
                                             <x-waggies.select id="booking-pet-{{ $index }}-species" label="Pet type" wire:model.live="pets.{{ $index }}.species" :error="$errors->first('pets.'.$index.'.species')" required>
                                             <option value="">Choose a type</option>
-                                            @foreach(['dog' => 'Dog', 'cat' => 'Cat'] as $key => $label)
+                                            @foreach($this->petTypeOptions() as $key => $label)
                                                 <option value="{{ $key }}">{{ $label }}</option>
                                             @endforeach
                                         </x-waggies.select>

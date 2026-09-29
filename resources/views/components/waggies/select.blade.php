@@ -86,7 +86,7 @@
                                 :aria-disabled="option.disabled ? 'true' : 'false'"
                                 :tabindex="option.disabled ? -1 : 0"
                                 :data-state="option.value === selectedValue ? 'checked' : 'unchecked'"
-                                :class="{ 'bg-surface-purple': highlightedIndex === index, 'pointer-events-none cursor-not-allowed opacity-45': option.disabled }"
+                                :class="{ 'bg-surface-purple': highlightedIndex === index, 'pointer-events-none cursor-not-allowed opacity-45': option.disabled, 'text-primary-dark/45': option.value === '' && !option.disabled }"
                                 @click="choose(option.value)"
                                 @mouseenter="highlightedIndex = index"
                                 class="relative flex min-h-[44px] w-full cursor-default items-center gap-2 rounded-md py-3 pl-3 pr-9 text-left text-sm text-primary-dark outline-none select-none hover:bg-surface-purple focus:bg-surface-purple"

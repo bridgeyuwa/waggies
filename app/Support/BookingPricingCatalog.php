@@ -75,6 +75,120 @@ final class BookingPricingCatalog
             ->all();
     }
 
+    public function selectionMode(?string $service): string
+    {
+        return (string) ($this->services()[$service ?? '']['selection_mode'] ?? 'single');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function careNeedOptions(bool $availableOnly = false, string $channel = 'booking'): array
+    {
+        return $this->variantOptions('vet-care', $availableOnly, $channel);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function careNeeds(mixed $value, bool $availableOnly = true, string $channel = 'booking'): array
+    {
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $options = $this->careNeedOptions($availableOnly, $channel);
+
+        return collect(array_values($value))
+            ->filter(static fn (mixed $need): bool => is_string($need))
+            ->unique()
+            ->filter(static fn (string $need): bool => array_key_exists($need, $options))
+            ->values()
+            ->all();
+    }
+
+    public function careNeedsAreValid(mixed $value, bool $availableOnly = true, string $channel = 'booking'): bool
+    {
+        if (! is_array($value) || $value === []) {
+            return false;
+        }
+
+        $values = array_values($value);
+
+        if (count(array_filter($values, 'is_string')) !== count($values)) {
+            return false;
+        }
+
+        if (count(array_unique($values)) !== count($values)) {
+            return false;
+        }
+
+        return count($this->careNeeds($values, $availableOnly, $channel)) === count($values);
+    }
+
+    public function serviceOptionRequired(?string $service): bool
+    {
+        return $this->selectionMode($service) === 'single'
+            && $this->variantOptions($service, availableOnly: true) !== [];
+    }
+
+    /**
+     * @param  array<string, mixed>  $service
+     * @param  array<int, array<string, mixed>>  $pets
+     */
+    public function serviceSummary(array $service, array $pets = []): string
+    {
+        $serviceKey = (string) ($service['service_key'] ?? '');
+        $serviceLabel = $this->serviceOptions()[$serviceKey] ?? Str::headline($serviceKey);
+        $selectionLabel = $this->serviceSelectionSummary($service, $pets);
+
+        return implode(' · ', array_filter([$serviceLabel, $selectionLabel]));
+    }
+
+    /**
+     * @param  array<string, mixed>  $service
+     * @param  array<int, array<string, mixed>>  $pets
+     */
+    public function serviceSelectionSummary(array $service, array $pets = []): ?string
+    {
+        $serviceKey = (string) ($service['service_key'] ?? '');
+        $details = is_array($service['details'] ?? null) ? $service['details'] : [];
+
+        if ($serviceKey === 'boarding') {
+            $species = collect(['dog', 'cat'])
+                ->filter(fn (string $species): bool => collect($pets)->contains(fn (array $pet): bool => ($pet['species'] ?? null) === $species))
+                ->map(fn (string $species): string => $species === 'dog' ? 'Dogs' : 'Cats')
+                ->values();
+
+            if ($species->isNotEmpty()) {
+                return $species->join(' and ');
+            }
+        }
+
+        if ($serviceKey === 'vet-care') {
+            $careNeeds = $this->careNeeds($details['care_needs'] ?? []);
+
+            if ($careNeeds === [] && filled($service['service_variant'] ?? null)) {
+                $careNeeds = [$service['service_variant']];
+            }
+
+            $labels = collect($careNeeds)
+                ->map(fn (string $need): ?string => $this->careNeedOptions()[$need] ?? null)
+                ->filter()
+                ->values();
+
+            if ($labels->isNotEmpty()) {
+                return $labels->join(' · ');
+            }
+        }
+
+        $variant = $service['service_variant'] ?? null;
+
+        return is_string($variant)
+            ? $this->variantOptions($serviceKey)[$variant] ?? null
+            : null;
+    }
+
     /**
      * @return list<string>|null
      */
@@ -129,7 +243,9 @@ final class BookingPricingCatalog
 
     public function requiresPetSize(string $service, ?string $variant): bool
     {
-        return $service === 'boarding' && $variant === 'dogs' && $this->sizeRates($service, $variant) !== [];
+        return $service === 'boarding'
+            && $this->pricingVariant($service, $variant, 'dog') === 'dogs'
+            && $this->sizeRates($service, 'dogs') !== [];
     }
 
     /**
@@ -221,31 +337,40 @@ final class BookingPricingCatalog
         }
 
         $variantDefinitions = $this->variants($service);
+        $effectiveVariant = $this->pricingVariant($service, $variant, $pet['species'] ?? null);
 
         if ($variantDefinitions !== []) {
-            if ($variant === null || ! array_key_exists($variant, $variantDefinitions)) {
+            if ($this->selectionMode($service) === 'multiple') {
+                if ($variant === null || ! array_key_exists($variant, $variantDefinitions)) {
+                    return ['status' => 'needs_input', 'reason' => 'Choose a service option.'];
+                }
+
+                $effectiveVariant = $variant;
+            }
+
+            if ($effectiveVariant === null || ! array_key_exists($effectiveVariant, $variantDefinitions)) {
                 return ['status' => 'needs_input', 'reason' => 'Choose a service option.'];
             }
 
-            if (! $this->isAvailable($variantDefinitions[$variant], $channel)) {
+            if (! $this->isAvailable($variantDefinitions[$effectiveVariant], $channel)) {
                 return ['status' => 'unavailable', 'reason' => 'This service option is temporarily unavailable.'];
             }
         }
 
-        if (! $this->isPetCompatible($service, $variant, $pet['species'] ?? null)) {
+        if (! $this->isPetCompatible($service, $effectiveVariant, $pet['species'] ?? null)) {
             return [
                 'status' => 'unavailable',
-                'reason' => $this->petCompatibilityReason($service, $variant, $pet['species'] ?? null),
+                'reason' => $this->petCompatibilityReason($service, $effectiveVariant, $pet['species'] ?? null),
             ];
         }
 
-        $variantDefinition = $variantDefinitions[$variant ?? ''] ?? $serviceDefinition;
+        $variantDefinition = $variantDefinitions[$effectiveVariant ?? ''] ?? $serviceDefinition;
 
-        if ($service === 'boarding' && $variant === 'dogs') {
+        if ($service === 'boarding' && $effectiveVariant === 'dogs') {
             return $this->dogBoardingQuote($serviceDefinition, $variantDefinition, $pet, $quantity);
         }
 
-        if ($service === 'boarding' && $variant === 'cats') {
+        if ($service === 'boarding' && $effectiveVariant === 'cats') {
             return [
                 'status' => 'quote',
                 'type' => 'quote',
@@ -287,6 +412,11 @@ final class BookingPricingCatalog
         $variant = $service['service_variant'] ?? null;
         $details = is_array($service['details'] ?? null) ? $service['details'] : [];
         $quantity = $this->boardingNights($serviceKey, $details);
+
+        if ($serviceKey === 'vet-care' && $variant === null) {
+            return $this->veterinaryQuoteForService($details, $pets, $channel);
+        }
+
         $lines = [];
 
         foreach ($pets as $pet) {
@@ -357,10 +487,79 @@ final class BookingPricingCatalog
     }
 
     /**
+     * @param  array<string, mixed>  $details
+     * @param  array<int, array<string, mixed>>  $pets
+     * @return array<string, mixed>
+     */
+    private function veterinaryQuoteForService(array $details, array $pets, string $channel): array
+    {
+        $careNeeds = $details['care_needs'] ?? [];
+
+        if (! $this->careNeedsAreValid($careNeeds, true, $channel)) {
+            return [
+                'status' => 'needs_input',
+                'reason' => 'Choose at least one veterinary care need.',
+                'authority' => 'staff_quotation',
+                'draft' => true,
+                'lines' => [],
+                'nights' => 1,
+            ];
+        }
+
+        if ($pets === []) {
+            return [
+                'status' => 'needs_input',
+                'reason' => 'Assign at least one pet to this service.',
+                'authority' => 'staff_quotation',
+                'draft' => true,
+                'lines' => [],
+                'nights' => 1,
+            ];
+        }
+
+        foreach ($pets as $pet) {
+            if ($this->isPetCompatible('vet-care', null, $pet['species'] ?? null)) {
+                continue;
+            }
+
+            return [
+                'status' => 'unavailable',
+                'reason' => $this->petCompatibilityReason('vet-care', null, $pet['species'] ?? null),
+                'authority' => 'staff_quotation',
+                'draft' => true,
+                'lines' => [],
+                'nights' => 1,
+            ];
+        }
+
+        return [
+            'status' => 'quote',
+            'type' => 'quote',
+            'reason' => 'The veterinary team will review the selected care needs and confirm the final quote.',
+            'authority' => 'staff_quotation',
+            'draft' => true,
+            'care_needs' => $careNeeds,
+            'lines' => collect($pets)
+                ->map(fn (array $pet): array => [
+                    'pet_name' => $pet['name'] ?? null,
+                    'status' => 'quote',
+                    'amount' => null,
+                    'max_amount' => null,
+                    'size' => null,
+                ])
+                ->all(),
+            'nights' => 1,
+            'currency' => config('waggies_pricing.currency', 'NGN'),
+        ];
+    }
+
+    /**
      * @return array<string, array<string, mixed>>
      */
     public function sizeRates(string $service, ?string $variant): array
     {
+        $variant ??= $service === 'boarding' ? 'dogs' : null;
+
         return $this->services()[$service]['variants'][$variant]['size_rates'] ?? [];
     }
 
@@ -448,5 +647,20 @@ final class BookingPricingCatalog
     private function formatAmount(int $amount): string
     {
         return '₦'.number_format($amount);
+    }
+
+    private function pricingVariant(string $service, ?string $variant, ?string $petType): ?string
+    {
+        if (filled($variant)) {
+            return $variant;
+        }
+
+        return $service === 'boarding'
+            ? match ($petType) {
+                'dog' => 'dogs',
+                'cat' => 'cats',
+                default => null,
+            }
+        : null;
     }
 }

@@ -16,13 +16,17 @@ class ContactPageTest extends TestCase
             ->assertSee('Request a service');
 
         foreach ([
-            ['service' => 'boarding', 'variant' => 'cats'],
-            ['service' => 'vet-care', 'variant' => 'microchip'],
-            ['service' => 'relocation', 'variant' => 'import'],
+            ['service' => 'boarding', 'variant' => 'cats', 'expected_variant' => null],
+            ['service' => 'vet-care', 'variant' => 'microchip', 'expected_variant' => null],
+            ['service' => 'relocation', 'variant' => 'import', 'expected_variant' => 'import'],
         ] as $context) {
-            Livewire::test('booking-request-wizard', ['initialContext' => $context])
+            $component = Livewire::test('booking-request-wizard', ['initialContext' => $context])
                 ->assertSet('services.0.service_key', $context['service'])
-                ->assertSet('services.0.service_variant', $context['variant']);
+                ->assertSet('services.0.service_variant', $context['expected_variant']);
+
+            if ($context['service'] === 'vet-care') {
+                $component->assertSet('services.0.details.care_needs', ['microchip']);
+            }
         }
     }
 
