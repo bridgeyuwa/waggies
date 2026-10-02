@@ -2,6 +2,7 @@
 
 namespace App\AI\Tools;
 
+use App\Support\BookingPricingCatalog;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
@@ -15,7 +16,8 @@ final class PricingTool implements Tool
 
     public function handle(Request $request): string
     {
-        $services = collect(config('waggies_pricing.services', []))->map(function (array $service): array {
+        $pricingCatalog = app(BookingPricingCatalog::class);
+        $services = collect($pricingCatalog->services(availableOnly: true, channel: 'pricing'))->map(function (array $service): array {
             return [
                 'label' => $service['label'] ?? null,
                 'unit' => $service['unit'] ?? null,
@@ -40,7 +42,7 @@ final class PricingTool implements Tool
             ];
         })->all();
 
-        return json_encode(['currency' => config('waggies_pricing.currency', 'NGN'), 'services' => $services], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return json_encode(['currency' => $pricingCatalog->currency(), 'services' => $services], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     public function schema(JsonSchema $schema): array

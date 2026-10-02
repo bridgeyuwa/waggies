@@ -7,6 +7,41 @@ use Illuminate\Support\Str;
 
 final class BookingPricingCatalog
 {
+    public function currency(): string
+    {
+        return (string) config('waggies_pricing.currency', 'NGN');
+    }
+
+    public function maxServiceItems(): int
+    {
+        return max(1, (int) config('waggies_pricing.max_service_items', 12));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function petAgeOptions(): array
+    {
+        return config('waggies_pricing.pet_age_options', []);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function service(string $service): array
+    {
+        $definition = $this->services()[$service] ?? null;
+
+        return is_array($definition) ? $definition : [];
+    }
+
+    public function serviceIsAvailable(string $service, string $channel = 'booking'): bool
+    {
+        $definition = $this->service($service);
+
+        return $definition !== [] && $this->isAvailable($definition, $channel);
+    }
+
     /**
      * @return array<string, array<string, mixed>>
      */
@@ -382,7 +417,7 @@ final class BookingPricingCatalog
                     'type' => 'fixed',
                     'amount' => $amount,
                     'max_amount' => $amount,
-                    'currency' => config('waggies_pricing.currency', 'NGN'),
+                    'currency' => $this->currency(),
                     'unit' => $serviceDefinition['unit'] ?? null,
                 ];
             }
@@ -391,7 +426,7 @@ final class BookingPricingCatalog
                 'status' => 'quote',
                 'type' => 'quote',
                 'reason' => $variantDefinition['pricing_note'] ?? 'Cat boarding rate requires staff confirmation.',
-                'currency' => config('waggies_pricing.currency', 'NGN'),
+                'currency' => $this->currency(),
             ];
         }
 
@@ -400,7 +435,7 @@ final class BookingPricingCatalog
                 'status' => 'quote',
                 'type' => 'quote',
                 'reason' => $variantDefinition['description'] ?? 'Waggies will review this request and confirm the final quote.',
-                'currency' => config('waggies_pricing.currency', 'NGN'),
+                'currency' => $this->currency(),
             ];
         }
 
@@ -412,7 +447,7 @@ final class BookingPricingCatalog
             'type' => 'estimate',
             'amount' => $amount,
             'max_amount' => $maximum,
-            'currency' => config('waggies_pricing.currency', 'NGN'),
+            'currency' => $this->currency(),
             'unit' => $serviceDefinition['unit'] ?? null,
         ];
     }
@@ -476,7 +511,7 @@ final class BookingPricingCatalog
                 'draft' => true,
                 'lines' => $lines,
                 'nights' => $quantity,
-                'currency' => config('waggies_pricing.currency', 'NGN'),
+                'currency' => $this->currency(),
             ];
         }
 
@@ -498,7 +533,7 @@ final class BookingPricingCatalog
             'discount_authority' => 'manual_quotation',
             'lines' => $lines,
             'nights' => $quantity,
-            'currency' => config('waggies_pricing.currency', 'NGN'),
+            'currency' => $this->currency(),
         ];
     }
 
@@ -565,7 +600,7 @@ final class BookingPricingCatalog
                 ])
                 ->all(),
             'nights' => 1,
-            'currency' => config('waggies_pricing.currency', 'NGN'),
+            'currency' => $this->currency(),
         ];
     }
 
@@ -597,7 +632,7 @@ final class BookingPricingCatalog
                 'type' => 'quote',
                 'size' => $size,
                 'reason' => $sizeRate['guidance'] ?? 'This dog requires manual boarding review.',
-                'currency' => config('waggies_pricing.currency', 'NGN'),
+                'currency' => $this->currency(),
             ];
         }
 
@@ -608,7 +643,7 @@ final class BookingPricingCatalog
             'type' => 'estimate',
             'amount' => ((int) $sizeRate['amount']) * $multiplier,
             'max_amount' => ((int) ($sizeRate['max_amount'] ?? $sizeRate['amount'])) * $multiplier,
-            'currency' => config('waggies_pricing.currency', 'NGN'),
+            'currency' => $this->currency(),
             'unit' => $serviceDefinition['unit'] ?? null,
             'size' => $size,
         ];

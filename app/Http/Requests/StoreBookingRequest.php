@@ -4,13 +4,11 @@ namespace App\Http\Requests;
 
 use App\Models\BookingRequest;
 use App\Rules\ValidPhoneNumber;
-use App\Support\BookingPricingCatalog;
 use App\Support\PhoneNumber;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Validator;
 
 class StoreBookingRequest extends FormRequest
 {
@@ -96,34 +94,5 @@ class StoreBookingRequest extends FormRequest
             'source' => ['nullable', 'string', 'max:120'],
             'website' => ['nullable', 'max:0'],
         ];
-    }
-
-    public function withValidator(Validator $validator): void
-    {
-        $validator->after(function (Validator $validator): void {
-            $service = (string) $this->input('service_key');
-            $variant = $this->input('service_variant');
-            $catalog = app(BookingPricingCatalog::class);
-            $variantOptions = $catalog->variantOptions($service, availableOnly: true);
-            $selectionMode = $catalog->selectionMode($service);
-
-            if ($selectionMode === 'pet_types' && $variant === null) {
-                if (! $catalog->isPetCompatible($service, null, $this->input('pet_type'))) {
-                    $validator->errors()->add('pet_type', $catalog->petCompatibilityReason($service, null, $this->input('pet_type')) ?? 'Choose a compatible pet type.');
-                }
-
-                return;
-            }
-
-            if (! is_string($variant) || ! array_key_exists($variant, $variantOptions)) {
-                $validator->errors()->add('service_variant', 'Choose an active service option.');
-
-                return;
-            }
-
-            if (! $catalog->isPetCompatible($service, $variant, $this->input('pet_type'))) {
-                $validator->errors()->add('pet_type', $catalog->petCompatibilityReason($service, $variant, $this->input('pet_type')) ?? 'Choose a compatible pet type.');
-            }
-        });
     }
 }

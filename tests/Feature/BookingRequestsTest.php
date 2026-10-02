@@ -179,6 +179,29 @@ it('uses human field labels in the booking error summary', function (): void {
         ->assertSee('The emergency veterinary authorization field is required.');
 });
 
+it('uses human field labels when a service has no assigned pet', function (): void {
+    $component = Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
+    ])
+        ->set('pets.0.name', 'Bruno')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.size', 'medium')
+        ->set('pets.0.sex', 'male')
+        ->set('services.0.details.check_in', now()->addDays(7)->toDateString())
+        ->set('services.0.details.check_out', now()->addDays(9)->toDateString())
+        ->set('services.0.details.emergency_vet_authorization', 'authorized')
+        ->set('step', 3)
+        ->call('nextStep')
+        ->assertHasErrors(['services.0.assigned_pet_ids' => 'required'])
+        ->assertSee('The assigned pet field is required.');
+
+    preg_match('/<div id="booking-error-summary".*?<\/div>/s', $component->html(), $matches);
+
+    expect($matches[0] ?? '')
+        ->toContain('The assigned pet field is required.')
+        ->not->toContain('services.0.assigned_pet_ids');
+});
+
 it('uses neutral prompts for relocation country selectors', function (): void {
     $fields = BookingRequestSchema::serviceFields('relocation', 'import');
 

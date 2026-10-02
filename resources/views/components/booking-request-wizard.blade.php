@@ -1,14 +1,15 @@
 <?php
 
 use App\Actions\CreateBookingRequest;
-use App\Rules\ValidPhoneNumber;
 use App\Support\BookingPricingCatalog;
+use App\Support\BookingRequestBuilder;
+use App\Support\BookingRequestIntake;
 use App\Support\BookingRequestSchema;
+use App\Support\BookingRequestWizardRules;
 use App\Support\CountryCatalog;
 use App\Support\PhoneNumber;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
@@ -63,8 +64,9 @@ new class extends Component
         $this->draftContextKey = implode('|', [$service ?? '', $variant ?? '', $initialContext['source'] ?? '']);
         $this->source = $initialContext['source'] ?? null;
         $this->whatsappUrl = $initialContext['whatsappUrl'] ?? '#';
-        $this->services = [$this->newService($service, $variant)];
-        $this->pets = [$this->newPet()];
+        $builder = app(BookingRequestBuilder::class);
+        $this->services = [$builder->newService($service, $variant)];
+        $this->pets = [$builder->newPet()];
     }
 
     public function serviceChanged(int $index, ?string $service): void
@@ -76,13 +78,13 @@ new class extends Component
         $serviceOptions = BookingRequestSchema::serviceOptions();
 
         if ($service === null || ! array_key_exists($service, $serviceOptions)) {
-            $this->services[$index] = $this->newService(null, null);
+            $this->services = app(BookingRequestBuilder::class)->changeService($this->services, $index, null);
             $this->resetValidation();
 
             return;
         }
 
-        $this->services[$index] = $this->newService($service, null);
+        $this->services = app(BookingRequestBuilder::class)->changeService($this->services, $index, $service);
         $this->resetValidation();
     }
 
@@ -104,7 +106,7 @@ new class extends Component
             $this->services[$index]['assigned_pet_ids'] = [];
         }
 
-        $rules = $this->allRules();
+        $rules = app(BookingRequestWizardRules::class)->all($this->services, $this->pets, $this->contact);
         $ruleKey = collect(array_keys($rules))->first(static fn (string $key): bool => $key === $property || Str::is($key, $property));
 
         if ($ruleKey === null) {
@@ -126,16 +128,10 @@ new class extends Component
             return;
         }
 
-        $variantOptions = BookingRequestSchema::variantOptions($service);
-        $this->services[$index]['service_variant'] = array_key_exists((string) $variant, $variantOptions) ? $variant : null;
-        $this->services[$index]['assigned_pet_ids'] = [];
-
-        if ($service === 'relocation') {
-            $this->services[$index]['details'] = BookingRequestSchema::relocationDetails(
-                $this->services[$index]['service_variant'],
-                $this->services[$index]['details'] ?? [],
-            );
-        }
+        $this->services[$index] = app(BookingRequestBuilder::class)->changeVariant(
+            $this->services[$index],
+            $variant,
+        );
 
         $this->resetValidation();
     }
@@ -163,7 +159,7 @@ new class extends Component
         );
 
         if ($emptyIndex !== false) {
-            $this->services[$emptyIndex] = $this->newService($service, null);
+            $this->services[$emptyIndex] = app(BookingRequestBuilder::class)->newService($service, null);
             $this->choosingService = false;
             $this->dispatch('booking-wizard-focus-target', target: "booking-service-{$emptyIndex}");
             $this->dispatch('booking-wizard-announcement', message: $this->serviceLabel($service).' added to your request.');
@@ -185,7 +181,7 @@ new class extends Component
             return;
         }
 
-        $this->services[] = $this->newService($service, null);
+        $this->services[] = app(BookingRequestBuilder::class)->newService($service, null);
         $this->choosingService = false;
         $this->dispatch('booking-wizard-focus-target', target: 'booking-service-'.(count($this->services) - 1));
         $this->dispatch('booking-wizard-announcement', message: $this->serviceLabel($service).' added to your request.');
@@ -216,7 +212,7 @@ new class extends Component
             return;
         }
 
-        $this->pets[] = $this->newPet();
+        $this->pets[] = app(BookingRequestBuilder::class)->newPet();
         $index = count($this->pets) - 1;
         $this->dispatch('booking-wizard-focus-target', target: "booking-pet-{$index}-heading");
         $this->dispatch('booking-wizard-announcement', message: 'Pet '.($index + 1).' added.');
@@ -228,28 +224,11 @@ new class extends Component
             return;
         }
 
-        unset($this->pets[$index]);
-        $this->pets = array_values($this->pets);
+        $result = app(BookingRequestBuilder::class)->removePet($this->pets, $this->services, $index);
+        $this->pets = $result['pets'];
+        $this->services = $result['services'];
 
-        foreach ($this->services as &$service) {
-            $assignedPetIds = [];
-
-            foreach ($service['assigned_pet_ids'] ?? [] as $petId) {
-                $petId = (int) $petId;
-
-                if ($petId === $index) {
-                    continue;
-                }
-
-                $assignedPetIds[] = $petId > $index ? $petId - 1 : $petId;
-            }
-
-            $service['assigned_pet_ids'] = array_values(array_unique($assignedPetIds));
-        }
-        unset($service);
-
-        $focusIndex = min($index, count($this->pets) - 1);
-        $this->dispatch('booking-wizard-focus-target', target: "booking-pet-{$focusIndex}-heading");
+        $this->dispatch('booking-wizard-focus-target', target: "booking-pet-{$result['focus_index']}-heading");
         $this->dispatch('booking-wizard-announcement', message: 'Pet removed from this request.');
         $this->resetValidation();
     }
@@ -265,16 +244,19 @@ new class extends Component
                 $this->syncLegacyPhoneFields();
             }
 
-            $this->validate($this->rulesForStep($this->step));
+            $this->validate(app(BookingRequestWizardRules::class)->forStep(
+                $this->step,
+                $this->services,
+                $this->pets,
+                $this->contact,
+            ));
 
             if ($this->step === 1) {
-                $this->validateServiceAvailability();
+                app(BookingRequestIntake::class)->validateServices($this->services);
             }
 
             if ($this->step === 3) {
-                $this->validateAssignmentCompatibility();
-                $this->validatePetAssignmentsComplete();
-                $this->validateDuplicateServices();
+                app(BookingRequestIntake::class)->validateAssignments($this->pets, $this->services);
             }
         } catch (ValidationException $exception) {
             $this->revealValidationStep($exception->errors());
@@ -430,12 +412,12 @@ new class extends Component
 
     public function maxServiceItems(): int
     {
-        return max(1, (int) config('waggies_pricing.max_service_items', 12));
+        return app(BookingPricingCatalog::class)->maxServiceItems();
     }
 
     public function serviceAvailable(string $service): bool
     {
-        return app(BookingPricingCatalog::class)->isAvailable(config("waggies_pricing.services.{$service}", []));
+        return app(BookingPricingCatalog::class)->serviceIsAvailable($service);
     }
 
     public function serviceLabel(?string $service): string
@@ -468,42 +450,7 @@ new class extends Component
      */
     protected function validationAttributes(): array
     {
-        $attributes = [
-            'services.*.service_key' => 'service',
-            'services.*.service_variant' => 'animal type',
-            'services.*.details.care_needs' => 'veterinary care needs',
-            'services.*.details.care_needs.*' => 'veterinary care need',
-            'services.*.assigned_pet_ids' => 'assigned pet',
-            'services.*.details.check_in' => 'check-in date',
-            'services.*.details.check_out' => 'check-out date',
-            'services.*.details.reason' => 'what your pet needs help with',
-            'services.*.details.urgency' => 'urgency',
-            'services.*.details.pickup' => 'pickup point',
-            'services.*.details.dropoff' => 'drop-off point',
-            'services.*.details.trip_type' => 'trip type',
-            'services.*.details.origin_country' => 'country your pet is coming from',
-            'services.*.details.destination_country' => 'country your pet is going to',
-            'services.*.details.documentation_status' => 'documentation status',
-            'services.*.details.emergency' => 'emergency veterinary authorization',
-            'services.*.details.emergency_vet_authorization' => 'emergency veterinary authorization',
-            'pets.*.name' => 'pet name',
-            'pets.*.species' => 'pet type',
-            'pets.*.size' => 'dog size',
-            'pets.*.breed' => 'breed',
-            'pets.*.age' => 'age or life stage',
-            'pets.*.sex' => 'sex',
-            'contact.name' => 'your name',
-            'contact.email' => 'email address',
-            'contact.phone_country' => 'country calling code',
-            'contact.phone_number' => 'phone number',
-            'contact.phone_other_country_code' => 'country calling code',
-        ];
-
-        foreach ($this->services as $index => $service) {
-            $attributes["services.{$index}.service_variant"] = $this->serviceVariantAttribute($service['service_key'] ?? null);
-        }
-
-        return $attributes;
+        return app(BookingRequestWizardRules::class)->attributes($this->services);
     }
 
     /**
@@ -511,12 +458,7 @@ new class extends Component
      */
     protected function messages(): array
     {
-        return [
-            'pets.*.species.in' => 'This pet type is not compatible with the selected services. Choose a compatible pet type or add a service that supports it.',
-            'services.*.details.care_needs.required' => 'Select at least one veterinary care need.',
-            'services.*.details.care_needs.min' => 'Select at least one veterinary care need.',
-            'services.*.details.care_needs.*.in' => 'Choose a valid veterinary care need.',
-        ];
+        return app(BookingRequestWizardRules::class)->messages();
     }
 
     /**
@@ -524,18 +466,7 @@ new class extends Component
      */
     public function petSizeOptions(): array
     {
-        foreach ($this->services as $service) {
-            $options = app(BookingPricingCatalog::class)->sizeOptions(
-                (string) ($service['service_key'] ?? ''),
-                $service['service_variant'] ?? null,
-            );
-
-            if ($options !== []) {
-                return $options;
-            }
-        }
-
-        return [];
+        return app(BookingRequestWizardRules::class)->petSizeOptions($this->services);
     }
 
     public function serviceFields(array $service): array
@@ -601,16 +532,6 @@ new class extends Component
         };
     }
 
-    public function serviceVariantAttribute(?string $service): string
-    {
-        return match ($service) {
-            'boarding' => 'pet assignment',
-            'vet-care' => 'veterinary care needs',
-            'relocation' => 'relocation option',
-            default => 'service option',
-        };
-    }
-
     public function serviceAssignedCount(array $service): int
     {
         return count(array_unique(array_map('intval', $service['assigned_pet_ids'] ?? [])));
@@ -622,22 +543,15 @@ new class extends Component
             return false;
         }
 
-        $signature = $this->duplicateServiceSignature($this->services[$index]);
-
-        foreach (array_slice($this->services, 0, $index) as $service) {
-            if ($this->duplicateServiceSignature($service) === $signature) {
-                return true;
-            }
-        }
-
-        return false;
+        return app(BookingRequestIntake::class)->isDuplicateService(
+            $this->services[$index],
+            array_slice($this->services, 0, $index),
+        );
     }
 
     public function petAssignedServiceCount(int $petIndex): int
     {
-        return collect($this->services)
-            ->filter(fn (array $service): bool => in_array($petIndex, array_map('intval', $service['assigned_pet_ids'] ?? []), true))
-            ->count();
+        return app(BookingRequestBuilder::class)->petAssignedServiceCount($this->services, $petIndex);
     }
 
     public function petNeedsSize(int $petIndex): bool
@@ -681,7 +595,7 @@ new class extends Component
      */
     public function petAgeOptions(): array
     {
-        return config('waggies_pricing.pet_age_options', []);
+        return app(BookingPricingCatalog::class)->petAgeOptions();
     }
 
     /**
@@ -689,25 +603,7 @@ new class extends Component
      */
     public function petTypeOptions(): array
     {
-        $allowedPetTypes = collect($this->services)
-            ->filter(fn (array $service): bool => filled($service['service_key'] ?? null))
-            ->flatMap(function (array $service): array {
-                return app(BookingPricingCatalog::class)->allowedPetTypes(
-                    (string) ($service['service_key'] ?? ''),
-                    $service['service_variant'] ?? null,
-                ) ?? ['dog', 'cat'];
-            })
-            ->unique()
-            ->values()
-            ->all();
-
-        if ($allowedPetTypes === []) {
-            $allowedPetTypes = ['dog', 'cat'];
-        }
-
-        return collect(['dog' => 'Dog', 'cat' => 'Cat'])
-            ->filter(fn (string $label, string $type): bool => in_array($type, $allowedPetTypes, true))
-            ->all();
+        return app(BookingRequestWizardRules::class)->petTypeOptions($this->services);
     }
 
     public function petAgeRequired(int $petIndex): bool
@@ -948,22 +844,7 @@ new class extends Component
      */
     public function assignedPetIndexes(): array
     {
-        $assignedPetIndexes = [];
-
-        foreach ($this->services as $service) {
-            foreach ($service['assigned_pet_ids'] ?? [] as $petIndex) {
-                $petIndex = (int) $petIndex;
-
-                if (array_key_exists($petIndex, $this->pets)) {
-                    $assignedPetIndexes[$petIndex] = true;
-                }
-            }
-        }
-
-        $assignedPetIndexes = array_keys($assignedPetIndexes);
-        sort($assignedPetIndexes);
-
-        return array_map('intval', $assignedPetIndexes);
+        return app(BookingRequestBuilder::class)->assignedPetIndexes($this->services, $this->pets);
     }
 
     public function editService(int $index): void
@@ -982,27 +863,26 @@ new class extends Component
         $this->syncLegacyPhoneFields();
 
         try {
-            $this->validate($this->allRules());
-            $this->validateServiceAvailability();
-            $this->validateAssignmentCompatibility();
-            $this->validatePetAssignmentsComplete();
-            $this->validateDuplicateServices();
+            $this->validate(app(BookingRequestWizardRules::class)->all(
+                $this->services,
+                $this->pets,
+                $this->contact,
+            ));
+            $createBookingRequest->handle([
+                'contact' => $this->contact,
+                'pets' => $this->pets,
+                'services' => $this->services,
+                'idempotency_key' => $this->submissionToken,
+                'source' => $this->source,
+                'context' => [
+                    'submitted_from' => 'livewire-booking-wizard',
+                ],
+            ]);
         } catch (ValidationException $exception) {
             $this->revealValidationStep($exception->errors());
 
             throw $exception;
         }
-
-        $createBookingRequest->handle([
-            'contact' => $this->contact,
-            'pets' => $this->pets,
-            'services' => $this->services,
-            'idempotency_key' => $this->submissionToken,
-            'source' => $this->source,
-            'context' => [
-                'submitted_from' => 'livewire-booking-wizard',
-            ],
-        ]);
 
         $this->submitted = true;
         $this->dispatch('booking-request-submitted');
@@ -1032,308 +912,11 @@ new class extends Component
     }
 
     /**
-     * @return array<string, array<int, mixed>>
-     */
-    private function allRules(): array
-    {
-        return [
-            ...$this->rulesForStep(1),
-            ...$this->petRules(false),
-            ...$this->rulesForStep(3),
-            ...$this->rulesForStep(4),
-        ];
-    }
-
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    private function rulesForStep(int $step): array
-    {
-        return match ($step) {
-            1 => $this->serviceRules(),
-            2 => $this->petRules(true),
-            3 => [
-                ...$this->assignmentRules(),
-                ...$this->serviceDetailRules(),
-            ],
-            4 => [
-                'contact.name' => ['required', 'string', 'max:120'],
-                'contact.email' => ['required', 'email', 'max:255'],
-                'contact.phone_country' => ['required', Rule::in(array_keys(PhoneNumber::countryOptions()))],
-                'contact.phone_other_country_code' => ['nullable', 'required_if:contact.phone_country,OTHER', 'regex:/^\+?[0-9]{1,3}$/'],
-                'contact.phone_number' => [
-                    'required',
-                    'string',
-                    'max:40',
-                    new ValidPhoneNumber(
-                        $this->contact['phone_country'] ?? null,
-                        $this->contact['phone_other_country_code'] ?? null,
-                    ),
-                ],
-                'contact.preferred_contact_method' => ['nullable', Rule::in(['phone', 'email', 'whatsapp'])],
-            ],
-            default => [],
-        };
-    }
-
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    private function serviceRules(): array
-    {
-        $rules = [
-            'services' => ['required', 'array', 'min:1', 'max:'.$this->maxServiceItems()],
-            'services.*.service_key' => ['required', Rule::in(array_keys(BookingRequestSchema::allServiceOptions()))],
-        ];
-
-        foreach ($this->services as $index => $service) {
-            $variantOptions = BookingRequestSchema::variantOptions($service['service_key'] ?? null);
-            $selectionMode = BookingRequestSchema::serviceSelectionMode($service['service_key'] ?? null);
-            $rules["services.{$index}.service_variant"] = [
-                $selectionMode === 'single' && $variantOptions !== [] ? 'required' : 'nullable',
-                Rule::in(array_keys($variantOptions)),
-            ];
-
-            if ($selectionMode === 'multiple') {
-                $rules["services.{$index}.details.care_needs"] = ['required', 'array', 'min:1'];
-                $rules["services.{$index}.details.care_needs.*"] = ['string', Rule::in(array_keys($variantOptions)), 'distinct'];
-            }
-        }
-
-        return $rules;
-    }
-
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    private function petRules(bool $enforceCompatibility): array
-    {
-        $rules = [
-            'pets' => ['required', 'array', 'min:1', 'max:8'],
-            'pets.*.name' => ['required', 'string', 'max:80'],
-            'pets.*.species' => ['required', Rule::in($enforceCompatibility ? array_keys($this->petTypeOptions()) : ['dog', 'cat'])],
-            'pets.*.size' => ['nullable', Rule::in(array_keys($this->petSizeOptions()))],
-            'pets.*.breed' => ['nullable', 'string', 'max:120'],
-            'pets.*.age' => ['nullable', Rule::in(array_keys($this->petAgeOptions()))],
-            'pets.*.sex' => ['required', Rule::in(['male', 'female'])],
-            'pets.*.notes' => ['nullable', 'string', 'max:1000'],
-        ];
-
-        return $rules;
-    }
-
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    private function assignmentRules(): array
-    {
-        $rules = [];
-
-        foreach ($this->services as $index => $service) {
-            $rules["services.{$index}.assigned_pet_ids"] = ['required', 'array', 'min:1'];
-            $rules["services.{$index}.assigned_pet_ids.*"] = ['integer', Rule::in(array_keys($this->pets))];
-        }
-
-        foreach ($this->services as $service) {
-            foreach ($service['assigned_pet_ids'] ?? [] as $petIndex) {
-                $petIndex = (int) $petIndex;
-
-                if (! isset($this->pets[$petIndex])) {
-                    continue;
-                }
-
-                if (app(BookingPricingCatalog::class)->requiresPetSize(
-                    (string) ($service['service_key'] ?? ''),
-                    $service['service_variant'] ?? null,
-                ) && ($this->pets[$petIndex]['species'] ?? null) === 'dog') {
-                    $rules["pets.{$petIndex}.size"] = [
-                        'required',
-                        Rule::in(array_keys($this->petSizeOptions())),
-                    ];
-                }
-
-                if (($service['service_key'] ?? null) === 'relocation') {
-                    $rules["pets.{$petIndex}.breed"] = ['required', 'string', 'max:120'];
-                }
-
-                if (in_array($service['service_key'] ?? null, ['vet-care', 'relocation'], true)) {
-                    $rules["pets.{$petIndex}.age"] = ['required', Rule::in(array_keys($this->petAgeOptions()))];
-                }
-            }
-        }
-
-        return $rules;
-    }
-
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    private function serviceDetailRules(): array
-    {
-        $rules = [];
-
-        foreach ($this->services as $index => $service) {
-            foreach ($this->serviceFields($service) as $field) {
-                if (! $this->fieldVisible($field, $service)) {
-                    continue;
-                }
-
-                $model = $this->fieldModel($index, $field);
-                $fieldRules = [$field['required'] ? 'required' : 'nullable'];
-
-                if ($field['type'] === 'date') {
-                    $fieldRules = [...$fieldRules, 'date_format:Y-m-d', 'after_or_equal:today'];
-
-                    if ($field['key'] === 'check_out') {
-                        $fieldRules[] = "after:services.{$index}.details.check_in";
-                    }
-                } elseif (in_array($field['type'], ['select', 'country'], true)) {
-                    $fieldRules[] = Rule::in(array_keys($field['options'] ?? []));
-                } else {
-                    $fieldRules[] = 'string';
-                    $fieldRules[] = 'max:2000';
-                }
-
-                $rules[$model] = $fieldRules;
-            }
-        }
-
-        return $rules;
-    }
-
-    private function validateAssignmentCompatibility(): void
-    {
-        $messages = [];
-
-        foreach ($this->services as $serviceIndex => $service) {
-            foreach ($service['assigned_pet_ids'] ?? [] as $petIndex) {
-                if (! isset($this->pets[(int) $petIndex]) || $this->petCompatible($service, $this->pets[(int) $petIndex])) {
-                    continue;
-                }
-
-                $messages["services.{$serviceIndex}.assigned_pet_ids"][] = $this->petCompatibilityReason($service, $this->pets[(int) $petIndex]) ?? 'Choose a pet that matches this service.';
-            }
-        }
-
-        if ($messages !== []) {
-            throw ValidationException::withMessages($messages);
-        }
-    }
-
-    private function validatePetAssignmentsComplete(): void
-    {
-        $assignedPetIndexes = collect($this->services)
-            ->flatMap(fn (array $service): array => array_map('intval', $service['assigned_pet_ids'] ?? []))
-            ->unique()
-            ->all();
-        $messages = [];
-
-        foreach ($this->pets as $petIndex => $pet) {
-            if (in_array($petIndex, $assignedPetIndexes, true)) {
-                continue;
-            }
-
-            $messages["pets.{$petIndex}.assignments"] = 'Assign this pet to at least one service or remove it.';
-        }
-
-        if ($messages !== []) {
-            throw ValidationException::withMessages($messages);
-        }
-    }
-
-    private function validateDuplicateServices(): void
-    {
-        $seen = [];
-        $messages = [];
-
-        foreach ($this->services as $index => $service) {
-            $signature = $this->duplicateServiceSignature($service);
-
-            if (isset($seen[$signature])) {
-                $message = 'This matches another service item. Assign more pets to one item, or change the schedule or service details.';
-                $messages["services.{$index}.assigned_pet_ids"][] = $message;
-                $messages["services.{$seen[$signature]}.assigned_pet_ids"][] = $message;
-
-                continue;
-            }
-
-            $seen[$signature] = $index;
-        }
-
-        if ($messages !== []) {
-            throw ValidationException::withMessages($messages);
-        }
-    }
-
-    private function duplicateServiceSignature(array $service): string
-    {
-        $identity = [
-            'service_key' => $service['service_key'] ?? null,
-            'service_variant' => $service['service_variant'] ?? null,
-            'requested_date' => $service['requested_date'] ?? null,
-            'requested_time' => $service['requested_time'] ?? null,
-            'location' => $service['location'] ?? null,
-            'details' => $service['details'] ?? [],
-        ];
-
-        $normalise = function (mixed $value) use (&$normalise): mixed {
-            if (is_array($value)) {
-                if (array_is_list($value)) {
-                    return array_map($normalise, $value);
-                }
-
-                $normalised = [];
-
-                foreach ($value as $key => $item) {
-                    $normalised[(string) $key] = $normalise($item);
-                }
-
-                ksort($normalised);
-
-                return $normalised;
-            }
-
-            if (is_string($value) && trim($value) === '') {
-                return null;
-            }
-
-            return $value;
-        };
-
-        return json_encode($normalise($identity), JSON_THROW_ON_ERROR);
-    }
-
-    private function validateServiceAvailability(): void
-    {
-        $messages = [];
-
-        foreach ($this->services as $index => $service) {
-            if ($this->serviceAvailable((string) ($service['service_key'] ?? ''))) {
-                continue;
-            }
-
-            $messages["services.{$index}.service_key"][] = 'This service is temporarily unavailable. Choose another service.';
-        }
-
-        if ($messages !== []) {
-            throw ValidationException::withMessages($messages);
-        }
-    }
-
-    /**
      * @param  array<string, mixed>  $service
      */
     public function serviceNeedsSelection(array $service): bool
     {
-        $serviceKey = $service['service_key'] ?? null;
-        $selectionMode = BookingRequestSchema::serviceSelectionMode($serviceKey);
-
-        return match ($selectionMode) {
-            'multiple' => app(BookingPricingCatalog::class)->careNeeds($service['details']['care_needs'] ?? []) === [],
-            'single' => app(BookingPricingCatalog::class)->serviceOptionRequired($serviceKey)
-                && empty($service['service_variant']),
-            default => false,
-        };
+        return app(BookingRequestBuilder::class)->serviceNeedsSelection($service);
     }
 
     /**
@@ -1349,54 +932,6 @@ new class extends Component
             ->all();
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function newService(?string $service, ?string $variant): array
-    {
-        $selectionMode = BookingRequestSchema::serviceSelectionMode($service);
-        $details = $selectionMode === 'multiple' ? ['care_needs' => []] : [];
-
-        if ($selectionMode === 'multiple' && filled($variant)) {
-            $details['care_needs'] = [$variant];
-            $variant = null;
-        }
-
-        if ($selectionMode === 'pet_types') {
-            $variant = null;
-        }
-
-        if ($service === 'relocation') {
-            $details = BookingRequestSchema::relocationDetails($variant, $details);
-        }
-
-        return [
-            'service_key' => $service,
-            'service_variant' => $variant,
-            'assigned_pet_ids' => [],
-            'requested_date' => null,
-            'requested_time' => null,
-            'location' => null,
-            'details' => $details,
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function newPet(): array
-    {
-        return [
-            'name' => null,
-            'species' => null,
-            'size' => null,
-            'breed' => null,
-            'age' => null,
-            'sex' => null,
-            'notes' => null,
-            'details' => [],
-        ];
-    }
 };
 ?>
 
@@ -1481,536 +1016,15 @@ new class extends Component
                 </div>
 
                 <form wire:submit="submit" novalidate>
-                    @if($step === 1)
-                        <fieldset class="flex flex-col gap-5">
-                            <legend class="sr-only">Services</legend>
-                            @foreach($services as $index => $service)
-                                <div wire:key="booking-service-{{ $index }}" class="rounded-2xl border border-primary/15 bg-white p-5 shadow-sm sm:p-6">
-                                    <div class="flex items-start justify-between gap-4">
-                                        <div>
-                                            <p class="text-eyebrow text-primary-dark/50">SERVICE {{ $index + 1 }}</p>
-                                            <h3 class="mt-1 font-serif text-xl font-bold text-primary-dark">Choose a service</h3>
-                                            <p class="mt-1 text-sm text-primary-dark/60">Select the care your pet needs. You can add another service below.</p>
-                                        </div>
-                                        @if(count($services) > 1)
-                                            <button type="button" wire:click="removeService({{ $index }})" aria-label="Remove {{ $this->serviceLabel($service['service_key'] ?? null) }} service" class="min-h-11 shrink-0 rounded-lg border border-transparent px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 transition-colors hover:border-error/30 hover:bg-error-light hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">Remove</button>
-                                        @endif
-                                    </div>
+                    @include('components.booking-request-wizard.steps.services')
 
-                                    <fieldset class="mt-5" aria-labelledby="booking-service-{{ $index }}-choice-heading">
-                                        <legend id="booking-service-{{ $index }}-choice-heading" class="text-sm font-semibold text-primary-dark">Which service do you need?</legend>
-                                        <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                                        @foreach($this->serviceOptions() as $serviceKey => $serviceLabel)
-                                            @php $available = $this->serviceAvailable($serviceKey); @endphp
-                                            <label class="group flex min-h-16 items-center justify-between gap-3 rounded-xl border p-4 text-left transition-colors {{ $service['service_key'] === $serviceKey ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : 'cursor-pointer' }}">
-                                                <input type="radio" name="booking-service-{{ $index }}" value="{{ $serviceKey }}" @checked($service['service_key'] === $serviceKey) @disabled(! $available) wire:click="serviceChanged({{ $index }}, '{{ $serviceKey }}')" class="sr-only peer">
-                                                <span>
-                                                    <span class="block font-semibold text-primary-dark">{{ $serviceLabel }}</span>
-                                                    @if(! $available)
-                                                        <span class="mt-1 block text-xs font-medium text-primary-dark/60">Temporarily unavailable</span>
-                                                    @endif
-                                                </span>
-                                                <span class="hidden size-5 shrink-0 items-center justify-center rounded-full bg-primary text-white peer-checked:flex"><x-waggies.icon name="check" size="13" /></span>
-                                            </label>
-                                        @endforeach
-                                        </div>
-                                    </fieldset>
+                    @include('components.booking-request-wizard.steps.pets')
 
-                                    @if($service['service_key'])
-                                            @php
-                                                $selectionMode = BookingRequestSchema::serviceSelectionMode($service['service_key']);
-                                                $variantOptions = $this->allVariantOptions($service['service_key']);
-                                            @endphp
-                                            @if($selectionMode === 'pet_types')
-                                                <div class="mt-6 rounded-xl border border-primary/10 bg-surface-purple/45 p-4">
-                                                    <p class="text-eyebrow text-primary-dark/50">NEXT</p>
-                                                    <h4 class="mt-1 text-base font-bold text-primary-dark">Add your pets next</h4>
-                                                    <p class="mt-2 text-sm leading-relaxed text-primary-dark/65">This boarding service can include dogs, cats, or both. Add each pet in the next step and we will match them to this stay.</p>
-                                                </div>
-                                            @elseif($selectionMode === 'multiple')
-                                                @php
-                                                    $careNeeds = is_array($service['details']['care_needs'] ?? null)
-                                                        ? $service['details']['care_needs']
-                                                        : [];
-                                                @endphp
-                                                <div class="mt-6 border-t border-primary/10 pt-5">
-                                                    <p class="text-eyebrow text-primary-dark/50">NEXT</p>
-                                                    <h4 class="mt-1 text-base font-bold text-primary-dark">Choose all care needs that apply</h4>
-                                                    <p class="mt-1 text-sm leading-relaxed text-primary-dark/60">Select one or more reasons for the veterinary request. The team will review them together.</p>
-                                                </div>
-                                                <div class="mt-5">
-                                                    <fieldset id="booking-service-{{ $index }}-care-needs" tabindex="-1" class="rounded-2xl border border-primary/15 bg-surface-purple/30 p-4 {{ $errors->has('services.'.$index.'.details.care_needs') || $errors->has('services.'.$index.'.details.care_needs.*') ? 'border-danger/60 ring-2 ring-danger/15' : '' }}">
-                                                        <legend class="px-1 text-sm font-semibold text-primary-dark">What does your pet need help with? <span class="text-danger" aria-hidden="true">*</span></legend>
-                                                        <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                                                            @foreach($variantOptions as $key => $label)
-                                                                @php $available = $this->variantAvailable($service['service_key'], $key); @endphp
-                                                                <label wire:key="booking-service-{{ $index }}-care-need-{{ $key }}" class="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-colors {{ in_array($key, $careNeeds, true) ? 'border-primary bg-white ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : 'cursor-pointer' }}">
-                                                                    <input type="checkbox" name="booking-service-{{ $index }}-care-needs" value="{{ $key }}" @checked(in_array($key, $careNeeds, true)) @disabled(! $available) wire:model.live="services.{{ $index }}.details.care_needs" class="sr-only peer">
-                                                                    <span>{{ $label }}@if(! $available)<span class="mt-1 block text-xs font-medium text-primary-dark/60">Temporarily unavailable</span>@endif</span>
-                                                                    <span class="hidden size-5 shrink-0 items-center justify-center rounded-full bg-primary text-white peer-checked:flex"><x-waggies.icon name="check" size="13" /></span>
-                                                                </label>
-                                                            @endforeach
-                                                        </div>
-                                                        @if($errors->has('services.'.$index.'.details.care_needs') || $errors->has('services.'.$index.'.details.care_needs.*'))
-                                                            <p class="mt-2 text-sm font-medium text-danger" role="alert">{{ $errors->first('services.'.$index.'.details.care_needs') ?: $errors->first('services.'.$index.'.details.care_needs.*') }}</p>
-                                                        @endif
-                                                    </fieldset>
-                                                    @if($this->serviceNeedsSelection($service))
-                                                        <p class="mt-4 rounded-xl bg-surface-purple/55 p-3 text-sm leading-relaxed text-primary-dark/65">Choose at least one care need to continue.</p>
-                                                    @endif
-                                                </div>
-                                            @elseif($variantOptions)
-                                                <div class="mt-6 border-t border-primary/10 pt-5">
-                                                    <p class="text-eyebrow text-primary-dark/50">NEXT</p>
-                                                    <h4 class="mt-1 text-base font-bold text-primary-dark">Choose a service option</h4>
-                                                    <p class="mt-1 text-sm leading-relaxed text-primary-dark/60">Choose the option that best matches what your pet needs.</p>
-                                                </div>
-                                                <div class="mt-5">
-                                                    <fieldset id="booking-service-{{ $index }}-variant" tabindex="-1" class="rounded-2xl border border-primary/15 bg-surface-purple/30 p-4 {{ $errors->has('services.'.$index.'.service_variant') ? 'border-danger/60 ring-2 ring-danger/15' : '' }}">
-                                                        <legend class="px-1 text-sm font-semibold text-primary-dark">{{ $this->serviceVariantQuestion($service['service_key']) }} <span class="text-danger" aria-hidden="true">*</span></legend>
-                                                        <div class="mt-3 flex flex-wrap gap-3">
-                                                            @foreach($variantOptions as $key => $label)
-                                                                @php $available = $this->variantAvailable($service['service_key'], $key); @endphp
-                                                                <label class="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-colors sm:w-[calc(50%-0.375rem)] lg:w-auto lg:min-w-40 lg:flex-1 {{ $service['service_variant'] === $key ? 'border-primary bg-white ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : 'cursor-pointer' }}">
-                                                                    <input type="radio" name="booking-service-{{ $index }}-variant" value="{{ $key }}" @checked($service['service_variant'] === $key) @disabled(! $available) wire:click="variantChanged({{ $index }}, '{{ $key }}')" class="sr-only peer">
-                                                                    <span>{{ $label }}@if(! $available)<span class="mt-1 block text-xs font-medium text-primary-dark/60">Temporarily unavailable</span>@endif</span>
-                                                                    <span class="hidden size-5 shrink-0 items-center justify-center rounded-full bg-primary text-white peer-checked:flex"><x-waggies.icon name="check" size="13" /></span>
-                                                                </label>
-                                                            @endforeach
-                                                        </div>
-                                                        @if($errors->has('services.'.$index.'.service_variant'))
-                                                            <p class="mt-2 text-sm font-medium text-danger" role="alert">{{ $errors->first('services.'.$index.'.service_variant') }}</p>
-                                                        @endif
-                                                    </fieldset>
-                                                    @if(! $service['service_variant'])
-                                                        <p class="mt-4 rounded-xl bg-surface-purple/55 p-3 text-sm leading-relaxed text-primary-dark/65">Choose one option to continue.</p>
-                                                    @endif
-                                                </div>
-                                            @endif
-                                    @else
-                                        <p class="mt-5 rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose a service above to see the options and details it needs.</p>
-                                    @endif
-                                </div>
-                            @endforeach
+                    @include('components.booking-request-wizard.steps.assignments')
 
-                            @if($choosingService)
-                                <section class="rounded-2xl border-2 border-primary/20 bg-surface-purple/35 p-5 sm:p-6" aria-labelledby="add-service-heading">
-                                    <div class="flex items-start justify-between gap-4">
-                                        <div>
-                                            <p class="text-eyebrow text-primary-dark/50">ADD TO YOUR REQUEST</p>
-                                            <h3 id="add-service-heading" class="mt-1 font-serif text-xl font-bold text-primary-dark">Which service do you also need?</h3>
-                                            <p class="mt-2 text-sm leading-relaxed text-primary-dark/65">Choose a service first. We will then show only the options and details that belong to it.</p>
-                                        </div>
-                                        <button type="button" wire:click="cancelAddService" class="min-h-11 shrink-0 rounded-lg px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Cancel</button>
-                                    </div>
-                                    <div class="mt-5 grid gap-3 sm:grid-cols-2">
-                                        @foreach($this->serviceOptions() as $serviceKey => $serviceLabel)
-                                            @php $available = $this->serviceAvailable($serviceKey); @endphp
-                                            <button type="button" @if($available) wire:click="chooseAdditionalService('{{ $serviceKey }}')" @else disabled @endif class="flex min-h-16 items-center justify-between gap-3 rounded-xl border border-primary/15 bg-white p-4 text-left transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary {{ ! $available ? 'cursor-not-allowed opacity-55' : '' }}">
-                                                <span><span class="block font-semibold text-primary-dark">{{ $serviceLabel }}</span>@if(! $available)<span class="mt-1 block text-xs text-primary-dark/60">Temporarily unavailable</span>@endif</span>
-                                                <x-waggies.icon name="arrow-forward" size="18" class="shrink-0 text-primary" />
-                                            </button>
-                                        @endforeach
-                                    </div>
-                                </section>
-                            @else
-                                <button type="button" wire:click="addService" @disabled(count($services) >= $this->maxServiceItems()) class="inline-flex min-h-12 w-fit items-center gap-2 rounded-xl border border-primary/25 px-4 text-sm font-semibold text-primary-dark hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50">
-                                    <span aria-hidden="true" class="text-lg leading-none">+</span> Add another service
-                                </button>
-                                @if(count($services) >= $this->maxServiceItems())
-                                    <p class="text-xs font-medium text-primary-dark/60" role="status">You can include up to {{ $this->maxServiceItems() }} service items in one request.</p>
-                                @endif
-                            @endif
-                        </fieldset>
-                    @endif
+                    @include('components.booking-request-wizard.steps.contact')
 
-                    @if($step === 2)
-                        <fieldset class="flex flex-col gap-6">
-                            <legend class="sr-only">Pet details</legend>
-                            @foreach($pets as $index => $pet)
-                                <div wire:key="booking-pet-{{ $index }}" class="rounded-2xl border border-primary/15 bg-white p-5 shadow-sm sm:p-6">
-                                    <div class="flex items-start justify-between gap-4">
-                                        <div>
-                                            <p class="text-eyebrow text-primary-dark/50">PET PROFILE</p>
-                                            <h3 id="booking-pet-{{ $index }}-heading" tabindex="-1" class="mt-1 font-serif text-xl font-bold text-primary-dark focus:outline-none">{{ $pet['name'] ? 'About '.$pet['name'] : 'Add a pet' }}</h3>
-                                        </div>
-                                        @if(count($pets) > 1)
-                                            <button type="button" wire:click="removePet({{ $index }})" aria-label="Remove {{ $pet['name'] ?: 'pet '.($index + 1) }}" class="min-h-11 shrink-0 rounded-lg border border-transparent px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 transition-colors hover:border-error/30 hover:bg-error-light hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">Remove</button>
-                                        @endif
-                                    </div>
-
-                                    <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                        <x-waggies.field id="booking-pet-{{ $index }}-name" label="Pet name" :error="$errors->first('pets.'.$index.'.name')" required>
-                                            <input id="booking-pet-{{ $index }}-name" wire:model.live.blur="pets.{{ $index }}.name" type="text" maxlength="80" autocomplete="off" class="contact-input">
-                                        </x-waggies.field>
-                                        <fieldset class="sm:col-span-2" aria-labelledby="booking-pet-{{ $index }}-species-heading">
-                                            <legend id="booking-pet-{{ $index }}-species-heading" class="text-sm font-medium text-primary-dark">Pet type <span class="text-danger" aria-hidden="true">*</span></legend>
-                                            <div class="mt-2 grid gap-3 sm:grid-cols-2">
-                                                @foreach($this->petTypeOptions() as $key => $label)
-                                                    <label wire:key="booking-pet-{{ $index }}-species-{{ $key }}" class="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-xl border p-4 text-left transition-colors focus-within:outline-none focus-within:ring-2 focus-within:ring-primary {{ ($pet['species'] ?? null) === $key ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }}">
-                                                        <input type="radio" name="booking-pet-{{ $index }}-species" value="{{ $key }}" @checked(($pet['species'] ?? null) === $key) wire:model.live="pets.{{ $index }}.species" class="sr-only peer">
-                                                        <span class="font-semibold text-primary-dark">{{ $label }}</span>
-                                                        <span class="hidden size-5 shrink-0 items-center justify-center rounded-full bg-primary text-white peer-checked:flex"><x-waggies.icon name="check" size="13" /></span>
-                                                    </label>
-                                                @endforeach
-                                            </div>
-                                            @error('pets.'.$index.'.species') <p class="mt-2 text-sm text-danger" role="alert">{{ $message }}</p> @enderror
-                                        </fieldset>
-                                        @if($pet['species'] === 'dog' && $this->petNeedsSize($index))
-                                            <fieldset class="sm:col-span-2" aria-labelledby="booking-pet-{{ $index }}-size-heading">
-                                                <legend id="booking-pet-{{ $index }}-size-heading" class="text-sm font-semibold text-primary-dark">Dog size <span class="text-danger" aria-hidden="true">*</span></legend>
-                                                <p class="mt-1 text-xs leading-relaxed text-primary-dark/60">Choose the closest size. You do not need to know your dog’s exact weight.</p>
-                                                <div class="mt-3 grid gap-3 sm:grid-cols-3">
-                                                    @foreach($this->petSizeOptions() as $size => $sizeOption)
-                                                        <label class="cursor-pointer rounded-xl border p-4 transition-colors {{ ($pet['size'] ?? null) === $size ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }}">
-                                                            <input type="radio" name="booking-pet-{{ $index }}-size" value="{{ $size }}" @checked(($pet['size'] ?? null) === $size) wire:model.live="pets.{{ $index }}.size" class="sr-only peer">
-                                                            <span class="block font-semibold text-primary-dark">{{ $sizeOption['label'] }}</span>
-                                                            @if($sizeOption['examples'])<span class="mt-1 block text-xs leading-relaxed text-primary-dark/60">{{ $sizeOption['examples'] }}</span>@endif
-                                                        </label>
-                                                    @endforeach
-                                                </div>
-                                                @error('pets.'.$index.'.size') <p class="mt-2 text-sm text-danger" role="alert">{{ $message }}</p> @enderror
-                                            </fieldset>
-                                        @endif
-                                    </div>
-
-
-                                    <div class="mt-6 border-t border-primary/10 pt-5">
-                                        <p class="text-sm font-semibold text-primary-dark">Optional details about this pet</p>
-                                        <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                            <x-waggies.field id="booking-pet-{{ $index }}-breed" label="Breed" :error="$errors->first('pets.'.$index.'.breed')" :help="$this->petBreedHelp($index)">
-                                                <input id="booking-pet-{{ $index }}-breed" wire:model.live.blur="pets.{{ $index }}.breed" type="text" maxlength="120" class="contact-input">
-                                            </x-waggies.field>
-                                            <x-waggies.select id="booking-pet-{{ $index }}-age" label="Age or life stage" wire:model.live="pets.{{ $index }}.age" :error="$errors->first('pets.'.$index.'.age')" :help="$this->petAgeHelp($index)" :required="$this->petAgeRequired($index)">
-                                                <option value="">Select life stage</option>
-                                                @foreach($this->petAgeOptions() as $ageKey => $ageLabel)
-                                                    <option value="{{ $ageKey }}">{{ $ageLabel }}</option>
-                                                @endforeach
-                                            </x-waggies.select>
-                                            <fieldset aria-labelledby="booking-pet-{{ $index }}-sex-heading">
-                                                <legend id="booking-pet-{{ $index }}-sex-heading" class="text-sm font-medium text-primary-dark">Sex <span class="text-danger" aria-hidden="true">*</span></legend>
-                                                <div class="mt-2 grid gap-3 sm:grid-cols-2">
-                                                    @foreach(['male' => 'Male', 'female' => 'Female'] as $key => $label)
-                                                        <label wire:key="booking-pet-{{ $index }}-sex-{{ $key }}" class="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-xl border p-3 text-left transition-colors focus-within:outline-none focus-within:ring-2 focus-within:ring-primary {{ ($pet['sex'] ?? null) === $key ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }}">
-                                                            <input type="radio" name="booking-pet-{{ $index }}-sex" value="{{ $key }}" @checked(($pet['sex'] ?? null) === $key) wire:model.live="pets.{{ $index }}.sex" class="sr-only peer">
-                                                            <span class="font-semibold text-primary-dark">{{ $label }}</span>
-                                                            <span class="hidden size-5 shrink-0 items-center justify-center rounded-full bg-primary text-white peer-checked:flex"><x-waggies.icon name="check" size="13" /></span>
-                                                        </label>
-                                                    @endforeach
-                                                </div>
-                                                @error('pets.'.$index.'.sex') <p class="mt-2 text-sm text-danger" role="alert">{{ $message }}</p> @enderror
-                                            </fieldset>
-                                            <x-waggies.field id="booking-pet-{{ $index }}-notes" label="Pet notes" :error="$errors->first('pets.'.$index.'.notes')" help="Optional. Share temperament, routines, or care notes." class="sm:col-span-2">
-                                                <textarea id="booking-pet-{{ $index }}-notes" wire:model.live.blur="pets.{{ $index }}.notes" rows="3" maxlength="1000" class="contact-input resize-y"></textarea>
-                                            </x-waggies.field>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-
-                            <button type="button" wire:click="addPet" @disabled(count($pets) >= $this->maxPets()) aria-describedby="booking-pet-limit" class="inline-flex min-h-12 w-fit items-center gap-2 rounded-xl border border-primary/25 px-4 text-sm font-semibold text-primary-dark transition-colors hover:border-primary hover:bg-surface-purple disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-                                <span aria-hidden="true" class="text-lg leading-none">+</span> {{ count($pets) >= $this->maxPets() ? 'Maximum pets reached' : 'Add another pet' }}
-                            </button>
-                            <p id="booking-pet-limit" class="text-xs text-primary-dark/55">You can add up to {{ $this->maxPets() }} pets. Each pet can receive one or more of your selected services.</p>
-                        </fieldset>
-                    @endif
-
-                    @if($step === 3)
-                        <fieldset class="flex flex-col gap-6">
-                            <legend class="sr-only">Match pets and service details</legend>
-                            <section class="rounded-xl border border-primary/10 bg-surface-purple/45 p-4" aria-labelledby="assignment-overview-heading">
-                                <div class="flex items-start justify-between gap-4">
-                                    <div>
-                                        <p class="text-eyebrow text-primary-dark/50">ASSIGNMENT CHECK</p>
-                                        <h3 id="assignment-overview-heading" class="mt-1 text-sm font-bold text-primary-dark">Every pet needs a service</h3>
-                                    </div>
-                                    <span class="text-xs font-semibold text-primary-dark/55">{{ collect($services)->sum(fn (array $service): int => $this->serviceAssignedCount($service)) }} matches</span>
-                                </div>
-                                <ul class="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-                                    @foreach($pets as $petIndex => $pet)
-                                        <li id="booking-pet-assignment-{{ $petIndex }}" class="flex items-start justify-between gap-3 rounded-lg bg-white/70 px-3 py-2 {{ $this->petAssignedServiceCount($petIndex) === 0 ? 'ring-1 ring-error/30' : '' }}">
-                                            <span><span class="font-semibold text-primary-dark">{{ $pet['name'] ?: 'Pet '.($petIndex + 1) }}</span><span class="mt-0.5 block text-xs text-primary-dark/55">{{ $this->petAssignedServiceCount($petIndex) > 0 ? $this->petAssignedServiceCount($petIndex).' service'.($this->petAssignedServiceCount($petIndex) === 1 ? '' : 's') : 'Not assigned yet' }}</span></span>
-                                            <span class="flex shrink-0 items-center gap-3">
-                                                @if($this->petAssignedServiceCount($petIndex) > 0)
-                                                    <x-waggies.icon name="check-circle" variant="filled" size="18" class="text-success" />
-                                                @else
-                                                    <span class="text-xs font-semibold text-error">Needs a match</span>
-                                                @endif
-                                                @if(count($pets) > 1)
-                                                    <button type="button" wire:click="removePet({{ $petIndex }})" class="text-xs font-semibold text-primary underline decoration-primary/30 underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Remove</button>
-                                                @endif
-                                            </span>
-                                            @error('pets.'.$petIndex.'.assignments') <span class="sr-only">{{ $message }}</span> @enderror
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </section>
-                            @foreach($services as $index => $service)
-                                @php $fields = $this->serviceFields($service); @endphp
-                                <section wire:key="booking-service-details-{{ $index }}" class="rounded-2xl border border-primary/15 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="booking-service-details-heading-{{ $index }}">
-                                    <div>
-                                        <p class="text-eyebrow text-primary-dark/50">SERVICE</p>
-                                        <h3 id="booking-service-details-heading-{{ $index }}" class="mt-1 font-serif text-xl font-bold text-primary-dark">{{ $this->serviceSummary($service) }}</h3>
-                                        <p class="mt-1 text-sm text-primary-dark/60">{{ $this->servicePetRequirement($service) }} Assign at least one compatible pet.</p>
-                                        @if($this->isDuplicateService($index))
-                                            <p class="mt-3 rounded-lg border border-danger/25 bg-error-light p-3 text-xs font-medium leading-relaxed text-primary-dark" role="alert">This is an identical service item. Assign more pets to one service, or change this service’s schedule or details.</p>
-                                        @endif
-                                    </div>
-
-                                    <div id="booking-service-{{ $index }}-assignment" class="mt-5 grid gap-3 sm:grid-cols-2">
-                                        @foreach($pets as $petIndex => $pet)
-                                            @php $compatible = $this->petCompatible($service, $pet); @endphp
-                                            <label class="flex min-h-16 items-center gap-3 rounded-xl border p-4 transition-colors {{ in_array($petIndex, array_map('intval', $service['assigned_pet_ids'] ?? []), true) ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15' }} {{ ! $compatible ? 'cursor-not-allowed bg-surface/70 opacity-60' : 'cursor-pointer hover:border-primary/40' }}">
-                                                <input type="checkbox" value="{{ $petIndex }}" wire:model.live="services.{{ $index }}.assigned_pet_ids" @disabled(! $compatible) aria-describedby="booking-service-{{ $index }}-pet-{{ $petIndex }}-status" class="size-5 rounded border-primary/30 text-primary focus:ring-primary">
-                                                <span class="min-w-0">
-                                                    <span class="block font-semibold text-primary-dark">{{ $pet['name'] ?: 'Pet '.($petIndex + 1) }}</span>
-                                                    <span id="booking-service-{{ $index }}-pet-{{ $petIndex }}-status" class="mt-1 block text-xs text-primary-dark/60">{{ $this->petSpeciesLabel($pet['species'] ?? null) }}{{ ! $compatible ? ' · '.$this->petCompatibilityReason($service, $pet) : '' }}</span>
-                                                </span>
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                    <p class="mt-3 text-xs font-semibold {{ $this->serviceAssignedCount($service) > 0 ? 'text-success' : 'text-error' }}">{{ $this->serviceAssignedCount($service) > 0 ? $this->serviceAssignedCount($service).' pet'.($this->serviceAssignedCount($service) === 1 ? '' : 's').' assigned' : 'Needs one compatible pet' }}</p>
-                                    @error('services.'.$index.'.assigned_pet_ids') <p class="mt-2 text-sm text-error">{{ $message }}</p> @enderror
-
-                                    @if($service['service_key'])
-                                        <div class="mt-6 border-t border-primary/10 pt-5">
-                                            <p class="text-sm font-semibold text-primary-dark">Details for this service</p>
-                                            @if($service['service_key'] === 'relocation' && $service['service_variant'])
-                                                <div class="mt-4 rounded-2xl border border-primary/15 bg-surface-purple/30 p-4" aria-labelledby="booking-service-{{ $index }}-route-heading">
-                                                    <p id="booking-service-{{ $index }}-route-heading" class="text-eyebrow text-primary-dark/50">FLIGHT ROUTE</p>
-                                                    <div class="mt-3 grid items-stretch gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
-                                                        <div class="rounded-xl border border-primary/10 bg-white p-3">
-                                                            <p class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-primary-dark/45">From</p>
-                                                            <p class="mt-1 text-sm font-semibold leading-relaxed text-primary-dark">{{ $this->relocationEndpointLabel($service, 'origin') }}</p>
-                                                        </div>
-                                                        <span class="hidden text-xl font-semibold text-primary/55 sm:block" aria-hidden="true">→</span>
-                                                        <span class="text-center text-xl font-semibold text-primary/55 sm:hidden" aria-hidden="true">↓</span>
-                                                        <div class="rounded-xl border border-primary/10 bg-white p-3">
-                                                            <p class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-primary-dark/45">To</p>
-                                                            <p class="mt-1 text-sm font-semibold leading-relaxed text-primary-dark">{{ $this->relocationEndpointLabel($service, 'destination') }}</p>
-                                                        </div>
-                                                    </div>
-                                                    <p class="mt-3 text-xs leading-relaxed text-primary-dark/55">The Abuja airport endpoint is fixed. Choose the other country below, then add any flight details you already have.</p>
-                                                </div>
-                                            @endif
-                                            @if($this->serviceAssignedCount($service) > 1)
-                                                <p class="mt-2 rounded-lg bg-surface-purple/45 p-3 text-xs leading-relaxed text-primary-dark/65">This information applies to every pet assigned to this service. If their needs differ, mention each pet by name.</p>
-                                            @endif
-                                            @php $hasDateField = collect($fields)->contains(fn (array $field): bool => ($field['type'] ?? null) === 'date'); @endphp
-                                            @if($hasDateField)
-                                                <p class="mt-3 text-xs font-medium text-primary-dark/55">Dates and times use Africa/Lagos time — WAT (UTC+1).</p>
-                                            @endif
-                                            <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                                @foreach($fields as $field)
-                                                    @continue(! $this->fieldVisible($field, $service))
-                                                    @continue(($field['fixed'] ?? false) === true)
-                                                    @php
-                                                        $model = $this->fieldModel($index, $field);
-                                                        $fieldId = 'booking-'.$index.'-'.$field['key'];
-                                                        $fieldValue = ($field['scope'] ?? 'details') === 'service' ? ($service[$field['key']] ?? null) : ($service['details'][$field['key']] ?? null);
-                                                    @endphp
-                                                    @if($field['type'] === 'textarea')
-                                                        <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['placeholder'] ?? null" :required="$field['required']" class="sm:col-span-2">
-                                                            <textarea id="{{ $fieldId }}" wire:model.live.blur="{{ $model }}" rows="3" maxlength="2000" class="contact-input resize-y"></textarea>
-                                                        </x-waggies.field>
-                                                    @elseif($field['type'] === 'country')
-                                                        <x-waggies.searchable-select :id="$fieldId" :label="$field['label']" :options="$field['options']" :placeholder="$field['placeholder']" wire:model.live="{{ $model }}" :error="$errors->first($model)" :required="$field['required']" />
-                                                    @elseif($field['type'] === 'select' && count($field['options']) <= 3)
-                                                        <fieldset id="{{ $fieldId }}" aria-labelledby="{{ $fieldId }}-label">
-                                                            <legend id="{{ $fieldId }}-label" class="text-sm font-medium text-primary-dark">{{ $field['label'] }}@if($field['required']) <span class="text-danger" aria-hidden="true">*</span>@endif</legend>
-                                                            <div class="mt-2 grid gap-3">
-                                                                @foreach($field['options'] as $key => $label)
-                                                                    <label wire:key="{{ $fieldId }}-{{ $key }}" class="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-xl border p-3 text-left transition-colors focus-within:outline-none focus-within:ring-2 focus-within:ring-primary {{ $fieldValue === $key ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }}">
-                                                                        <input type="radio" name="{{ $fieldId }}" value="{{ $key }}" @checked($fieldValue === $key) wire:model.live="{{ $model }}" class="sr-only peer">
-                                                                        <span class="text-sm font-semibold text-primary-dark">{{ $label }}</span>
-                                                                        <span class="hidden size-5 shrink-0 items-center justify-center rounded-full bg-primary text-white peer-checked:flex"><x-waggies.icon name="check" size="13" /></span>
-                                                                    </label>
-                                                                @endforeach
-                                                            </div>
-                                                            @if($errors->first($model)) <p class="mt-2 text-sm text-danger" role="alert">{{ $errors->first($model) }}</p> @endif
-                                                        </fieldset>
-                                                    @elseif($field['type'] === 'select')
-                                                        <x-waggies.select :id="$fieldId" :label="$field['label']" wire:model.live="{{ $model }}" :error="$errors->first($model)" :required="$field['required']">
-                                                            <option value="">Select an option</option>
-                                                            @foreach($field['options'] as $key => $label)
-                                                                <option value="{{ $key }}">{{ $label }}</option>
-                                                            @endforeach
-                                                        </x-waggies.select>
-                                                    @elseif($field['type'] === 'date')
-                                                        <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['help'] ?? null" :required="$field['required']">
-                                                            @php $fieldMinimum = $this->dateMinimum($service, $field); @endphp
-                                                            <div x-data="waggiesDatePicker({ value: @js($fieldValue), minimum: @js($fieldMinimum) })" @keydown.escape="open = false" class="relative">
-                                                                <input id="{{ $fieldId }}-native" x-ref="native" wire:model.live="{{ $model }}" x-on:input="value = $event.target.value" x-on:change="value = $event.target.value" type="date" min="{{ $fieldMinimum }}" hidden aria-hidden="true" tabindex="-1">
-                                                                <button id="{{ $fieldId }}" x-ref="trigger" type="button" @click="open = ! open" :aria-expanded="open" aria-haspopup="dialog" class="contact-input flex items-center justify-between gap-3 text-left focus-visible:outline-none" :class="open ? 'ring-2 ring-primary/40' : ''">
-                                                                    <span class="min-w-0 flex-1 truncate" :class="value ? 'text-primary-dark' : 'text-primary-dark/45'" x-text="formattedValue() || 'Choose a date'"></span>
-                                                                    <x-waggies.icon name="calendar" size="18" class="shrink-0 text-primary/65" />
-                                                                </button>
-                                                                <div x-show="open" x-cloak @click.outside="open = false" role="dialog" aria-modal="false" aria-label="Choose a date" class="absolute left-0 top-[calc(100%+0.5rem)] z-20 w-full min-w-[18rem] rounded-2xl border border-primary/15 bg-white p-4 shadow-lg">
-                                                                    <div class="flex items-center justify-between gap-3">
-                                                                        <button type="button" @click="changeMonth(-1)" :disabled="isBeforeMinimumMonth()" aria-label="Previous month" class="flex size-10 items-center justify-center rounded-lg text-primary transition-colors hover:bg-surface-purple disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><x-waggies.icon name="arrow-back" size="18" /></button>
-                                                                        <p class="text-sm font-bold text-primary-dark" aria-live="polite" x-text="monthLabel()"></p>
-                                                                        <button type="button" @click="changeMonth(1)" aria-label="Next month" class="flex size-10 items-center justify-center rounded-lg text-primary transition-colors hover:bg-surface-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><x-waggies.icon name="arrow-forward" size="18" /></button>
-                                                                    </div>
-                                                                    <div class="mt-3 grid grid-cols-7 gap-1 text-center text-[0.68rem] font-bold uppercase tracking-wide text-primary-dark/45" aria-hidden="true">
-                                                                        <template x-for="weekday in weekdays()" :key="weekday"><span x-text="weekday"></span></template>
-                                                                    </div>
-                                                                    <div class="mt-2 grid grid-cols-7 gap-1" role="grid" aria-label="Calendar dates">
-                                                                        <template x-for="(day, dayIndex) in days()" :key="day || `empty-${dayIndex}`">
-                                                                            <span class="flex aspect-square items-center justify-center">
-                                                                                <button x-show="day" type="button" @click="choose(day)" :disabled="isDisabled(day)" :aria-current="isToday(day) ? 'date' : null" :aria-pressed="isSelected(day)" :class="{ 'bg-primary text-white': isSelected(day), 'ring-1 ring-primary': isToday(day) && ! isSelected(day), 'text-primary-dark/30': isDisabled(day), 'text-primary-dark hover:bg-surface-purple': ! isDisabled(day) && ! isSelected(day) }" class="flex size-9 items-center justify-center rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" x-text="day ? Number(day.slice(-2)) : ''"></button>
-                                                                            </span>
-                                                                        </template>
-                                                                    </div>
-                                                                </div>
-                                                                <p x-show="value" x-cloak class="mt-2 text-xs font-medium text-primary-dark/55" x-text="'Selected: ' + formattedValue()"></p>
-                                                            </div>
-                                                        </x-waggies.field>
-                                                    @else
-                                                        <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['help'] ?? null" :required="$field['required']">
-                                                            <input id="{{ $fieldId }}" wire:model.live.blur="{{ $model }}" type="{{ $field['type'] }}" @if(isset($field['placeholder'])) placeholder="{{ $field['placeholder'] }}" @endif class="contact-input">
-                                                        </x-waggies.field>
-                                                    @endif
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    @endif
-
-                                    @php $quote = $this->serviceQuote($service); @endphp
-                                    <div class="mt-6 rounded-xl bg-surface-purple/55 p-4" aria-live="polite">
-                                        <div class="flex flex-wrap items-center justify-between gap-3">
-                                            <p class="text-sm font-semibold text-primary-dark" wire:loading.remove>Current estimate</p>
-                                            <p class="text-sm font-semibold text-primary-dark" wire:loading>Updating estimate…</p>
-                                            <p class="font-semibold text-primary-dark" wire:loading.remove>{{ $this->quoteDisplay($quote, $service) }}</p>
-                                        </div>
-                                        @if($this->quoteQuantitySummary($service, $quote))
-                                            <p class="mt-1 text-xs font-semibold text-primary-dark/60">{{ $this->quoteQuantitySummary($service, $quote) }}</p>
-                                        @endif
-                                        @if(($quote['status'] ?? null) === 'needs_input')
-                                            <p class="mt-1 text-xs leading-relaxed text-primary-dark/60">{{ $quote['reason'] ?? 'Complete the assigned pets and service details to see an estimate.' }}</p>
-                                        @elseif(($quote['discount']['percentage'] ?? 0) > 0)
-                                            <p class="mt-1 text-xs leading-relaxed text-primary-dark/60">Includes {{ $quote['discount']['percentage'] }}% multiple-pet boarding discount.</p>
-                                        @else
-                                            <p class="mt-1 text-xs leading-relaxed text-primary-dark/60">This is an estimate or starting price. Waggies confirms final availability and pricing with you.</p>
-                                        @endif
-                                    </div>
-                                </section>
-                            @endforeach
-                        </fieldset>
-                    @endif
-
-                    @if($step === 4)
-                        <fieldset class="flex max-w-xl flex-col gap-5">
-                            <legend class="sr-only">Contact information</legend>
-                            <x-waggies.field id="booking-contact-name" label="Your name" :error="$errors->first('contact.name')" required>
-                                <input id="booking-contact-name" wire:model.live.blur="contact.name" type="text" autocomplete="name" maxlength="120" class="contact-input">
-                            </x-waggies.field>
-                            <x-waggies.field id="booking-contact-email" label="Email address" :error="$errors->first('contact.email')" required>
-                                <input id="booking-contact-email" wire:model.live.blur="contact.email" type="email" autocomplete="email" maxlength="255" class="contact-input">
-                            </x-waggies.field>
-                            <x-waggies.field id="booking-contact-phone" label="Phone or WhatsApp number" :error="$errors->first('contact.phone_number') ?: $errors->first('contact.phone_country')" required>
-                                <div class="grid gap-3 sm:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]">
-                                    <div>
-                                        <label for="booking-contact-phone-country" class="sr-only">Country calling code</label>
-                                        <select id="booking-contact-phone-country" wire:model.live.blur="contact.phone_country" class="contact-input">
-                                            @foreach($this->phoneCountryOptions() as $countryCode => $countryLabel)
-                                                <option value="{{ $countryCode }}">{{ $countryLabel }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label for="booking-contact-phone-number" class="sr-only">Phone number</label>
-                                        <input id="booking-contact-phone-number" wire:model.live.blur="contact.phone_number" type="tel" autocomplete="tel-national" inputmode="tel" maxlength="40" placeholder="808 081 1902" class="contact-input">
-                                    </div>
-                                </div>
-                                @if(($contact['phone_country'] ?? null) === 'OTHER')
-                                    <div class="mt-3">
-                                        <label for="booking-contact-other-country-code" class="text-xs font-semibold text-primary-dark">Country calling code</label>
-                                        <input id="booking-contact-other-country-code" wire:model.live.blur="contact.phone_other_country_code" type="text" inputmode="numeric" autocomplete="tel-country-code" maxlength="4" placeholder="+___" class="contact-input mt-1">
-                                    </div>
-                                @endif
-                                @if($errors->has('contact.phone_other_country_code'))
-                                    <p class="mt-2 text-sm text-danger" role="alert">{{ $errors->first('contact.phone_other_country_code') }}</p>
-                                @endif
-                                <p class="mt-2 text-xs leading-relaxed text-primary-dark/60">Choose the country code, then enter the number without the country code. You can include spaces or a leading 0.</p>
-                            </x-waggies.field>
-                            <x-waggies.select id="booking-contact-method" label="Preferred contact method" wire:model.live="contact.preferred_contact_method" :error="$errors->first('contact.preferred_contact_method')">
-                                <option value="">No preference</option>
-                                <option value="phone">Phone</option>
-                                <option value="email">Email</option>
-                                <option value="whatsapp">WhatsApp</option>
-                            </x-waggies.select>
-                        </fieldset>
-                    @endif
-
-                    @if($step === 5)
-                        <section class="flex flex-col gap-6" aria-labelledby="booking-review-heading">
-                            <h3 id="booking-review-heading" class="sr-only">Review your request</h3>
-                            @foreach($services as $index => $service)
-                                @php $quote = $this->serviceQuote($service); @endphp
-                                <article class="rounded-2xl border border-primary/15 bg-white p-5 shadow-sm sm:p-6">
-                                    <div class="flex items-start justify-between gap-4">
-                                        <div>
-                                            <p class="text-eyebrow text-primary-dark/50">SERVICE</p>
-                                            <h4 class="mt-1 font-serif text-xl font-bold text-primary-dark">{{ $this->serviceSummary($service) }}</h4>
-                                            <p class="mt-1 text-sm text-primary-dark/60">{{ $this->scheduleSummary($service) }}</p>
-                                        </div>
-                                        <button type="button" wire:click="editService({{ $index }})" class="shrink-0 text-sm font-semibold text-primary underline underline-offset-4">Change</button>
-                                    </div>
-                                    <div class="mt-5 grid gap-4 border-t border-primary/10 pt-5 sm:grid-cols-2">
-                                        <div>
-                                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-primary-dark/50">Assigned pets</p>
-                                            <ul class="mt-2 space-y-1 text-sm text-primary-dark/75">
-                                                @foreach($service['assigned_pet_ids'] ?? [] as $petIndex)
-                                                    <li>{{ $pets[(int) $petIndex]['name'] ?? 'Pet '.((int) $petIndex + 1) }} · {{ $this->petSpeciesLabel($pets[(int) $petIndex]['species'] ?? null) }}</li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-primary-dark/50">Estimate</p>
-                                            <p class="mt-2 text-sm font-semibold text-primary-dark">{{ $this->quoteDisplay($quote, $service) }}</p>
-                                            @if($this->quoteQuantitySummary($service, $quote))<p class="mt-1 text-xs text-primary-dark/60">{{ $this->quoteQuantitySummary($service, $quote) }}</p>@endif
-                                            @if(($quote['discount']['percentage'] ?? 0) > 0)
-                                                <p class="mt-1 text-xs text-primary-dark/60">Includes {{ $quote['discount']['percentage'] }}% multiple-pet discount.</p>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    @if($this->serviceReviewDetails($service) !== [])
-                                        <dl class="mt-5 grid gap-3 border-t border-primary/10 pt-5 text-sm sm:grid-cols-2">
-                                            @foreach($this->serviceReviewDetails($service) as $label => $value)
-                                                <div>
-                                                    <dt class="font-semibold text-primary-dark">{{ $label }}</dt>
-                                                    <dd class="mt-1 text-primary-dark/70">{{ $value }}</dd>
-                                                </div>
-                                            @endforeach
-                                        </dl>
-                                    @endif
-                                </article>
-                            @endforeach
-
-                            <section class="rounded-2xl border border-primary/15 bg-white p-5 shadow-sm sm:p-6">
-                                <div class="flex items-center justify-between gap-4"><h4 class="font-serif text-xl font-bold text-primary-dark">Pets</h4><button type="button" wire:click="goToStep(2)" class="text-sm font-semibold text-primary underline underline-offset-4">Edit</button></div>
-                                <ul class="mt-4 grid gap-4 text-sm text-primary-dark/75 sm:grid-cols-2">
-                                    @foreach($this->assignedPetIndexes() as $petIndex)
-                                        @php $pet = $pets[$petIndex]; @endphp
-                                        <li wire:key="booking-review-pet-{{ $petIndex }}" class="rounded-xl bg-surface-purple/45 p-4">
-                                            <p class="font-semibold text-primary-dark">{{ $pet['name'] ?: 'Unnamed pet' }} · {{ $this->petSpeciesLabel($pet['species'] ?? null) }}</p>
-                                            <p class="mt-1 text-xs text-primary-dark/55">{{ $this->petAssignedTo($petIndex) }}</p>
-                                            @if(($pet['size'] ?? null) || $pet['breed'] || $pet['age'] || $pet['sex'])
-                                                <p class="mt-1">{{ implode(' · ', array_filter([$pet['size'] ? ucfirst($pet['size']).' size' : null, $pet['breed'], $this->petAgeLabel($pet['age'] ?? null), $pet['sex'] ? ucfirst($pet['sex']) : null])) }}</p>
-                                            @endif
-                                            @if($pet['notes'] || ($pet['details']['other_description'] ?? null))<p class="mt-2">{{ $pet['notes'] ?: $pet['details']['other_description'] }}</p>@endif
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </section>
-
-                            <section class="rounded-2xl border border-primary/15 bg-white p-5 shadow-sm sm:p-6">
-                                <div class="flex items-center justify-between gap-4"><h4 class="font-serif text-xl font-bold text-primary-dark">Contact</h4><button type="button" wire:click="goToStep(4)" class="text-sm font-semibold text-primary underline underline-offset-4">Edit</button></div>
-                                <p class="mt-4 text-sm text-primary-dark/75">{{ $contact['name'] ?: 'Name not added' }} · {{ $contact['email'] ?: 'Email not added' }} · {{ $this->contactPhoneDisplay() }}</p>
-                                @if($contact['preferred_contact_method'])<p class="mt-1 text-sm text-primary-dark/60">Preferred contact: {{ ucfirst($contact['preferred_contact_method']) }}</p>@endif
-                            </section>
-                        </section>
-                    @endif
+                    @include('components.booking-request-wizard.steps.review')
 
                     <div class="mt-8 border-t border-primary/10 pt-6">
                         <x-waggies.booking-progress :step="$step" :labels="$progressLabels" />

@@ -77,7 +77,7 @@ new class extends Component
 
     public function serviceAvailable(string $service): bool
     {
-        return app(BookingPricingCatalog::class)->isAvailable(config("waggies_pricing.services.{$service}", []), 'pricing');
+        return app(BookingPricingCatalog::class)->serviceIsAvailable($service, 'pricing');
     }
 
     public function variantOptions(): array
@@ -152,7 +152,8 @@ new class extends Component
             'size' => $this->size,
         ];
         $quote = app(BookingPricingCatalog::class)->quote($this->service, $this->variant, null, $pet, $quantity, 'pricing');
-        $variantDefinition = app(BookingPricingCatalog::class)->variants($this->service ?? '', availableOnly: false, channel: 'pricing')[$this->variant ?? ''] ?? config("waggies_pricing.services.{$this->service}", []);
+        $pricingCatalog = app(BookingPricingCatalog::class);
+        $variantDefinition = $pricingCatalog->variants($this->service ?? '', availableOnly: false, channel: 'pricing')[$this->variant ?? ''] ?? $pricingCatalog->service($this->service ?? '');
         $serviceLabel = $this->serviceOptions()[$this->service] ?? 'Selected service';
         $variantLabel = app(BookingPricingCatalog::class)->variantOptions($this->service, availableOnly: false, channel: 'pricing')[$this->variant ?? ''] ?? null;
 

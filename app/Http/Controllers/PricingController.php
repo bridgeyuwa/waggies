@@ -24,7 +24,7 @@ final class PricingController extends Controller
         $this->setPageHead($metadata);
 
         return view('pages.services.pricing', $metadata + [
-            'navSection' => 'services', 'pricing' => config('waggies_pricing'), 'resolved' => ['service' => $resolved['service'], 'variant' => $resolved['variant'] ?? ''],
+            'navSection' => 'services', 'resolved' => ['service' => $resolved['service'], 'variant' => $resolved['variant'] ?? ''],
         ]);
     }
 }

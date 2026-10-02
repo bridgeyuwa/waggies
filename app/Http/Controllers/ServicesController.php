@@ -654,7 +654,7 @@ final class ServicesController extends Controller
 
     private function withCanonicalPackagePricing(string $service, array $page): array
     {
-        $variants = config("waggies_pricing.services.{$service}.variants", []);
+        $variants = app(BookingPricingCatalog::class)->variants($service);
         $variantKeys = [
             'consultation' => 'wellness-consultation',
             'vaccination' => 'vaccination-request',
@@ -695,7 +695,7 @@ final class ServicesController extends Controller
             $pricing = $service['pricing'];
 
             if ($pricing['type'] === 'from') {
-                $amounts = collect(config('waggies_pricing.services.boarding.variants.dogs.size_rates', []))
+                $amounts = collect(app(BookingPricingCatalog::class)->sizeRates('boarding', 'dogs'))
                     ->pluck('amount')
                     ->filter(fn (mixed $amount): bool => is_numeric($amount))
                     ->map(fn (mixed $amount): int => (int) $amount)
