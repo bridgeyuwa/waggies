@@ -735,10 +735,11 @@
     select.contact-input {
         appearance: none;
         padding-right: 2.75rem;
-        background-image: url('/icons/material-symbols/outlined/keyboard_arrow_down.svg');
-        background-position: right 1rem center;
+        background-image: linear-gradient(45deg, transparent 50%, var(--color-primary-dark) 50%),
+            linear-gradient(135deg, var(--color-primary-dark) 50%, transparent 50%);
+        background-position: calc(100% - 1.0625rem) 50%, calc(100% - 0.75rem) 50%;
         background-repeat: no-repeat;
-        background-size: 1rem;
+        background-size: 0.3125rem 0.3125rem, 0.3125rem 0.3125rem;
         font-weight: 500;
         white-space: nowrap;
     }
