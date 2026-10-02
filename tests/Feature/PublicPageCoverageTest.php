@@ -23,12 +23,6 @@ it('renders every public tool page with its canonical content', function (string
         ->assertSee($heading);
 })->with('public tool pages');
 
-it('keeps the legacy cost calculator route as a permanent pricing redirect', function (): void {
-    $this->get(route('tools.cost'))
-        ->assertStatus(301)
-        ->assertRedirect(route('services.pricing'));
-});
-
 dataset('legal pages', [
     'boarding policy' => ['boarding-policy', 'Boarding Requirements & Admission'],
     'cancellation policy' => ['cancellation-policy', 'Cancellation, Rescheduling & Refunds'],

@@ -11,7 +11,7 @@
         @endif
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-surface text-primary-dark antialiased" data-contact-url="{{ route('contact') }}" data-contact-enquiry-url="{{ route('contact-enquiries.store') }}" data-search-url="{{ route('search') }}" data-assistant-url="{{ route('assistant.store') }}" data-assistant-stream-url="{{ route('assistant.stream') }}" data-boarding-url="{{ route('services.boarding') }}" data-pricing-url="{{ route('services.pricing') }}" data-vet-care-url="{{ route('services.vet-care') }}" data-relocation-hub="{{ route('services.relocation') }}">
+    <body class="min-h-screen bg-surface text-primary-dark antialiased" data-contact-url="{{ route('contact') }}" data-contact-enquiry-url="{{ route('contact-enquiries.store') }}" data-search-url="{{ route('search') }}" data-assistant-url="{{ route('assistant.store') }}" data-assistant-stream-url="{{ route('assistant.stream') }}" data-boarding-url="{{ route('services.boarding') }}" data-vet-care-url="{{ route('services.vet-care') }}" data-relocation-hub="{{ route('services.relocation') }}">
         <div data-navigation-progress hidden class="navigation-progress" role="status" aria-label="Loading page"></div>
         <x-waggies.skip-link />
         <x-waggies.navbar :nav-section="$navSection ?? ''" />

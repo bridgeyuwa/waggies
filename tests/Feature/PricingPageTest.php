@@ -10,30 +10,8 @@ class PricingPageTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_pricing_page_exposes_only_active_service_paths(): void
-    {
-        $this->get(route('services.pricing'))
-            ->assertOk()
-            ->assertSee('Estimate Boarding')
-            ->assertSee('Request Vet Care Quote')
-            ->assertSee('Estimate Relocation Cost')
-            ->assertDontSee('Local Transport')
-            ->assertDontSee('Grooming')
-            ->assertDontSee('Dog Training');
-    }
-
     public function test_dog_boarding_pricing_is_per_pet_per_night_and_uses_direct_size_selection(): void
     {
-        $this->get(route('services.pricing', ['service' => 'boarding', 'variant' => 'dogs']))
-            ->assertOk()
-            ->assertSee('Small')
-            ->assertSee('Medium')
-            ->assertSee('Large')
-            ->assertSee('per pet per night')
-            ->assertSee('over 10kg through 25kg')
-            ->assertDontSee('Package')
-            ->assertDontSee('Tier');
-
         Livewire::test('pricing-calculator', [
             'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
         ])

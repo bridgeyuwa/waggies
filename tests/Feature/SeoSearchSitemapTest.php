@@ -33,7 +33,7 @@ class SeoSearchSitemapTest extends TestCase
 
     public function test_breadcrumb_schema_is_rendered_once_through_laravel_head(): void
     {
-        $html = $this->get(route('services.pricing'))->assertOk()->getContent();
+        $html = $this->get(route('services.boarding'))->assertOk()->getContent();
 
         preg_match_all('/<script type="application\/ld\+json"[^>]*>(.*?)<\/script>/s', $html, $matches);
 
@@ -49,7 +49,7 @@ class SeoSearchSitemapTest extends TestCase
         $this->assertCount(1, $breadcrumbSchemas);
         $this->assertSame('Home', $breadcrumbSchemas[0]['itemListElement'][0]['name']);
         $lastBreadcrumb = $breadcrumbSchemas[0]['itemListElement'][array_key_last($breadcrumbSchemas[0]['itemListElement'])];
-        $this->assertSame(route('services.pricing'), $lastBreadcrumb['item']);
+        $this->assertSame(route('services.boarding'), $lastBreadcrumb['item']);
     }
 
     public function test_query_state_is_not_indexable_and_search_response_is_not_indexable(): void
@@ -168,7 +168,7 @@ class SeoSearchSitemapTest extends TestCase
         $this->assertContains($siteUrl.'/cancellation-policy', $locations);
         $this->assertContains($siteUrl.'/relocation-policy', $locations);
         $this->assertContains($siteUrl.'/guides/preparing-pet-boarding', $locations);
-        $this->assertContains($siteUrl.'/services/pricing', $locations);
+        $this->assertNotContains($siteUrl.'/services/pricing', $locations);
         $this->assertNotContains($siteUrl.'/tools/cost-calculator', $locations);
 
         $this->get('/robots.txt')

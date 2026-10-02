@@ -28,7 +28,7 @@ final class WaggiesCardSemanticsTest extends TestCase
 
     public function test_card_pages_render_without_nested_interactive_elements(): void
     {
-        $paths = ['/shop', '/services', '/guides', '/services/pricing'];
+        $paths = ['/shop', '/services', '/guides', '/services/boarding'];
 
         foreach ($paths as $path) {
             $response = $this->get($path);

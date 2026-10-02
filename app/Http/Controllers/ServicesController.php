@@ -116,8 +116,8 @@ final class ServicesController extends Controller
                     'description' => 'Each pet receives an individual enclosure, water, routine cleaning, basic welfare checks, and care based on your instructions.',
                     'actions' => [
                         0 => [
-                            'label' => 'View Pricing & Estimates',
-                            'route' => 'services.pricing',
+                            'label' => 'Request boarding',
+                            'route' => 'book',
                             'params' => [
                                 'service' => 'boarding',
                             ],
@@ -177,14 +177,6 @@ final class ServicesController extends Controller
                                     'service' => 'boarding',
                                 ],
                                 'icon' => 'arrow-forward',
-                            ],
-                            1 => [
-                                'label' => 'Get Estimate',
-                                'route' => 'services.pricing',
-                                'params' => [
-                                    'service' => 'boarding-dogs',
-                                ],
-                                'iconBefore' => 'calculator',
                             ],
                         ],
                     ],
@@ -326,8 +318,6 @@ final class ServicesController extends Controller
                         'primaryParams' => [
                             'service' => 'boarding',
                         ],
-                        'secondaryLabel' => 'View All Pricing',
-                        'secondaryRoute' => 'services.pricing',
                     ],
                 ],
                 'cats' => [
@@ -348,14 +338,6 @@ final class ServicesController extends Controller
                                     'service' => 'boarding',
                                 ],
                                 'icon' => 'arrow-forward',
-                            ],
-                            1 => [
-                                'label' => 'Get Estimate',
-                                'route' => 'services.pricing',
-                                'params' => [
-                                    'service' => 'boarding-cats',
-                                ],
-                                'iconBefore' => 'calculator',
                             ],
                         ],
                     ],
@@ -511,8 +493,6 @@ final class ServicesController extends Controller
                         'primaryParams' => [
                             'service' => 'boarding',
                         ],
-                        'secondaryLabel' => 'View All Pricing',
-                        'secondaryRoute' => 'services.pricing',
                     ],
                 ],
             ],
@@ -718,6 +698,12 @@ final class ServicesController extends Controller
         return Faq::query()
             ->published()
             ->whereIn('category', ['boarding', 'vet-care', 'relocation', 'general'])
+            ->where(function ($query): void {
+                $query
+                    ->whereNotIn('category', ['boarding', 'relocation'])
+                    ->orWhereNull('subcategory')
+                    ->orWhereIn('subcategory', ['dogs', 'cats', 'import', 'export']);
+            })
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get()

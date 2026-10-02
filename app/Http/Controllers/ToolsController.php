@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 final class ToolsController extends Controller
@@ -6403,11 +6401,6 @@ final class ToolsController extends Controller
     public function petAge(): View
     {
         return view('pages.tools.pet-age-calculator', $this->meta('Pet Age Calculator', "Convert your dog or cat's age to human years. Our pet age calculator uses standard conversion tables based on your pet's size.", 'Pet Age Calculator - Waggies', "Convert your pet's age to human years with our free calculator."));
-    }
-
-    public function cost(Request $request): RedirectResponse
-    {
-        return redirect()->to(route('services.pricing', $request->query()), 301);
     }
 
     public function nutrition(): View

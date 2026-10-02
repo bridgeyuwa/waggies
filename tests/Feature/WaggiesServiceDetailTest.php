@@ -32,7 +32,7 @@ test('cat boarding page shows the fixed nightly rate', function () {
 });
 
 test('removed service pages no longer resolve or appear as active calls to action', function () {
-    foreach (['/services/grooming', '/services/training', '/services/local-transport', '/services/boarding/exotic'] as $path) {
+    foreach (['/services/grooming', '/services/training', '/services/local-transport', '/services/relocation/transport', '/services/boarding/exotic', '/services/pricing', '/tools/cost-calculator'] as $path) {
         $this->get($path)->assertNotFound();
     }
 
@@ -41,5 +41,12 @@ test('removed service pages no longer resolve or appear as active calls to actio
         ->assertDontSeeText('Grooming')
         ->assertDontSeeText('Dog Training')
         ->assertDontSeeText('Local Transport')
-        ->assertDontSeeText('Exotic Boarding');
+        ->assertDontSeeText('Exotic Boarding')
+        ->assertDontSeeText('Do you have experience with reptiles?')
+        ->assertDontSeeText('Can you handle door-to-door domestic relocation?');
+
+    $this->get(route('services.relocation'))
+        ->assertOk()
+        ->assertDontSeeText('Do you help with moving pets to other Nigerian cities?')
+        ->assertDontSeeText('Can you handle door-to-door domestic relocation?');
 });

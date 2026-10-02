@@ -16,7 +16,7 @@ final class PublicUrlCatalog
     public function urls(): array
     {
         $staticRoutes = [
-            'home', 'services.index', 'services.boarding', 'services.vet-care', 'services.pricing',
+            'home', 'services.index', 'services.boarding', 'services.vet-care',
             'services.relocation', 'relocation.import', 'relocation.export',
             'relocation.checklist', 'about', 'about.testimonials',
             'about.gallery', 'about.careers', 'about.partnerships', 'guides.index',

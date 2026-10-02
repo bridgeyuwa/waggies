@@ -45,14 +45,13 @@ final class HomeController extends Controller
                 ['title' => 'Pet Relocation', 'description' => 'Custom-quoted import and export coordination for dogs and cats.', 'route' => 'services.relocation', 'imageSrc' => '/media/home/services-relocation.jpg', 'icon' => 'airport-departure'],
             ],
             'careStandardRows' => [
-                ['title' => 'Individual Enclosures', 'description' => 'Each boarding pet receives its own enclosure.'],
-                ['title' => 'Owner-Supplied Food', 'description' => 'We follow the food and feeding instructions you provide.'],
-                ['title' => 'Basic Welfare Checks', 'description' => 'Routine care includes water, cleaning, and basic welfare checks.'],
-                ['title' => 'Manual Review', 'description' => 'Availability, care needs, and final pricing are confirmed with you.'],
+                ['title' => '24/7 Supervision', 'description' => 'Your pets are monitored around the clock, never left alone.'],
+                ['title' => 'Climate-Controlled Suites', 'description' => 'Spacious suites with orthopedic bedding and temperature control.'],
+                ['title' => 'Daily Updates', 'description' => 'Receive photos and updates on your pet every day.'],
+                ['title' => 'Individual Care', 'description' => 'Every suite, meal, and exercise routine is structured around individual care requirements.'],
             ],
             'homeTestimonials' => Testimonial::query()
                 ->published()
-                ->whereIn('service', array_keys(Testimonial::serviceOptions()))
                 ->orderBy('sort_order')
                 ->orderBy('created_at')
                 ->limit(6)

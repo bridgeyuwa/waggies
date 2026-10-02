@@ -14,7 +14,6 @@ use App\Http\Controllers\KnowledgeBaseController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\LoyaltyController;
 use App\Http\Controllers\NewsletterController;
-use App\Http\Controllers\PricingController;
 use App\Http\Controllers\RelocationController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SearchController;
@@ -52,7 +51,6 @@ Route::controller(ServicesController::class)->group(function (): void {
     Route::get('/services/boarding/{species}', 'boardingSpecies')->whereIn('species', ['dogs', 'cats'])->name('services.boarding.species');
     Route::get('/services/vet-care', 'vetCare')->name('services.vet-care');
 });
-Route::get('/services/pricing', [PricingController::class, 'index'])->name('services.pricing');
 Route::controller(RelocationController::class)->group(function (): void {
     Route::get('/services/relocation', 'index')->name('services.relocation');
     Route::get('/services/relocation/import', 'import')->name('relocation.import');
@@ -88,7 +86,6 @@ Route::controller(ToolsController::class)->group(function (): void {
     Route::get('/tools/parasite-schedule', 'parasite')->name('tools.parasite');
     Route::get('/tools/emergency-guide', 'emergency')->name('tools.emergency');
     Route::get('/tools/pet-age-calculator', 'petAge')->name('tools.pet-age');
-    Route::get('/tools/cost-calculator', 'cost')->name('tools.cost');
     Route::get('/tools/nutrition-calculator', 'nutrition')->name('tools.nutrition');
     Route::get('/tools/breed-finder', 'breedFinder')->name('tools.breed-finder');
     Route::get('/tools/behavior-tips', 'behaviorTips')->name('tools.behavior-tips');

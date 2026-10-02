@@ -61,13 +61,12 @@ final class RelocationController extends Controller
                     'description' => 'We manage every import requirement  -  from advance permits and health certificates to airport collection and quarantine coordination.',
                     'actions' => [
                         0 => [
-                            'label' => 'Get Estimate',
-                            'route' => 'services.pricing',
+                            'label' => 'Request Quote',
+                            'route' => 'book',
                             'params' => [
-                                'service' => 'relocation',
-                                'variant' => 'import',
+                                'service' => 'relocation-import',
                             ],
-                            'icon' => 'calculator',
+                            'icon' => 'arrow-forward',
                         ],
                         1 => [
                             'label' => 'View Checklist',
@@ -159,13 +158,12 @@ final class RelocationController extends Controller
                     'description' => 'We manage health certificates, export permits, IATA-approved crates, and airline coordination for a smooth international departure.',
                     'actions' => [
                         0 => [
-                            'label' => 'Get Estimate',
-                            'route' => 'services.pricing',
+                            'label' => 'Request Quote',
+                            'route' => 'book',
                             'params' => [
-                                'service' => 'relocation',
-                                'variant' => 'export',
+                                'service' => 'relocation-export',
                             ],
-                            'icon' => 'calculator',
+                            'icon' => 'arrow-forward',
                         ],
                         1 => [
                             'label' => 'View Checklist',
@@ -334,6 +332,12 @@ final class RelocationController extends Controller
                 $query
                     ->whereNull('subcategory')
                     ->orWhere('subcategory', $subcategory);
+            });
+        } else {
+            $query->where(function ($query): void {
+                $query
+                    ->whereNull('subcategory')
+                    ->orWhereIn('subcategory', ['import', 'export']);
             });
         }
 
