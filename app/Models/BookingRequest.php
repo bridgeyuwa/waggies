@@ -39,6 +39,8 @@ class BookingRequest extends Model
         'quote_currency',
         'quote_notes',
         'status_changed_at',
+        'idempotency_key',
+        'idempotency_hash',
     ];
 
     protected $attributes = [

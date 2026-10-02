@@ -455,10 +455,7 @@
                                                     x-show="missingFields().length !== 1">s</span> remaining: <span
                                                     class="font-medium"
                                                     x-text="missingFields().slice(0, 3).join(', ')"></span></p>
-                                            <p x-show="schema.usesPets && pets.length && !petsValid()"
-                                                class="text-sm text-primary-dark/50" aria-live="polite">Complete pet
-                                                information for Pet <span x-text="firstInvalidPetIndex() + 1"></span> (name
-                                                + type required).</p><x-waggies.button type="button" @click="review()"
+                                            <x-waggies.button type="button" @click="review()"
                                                 ::disabled="!canContinue()"
                                                 class="disabled:cursor-not-allowed disabled:opacity-50">Review Request
                                                 <x-waggies.icon name="arrow-forward" size="18" /></x-waggies.button>

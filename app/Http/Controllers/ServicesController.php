@@ -47,7 +47,21 @@ final class ServicesController extends Controller
     {
         $boardingPages = $this->boardingPages();
         abort_unless(array_key_exists($species, $boardingPages['species']), 404);
+        $pricingCatalog = app(BookingPricingCatalog::class);
+        $fixedNightlyRate = $pricingCatalog->variants('boarding')[$species]['nightly_rate'] ?? null;
         $page = $boardingPages['species'][$species];
+        if ($species === 'cats' && is_numeric($fixedNightlyRate)) {
+            $formattedCatRate = '₦'.number_format((int) $fixedNightlyRate);
+            $page['stats'][3] = [
+                'value' => $formattedCatRate,
+                'label' => 'Per Pet / Night',
+            ];
+            $page['pricingHeading'] = [
+                'eyebrow' => 'Cat Boarding Pricing',
+                'title' => 'One Fixed Nightly Rate',
+                'subtitle' => "Cat boarding is a fixed {$formattedCatRate} per cat per night. Availability, dates, and special-care needs are confirmed during review.",
+            ];
+        }
         $page['hero']['imageSrc'] = "/media/services/boarding/{$species}/hero.jpg";
         $page['daily']['images'] = array_map(
             static fn (int $index): string => "/media/services/boarding/{$species}/daily-".str_pad((string) $index, 2, '0', STR_PAD_LEFT).'.jpg',
@@ -64,7 +78,8 @@ final class ServicesController extends Controller
         return view('pages.services.boarding.species', $metadata + [
             'navSection' => 'services', 'species' => $species, 'page' => $page,
             'serviceKey' => 'boarding-'.$species,
-            'pricing' => app(BookingPricingCatalog::class)->sizeRates('boarding', $species),
+            'pricing' => $pricingCatalog->sizeRates('boarding', $species),
+            'fixedNightlyRate' => $fixedNightlyRate,
             'faqs' => $faqs,
         ]);
     }
@@ -358,8 +373,8 @@ final class ServicesController extends Controller
                             'label' => 'Per-Pet Pricing',
                         ],
                         3 => [
-                            'value' => 'Quote',
-                            'label' => 'Rate Confirmed During Review',
+                            'value' => 'Fixed',
+                            'label' => 'Rate per Night',
                         ],
                     ],
                     'sanctuary' => [
@@ -379,8 +394,8 @@ final class ServicesController extends Controller
                     ],
                     'pricingHeading' => [
                         'eyebrow' => 'Cat Boarding Pricing',
-                        'title' => 'One Nightly Rate, Confirmed During Review',
-                        'subtitle' => 'Cats have one boarding rate rather than packages or tiers. Waggies confirms the current nightly amount with you before final confirmation.',
+                        'title' => 'One Fixed Nightly Rate',
+                        'subtitle' => 'Cat boarding uses one fixed nightly rate rather than packages or tiers. Availability and special-care needs are confirmed during review.',
                     ],
                     'featuresHeading' => [
                         'eyebrow' => 'Cat Boarding Includes',

@@ -128,19 +128,26 @@ export const registerBookingCalendar = Alpine => {
 };
 
 export const registerBookingDraftPersistence = () => {
-    const root = document.querySelector('[data-booking-draft]');
+    const initialRoot = document.querySelector('[data-booking-draft]');
 
-    if (!root) return;
+    if (!initialRoot) return;
 
-    const modelControls = () => root.querySelectorAll(
+    const getRoot = () => document.querySelector('[data-booking-draft]');
+
+    const modelControls = () => getRoot()?.querySelectorAll(
         '[data-booking-draft-model], [wire\\:model], [wire\\:model\\.live], [wire\\:model\\.blur], [wire\\:model\\.live\\.blur]',
-    );
+    ) || [];
 
-    const storageKey = root.dataset.bookingDraft;
-    const contextKey = root.dataset.bookingContext || '';
-    const status = root.querySelector('[data-booking-draft-status]');
+    const storageKey = initialRoot.dataset.bookingDraft;
+    const contextKey = initialRoot.dataset.bookingContext || '';
     let restoring = false;
     let saveTimer;
+
+    const setStatus = message => {
+        const status = getRoot()?.querySelector('[data-booking-draft-status]');
+
+        if (status) status.textContent = message;
+    };
 
     const readDraft = () => {
         try {
@@ -169,9 +176,9 @@ export const registerBookingDraftPersistence = () => {
         try {
             draft.contextKey = contextKey;
             sessionStorage.setItem(storageKey, JSON.stringify(draft));
-            if (status) status.textContent = 'Draft saved on this device for this visit.';
+            setStatus('Draft saved on this device for this visit.');
         } catch {
-            if (status) status.textContent = 'Draft saving is unavailable in this browser.';
+            setStatus('Draft saving is unavailable in this browser.');
         }
     };
 
@@ -211,11 +218,23 @@ export const registerBookingDraftPersistence = () => {
         });
         restoring = false;
 
-        if (status) status.textContent = 'Unfinished request restored from this device.';
+        setStatus('Unfinished request restored from this device.');
     };
 
-    root.addEventListener('input', scheduleSave, true);
-    root.addEventListener('change', scheduleSave, true);
+    const restoreDraftAfterLivewireInitialisation = () => {
+        window.requestAnimationFrame(() => {
+            applyDraft();
+        });
+    };
+
+    const scheduleSaveForBookingControl = event => {
+        const root = getRoot();
+
+        if (root?.contains(event.target)) scheduleSave();
+    };
+
+    document.addEventListener('input', scheduleSaveForBookingControl, true);
+    document.addEventListener('change', scheduleSaveForBookingControl, true);
 
     applyDraft();
 
@@ -224,7 +243,7 @@ export const registerBookingDraftPersistence = () => {
 
         window.Livewire.on('booking-request-submitted', () => {
             sessionStorage.removeItem(storageKey);
-            if (status) status.textContent = 'Draft cleared after your request was sent.';
+            setStatus('Draft cleared after your request was sent.');
         });
     };
 
@@ -234,8 +253,10 @@ export const registerBookingDraftPersistence = () => {
         document.addEventListener('livewire:init', bindLivewireEvents, { once: true });
     }
 
+    document.addEventListener('livewire:initialized', restoreDraftAfterLivewireInitialisation, { once: true });
+
     const focusStepHeading = () => {
-        const heading = root.querySelector('[data-booking-step-heading]');
+        const heading = getRoot()?.querySelector('[data-booking-step-heading]');
 
         if (!heading) return;
 
@@ -247,7 +268,7 @@ export const registerBookingDraftPersistence = () => {
     };
 
     const focusErrorSummary = () => {
-        const summary = root.querySelector('[data-booking-error-summary]');
+        const summary = getRoot()?.querySelector('[data-booking-error-summary]');
 
         if (!summary) return;
 
@@ -279,7 +300,7 @@ export const registerBookingDraftPersistence = () => {
     };
 
     const announce = message => {
-        const announcement = root.querySelector('[data-booking-announcement]');
+        const announcement = getRoot()?.querySelector('[data-booking-announcement]');
 
         if (!announcement || !message) return;
 

@@ -41,14 +41,15 @@ class PricingPageTest extends TestCase
             ->assertDontSee('Weight');
     }
 
-    public function test_cat_boarding_is_request_only_without_an_invented_rate(): void
+    public function test_cat_boarding_uses_the_fixed_nightly_rate(): void
     {
         Livewire::test('pricing-calculator', [
             'initialContext' => ['service' => 'boarding', 'variant' => 'cats'],
         ])
-            ->assertSee('staff confirmation')
-            ->assertDontSee('₦6,000')
-            ->assertDontSee('₦8,000');
+            ->call('calculate')
+            ->assertSee('₦12,000')
+            ->assertDontSee('staff confirmation')
+            ->assertDontSee('Quote required');
     }
 
     public function test_vaccination_and_microchipping_are_request_based_veterinary_options(): void

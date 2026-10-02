@@ -72,6 +72,10 @@ final class BookingRequestsController extends Controller
             'name',
             'email',
             'phone',
+            'phone_country',
+            'phone_number',
+            'phone_other_country_code',
+            'idempotency_key',
             'preferred_contact_method',
             'service_key',
             'service_variant',
@@ -91,10 +95,14 @@ final class BookingRequestsController extends Controller
         ]);
 
         $createBookingRequest->handle([
+            'idempotency_key' => $validated['idempotency_key'] ?? null,
             'contact' => [
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
+                'phone_country' => $validated['phone_country'],
+                'phone_number' => $validated['phone_number'],
+                'phone_other_country_code' => $validated['phone_other_country_code'] ?? null,
                 'preferred_contact_method' => $validated['preferred_contact_method'] ?? null,
             ],
             'pets' => [[

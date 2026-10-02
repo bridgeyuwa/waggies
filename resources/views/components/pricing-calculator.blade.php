@@ -246,7 +246,7 @@ new class extends Component
                 @if($service)
                     @if($this->hasVariants())
                         <x-waggies.select id="pricing-variant" label="2. Who is this for?" wire:model.live="variant" required>
-                            <option value="">Choose a pet type</option>
+                            <option value="">Select a pet type</option>
                             @foreach($this->allVariantOptions() as $key => $label)<option value="{{ $key }}" @selected($variant === $key) @disabled(! array_key_exists($key, $this->variantOptions()))>{{ $label }}{{ ! array_key_exists($key, $this->variantOptions()) ? ' — Temporarily unavailable' : '' }}</option>@endforeach
                         </x-waggies.select>
                     @endif

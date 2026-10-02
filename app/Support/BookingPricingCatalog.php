@@ -317,7 +317,7 @@ final class BookingPricingCatalog
             : $this->formatAmount($amount).'–'.$this->formatAmount($maximum);
     }
 
-    public function tierDescription(array $tier): ?string
+    public function tierDescription(array $tier): null
     {
         return null;
     }
@@ -371,6 +371,22 @@ final class BookingPricingCatalog
         }
 
         if ($service === 'boarding' && $effectiveVariant === 'cats') {
+            $nightlyRate = $variantDefinition['nightly_rate'] ?? null;
+
+            if (is_numeric($nightlyRate) && ($variantDefinition['manual_quote'] ?? false) !== true) {
+                $multiplier = max(1, $quantity);
+                $amount = (int) $nightlyRate * $multiplier;
+
+                return [
+                    'status' => 'fixed',
+                    'type' => 'fixed',
+                    'amount' => $amount,
+                    'max_amount' => $amount,
+                    'currency' => config('waggies_pricing.currency', 'NGN'),
+                    'unit' => $serviceDefinition['unit'] ?? null,
+                ];
+            }
+
             return [
                 'status' => 'quote',
                 'type' => 'quote',

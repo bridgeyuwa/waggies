@@ -59,7 +59,7 @@ final class LegalController extends Controller
                 'Relevant health information or records, where applicable.',
                 'Feeding instructions and the owner-supplied food the pet normally eats.',
                 'Medication, mobility needs, handling instructions, or other special-care needs.',
-                'One primary and one secondary emergency contact.',
+                'One primary emergency contact.',
                 'Any aggression, escape behaviour, bite history, severe anxiety, resource guarding, or handling difficulty.',
             ]],
             ['heading' => 'Food and routine care', 'paragraph' => 'Owner-supplied food is the default. If food is not supplied, Waggies may provide approved food only after confirmation, with any applicable cost handled manually. Standard boarding includes water, routine cleaning, basic welfare checks, and a light bath or wash for boarded dogs before pickup where safe and appropriate. The light wash is not professional grooming and does not include styling, clipping, or spa treatment.'],

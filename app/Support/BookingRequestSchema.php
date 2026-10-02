@@ -57,12 +57,12 @@ final class BookingRequestSchema
         return [];
     }
 
-    public static function defaultVariant(?string $service): ?string
+    public static function defaultVariant(?string $service): null
     {
         return null;
     }
 
-    public static function defaultTier(?string $service, ?string $variant = null): ?string
+    public static function defaultTier(?string $service, ?string $variant = null): null
     {
         return null;
     }
@@ -80,8 +80,6 @@ final class BookingRequestSchema
                 self::textarea('medications', 'Medication or health notes', 'Medication and special handling are reviewed separately before confirmation.'),
                 self::textarea('special_care_needs', 'Special care needs', 'Include supervision, handling, mobility, anxiety, or other care needs.'),
                 self::textarea('behaviour_notes', 'Behaviour and safety disclosure', 'Tell us about aggression, escape behaviour, bite history, severe anxiety, or handling difficulties.'),
-                self::textarea('emergency_contact_primary', 'Primary emergency contact', 'Name and phone number.', true),
-                self::textarea('emergency_contact_secondary', 'Secondary emergency contact', 'Name and phone number.', true),
                 self::selectField('emergency_vet_authorization', 'Emergency veterinary authorization', [
                     'authorized' => 'I authorize emergency veterinary care if needed',
                     'discuss' => 'Please discuss this with me during review',
@@ -154,7 +152,7 @@ final class BookingRequestSchema
             self::countryField(
                 'origin_country',
                 'Origin country',
-                'Choose origin country',
+                'Select origin country',
                 $route['origin']['fixed'] ? $fixedCountryOptions : $editableCountryOptions,
                 true,
                 $route['origin']['fixed'],
@@ -162,7 +160,7 @@ final class BookingRequestSchema
             self::countryField(
                 'destination_country',
                 'Destination country',
-                'Choose destination country',
+                'Select destination country',
                 $route['destination']['fixed'] ? $fixedCountryOptions : $editableCountryOptions,
                 true,
                 $route['destination']['fixed'],

@@ -21,6 +21,16 @@ test('active service pages keep the existing public service composition', functi
         ->assertSeeText('Microchip implantation');
 });
 
+test('cat boarding page shows the fixed nightly rate', function () {
+    $this->get(route('services.boarding.species', ['species' => 'cats']))
+        ->assertOk()
+        ->assertSeeText('₦12,000 / night')
+        ->assertSeeText('One Fixed Nightly Rate')
+        ->assertSeeText('Per Pet / Night')
+        ->assertDontSeeText('Quote required')
+        ->assertDontSeeText('Rate Confirmed During Review');
+});
+
 test('removed service pages no longer resolve or appear as active calls to action', function () {
     foreach (['/services/grooming', '/services/training', '/services/local-transport', '/services/boarding/exotic'] as $path) {
         $this->get($path)->assertNotFound();

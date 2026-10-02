@@ -1,0 +1,37 @@
+<?php
+
+return [
+    'default_country' => 'NG',
+
+    'countries' => [
+        'NG' => ['name' => 'Nigeria', 'dialing_code' => '234', 'national_lengths' => [10]],
+        'GH' => ['name' => 'Ghana', 'dialing_code' => '233', 'national_lengths' => [9]],
+        'KE' => ['name' => 'Kenya', 'dialing_code' => '254', 'national_lengths' => [9]],
+        'ZA' => ['name' => 'South Africa', 'dialing_code' => '27', 'national_lengths' => [9]],
+        'UG' => ['name' => 'Uganda', 'dialing_code' => '256', 'national_lengths' => [9]],
+        'TZ' => ['name' => 'Tanzania', 'dialing_code' => '255', 'national_lengths' => [9]],
+        'RW' => ['name' => 'Rwanda', 'dialing_code' => '250', 'national_lengths' => [9]],
+        'ET' => ['name' => 'Ethiopia', 'dialing_code' => '251', 'national_lengths' => [9]],
+        'EG' => ['name' => 'Egypt', 'dialing_code' => '20', 'national_lengths' => [10]],
+        'MA' => ['name' => 'Morocco', 'dialing_code' => '212', 'national_lengths' => [9]],
+        'GB' => ['name' => 'United Kingdom', 'dialing_code' => '44', 'national_lengths' => [10]],
+        'US' => ['name' => 'United States', 'dialing_code' => '1', 'national_lengths' => [10]],
+        'CA' => ['name' => 'Canada', 'dialing_code' => '1', 'national_lengths' => [10]],
+        'AE' => ['name' => 'United Arab Emirates', 'dialing_code' => '971', 'national_lengths' => [9]],
+        'SA' => ['name' => 'Saudi Arabia', 'dialing_code' => '966', 'national_lengths' => [9]],
+        'IN' => ['name' => 'India', 'dialing_code' => '91', 'national_lengths' => [10]],
+        'PK' => ['name' => 'Pakistan', 'dialing_code' => '92', 'national_lengths' => [10]],
+        'FR' => ['name' => 'France', 'dialing_code' => '33', 'national_lengths' => [9]],
+        'DE' => ['name' => 'Germany', 'dialing_code' => '49', 'national_lengths' => [10, 11]],
+        'NL' => ['name' => 'Netherlands', 'dialing_code' => '31', 'national_lengths' => [9]],
+        'ES' => ['name' => 'Spain', 'dialing_code' => '34', 'national_lengths' => [9]],
+        'IT' => ['name' => 'Italy', 'dialing_code' => '39', 'national_lengths' => [9, 10]],
+        'AU' => ['name' => 'Australia', 'dialing_code' => '61', 'national_lengths' => [9]],
+        'NZ' => ['name' => 'New Zealand', 'dialing_code' => '64', 'national_lengths' => [8, 9]],
+        'BR' => ['name' => 'Brazil', 'dialing_code' => '55', 'national_lengths' => [10, 11]],
+        'MX' => ['name' => 'Mexico', 'dialing_code' => '52', 'national_lengths' => [10]],
+        'CN' => ['name' => 'China', 'dialing_code' => '86', 'national_lengths' => [11]],
+        'JP' => ['name' => 'Japan', 'dialing_code' => '81', 'national_lengths' => [9, 10]],
+        'KR' => ['name' => 'South Korea', 'dialing_code' => '82', 'national_lengths' => [9, 10]],
+    ],
+];

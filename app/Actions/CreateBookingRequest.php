@@ -2,11 +2,17 @@
 
 namespace App\Actions;
 
+use App\Mail\NewBookingRequest;
 use App\Models\BookingRequest;
+use App\Models\BusinessProfile;
 use App\Support\BookingPricingCatalog;
+use App\Support\PhoneNumber;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class CreateBookingRequest
 {
@@ -17,27 +23,50 @@ class CreateBookingRequest
      *     contact: array<string, mixed>,
      *     pets: array<int, array<string, mixed>>,
      *     services: array<int, array<string, mixed>>,
+     *     idempotency_key?: ?string,
      *     source?: ?string,
      *     context?: array<string, mixed>
      * } $data
      */
     public function handle(array $data): BookingRequest
     {
-        $this->validateServiceSelections($data['services']);
-        $this->validateAssignments($data['pets'], $data['services']);
+        $pets = array_values($data['pets']);
+        $services = array_values($data['services']);
 
-        return DB::transaction(function () use ($data): BookingRequest {
+        $this->validateServiceSelections($services);
+        $this->validateAssignments($pets, $services);
+
+        $bookingRequest = DB::transaction(function () use ($data, $pets, $services): BookingRequest {
             $contact = $data['contact'];
-            $pets = array_values($data['pets']);
-            $services = array_values($data['services']);
             $primaryPet = $pets[0] ?? [];
             $primaryService = $services[0] ?? [];
+            $phone = PhoneNumber::normalizeContact($contact);
+
+            if ($phone === null) {
+                throw ValidationException::withMessages([
+                    'contact.phone_number' => 'Enter a valid phone number for the selected country.',
+                ]);
+            }
+
+            $contact['phone'] = $phone;
+            $idempotencyKey = trim((string) ($data['idempotency_key'] ?? ''));
+            $idempotencyKey = $idempotencyKey !== '' ? $idempotencyKey : null;
+
+            if ($idempotencyKey !== null && preg_match('/^[A-Za-z0-9._:-]{1,64}$/', $idempotencyKey) !== 1) {
+                throw ValidationException::withMessages([
+                    'idempotency_key' => 'This request key is invalid.',
+                ]);
+            }
+
+            $idempotencyHash = $idempotencyKey === null
+                ? null
+                : $this->idempotencyHash($contact, $pets, $services, $data);
             $details = $this->serviceDetails($primaryService);
 
-            $bookingRequest = BookingRequest::create([
+            $attributes = [
                 'name' => $contact['name'],
                 'email' => $contact['email'],
-                'phone' => $contact['phone'],
+                'phone' => $phone,
                 'preferred_contact_method' => $contact['preferred_contact_method'] ?? null,
                 'service_key' => $primaryService['service_key'],
                 'service_variant' => $primaryService['service_variant'] ?? null,
@@ -53,7 +82,28 @@ class CreateBookingRequest
                 'pet_type' => $primaryPet['species'],
                 'location' => $primaryService['location'] ?? $details['pickup'] ?? null,
                 'message' => $details['message'] ?? null,
-            ]);
+                'idempotency_key' => $idempotencyKey,
+                'idempotency_hash' => $idempotencyHash,
+            ];
+
+            if ($idempotencyKey === null) {
+                $bookingRequest = BookingRequest::create($attributes);
+            } else {
+                $bookingRequest = BookingRequest::firstOrCreate(
+                    ['idempotency_key' => $idempotencyKey],
+                    $attributes,
+                );
+
+                if (! $bookingRequest->wasRecentlyCreated) {
+                    if ($bookingRequest->idempotency_hash !== $idempotencyHash) {
+                        throw ValidationException::withMessages([
+                            'idempotency_key' => 'This request key was already used for different booking details.',
+                        ]);
+                    }
+
+                    return $bookingRequest->load(['pets', 'services']);
+                }
+            }
 
             $petModels = [];
 
@@ -106,6 +156,52 @@ class CreateBookingRequest
 
             return $bookingRequest->load(['pets', 'services']);
         });
+
+        if ($bookingRequest->wasRecentlyCreated) {
+            $this->notifyStaff($bookingRequest);
+        }
+
+        return $bookingRequest;
+    }
+
+    private function notifyStaff(BookingRequest $bookingRequest): void
+    {
+        $recipient = BusinessProfile::query()->value('primary_email');
+
+        if (! is_string($recipient) || ! filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+            return;
+        }
+
+        try {
+            Mail::to($recipient)->queue(new NewBookingRequest($bookingRequest));
+        } catch (Throwable $exception) {
+            Log::warning('Booking request notification could not be queued.', [
+                'booking_request_id' => $bookingRequest->getKey(),
+                'exception' => $exception,
+            ]);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $contact
+     * @param  array<int, array<string, mixed>>  $pets
+     * @param  array<int, array<string, mixed>>  $services
+     * @param  array<string, mixed>  $data
+     */
+    private function idempotencyHash(array $contact, array $pets, array $services, array $data): string
+    {
+        return hash('sha256', serialize([
+            'contact' => [
+                'name' => $contact['name'] ?? null,
+                'email' => $contact['email'] ?? null,
+                'phone' => $contact['phone'] ?? null,
+                'preferred_contact_method' => $contact['preferred_contact_method'] ?? null,
+            ],
+            'pets' => $pets,
+            'services' => $services,
+            'source' => $data['source'] ?? null,
+            'context' => $data['context'] ?? null,
+        ]));
     }
 
     /**
@@ -169,6 +265,10 @@ class CreateBookingRequest
     {
         $details = Arr::wrap($service['details'] ?? []);
 
+        if (($service['service_key'] ?? null) === 'boarding') {
+            unset($details['emergency_contact_secondary']);
+        }
+
         if (($service['service_key'] ?? null) === 'vet-care'
             && empty($details['care_needs'])
             && is_string($service['service_variant'] ?? null)
@@ -197,8 +297,24 @@ class CreateBookingRequest
                 continue;
             }
 
+            $normalisedPetIndexes = [];
+
             foreach ($petIndexes as $petIndex) {
+                if (! $this->isValidPetIndex($petIndex)) {
+                    $messages["services.{$serviceIndex}.assigned_pet_ids"] = 'Choose a pet that exists in this request.';
+
+                    continue;
+                }
+
                 $petIndex = (int) $petIndex;
+
+                if (in_array($petIndex, $normalisedPetIndexes, true)) {
+                    $messages["services.{$serviceIndex}.assigned_pet_ids"] = 'Choose each pet only once for this service.';
+
+                    continue;
+                }
+
+                $normalisedPetIndexes[] = $petIndex;
 
                 if (! array_key_exists($petIndex, $pets)) {
                     $messages["services.{$serviceIndex}.assigned_pet_ids"] = 'Choose a pet that exists in this request.';
@@ -235,5 +351,11 @@ class CreateBookingRequest
         if ($messages !== []) {
             throw ValidationException::withMessages($messages);
         }
+    }
+
+    private function isValidPetIndex(mixed $petIndex): bool
+    {
+        return (is_int($petIndex) && $petIndex >= 0)
+            || (is_string($petIndex) && ctype_digit($petIndex));
     }
 }

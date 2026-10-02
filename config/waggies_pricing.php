@@ -96,9 +96,8 @@ return [
                     'booking_enabled' => true,
                     'pricing_enabled' => true,
                     'pet_types' => ['cat'],
-                    'nightly_rate' => null,
-                    'manual_quote' => true,
-                    'pricing_note' => 'Cat nightly rate requires staff confirmation before a booking is confirmed.',
+                    'nightly_rate' => 12000,
+                    'manual_quote' => false,
                 ],
             ],
             'inclusions' => [

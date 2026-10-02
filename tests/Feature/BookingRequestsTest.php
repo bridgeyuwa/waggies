@@ -5,11 +5,16 @@ use App\Enums\BookingRequestStatus;
 use App\Filament\Resources\BookingRequests\Pages\EditBookingRequest;
 use App\Filament\Resources\BookingRequests\RelationManagers\PetsRelationManager;
 use App\Filament\Resources\BookingRequests\RelationManagers\ServicesRelationManager;
+use App\Mail\NewBookingRequest;
 use App\Models\BookingRequest;
 use App\Models\BookingRequestPet;
 use App\Models\BookingRequestService;
+use App\Models\BusinessProfile;
 use App\Models\User;
+use App\Support\BookingRequestSchema;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -45,6 +50,13 @@ it('renders only active services and no package or tier controls', function (): 
         ->assertDontSee('Exotic')
         ->assertDontSee('pricing_tier')
         ->assertSee('Nothing is charged yet');
+});
+
+it('renders a draft-persisted submission token for retry-safe booking requests', function (): void {
+    $this->get(route('book'))
+        ->assertOk()
+        ->assertSee('wire:model.live="submissionToken"', false)
+        ->assertSee('data-booking-draft-model="submissionToken"', false);
 });
 
 it('preserves active boarding context while moving pet type selection into pet assignment', function (): void {
@@ -111,16 +123,67 @@ it('preserves an incompatible pet type and blocks stage two with a clear validat
         ->assertSee('This pet type is not compatible with the selected services.');
 });
 
-it('keeps booking select placeholders as empty values with field-specific labels', function (): void {
+it('shows only assigned pets in the review summary', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding'],
+    ])
+        ->call('addPet')
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.sex', 'male')
+        ->set('pets.1.name', 'Luna')
+        ->set('pets.1.species', 'cat')
+        ->set('pets.1.sex', 'female')
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('step', 5)
+        ->assertSee('Milo')
+        ->assertDontSee('Luna · Cat')
+        ->assertDontSee('Not assigned yet');
+});
+
+it('uses neutral prompts and explicit choices for low-option booking fields', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
     ])
         ->set('step', 2)
-        ->assertSee('<option value="">Choose a type</option>', false)
-        ->assertSee('<option value="">Choose age or life stage</option>', false)
-        ->assertSee('<option value="">Choose sex</option>', false)
+        ->assertSee('Pet type')
+        ->assertSee('type="radio" name="booking-pet-0-species"', false)
+        ->assertSee('Dog')
+        ->assertSee('Cat')
+        ->assertSee('<option value="">Select life stage</option>', false)
+        ->assertSee('Sex')
+        ->assertSee('type="radio" name="booking-pet-0-sex"', false)
+        ->assertSee('Male')
+        ->assertSee('Female')
         ->set('step', 3)
-        ->assertSee('<option value="">Choose an option</option>', false);
+        ->assertDontSee('Primary emergency contact')
+        ->assertSee('I authorize emergency veterinary care if needed')
+        ->assertSee('Please discuss this with me during review')
+        ->assertDontSee('<option value="">Choose an option</option>', false);
+});
+
+it('uses human field labels in the booking error summary', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
+    ])
+        ->set('pets.0.name', 'Bruno')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.size', 'medium')
+        ->set('pets.0.sex', 'male')
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('services.0.details.check_in', now()->addDays(7)->toDateString())
+        ->set('services.0.details.check_out', now()->addDays(9)->toDateString())
+        ->set('services.0.details.emergency_vet_authorization', null)
+        ->set('step', 3)
+        ->call('nextStep')
+        ->assertSee('The emergency veterinary authorization field is required.');
+});
+
+it('uses neutral prompts for relocation country selectors', function (): void {
+    $fields = BookingRequestSchema::serviceFields('relocation', 'import');
+
+    expect(collect($fields)->firstWhere('key', 'origin_country')['placeholder'])->toBe('Select origin country')
+        ->and(collect($fields)->firstWhere('key', 'destination_country')['placeholder'])->toBe('Select destination country');
 });
 
 it('renders the configured pet age and life-stage options', function (): void {
@@ -260,7 +323,6 @@ it('requires a size for an assigned boarding dog', function (): void {
             'check_in' => '2026-10-05',
             'check_out' => '2026-10-08',
             'emergency_contact_primary' => 'Chidi Obi — 0808 081 1903',
-            'emergency_contact_secondary' => 'Bola Obi — 0808 081 1904',
             'emergency_vet_authorization' => 'authorized',
         ])
         ->set('pets.0.name', 'Milo')
@@ -328,7 +390,6 @@ it('selects dog size directly and stores it on the submitted pet', function (): 
         ->set('pets.0.size', 'medium')
         ->set('pets.0.sex', 'male')
         ->set('services.0.details.emergency_contact_primary', 'Chidi Obi — 0808 081 1903')
-        ->set('services.0.details.emergency_contact_secondary', 'Bola Obi — 0808 081 1904')
         ->set('services.0.details.emergency_vet_authorization', 'authorized')
         ->set('contact.name', 'Ada Obi')
         ->set('contact.email', 'livewire@example.com')
@@ -415,6 +476,201 @@ it('persists a valid request as received and leaves quotation authority with sta
         ->and($bookingRequest->services->first()->price_snapshot)->toBeNull();
 });
 
+it('accepts the simple POST contract for fixed-rate cat boarding', function (): void {
+    $response = $this->followingRedirects()->post(route('booking-requests.store'), bookingRequestPayload([
+        'email' => 'cat-boarding@example.com',
+        'pet_name' => 'Luna',
+        'pet_type' => 'cat',
+        'service_variant' => null,
+    ]));
+
+    $response->assertOk()
+        ->assertSee('Your request was received');
+
+    $bookingRequest = BookingRequest::query()->where('email', 'cat-boarding@example.com')->firstOrFail();
+
+    expect($bookingRequest->pets->first()->species)->toBe('cat')
+        ->and($bookingRequest->services->first()->service_variant)->toBeNull()
+        ->and($bookingRequest->services->first()->quote_amount)->toBeNull()
+        ->and($bookingRequest->services->first()->price_snapshot)->toBeNull();
+});
+
+it('replays an idempotent booking request without creating a duplicate', function (): void {
+    $payload = [
+        'idempotency_key' => 'booking-replay-test-1',
+        'contact' => [
+            'name' => 'Ada Obi',
+            'email' => 'idempotent@example.com',
+            'phone' => '0808 081 1902',
+        ],
+        'pets' => [[
+            'name' => 'Milo',
+            'species' => 'dog',
+        ]],
+        'services' => [[
+            'service_key' => 'boarding',
+            'service_variant' => 'dogs',
+            'assigned_pet_ids' => [0],
+            'details' => [
+                'check_in' => now()->addDays(7)->toDateString(),
+                'check_out' => now()->addDays(8)->toDateString(),
+                'emergency_contact_primary' => 'Chidi Obi — 0808 081 1903',
+                'emergency_vet_authorization' => 'authorized',
+            ],
+        ]],
+    ];
+
+    $first = app(CreateBookingRequest::class)->handle($payload);
+    $second = app(CreateBookingRequest::class)->handle($payload);
+
+    expect($second->getKey())->toBe($first->getKey())
+        ->and(BookingRequest::query()->count())->toBe(1)
+        ->and($second->pets)->toHaveCount(1)
+        ->and($second->services)->toHaveCount(1);
+});
+
+it('queues a staff notification only when a booking request is newly created', function (): void {
+    Mail::fake();
+    BusinessProfile::query()->firstOrFail()->update(['primary_email' => 'operations@waggies.test']);
+
+    $bookingRequest = app(CreateBookingRequest::class)->handle([
+        'contact' => [
+            'name' => 'Ada Obi',
+            'email' => 'notification@example.com',
+            'phone_country' => 'NG',
+            'phone_number' => '0808 081 1902',
+            'preferred_contact_method' => 'whatsapp',
+        ],
+        'pets' => [[
+            'name' => 'Bruno',
+            'species' => 'dog',
+        ]],
+        'services' => [[
+            'service_key' => 'boarding',
+            'service_variant' => 'dogs',
+            'assigned_pet_ids' => [0],
+            'requested_date' => now()->addDays(7)->toDateString(),
+        ]],
+    ]);
+
+    Mail::assertQueued(NewBookingRequest::class, function (NewBookingRequest $mail) use ($bookingRequest): bool {
+        return $mail->bookingRequest->is($bookingRequest);
+    });
+});
+
+it('rejects reusing an idempotency key for different booking details', function (): void {
+    $payload = [
+        'idempotency_key' => 'booking-replay-test-2',
+        'contact' => [
+            'name' => 'Ada Obi',
+            'email' => 'idempotent-first@example.com',
+            'phone' => '0808 081 1902',
+        ],
+        'pets' => [[
+            'name' => 'Milo',
+            'species' => 'dog',
+        ]],
+        'services' => [[
+            'service_key' => 'boarding',
+            'service_variant' => 'dogs',
+            'assigned_pet_ids' => [0],
+            'details' => [
+                'check_in' => now()->addDays(7)->toDateString(),
+                'check_out' => now()->addDays(8)->toDateString(),
+                'emergency_contact_primary' => 'Chidi Obi — 0808 081 1903',
+                'emergency_vet_authorization' => 'authorized',
+            ],
+        ]],
+    ];
+
+    app(CreateBookingRequest::class)->handle($payload);
+
+    expect(fn (): BookingRequest => app(CreateBookingRequest::class)->handle([
+        ...$payload,
+        'contact' => [
+            ...$payload['contact'],
+            'email' => 'idempotent-second@example.com',
+        ],
+    ]))->toThrow(ValidationException::class);
+
+    expect(BookingRequest::query()->count())->toBe(1);
+});
+
+it('replays the legacy POST contract when an idempotency header is reused', function (): void {
+    $payload = bookingRequestPayload(['email' => 'legacy-idempotent@example.com']);
+
+    $this->withHeader('Idempotency-Key', 'legacy-post-replay-test')
+        ->post(route('booking-requests.store'), $payload)
+        ->assertRedirect(route('book'));
+
+    $this->withHeader('Idempotency-Key', 'legacy-post-replay-test')
+        ->post(route('booking-requests.store'), $payload)
+        ->assertRedirect(route('book'));
+
+    expect(BookingRequest::query()->where('email', 'legacy-idempotent@example.com')->count())->toBe(1);
+});
+
+it('uses the selected calling code and removes secondary emergency contact data', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
+    ])
+        ->set('step', 3)
+        ->assertDontSee('Secondary emergency contact');
+
+    $bookingRequest = app(CreateBookingRequest::class)->handle([
+        'contact' => [
+            'name' => 'Ada Obi',
+            'email' => 'phone-country@example.com',
+            'phone_country' => 'GH',
+            'phone_number' => '024 123 4567',
+        ],
+        'pets' => [[
+            'name' => 'Milo',
+            'species' => 'dog',
+        ]],
+        'services' => [[
+            'service_key' => 'boarding',
+            'service_variant' => 'dogs',
+            'assigned_pet_ids' => [0],
+            'details' => [
+                'emergency_contact_primary' => 'Chidi Obi — 0808 081 1903',
+                'emergency_contact_secondary' => 'Bola Obi — 0808 081 1904',
+            ],
+        ]],
+    ]);
+
+    expect($bookingRequest->phone)->toBe('+233241234567')
+        ->and($bookingRequest->services->first()->details)->not->toHaveKey('emergency_contact_secondary');
+});
+
+it('rejects an invalid international phone number in the simple POST contract', function (): void {
+    $this->from(route('book'))
+        ->post(route('booking-requests.store'), bookingRequestPayload([
+            'phone' => null,
+            'phone_country' => 'NG',
+            'phone_number' => '0808 081 19',
+        ]))
+        ->assertRedirect(route('book'))
+        ->assertSessionHasErrors('phone_number');
+
+    expect(BookingRequest::query()->where('email', 'ada@example.com')->exists())->toBeFalse();
+});
+
+it('preserves the selected international calling code in the simple POST contract', function (): void {
+    $this->from(route('book'))
+        ->post(route('booking-requests.store'), bookingRequestPayload([
+            'email' => 'ghana-post@example.com',
+            'phone' => null,
+            'phone_country' => 'GH',
+            'phone_number' => '024 123 4567',
+        ]))
+        ->assertRedirect(route('book'))
+        ->assertSessionHas('booking_submitted', true);
+
+    expect(BookingRequest::query()->where('email', 'ghana-post@example.com')->value('phone'))
+        ->toBe('+233241234567');
+});
+
 it('persists multiple veterinary care needs in service details without creating quote lines', function (): void {
     $bookingRequest = app(CreateBookingRequest::class)->handle([
         'contact' => [
@@ -448,6 +704,85 @@ it('persists multiple veterinary care needs in service details without creating 
         ->and($bookingRequest->services->first()->price_snapshot)->toBeNull();
 });
 
+it('normalizes sparse pet and service indexes before persisting assignments', function (): void {
+    $bookingRequest = app(CreateBookingRequest::class)->handle([
+        'contact' => [
+            'name' => 'Ada Obi',
+            'email' => 'sparse@example.com',
+            'phone' => '0808 081 1902',
+        ],
+        'pets' => [2 => [
+            'name' => 'Milo',
+            'species' => 'dog',
+            'age' => 'not-sure',
+            'sex' => 'male',
+        ]],
+        'services' => [4 => [
+            'service_key' => 'boarding',
+            'service_variant' => 'dogs',
+            'assigned_pet_ids' => ['0'],
+        ]],
+    ]);
+
+    expect($bookingRequest->pets->pluck('name')->all())->toBe(['Milo'])
+        ->and($bookingRequest->services->first()->pets->pluck('name')->all())->toBe(['Milo']);
+});
+
+it('rejects malformed pet assignment indexes before persisting a request', function (): void {
+    expect(fn (): BookingRequest => app(CreateBookingRequest::class)->handle([
+        'contact' => [
+            'name' => 'Ada Obi',
+            'email' => 'malformed-assignment@example.com',
+            'phone' => '0808 081 1902',
+        ],
+        'pets' => [[
+            'name' => 'Milo',
+            'species' => 'dog',
+        ]],
+        'services' => [[
+            'service_key' => 'boarding',
+            'service_variant' => 'dogs',
+            'assigned_pet_ids' => ['not-an-index'],
+        ]],
+    ]))->toThrow(ValidationException::class);
+
+    expect(BookingRequest::query()->where('email', 'malformed-assignment@example.com')->exists())->toBeFalse();
+});
+
+it('rejects duplicate pet assignments before hitting the pivot primary key', function (): void {
+    expect(fn (): BookingRequest => app(CreateBookingRequest::class)->handle([
+        'contact' => [
+            'name' => 'Ada Obi',
+            'email' => 'duplicate-assignment@example.com',
+            'phone' => '0808 081 1902',
+        ],
+        'pets' => [[
+            'name' => 'Milo',
+            'species' => 'dog',
+        ]],
+        'services' => [[
+            'service_key' => 'boarding',
+            'service_variant' => 'dogs',
+            'assigned_pet_ids' => [0, 0],
+        ]],
+    ]))->toThrow(ValidationException::class);
+
+    expect(BookingRequest::query()->where('email', 'duplicate-assignment@example.com')->exists())->toBeFalse();
+});
+
+it('ignores stale wizard mutation indexes without corrupting draft state', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding'],
+    ])
+        ->call('addPet')
+        ->set('services.0.assigned_pet_ids', [1])
+        ->call('removePet', -1)
+        ->assertCount('pets', 2)
+        ->assertSet('services.0.assigned_pet_ids', [1])
+        ->call('serviceChanged', 99, 'boarding')
+        ->assertCount('services', 1);
+});
+
 it('rejects unsupported pet types and invalid booking services', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
@@ -459,7 +794,6 @@ it('rejects unsupported pet types and invalid booking services', function (): vo
         ->set('pets.0.species', 'other')
         ->set('pets.0.sex', 'female')
         ->set('services.0.details.emergency_contact_primary', 'Chidi Obi — 0808 081 1903')
-        ->set('services.0.details.emergency_contact_secondary', 'Bola Obi — 0808 081 1904')
         ->set('services.0.details.emergency_vet_authorization', 'authorized')
         ->set('contact.name', 'Ada Obi')
         ->set('contact.email', 'incompatible@example.com')
@@ -473,6 +807,20 @@ it('rejects unsupported pet types and invalid booking services', function (): vo
         ->post(route('booking-requests.store'), bookingRequestPayload(['service_key' => 'calendar-slot']))
         ->assertRedirect(route('book'))
         ->assertSessionHasErrors('service_key');
+});
+
+it('returns the user to pet details when a required dog size is missing', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
+    ])
+        ->set('step', 3)
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.sex', 'male')
+        ->set('services.0.assigned_pet_ids', [0])
+        ->call('nextStep')
+        ->assertHasErrors('pets.0.size')
+        ->assertSet('step', 2);
 });
 
 it('exposes booking requests and pet-size correction controls to staff', function (): void {

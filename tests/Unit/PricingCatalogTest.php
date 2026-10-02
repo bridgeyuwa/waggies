@@ -98,13 +98,20 @@ it('keeps dog size boundaries unambiguous and sends above 40kg to review', funct
     ))->toMatchArray(['status' => 'quote', 'size' => 'manual-review']);
 });
 
-it('keeps cats on one request-only nightly boarding rate', function (): void {
+it('prices cats at one fixed nightly boarding rate', function (): void {
     $catalog = app(BookingPricingCatalog::class);
 
     expect($catalog->requiresPetSize('boarding', 'cats'))->toBeFalse()
         ->and($catalog->variants('boarding')['cats'])->not->toHaveKey('tiers')
-        ->and($catalog->quote('boarding', 'cats', null, ['species' => 'cat']))
-        ->toMatchArray(['status' => 'quote', 'type' => 'quote']);
+        ->and($catalog->variants('boarding')['cats']['nightly_rate'])->toBe(12000)
+        ->and($catalog->quote('boarding', 'cats', null, ['species' => 'cat'], 3))
+        ->toMatchArray([
+            'status' => 'fixed',
+            'type' => 'fixed',
+            'amount' => 36000,
+            'max_amount' => 36000,
+            'unit' => 'per pet per night',
+        ]);
 });
 
 it('does not impose an artificial thirty-night maximum', function (): void {
@@ -153,7 +160,7 @@ it('keeps multiple-pet discounts disabled and non-authoritative when enabled', f
         ->and($quote['discount']['amount'])->toBe(2400);
 });
 
-it('quotes mixed dog and cat boarding from one shared service row', function (): void {
+it('estimates mixed dog and cat boarding from one shared service row', function (): void {
     $quote = app(BookingPricingCatalog::class)->quoteForService([
         'service_key' => 'boarding',
         'service_variant' => null,
@@ -167,7 +174,9 @@ it('quotes mixed dog and cat boarding from one shared service row', function ():
     ]);
 
     expect($quote)->toMatchArray([
-        'status' => 'quote',
+        'status' => 'estimate',
+        'amount' => 60000,
+        'max_amount' => 72000,
         'authority' => 'staff_quotation',
         'draft' => true,
         'nights' => 3,
@@ -177,10 +186,13 @@ it('quotes mixed dog and cat boarding from one shared service row', function ():
             'pet_name' => 'Luna',
             'status' => 'estimate',
             'amount' => 24000,
+            'max_amount' => 36000,
         ])
         ->and($quote['lines'][1])->toMatchArray([
             'pet_name' => 'Milo',
-            'status' => 'quote',
+            'status' => 'fixed',
+            'amount' => 36000,
+            'max_amount' => 36000,
         ]);
 });
 

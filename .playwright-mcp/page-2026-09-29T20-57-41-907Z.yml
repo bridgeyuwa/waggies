@@ -1,0 +1,271 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e3]:
+    - navigation "Main navigation" [ref=e4]:
+      - link "Waggies - home" [ref=e5] [cursor=pointer]:
+        - /url: https://waggies.test
+        - generic [ref=e8]: Waggies
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - button "Services" [ref=e11]
+        - listitem [ref=e13]:
+          - button "About" [ref=e14]
+        - listitem [ref=e16]:
+          - button "Tools" [ref=e17]
+        - listitem [ref=e19]:
+          - button "Resources" [ref=e20]
+        - listitem [ref=e22]:
+          - link "Shop" [ref=e23] [cursor=pointer]:
+            - /url: https://waggies.test/shop
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - button "Open saved list" [ref=e26]
+          - button "Search the site" [ref=e28]
+        - link "Request a booking" [ref=e30] [cursor=pointer]:
+          - /url: https://waggies.test/book
+  - main [ref=e31]:
+    - region [ref=e32]:
+      - img "Happy dog sitting with their owner outdoors" [ref=e33]
+      - generic [ref=e37]:
+        - generic [ref=e38]: ABUJA'S TRUSTED PET CARE
+        - heading "Your Pet's Home Away From Home" [level=1] [ref=e40]
+        - generic [ref=e41]: Three services. One trusted team.
+        - paragraph [ref=e45]: Boarding, veterinary care, and dog and cat relocation — all handled through a clear request and review process in Abuja.
+        - generic [ref=e46]:
+          - link "Submit Booking Request" [ref=e47] [cursor=pointer]:
+            - /url: https://waggies.test/book
+          - link "View Services" [ref=e49] [cursor=pointer]:
+            - /url: https://waggies.test/services
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - generic [ref=e54]: OUR SERVICES
+        - heading "What We Offer" [level=2] [ref=e55]
+      - generic [ref=e56]:
+        - link [ref=e57] [cursor=pointer]:
+          - /url: https://waggies.test/services/boarding
+          - img "Boarding" [ref=e59]
+          - generic [ref=e60]:
+            - heading "Boarding" [level=3] [ref=e63]
+            - paragraph [ref=e64]: Overnight stays for dogs and cats, priced per pet per night and reviewed before confirmation.
+        - link [ref=e65] [cursor=pointer]:
+          - /url: https://waggies.test/services/vet-care
+          - img "Veterinary Care" [ref=e67]
+          - generic [ref=e68]:
+            - heading "Veterinary Care" [level=3] [ref=e71]
+            - paragraph [ref=e72]: Wellness consultations, comprehensive examinations, vaccination requests, and microchipping.
+        - link [ref=e73] [cursor=pointer]:
+          - /url: https://waggies.test/services/relocation
+          - img "Pet Relocation" [ref=e75]
+          - generic [ref=e76]:
+            - heading "Pet Relocation" [level=3] [ref=e79]
+            - paragraph [ref=e80]: Custom-quoted import and export coordination for dogs and cats.
+    - generic [ref=e82]:
+      - generic [ref=e83]:
+        - paragraph [ref=e84]: Our care standards
+        - heading "Why Pet Owners Choose Waggies" [level=2] [ref=e85]
+        - paragraph [ref=e86]: Our care team combines consistent routines, veterinary support, and clear updates so pet owners can make informed decisions about every stay.
+      - generic [ref=e87]:
+        - figure "A young guest settling in for a rest in their own enclosure." [ref=e88]:
+          - img "Puppy resting comfortably in an individual boarding enclosure" [ref=e90]
+        - generic [ref=e92]:
+          - list [ref=e93]:
+            - listitem [ref=e94]:
+              - heading "Individual Enclosures" [level=3] [ref=e95]
+              - paragraph [ref=e96]: Each boarding pet receives its own enclosure.
+            - listitem [ref=e97]:
+              - heading "Owner-Supplied Food" [level=3] [ref=e98]
+              - paragraph [ref=e99]: We follow the food and feeding instructions you provide.
+            - listitem [ref=e100]:
+              - heading "Basic Welfare Checks" [level=3] [ref=e101]
+              - paragraph [ref=e102]: Routine care includes water, cleaning, and basic welfare checks.
+            - listitem [ref=e103]:
+              - heading "Manual Review" [level=3] [ref=e104]
+              - paragraph [ref=e105]: Availability, care needs, and final pricing are confirmed with you.
+          - link "See more inside our facilities" [ref=e107] [cursor=pointer]:
+            - /url: https://waggies.test/about/gallery
+    - region "Client testimonials spotlight" [ref=e109]:
+      - generic [ref=e110]:
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - generic [ref=e113]: CLIENT EXPERIENCES
+            - heading "Trusted by Abuja Pet Parents" [level=2] [ref=e114]
+          - paragraph [ref=e115]: Real stories from pet owners who entrust their companions to Waggies for boarding, veterinary care, and dog and cat relocation.
+        - generic [ref=e116]:
+          - generic [ref=e117]:
+            - paragraph [ref=e118]: Select Client Story
+            - tablist "Select client story" [ref=e119]:
+              - tab "W Waggies pet parents Client stories" [selected] [ref=e120]:
+                - generic [ref=e121]:
+                  - generic [ref=e122]: W
+                  - generic [ref=e123]:
+                    - generic [ref=e124]: Waggies pet parents
+                    - generic [ref=e125]: Client stories
+          - generic [ref=e128]:
+            - tabpanel "W Waggies pet parents Client stories" [ref=e129]:
+              - generic [ref=e130]:
+                - generic [ref=e131]: Client stories
+                - img "No rating provided" [ref=e132]
+              - generic [ref=e138]:
+                - blockquote [ref=e139]: “Verified client stories will appear here as Waggies pet parents share their experience.”
+                - generic [ref=e140]:
+                  - generic [aria-hidden] [ref=e141]: W
+                  - generic [ref=e142]:
+                    - generic [ref=e143]: Waggies pet parents
+                    - text: Verified stories coming soon
+            - group "Testimonial progress controls" [ref=e144]:
+              - button "Show testimonial 1" [pressed] [ref=e145]
+    - generic [ref=e149]:
+      - heading "Ready to book?" [level=2] [ref=e150]
+      - paragraph [ref=e151]: Start a booking request for your pet, or contact the care team if you have a general question.
+      - generic [ref=e152]:
+        - link "Request a booking" [ref=e153] [cursor=pointer]:
+          - /url: https://waggies.test/book
+        - link "See Pricing" [ref=e155] [cursor=pointer]:
+          - /url: https://waggies.test/services/pricing
+  - contentinfo [ref=e156]:
+    - generic [ref=e157]:
+      - generic [ref=e159]:
+        - generic [ref=e160]:
+          - heading "Pet care tips, monthly." [level=3] [ref=e161]
+          - paragraph [ref=e162]: Pet care tips and updates from Waggies. No spam, unsubscribe anytime.
+        - generic [ref=e163]:
+          - generic [ref=e164]:
+            - generic [ref=e165]: Email address
+            - textbox "Email address" [ref=e166]:
+              - /placeholder: you@example.com
+          - button "Subscribe to newsletter" [ref=e167]:
+            - generic [ref=e168]: Subscribe
+      - generic [ref=e170]:
+        - generic [ref=e171]:
+          - generic [ref=e172]:
+            - link "Waggies" [ref=e173] [cursor=pointer]:
+              - /url: https://waggies.test
+            - paragraph [ref=e177]: Pet boarding, veterinary care, and relocation services in Abuja, Nigeria.
+          - generic [ref=e178]:
+            - generic [ref=e179]: Follow Us
+            - generic [ref=e180]:
+              - link "Instagram" [ref=e181] [cursor=pointer]:
+                - /url: https://instagram.com/waggies_petboarding
+              - link "Facebook" [ref=e183] [cursor=pointer]:
+                - /url: https://facebook.com/waggies
+              - link "X (Twitter)" [ref=e185] [cursor=pointer]:
+                - /url: https://x.com/waggies
+              - link "LinkedIn" [ref=e187] [cursor=pointer]:
+                - /url: https://linkedin.com/company/waggies
+              - link "TikTok" [ref=e189] [cursor=pointer]:
+                - /url: https://tiktok.com/@waggies
+              - link "YouTube" [ref=e191] [cursor=pointer]:
+                - /url: https://youtube.com/@waggies
+        - region [ref=e193]:
+          - generic [ref=e194]:
+            - heading "Business Hours" [level=2] [ref=e195]
+            - generic [ref=e196]:
+              - paragraph [ref=e197]: Closed · Opens tomorrow at 9:00 AM
+              - generic [ref=e198]:
+                - generic [ref=e199]: "Mon - Fri: 9:00 AM - 5:00 PM"
+                - generic [ref=e200]: "Sat - Sun: 10:00 AM - 2:00 PM"
+            - link "View full hours" [ref=e201] [cursor=pointer]:
+              - /url: https://waggies.test/contact
+      - generic [ref=e203]:
+        - generic [ref=e204]:
+          - heading "Services" [level=3] [ref=e205]
+          - list [ref=e206]:
+            - listitem [ref=e207]:
+              - link "Boarding" [ref=e208] [cursor=pointer]:
+                - /url: https://waggies.test/services/boarding
+            - listitem [ref=e209]:
+              - link "Veterinary Care" [ref=e210] [cursor=pointer]:
+                - /url: https://waggies.test/services/vet-care
+            - listitem [ref=e211]:
+              - link "Relocation" [ref=e212] [cursor=pointer]:
+                - /url: https://waggies.test/services/relocation
+        - generic [ref=e213]:
+          - heading "Company" [level=3] [ref=e214]
+          - list [ref=e215]:
+            - listitem [ref=e216]:
+              - link "About" [ref=e217] [cursor=pointer]:
+                - /url: https://waggies.test/about
+            - listitem [ref=e218]:
+              - link "Testimonials" [ref=e219] [cursor=pointer]:
+                - /url: https://waggies.test/about/testimonials
+            - listitem [ref=e220]:
+              - link "Gallery" [ref=e221] [cursor=pointer]:
+                - /url: https://waggies.test/about/gallery
+            - listitem [ref=e222]:
+              - link "Careers" [ref=e223] [cursor=pointer]:
+                - /url: https://waggies.test/about/careers
+            - listitem [ref=e224]:
+              - link "Partnerships" [ref=e225] [cursor=pointer]:
+                - /url: https://waggies.test/about/partnerships
+        - generic [ref=e226]:
+          - heading "Resources" [level=3] [ref=e227]
+          - list [ref=e228]:
+            - listitem [ref=e229]:
+              - link "FAQ" [ref=e230] [cursor=pointer]:
+                - /url: https://waggies.test/faq
+            - listitem [ref=e231]:
+              - link "Guides" [ref=e232] [cursor=pointer]:
+                - /url: https://waggies.test/guides
+            - listitem [ref=e233]:
+              - link "Knowledge Base" [ref=e234] [cursor=pointer]:
+                - /url: https://waggies.test/knowledge-base
+            - listitem [ref=e235]:
+              - link "Tools" [ref=e236] [cursor=pointer]:
+                - /url: https://waggies.test/tools
+        - generic [ref=e237]:
+          - heading "Support" [level=3] [ref=e238]
+          - list [ref=e239]:
+            - listitem [ref=e240]:
+              - link "Contact" [ref=e241] [cursor=pointer]:
+                - /url: https://waggies.test/contact
+            - listitem [ref=e242]:
+              - link "Request a booking" [ref=e243] [cursor=pointer]:
+                - /url: https://waggies.test/book
+            - listitem [ref=e244]:
+              - link "Phone" [ref=e245] [cursor=pointer]:
+                - /url: tel:2349080811902
+            - listitem [ref=e246]:
+              - link "WhatsApp" [ref=e247] [cursor=pointer]:
+                - /url: https://wa.me/2349080811902
+        - generic [ref=e248]:
+          - heading "Legal" [level=3] [ref=e249]
+          - list [ref=e250]:
+            - listitem [ref=e251]:
+              - link "Boarding Requirements" [ref=e252] [cursor=pointer]:
+                - /url: https://waggies.test/boarding-policy
+            - listitem [ref=e253]:
+              - link "Cancellation & Refunds" [ref=e254] [cursor=pointer]:
+                - /url: https://waggies.test/cancellation-policy
+            - listitem [ref=e255]:
+              - link "Relocation Policy" [ref=e256] [cursor=pointer]:
+                - /url: https://waggies.test/relocation-policy
+            - listitem [ref=e257]:
+              - link "Privacy Policy" [ref=e258] [cursor=pointer]:
+                - /url: https://waggies.test/privacy-policy
+            - listitem [ref=e259]:
+              - link "Terms of Service" [ref=e260] [cursor=pointer]:
+                - /url: https://waggies.test/terms-of-service
+            - listitem [ref=e261]:
+              - link "Cookies Policy" [ref=e262] [cursor=pointer]:
+                - /url: https://waggies.test/cookies-policy
+    - generic [ref=e264]:
+      - paragraph [ref=e265]: © 2026 Waggies Pet Services. All rights reserved.
+      - navigation "Legal" [ref=e266]:
+        - link "Privacy" [ref=e267] [cursor=pointer]:
+          - /url: https://waggies.test/privacy-policy
+        - link "Terms" [ref=e268] [cursor=pointer]:
+          - /url: https://waggies.test/terms-of-service
+        - link "Cookies" [ref=e269] [cursor=pointer]:
+          - /url: https://waggies.test/cookies-policy
+  - generic:
+    - generic [ref=e270]:
+      - link "Chat on WhatsApp" [ref=e271] [cursor=pointer]:
+        - /url: https://wa.me/2349080811902
+      - generic [aria-hidden]:
+        - generic: Chat on WhatsApp
+    - generic [ref=e273]:
+      - button "Open Waggies AI Assistant" [ref=e274]
+      - generic [aria-hidden]:
+        - generic: Open Waggies AI Assistant
+  - generic [ref=e278] [cursor=pointer]

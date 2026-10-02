@@ -47,6 +47,7 @@ function initWaggiesSelect(select) {
     listbox.id = `${button.id}-listbox`;
     listbox.className = 'waggies-select-options fixed z-layer-navigation flex min-w-32 flex-col gap-1 overflow-x-hidden overflow-y-auto rounded-lg border border-primary/15 bg-white p-1 shadow-lg outline-none';
     listbox.setAttribute('role', 'listbox');
+    listbox.tabIndex = -1;
     listbox.dataset.state = 'closed';
     listbox.hidden = true;
     document.body.appendChild(listbox);
@@ -174,8 +175,9 @@ function initWaggiesSelect(select) {
         const enabled = enabledOptionButtons();
         const selectedButton = selectedIndex >= 0 && optionButtons[selectedIndex]?.getAttribute('aria-disabled') !== 'true'
             ? optionButtons[selectedIndex]
-            : focusIndex < 0 ? enabled.at(-1) : enabled[0];
+            : focusIndex < 0 ? enabled.at(-1) : focusIndex > 0 ? enabled[0] : null;
         selectedButton?.focus();
+        if (!selectedButton) listbox.focus({ preventScroll: true });
     };
     button.addEventListener('click', () => open ? close() : openMenu());
     button.addEventListener('keydown', event => {
@@ -250,7 +252,7 @@ function waggiesLivewireSelect() {
         open: false,
         options: [],
         selectedValue: '',
-        selectedLabel: 'Select...',
+        selectedLabel: 'Select an option',
         isPlaceholder: true,
         isDisabled: false,
         highlightedIndex: -1,
@@ -324,7 +326,7 @@ function waggiesLivewireSelect() {
         sync() {
             const native = this.$refs.native;
             this.selectedValue = native.value;
-            this.selectedLabel = native.selectedOptions[0]?.textContent?.trim() || 'Select...';
+            this.selectedLabel = native.selectedOptions[0]?.textContent?.trim() || 'Select an option';
             this.isPlaceholder = native.value === '';
             this.isDisabled = native.disabled;
             if (this.$refs.trigger) {
@@ -376,9 +378,10 @@ function waggiesLivewireSelect() {
                     ? enabled.at(-1)
                     : direction > 0
                         ? enabled[0]
-                        : selectedIndex >= 0 ? enabled[selectedIndex] : enabled[0];
+                        : selectedIndex >= 0 ? enabled[selectedIndex] : null;
 
                 if (target) this.focusOption(target.index);
+                else this.$refs.listbox?.focus({ preventScroll: true });
             });
         },
 
@@ -489,7 +492,7 @@ function waggiesSearchableSelect() {
         options: [],
         filteredOptions: [],
         selectedValue: '',
-        selectedLabel: 'Choose an option',
+        selectedLabel: 'Select an option',
         isPlaceholder: true,
         isDisabled: false,
         highlightedIndex: 0,
@@ -572,7 +575,7 @@ function waggiesSearchableSelect() {
         sync() {
             const native = this.$refs.native;
             this.selectedValue = native.value;
-            this.selectedLabel = native.selectedOptions[0]?.textContent?.trim() || this.$root.dataset.placeholder || 'Choose an option';
+            this.selectedLabel = native.selectedOptions[0]?.textContent?.trim() || this.$root.dataset.placeholder || 'Select an option';
             this.isPlaceholder = native.value === '';
             this.isDisabled = native.disabled;
 

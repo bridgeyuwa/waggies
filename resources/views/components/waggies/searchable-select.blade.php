@@ -5,7 +5,7 @@
     'error' => null,
     'required' => false,
     'options' => [],
-    'placeholder' => 'Choose an option',
+    'placeholder' => 'Select an option',
 ])
 
 @php

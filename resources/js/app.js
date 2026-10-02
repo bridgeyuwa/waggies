@@ -65,6 +65,4 @@ if (document.querySelector('[wire\\:id]')) {
     });
     document.addEventListener('livewire:initialized', () => syncWaggiesSelects(), { once: true });
     Livewire.start();
-} else {
-    Alpine.start();
 }
