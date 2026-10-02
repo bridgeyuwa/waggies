@@ -1,0 +1,299 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e3]:
+    - navigation "Main navigation" [ref=e4]:
+      - link "Waggies - home" [ref=e5] [cursor=pointer]:
+        - /url: https://waggies.test
+        - generic [ref=e8]: Waggies
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - button "Services" [ref=e11]
+        - listitem [ref=e13]:
+          - button "About" [ref=e14]
+        - listitem [ref=e16]:
+          - button "Tools" [ref=e17]
+        - listitem [ref=e19]:
+          - button "Resources" [ref=e20]
+        - listitem [ref=e22]:
+          - link "Shop" [ref=e23] [cursor=pointer]:
+            - /url: https://waggies.test/shop
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - button "Open saved list" [ref=e26]
+          - button "Search the site" [ref=e28]
+        - link "Request a booking" [ref=e30] [cursor=pointer]:
+          - /url: https://waggies.test/book
+  - main [ref=e31]:
+    - navigation "Breadcrumb" [ref=e32]:
+      - list [ref=e34]:
+        - listitem [ref=e35]:
+          - link "Home" [ref=e37] [cursor=pointer]:
+            - /url: https://waggies.test
+        - listitem [ref=e38]:
+          - generic [ref=e40]: Book a service
+    - region [ref=e41]:
+      - generic [ref=e43]:
+        - generic [ref=e44]: BOOKING REQUEST
+        - heading "Tell us what your pet needs" [level=1] [ref=e45]
+        - paragraph [ref=e46]: Choose your services, add your pets, and send one clear request for Waggies to review.
+    - region [ref=e47]:
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - paragraph [ref=e55]: STEP 1 OF 5
+            - heading "Choose and configure services" [level=2] [ref=e56]
+            - paragraph [ref=e57]: Choose each service you need, then select the options that apply.
+            - paragraph [ref=e58]: This is a request, not a confirmed booking. It does not reserve a slot or confirm an appointment.
+          - navigation "Request progress" [ref=e59]:
+            - generic [ref=e60]:
+              - paragraph [ref=e61]: You can revisit completed steps before sending your request.
+              - generic [ref=e62]: Step 1 of 5
+            - list [ref=e63]:
+              - listitem [ref=e64]:
+                - generic [ref=e65]: "1"
+                - generic [ref=e68]: Services
+              - listitem [ref=e69]:
+                - generic [ref=e70]: "2"
+                - generic [ref=e73]: Pets
+              - listitem [ref=e74]:
+                - generic [ref=e75]: "3"
+                - generic [ref=e78]: Match & details
+              - listitem [ref=e79]:
+                - generic [ref=e80]: "4"
+                - generic [ref=e83]: Contact
+              - listitem [ref=e84]:
+                - generic [ref=e85]: "5"
+                - generic [ref=e87]: Review
+          - generic [ref=e88]:
+            - group "Services" [ref=e89]:
+              - generic [ref=e91]:
+                - generic [ref=e93]:
+                  - paragraph [ref=e94]: SERVICE 1
+                  - heading "Choose a service" [level=3] [ref=e95]
+                  - paragraph [ref=e96]: Select the care your pet needs. You can add another service below.
+                - group "Which service do you need?" [ref=e97]:
+                  - generic [ref=e99]:
+                    - generic [ref=e100] [cursor=pointer]:
+                      - radio "Boarding" [ref=e101]
+                      - generic [ref=e102]: Boarding
+                    - generic [ref=e104] [cursor=pointer]:
+                      - radio "Veterinary Care" [ref=e105]
+                      - generic [ref=e106]: Veterinary Care
+                    - generic [ref=e108] [cursor=pointer]:
+                      - radio "Relocation" [ref=e109]
+                      - generic [ref=e110]: Relocation
+                - paragraph [ref=e112]: Choose a service above to see the options and details it needs.
+              - button "Add another service" [ref=e113]:
+                - generic [aria-hidden] [ref=e114]: +
+                - text: Add another service
+            - navigation "Request progress" [ref=e116]:
+              - generic [ref=e117]:
+                - paragraph [ref=e118]: You can revisit completed steps before sending your request.
+                - generic [ref=e119]: Step 1 of 5
+              - list [ref=e120]:
+                - listitem [ref=e121]:
+                  - generic [ref=e122]: "1"
+                  - generic [ref=e125]: Services
+                - listitem [ref=e126]:
+                  - generic [ref=e127]: "2"
+                  - generic [ref=e130]: Pets
+                - listitem [ref=e131]:
+                  - generic [ref=e132]: "3"
+                  - generic [ref=e135]: Match & details
+                - listitem [ref=e136]:
+                  - generic [ref=e137]: "4"
+                  - generic [ref=e140]: Contact
+                - listitem [ref=e141]:
+                  - generic [ref=e142]: "5"
+                  - generic [ref=e144]: Review
+            - generic [ref=e145]:
+              - paragraph [ref=e146]: Submitting sends a request to Waggies. It does not reserve a slot or confirm an appointment.
+              - button "Continue" [ref=e148]
+        - complementary "Your request and booking reassurance" [ref=e150]:
+          - region [ref=e151]:
+            - generic [ref=e152]:
+              - heading "Your request" [level=3] [ref=e153]
+              - generic [ref=e154]: STEP 1 OF 5
+            - paragraph [ref=e155]: Nothing is charged yet. We will confirm availability with you.
+            - generic [ref=e156]:
+              - generic [ref=e157]:
+                - generic [ref=e158]:
+                  - paragraph [ref=e159]: Service not chosen
+                  - button "Change" [ref=e160]
+                - paragraph
+                - paragraph [ref=e161]: Date not added yet
+                - paragraph [ref=e162]: Choose a service
+              - generic [ref=e163]:
+                - generic [ref=e164]:
+                  - paragraph [ref=e165]: Pets
+                  - button "Change" [ref=e166]
+                - list
+              - generic [ref=e167]:
+                - generic [ref=e168]:
+                  - paragraph [ref=e169]: Contact
+                  - button "Edit" [ref=e170]
+                - paragraph [ref=e171]: Contact details not added yet
+          - region [ref=e172]:
+            - paragraph [ref=e173]: WHAT HAPPENS NEXT
+            - list [ref=e174]:
+              - listitem [ref=e175]:
+                - generic [ref=e176]: "1"
+                - generic [ref=e177]: We receive and review your request.
+              - listitem [ref=e178]:
+                - generic [ref=e179]: "2"
+                - generic [ref=e180]: Our team checks each service and pet detail.
+              - listitem [ref=e181]:
+                - generic [ref=e182]: "3"
+                - generic [ref=e183]: We confirm arrangements and final pricing with you.
+          - region [ref=e184]:
+            - heading "Prefer to talk now?" [level=3] [ref=e187]
+            - paragraph [ref=e188]: After sending your request, you can continue the conversation on WhatsApp.
+            - link "Open WhatsApp" [ref=e189] [cursor=pointer]:
+              - /url: https://wa.me/2349080811902?text=Hello%20Waggies%2C%20I%20submitted%20a%20booking%20request%20and%20would%20like%20to%20continue%20the%20conversation.
+  - contentinfo [ref=e191]:
+    - generic [ref=e192]:
+      - generic [ref=e194]:
+        - generic [ref=e195]:
+          - heading "Pet care tips, monthly." [level=3] [ref=e196]
+          - paragraph [ref=e197]: Pet care tips and updates from Waggies. No spam, unsubscribe anytime.
+        - generic [ref=e198]:
+          - generic [ref=e199]:
+            - generic [ref=e200]: Email address
+            - textbox "Email address" [ref=e201]:
+              - /placeholder: you@example.com
+          - button "Subscribe to newsletter" [ref=e202]:
+            - generic [ref=e203]: Subscribe
+      - generic [ref=e205]:
+        - generic [ref=e206]:
+          - generic [ref=e207]:
+            - link "Waggies" [ref=e208] [cursor=pointer]:
+              - /url: https://waggies.test
+            - paragraph [ref=e212]: Pet boarding, veterinary care, and relocation services in Abuja, Nigeria.
+          - generic [ref=e213]:
+            - generic [ref=e214]: Follow Us
+            - generic [ref=e215]:
+              - link "Instagram" [ref=e216] [cursor=pointer]:
+                - /url: https://instagram.com/waggies_petboarding
+              - link "Facebook" [ref=e218] [cursor=pointer]:
+                - /url: https://facebook.com/waggies
+              - link "X (Twitter)" [ref=e220] [cursor=pointer]:
+                - /url: https://x.com/waggies
+              - link "LinkedIn" [ref=e222] [cursor=pointer]:
+                - /url: https://linkedin.com/company/waggies
+              - link "TikTok" [ref=e224] [cursor=pointer]:
+                - /url: https://tiktok.com/@waggies
+              - link "YouTube" [ref=e226] [cursor=pointer]:
+                - /url: https://youtube.com/@waggies
+        - region [ref=e228]:
+          - generic [ref=e229]:
+            - heading "Business Hours" [level=2] [ref=e230]
+            - generic [ref=e231]:
+              - paragraph [ref=e232]: Open now · Open since 9:00 AM · closes 5:00 PM
+              - generic [ref=e233]:
+                - generic [ref=e234]: "Mon - Fri: 9:00 AM - 5:00 PM"
+                - generic [ref=e235]: "Sat - Sun: 10:00 AM - 2:00 PM"
+            - link "View full hours" [ref=e236] [cursor=pointer]:
+              - /url: https://waggies.test/contact
+      - generic [ref=e238]:
+        - generic [ref=e239]:
+          - heading "Services" [level=3] [ref=e240]
+          - list [ref=e241]:
+            - listitem [ref=e242]:
+              - link "Boarding" [ref=e243] [cursor=pointer]:
+                - /url: https://waggies.test/services/boarding
+            - listitem [ref=e244]:
+              - link "Veterinary Care" [ref=e245] [cursor=pointer]:
+                - /url: https://waggies.test/services/vet-care
+            - listitem [ref=e246]:
+              - link "Relocation" [ref=e247] [cursor=pointer]:
+                - /url: https://waggies.test/services/relocation
+        - generic [ref=e248]:
+          - heading "Company" [level=3] [ref=e249]
+          - list [ref=e250]:
+            - listitem [ref=e251]:
+              - link "About" [ref=e252] [cursor=pointer]:
+                - /url: https://waggies.test/about
+            - listitem [ref=e253]:
+              - link "Testimonials" [ref=e254] [cursor=pointer]:
+                - /url: https://waggies.test/about/testimonials
+            - listitem [ref=e255]:
+              - link "Gallery" [ref=e256] [cursor=pointer]:
+                - /url: https://waggies.test/about/gallery
+            - listitem [ref=e257]:
+              - link "Careers" [ref=e258] [cursor=pointer]:
+                - /url: https://waggies.test/about/careers
+            - listitem [ref=e259]:
+              - link "Partnerships" [ref=e260] [cursor=pointer]:
+                - /url: https://waggies.test/about/partnerships
+        - generic [ref=e261]:
+          - heading "Resources" [level=3] [ref=e262]
+          - list [ref=e263]:
+            - listitem [ref=e264]:
+              - link "FAQ" [ref=e265] [cursor=pointer]:
+                - /url: https://waggies.test/faq
+            - listitem [ref=e266]:
+              - link "Guides" [ref=e267] [cursor=pointer]:
+                - /url: https://waggies.test/guides
+            - listitem [ref=e268]:
+              - link "Knowledge Base" [ref=e269] [cursor=pointer]:
+                - /url: https://waggies.test/knowledge-base
+            - listitem [ref=e270]:
+              - link "Tools" [ref=e271] [cursor=pointer]:
+                - /url: https://waggies.test/tools
+        - generic [ref=e272]:
+          - heading "Support" [level=3] [ref=e273]
+          - list [ref=e274]:
+            - listitem [ref=e275]:
+              - link "Contact" [ref=e276] [cursor=pointer]:
+                - /url: https://waggies.test/contact
+            - listitem [ref=e277]:
+              - link "Request a booking" [ref=e278] [cursor=pointer]:
+                - /url: https://waggies.test/book
+            - listitem [ref=e279]:
+              - link "Phone" [ref=e280] [cursor=pointer]:
+                - /url: tel:2349080811902
+            - listitem [ref=e281]:
+              - link "WhatsApp" [ref=e282] [cursor=pointer]:
+                - /url: https://wa.me/2349080811902
+        - generic [ref=e283]:
+          - heading "Legal" [level=3] [ref=e284]
+          - list [ref=e285]:
+            - listitem [ref=e286]:
+              - link "Boarding Requirements" [ref=e287] [cursor=pointer]:
+                - /url: https://waggies.test/boarding-policy
+            - listitem [ref=e288]:
+              - link "Cancellation & Refunds" [ref=e289] [cursor=pointer]:
+                - /url: https://waggies.test/cancellation-policy
+            - listitem [ref=e290]:
+              - link "Relocation Policy" [ref=e291] [cursor=pointer]:
+                - /url: https://waggies.test/relocation-policy
+            - listitem [ref=e292]:
+              - link "Privacy Policy" [ref=e293] [cursor=pointer]:
+                - /url: https://waggies.test/privacy-policy
+            - listitem [ref=e294]:
+              - link "Terms of Service" [ref=e295] [cursor=pointer]:
+                - /url: https://waggies.test/terms-of-service
+            - listitem [ref=e296]:
+              - link "Cookies Policy" [ref=e297] [cursor=pointer]:
+                - /url: https://waggies.test/cookies-policy
+    - generic [ref=e299]:
+      - paragraph [ref=e300]: © 2026 Waggies Pet Services. All rights reserved.
+      - navigation "Legal" [ref=e301]:
+        - link "Privacy" [ref=e302] [cursor=pointer]:
+          - /url: https://waggies.test/privacy-policy
+        - link "Terms" [ref=e303] [cursor=pointer]:
+          - /url: https://waggies.test/terms-of-service
+        - link "Cookies" [ref=e304] [cursor=pointer]:
+          - /url: https://waggies.test/cookies-policy
+  - generic:
+    - generic [ref=e305]:
+      - link "Chat on WhatsApp" [ref=e306] [cursor=pointer]:
+        - /url: https://wa.me/2349080811902
+      - generic [aria-hidden]:
+        - generic: Chat on WhatsApp
+    - generic [ref=e308]:
+      - button "Open Waggies AI Assistant" [ref=e309]
+      - generic [aria-hidden]:
+        - generic: Open Waggies AI Assistant
+  - generic [ref=e313] [cursor=pointer]
