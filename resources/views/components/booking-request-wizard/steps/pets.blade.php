@@ -9,7 +9,7 @@
                                             <h3 id="booking-pet-{{ $index }}-heading" tabindex="-1" class="mt-1 font-serif text-xl font-bold text-primary-dark focus:outline-none">{{ $pet['name'] ? 'About '.$pet['name'] : 'Add a pet' }}</h3>
                                         </div>
                                         @if(count($pets) > 1)
-                                            <button type="button" wire:click="removePet({{ $index }})" aria-label="Remove {{ $pet['name'] ?: 'pet '.($index + 1) }}" class="min-h-11 shrink-0 rounded-lg border border-transparent px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 transition-colors hover:border-error/30 hover:bg-error-light hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">Remove</button>
+                                            <button type="button" wire:click="removePet({{ $index }})" aria-label="Remove {{ $pet['name'] ?: 'pet '.($index + 1) }}" class="min-h-11 shrink-0 cursor-pointer rounded-lg border border-transparent px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 transition-colors hover:border-error/30 hover:bg-error-light hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">Remove</button>
                                         @endif
                                     </div>
 
@@ -36,10 +36,13 @@
                                                 <p class="mt-1 text-xs leading-relaxed text-primary-dark/60">Choose the closest size. You do not need to know your dog’s exact weight.</p>
                                                 <div class="mt-3 grid gap-3 sm:grid-cols-3">
                                                     @foreach($this->petSizeOptions() as $size => $sizeOption)
-                                                        <label class="cursor-pointer rounded-xl border p-4 transition-colors {{ ($pet['size'] ?? null) === $size ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }}">
+                                                        <label class="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-xl border p-4 text-left transition-colors {{ ($pet['size'] ?? null) === $size ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }}">
                                                             <input type="radio" name="booking-pet-{{ $index }}-size" value="{{ $size }}" @checked(($pet['size'] ?? null) === $size) wire:model.live="pets.{{ $index }}.size" class="sr-only peer">
-                                                            <span class="block font-semibold text-primary-dark">{{ $sizeOption['label'] }}</span>
-                                                            @if($sizeOption['examples'])<span class="mt-1 block text-xs leading-relaxed text-primary-dark/60">{{ $sizeOption['examples'] }}</span>@endif
+                                                            <span class="min-w-0">
+                                                                <span class="block font-semibold text-primary-dark">{{ $sizeOption['label'] }}</span>
+                                                                @if($sizeOption['examples'])<span class="mt-1 block text-xs leading-relaxed text-primary-dark/60">{{ $sizeOption['examples'] }}</span>@endif
+                                                            </span>
+                                                            <span class="hidden size-5 shrink-0 items-center justify-center rounded-full bg-primary text-white peer-checked:flex"><x-waggies.icon name="check" size="13" /></span>
                                                         </label>
                                                     @endforeach
                                                 </div>
@@ -52,7 +55,7 @@
                                     <div class="mt-6 border-t border-primary/10 pt-5">
                                         <p class="text-sm font-semibold text-primary-dark">Optional details about this pet</p>
                                         <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                            <x-waggies.field id="booking-pet-{{ $index }}-breed" label="Breed" :error="$errors->first('pets.'.$index.'.breed')" :help="$this->petBreedHelp($index)">
+                                            <x-waggies.field id="booking-pet-{{ $index }}-breed" label="Breed" :error="$errors->first('pets.'.$index.'.breed')" :help="$this->petBreedHelp($index)" :required="$this->petRequiresBreed($index)">
                                                 <input id="booking-pet-{{ $index }}-breed" wire:model.live.blur="pets.{{ $index }}.breed" type="text" maxlength="120" class="contact-input">
                                             </x-waggies.field>
                                             <x-waggies.select id="booking-pet-{{ $index }}-age" label="Age or life stage" wire:model.live="pets.{{ $index }}.age" :error="$errors->first('pets.'.$index.'.age')" :help="$this->petAgeHelp($index)" :required="$this->petAgeRequired($index)">
@@ -82,7 +85,7 @@
                                 </div>
                             @endforeach
 
-                            <button type="button" wire:click="addPet" @disabled(count($pets) >= $this->maxPets()) aria-describedby="booking-pet-limit" class="inline-flex min-h-12 w-fit items-center gap-2 rounded-xl border border-primary/25 px-4 text-sm font-semibold text-primary-dark transition-colors hover:border-primary hover:bg-surface-purple disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                            <button type="button" wire:click="addPet" @disabled(count($pets) >= $this->maxPets()) aria-describedby="booking-pet-limit" class="inline-flex min-h-12 w-fit cursor-pointer items-center gap-2 rounded-xl border border-primary/25 px-4 text-sm font-semibold text-primary-dark transition-colors hover:border-primary hover:bg-surface-purple disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                                 <span aria-hidden="true" class="text-lg leading-none">+</span> {{ count($pets) >= $this->maxPets() ? 'Maximum pets reached' : 'Add another pet' }}
                             </button>
                             <p id="booking-pet-limit" class="text-xs text-primary-dark/55">You can add up to {{ $this->maxPets() }} pets. Each pet can receive one or more of your selected services.</p>

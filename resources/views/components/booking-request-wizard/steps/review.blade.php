@@ -10,7 +10,7 @@
                                             <h4 class="mt-1 font-serif text-xl font-bold text-primary-dark">{{ $this->serviceSummary($service) }}</h4>
                                             <p class="mt-1 text-sm text-primary-dark/60">{{ $this->scheduleSummary($service) }}</p>
                                         </div>
-                                        <button type="button" wire:click="editService({{ $index }})" class="shrink-0 text-sm font-semibold text-primary underline underline-offset-4">Change</button>
+                                        <button type="button" wire:click="editService({{ $index }})" class="shrink-0 cursor-pointer text-sm font-semibold text-primary underline underline-offset-4 transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Change</button>
                                     </div>
                                     <div class="mt-5 grid gap-4 border-t border-primary/10 pt-5 sm:grid-cols-2">
                                         <div>
@@ -44,7 +44,7 @@
                             @endforeach
 
                             <section class="rounded-2xl border border-primary/15 bg-white p-5 shadow-sm sm:p-6">
-                                <div class="flex items-center justify-between gap-4"><h4 class="font-serif text-xl font-bold text-primary-dark">Pets</h4><button type="button" wire:click="goToStep(2)" class="text-sm font-semibold text-primary underline underline-offset-4">Edit</button></div>
+                                <div class="flex items-center justify-between gap-4"><h4 class="font-serif text-xl font-bold text-primary-dark">Pets</h4><button type="button" wire:click="goToStep(2)" class="cursor-pointer text-sm font-semibold text-primary underline underline-offset-4 transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Edit</button></div>
                                 <ul class="mt-4 grid gap-4 text-sm text-primary-dark/75 sm:grid-cols-2">
                                     @foreach($this->assignedPetIndexes() as $petIndex)
                                         @php $pet = $pets[$petIndex]; @endphp
@@ -61,7 +61,7 @@
                             </section>
 
                             <section class="rounded-2xl border border-primary/15 bg-white p-5 shadow-sm sm:p-6">
-                                <div class="flex items-center justify-between gap-4"><h4 class="font-serif text-xl font-bold text-primary-dark">Contact</h4><button type="button" wire:click="goToStep(4)" class="text-sm font-semibold text-primary underline underline-offset-4">Edit</button></div>
+                                <div class="flex items-center justify-between gap-4"><h4 class="font-serif text-xl font-bold text-primary-dark">Contact</h4><button type="button" wire:click="goToStep(4)" class="cursor-pointer text-sm font-semibold text-primary underline underline-offset-4 transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Edit</button></div>
                                 <p class="mt-4 text-sm text-primary-dark/75">{{ $contact['name'] ?: 'Name not added' }} · {{ $contact['email'] ?: 'Email not added' }} · {{ $this->contactPhoneDisplay() }}</p>
                                 @if($contact['preferred_contact_method'])<p class="mt-1 text-sm text-primary-dark/60">Preferred contact: {{ ucfirst($contact['preferred_contact_method']) }}</p>@endif
                             </section>

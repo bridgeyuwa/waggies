@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Rules\ValidPhoneNumber;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 final class BookingRequestWizardRules
@@ -57,22 +58,6 @@ final class BookingRequestWizardRules
             'services.*.details.care_needs' => 'veterinary care needs',
             'services.*.details.care_needs.*' => 'veterinary care need',
             'services.*.assigned_pet_ids' => 'assigned pet',
-            'services.*.details.check_in' => 'check-in date',
-            'services.*.details.check_out' => 'check-out date',
-            'services.*.details.reason' => 'what your pet needs help with',
-            'services.*.details.urgency' => 'urgency',
-            'services.*.details.pickup' => 'pickup point',
-            'services.*.details.dropoff' => 'drop-off point',
-            'services.*.details.trip_type' => 'trip type',
-            'services.*.details.origin_country' => 'country your pet is coming from',
-            'services.*.details.destination_country' => 'country your pet is going to',
-            'services.*.details.travel_timing' => 'travel timing',
-            'services.*.details.flight_status' => 'flight booking status',
-            'services.*.details.documentation_status' => 'documentation status',
-            'services.*.requested_date' => 'expected travel date',
-            'services.*.requested_end_date' => 'latest possible travel date',
-            'services.*.details.emergency' => 'emergency veterinary authorization',
-            'services.*.details.emergency_vet_authorization' => 'emergency veterinary authorization',
             'pets.*.name' => 'pet name',
             'pets.*.species' => 'pet type',
             'pets.*.size' => 'dog size',
@@ -88,6 +73,13 @@ final class BookingRequestWizardRules
 
         foreach ($services as $index => $service) {
             $attributes["services.{$index}.service_variant"] = $this->serviceVariantAttribute($service['service_key'] ?? null);
+
+            foreach (BookingRequestSchema::serviceFields(
+                (string) ($service['service_key'] ?? ''),
+                $service['service_variant'] ?? null,
+            ) as $field) {
+                $attributes[$this->fieldModel($index, $field)] = Str::lower((string) $field['label']);
+            }
         }
 
         return $attributes;

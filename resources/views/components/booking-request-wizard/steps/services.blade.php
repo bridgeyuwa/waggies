@@ -33,7 +33,7 @@
                                             <p class="mt-1 text-sm text-primary-dark/60">Choose the options and details that apply to this service.</p>
                                         </div>
                                         @if(count($services) > 1)
-                                            <button type="button" wire:click="removeService({{ $index }})" aria-label="Remove {{ $this->serviceLabel($service['service_key'] ?? null) }} service" class="min-h-11 shrink-0 rounded-lg border border-transparent px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 transition-colors hover:border-error/30 hover:bg-error-light hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">Remove</button>
+                                            <button type="button" wire:click="removeService({{ $index }})" aria-label="Remove {{ $this->serviceLabel($service['service_key'] ?? null) }} service" class="min-h-11 shrink-0 cursor-pointer rounded-lg border border-transparent px-3 text-sm font-semibold text-primary-dark/70 underline decoration-primary/30 underline-offset-4 transition-colors hover:border-error/30 hover:bg-error-light hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">Remove</button>
                                         @endif
                                     </div>
 

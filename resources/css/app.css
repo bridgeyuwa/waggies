@@ -730,6 +730,16 @@
         transition: border-color 150ms ease, box-shadow 150ms ease;
     }
 
+    input.contact-input,
+    textarea.contact-input {
+        cursor: text;
+    }
+
+    button.contact-input,
+    select.contact-input {
+        cursor: pointer;
+    }
+
     /* Native selects remain the accessible source of truth for Livewire-owned
        fields, but use the same control geometry and chevron as enhanced ones. */
     select.contact-input {

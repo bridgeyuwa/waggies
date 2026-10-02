@@ -358,23 +358,63 @@ new class extends Component
     }
 
     /**
-     * @return array<int, array{key: string, message: string}>
+     * @return array<int, array{key: string, keys: list<string>, message: string, step: int, count: int, scope: string}>
      */
-    public function currentStepErrorEntries(): array
+    public function validationErrorEntries(): array
     {
-        return collect($this->getErrorBag()->getMessages())
-            ->filter(fn (array $messages, string $key): bool => $this->errorBelongsToStep($key, $this->step))
-            ->map(fn (array $messages, string $key): array => [
-                'key' => $key,
-                'message' => $this->userFacingValidationMessage($key, (string) ($messages[0] ?? 'Check this field before continuing.')),
-            ])
-            ->values()
-            ->all();
+        $entries = [];
+
+        foreach ($this->getErrorBag()->getMessages() as $key => $messages) {
+            $message = $this->userFacingValidationMessage($key, (string) ($messages[0] ?? 'Check this field before continuing.'));
+            $step = $this->stepForErrorKey($key);
+            $groupKey = $step.'|'.$message;
+
+            if (! isset($entries[$groupKey])) {
+                $entries[$groupKey] = [
+                    'key' => $key,
+                    'keys' => [$key],
+                    'message' => $message,
+                    'step' => $step,
+                    'count' => 1,
+                    'scope' => $this->validationErrorScope($key),
+                ];
+
+                continue;
+            }
+
+            $entries[$groupKey]['keys'][] = $key;
+            $entries[$groupKey]['count']++;
+        }
+
+        return array_values($entries);
     }
 
-    public function currentStepErrorCount(): int
+    public function validationErrorCount(): int
     {
-        return count($this->currentStepErrorEntries());
+        return count($this->getErrorBag()->getMessages());
+    }
+
+    /**
+     * @param  array{message: string, count: int, scope: string}  $error
+     */
+    public function validationErrorMessage(array $error): string
+    {
+        if ($error['count'] === 1) {
+            return $error['message'];
+        }
+
+        $subject = match ($error['scope']) {
+            'pets' => 'pets',
+            'services' => 'services',
+            default => 'fields',
+        };
+
+        return rtrim($error['message'], '.').' for '.$error['count'].' '.$subject.'.';
+    }
+
+    public function errorIsOnCurrentStep(string $key): bool
+    {
+        return $this->errorBelongsToStep($key, $this->step);
     }
 
     public function errorAnchor(string $key): string
@@ -432,6 +472,15 @@ new class extends Component
     private function errorBelongsToStep(string $key, int $step): bool
     {
         return $this->stepForErrorKey($key) === $step;
+    }
+
+    private function validationErrorScope(string $key): string
+    {
+        return match (explode('.', $key)[0] ?? null) {
+            'pets' => 'pets',
+            'services' => 'services',
+            default => 'fields',
+        };
     }
 
     private function stepForErrorKey(string $key): int
@@ -1058,10 +1107,10 @@ new class extends Component
                 <p class="mt-3 max-w-xl text-sm leading-relaxed text-primary-dark/70">Our team will review each service, pet assignment, and date, then contact you to confirm the next steps. Your requested dates are not reserved until Waggies confirms them.</p>
             </div>
             <div class="flex flex-col gap-3 sm:flex-row">
-                <x-waggies.button href="{{ $this->whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto">
+                <x-waggies.button href="{{ $this->whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="w-full cursor-pointer sm:w-auto">
                     Continue on WhatsApp <x-waggies.icon name="arrow-forward" size="16" />
                 </x-waggies.button>
-                <x-waggies.button href="{{ route('book') }}" variant="secondary" class="w-full sm:w-auto">Send another request</x-waggies.button>
+                <x-waggies.button href="{{ route('book') }}" variant="secondary" class="w-full cursor-pointer sm:w-auto">Send another request</x-waggies.button>
             </div>
         </div>
     @else
@@ -1092,7 +1141,7 @@ new class extends Component
                                 <p class="text-eyebrow text-primary-dark/50">YOUR REQUEST SO FAR</p>
                                 <h3 id="selected-services-heading" class="mt-1 text-sm font-bold text-primary-dark">Selected services</h3>
                             </div>
-                            <button type="button" wire:click="goToStep(1)" class="shrink-0 text-sm font-semibold text-primary underline underline-offset-4">Change</button>
+                            <button type="button" wire:click="goToStep(1)" class="shrink-0 cursor-pointer text-sm font-semibold text-primary underline underline-offset-4 transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Change</button>
                         </div>
                         <ul class="mt-3 space-y-2 text-sm text-primary-dark/75">
                             @foreach($services as $service)
@@ -1110,12 +1159,18 @@ new class extends Component
 
                 <x-waggies.booking-progress :step="$step" :labels="$progressLabels" />
 
-                @if($this->currentStepErrorCount() > 0)
+                @if($this->validationErrorCount() > 0)
                     <div id="booking-error-summary" data-booking-error-summary class="mb-6 rounded-xl border border-error/30 bg-error-light p-4 text-sm text-primary-dark" role="alert" tabindex="-1" aria-labelledby="booking-error-summary-heading">
-                        <p id="booking-error-summary-heading" class="font-semibold">{{ $this->currentStepErrorCount() }} {{ $this->currentStepErrorCount() === 1 ? 'issue needs' : 'issues need' }} your attention.</p>
+                        <p id="booking-error-summary-heading" class="font-semibold">{{ $this->validationErrorCount() }} {{ $this->validationErrorCount() === 1 ? 'issue needs' : 'issues need' }} your attention.</p>
                         <ul class="mt-2 space-y-1">
-                            @foreach($this->currentStepErrorEntries() as $error)
-                                <li><a href="#{{ $this->errorAnchor($error['key']) }}" class="font-medium text-error underline decoration-error/40 underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">{{ $error['message'] }}</a></li>
+                            @foreach($this->validationErrorEntries() as $error)
+                                <li>
+                                    @if($this->errorIsOnCurrentStep($error['key']))
+                                        <a href="#{{ $this->errorAnchor($error['key']) }}" class="cursor-pointer font-medium text-error underline decoration-error/40 underline-offset-2 transition-colors hover:bg-error-light hover:decoration-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">{{ $this->validationErrorMessage($error) }}</a>
+                                    @else
+                                        <span>{{ $this->validationErrorMessage($error) }} <span class="text-xs font-medium text-primary-dark/55">(Step {{ $error['step'] }})</span></span>
+                                    @endif
+                                </li>
                             @endforeach
                         </ul>
                     </div>
@@ -1140,10 +1195,10 @@ new class extends Component
                         <x-waggies.booking-progress :step="$step" :labels="$progressLabels" />
                     </div>
 
-                    @if($this->currentStepErrorCount() > 0)
+                    @if($this->validationErrorCount() > 0)
                         <div class="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-xl border border-error/30 bg-error-light p-3 shadow-lg lg:hidden" role="status" aria-live="polite">
-                            <span class="text-sm font-semibold text-primary-dark">{{ $this->currentStepErrorCount() }} {{ $this->currentStepErrorCount() === 1 ? 'issue' : 'issues' }} to fix</span>
-                            <a href="#booking-error-summary" class="shrink-0 text-sm font-bold text-error underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">Review errors</a>
+                            <span class="text-sm font-semibold text-primary-dark">{{ $this->validationErrorCount() }} {{ $this->validationErrorCount() === 1 ? 'issue' : 'issues' }} to fix</span>
+                            <a href="#booking-error-summary" class="shrink-0 cursor-pointer rounded-sm text-sm font-bold text-error underline underline-offset-4 transition-colors hover:bg-error-light hover:decoration-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">Review errors</a>
                         </div>
                     @endif
 
@@ -1151,12 +1206,12 @@ new class extends Component
                         <p class="max-w-sm text-xs leading-relaxed text-primary-dark/50">Submitting sends a request to Waggies. It does not reserve a slot or confirm an appointment.</p>
                         <div class="flex flex-col-reverse gap-3 sm:flex-row">
                             @if($step > 1)
-                                <x-waggies.button type="button" variant="secondary" wire:click="previousStep" wire:loading.attr="disabled" wire:target="previousStep" class="w-full sm:w-auto">Back</x-waggies.button>
+                                <x-waggies.button type="button" variant="secondary" wire:click="previousStep" wire:loading.attr="disabled" wire:target="previousStep" class="w-full cursor-pointer sm:w-auto">Back</x-waggies.button>
                             @endif
                             @if($step < 5)
-                                <x-waggies.button type="button" wire:click="nextStep" wire:loading.attr="disabled" wire:target="nextStep" class="w-full sm:w-auto">Continue <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
+                                <x-waggies.button type="button" wire:click="nextStep" wire:loading.attr="disabled" wire:target="nextStep" class="w-full cursor-pointer sm:w-auto">Continue <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
                             @else
-                                <x-waggies.button type="submit" wire:loading.attr="disabled" wire:target="submit" class="w-full sm:w-auto">
+                                <x-waggies.button type="submit" wire:loading.attr="disabled" wire:target="submit" class="w-full cursor-pointer sm:w-auto">
                                     <span wire:loading.remove wire:target="submit">Submit Booking Request</span>
                                     <span wire:loading wire:target="submit">Submitting request...</span>
                                     <x-waggies.icon name="arrow-forward" size="16" />
@@ -1177,14 +1232,14 @@ new class extends Component
                         <div class="mt-5 divide-y divide-primary/10 text-sm">
                             @foreach($services as $index => $service)
                                 <div class="py-4 first:pt-0">
-                                <div class="flex items-center justify-between gap-3"><p class="font-semibold text-primary-dark">{{ $service['service_key'] ? $this->serviceLabel($service['service_key']) : 'Service not chosen' }}</p><button type="button" wire:click="goToStep(1)" class="shrink-0 text-xs font-semibold text-primary underline underline-offset-4">Change</button></div>
+                                <div class="flex items-center justify-between gap-3"><p class="font-semibold text-primary-dark">{{ $service['service_key'] ? $this->serviceLabel($service['service_key']) : 'Service not chosen' }}</p><button type="button" wire:click="goToStep(1)" class="shrink-0 cursor-pointer text-xs font-semibold text-primary underline underline-offset-4 transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Change</button></div>
                                 <p class="mt-1 font-medium text-primary-dark/80">{{ $this->serviceSummary($service) }}</p>
                                 <p class="mt-1 text-primary-dark/60">{{ $this->scheduleSummary($service) }}</p>
                                 <p class="mt-1 text-xs font-semibold {{ in_array($this->serviceStatus($service), ['Ready', 'Ready to match'], true) ? 'text-success' : 'text-error' }}">{{ $this->serviceStatus($service) }}</p>
                             </div>
                         @endforeach
-                        <div class="py-4"><div class="flex items-center justify-between gap-3"><p class="font-semibold text-primary-dark">Pets</p><button type="button" wire:click="goToStep(2)" class="shrink-0 text-xs font-semibold text-primary underline underline-offset-4">Change</button></div><ul class="mt-1 space-y-1 text-primary-dark/60">@foreach($this->assignedPetIndexes() as $petIndex) @php $pet = $pets[$petIndex]; @endphp<li wire:key="booking-sidebar-pet-{{ $petIndex }}">{{ $pet['name'] ?: 'Pet '.($petIndex + 1) }} · {{ $this->petSpeciesLabel($pet['species'] ?? null) }}<span class="block text-xs text-primary-dark/45">{{ $this->petAssignedTo($petIndex) }}</span></li>@endforeach</ul></div>
-                        <div class="pt-4"><div class="flex items-center justify-between gap-3"><p class="font-semibold text-primary-dark">Contact</p><button type="button" wire:click="goToStep(4)" class="shrink-0 text-xs font-semibold text-primary underline underline-offset-4">Edit</button></div><p class="mt-1 text-primary-dark/60">{{ $contact['name'] ?: 'Contact details not added yet' }}</p></div>
+                        <div class="py-4"><div class="flex items-center justify-between gap-3"><p class="font-semibold text-primary-dark">Pets</p><button type="button" wire:click="goToStep(2)" class="shrink-0 cursor-pointer text-xs font-semibold text-primary underline underline-offset-4 transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Change</button></div><ul class="mt-1 space-y-1 text-primary-dark/60">@foreach($this->assignedPetIndexes() as $petIndex) @php $pet = $pets[$petIndex]; @endphp<li wire:key="booking-sidebar-pet-{{ $petIndex }}">{{ $pet['name'] ?: 'Pet '.($petIndex + 1) }} · {{ $this->petSpeciesLabel($pet['species'] ?? null) }}<span class="block text-xs text-primary-dark/45">{{ $this->petAssignedTo($petIndex) }}</span></li>@endforeach</ul></div>
+                        <div class="pt-4"><div class="flex items-center justify-between gap-3"><p class="font-semibold text-primary-dark">Contact</p><button type="button" wire:click="goToStep(4)" class="shrink-0 cursor-pointer text-xs font-semibold text-primary underline underline-offset-4 transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Edit</button></div><p class="mt-1 text-primary-dark/60">{{ $contact['name'] ?: 'Contact details not added yet' }}</p></div>
                     </div>
                 </section>
                 <section class="rounded-2xl bg-primary-dark p-5 text-white shadow-sm" aria-labelledby="booking-next-heading">
@@ -1199,7 +1254,7 @@ new class extends Component
                     <div class="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-surface-purple text-primary"><x-waggies.brand-icon name="whatsapp" size="18" /></div>
                     <h3 id="booking-whatsapp-heading" class="font-serif text-xl font-bold text-primary-dark">Prefer to talk now?</h3>
                     <p class="mt-2 text-sm leading-relaxed text-primary-dark/60">After sending your request, you can continue the conversation on WhatsApp.</p>
-                    <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary hover:text-primary-dark">Open WhatsApp <x-waggies.icon name="arrow-forward" size="16" /></a>
+                    <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex min-h-11 cursor-pointer items-center gap-2 text-sm font-semibold text-primary hover:text-primary-dark">Open WhatsApp <x-waggies.icon name="arrow-forward" size="16" /></a>
                 </section>
             </aside>
         </div>

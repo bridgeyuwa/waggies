@@ -59,7 +59,7 @@
                     @keydown.enter.prevent="toggle()"
                     @keydown.space.prevent="toggle()"
                     @keydown.escape.prevent="close()"
-                    class="waggies-select-trigger flex h-[44px] min-h-[44px] w-full items-center justify-between gap-2 rounded-2xl border border-primary/20 bg-white px-4 py-3 text-left text-sm font-medium whitespace-nowrap text-primary-dark shadow-none transition-[color,box-shadow] focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
+                    class="waggies-select-trigger flex h-[44px] min-h-[44px] w-full cursor-pointer items-center justify-between gap-2 rounded-2xl border border-primary/20 bg-white px-4 py-3 text-left text-sm font-medium whitespace-nowrap text-primary-dark shadow-none transition-[color,box-shadow] focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     <span x-text="selectedLabel" :class="isPlaceholder ? 'text-primary-dark/45' : 'text-primary-dark'" class="min-w-0 flex-1 truncate"></span>
                     <img src="{{ asset('icons/material-symbols/outlined/keyboard_arrow_down.svg') }}" alt="" class="h-4 w-4 shrink-0 opacity-50">
@@ -89,7 +89,7 @@
                                 :class="{ 'bg-surface-purple': highlightedIndex === index, 'pointer-events-none cursor-not-allowed opacity-45': option.disabled, 'text-primary-dark/45': option.value === '' && !option.disabled }"
                                 @click="choose(option.value)"
                                 @mouseenter="highlightedIndex = index"
-                                class="relative flex min-h-[44px] w-full cursor-default items-center gap-2 rounded-md py-3 pl-3 pr-9 text-left text-sm text-primary-dark outline-none select-none hover:bg-surface-purple focus:bg-surface-purple"
+                                class="relative flex min-h-[44px] w-full cursor-pointer items-center gap-2 rounded-md py-3 pl-3 pr-9 text-left text-sm text-primary-dark outline-none select-none hover:bg-surface-purple focus:bg-surface-purple"
                             >
                                 <span x-text="option.label"></span>
                                 <img x-show="option.value === selectedValue" src="{{ asset('icons/material-symbols/outlined/check.svg') }}" alt="" class="pointer-events-none absolute right-3 h-4 w-4">

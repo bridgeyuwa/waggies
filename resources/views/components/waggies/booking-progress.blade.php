@@ -16,7 +16,7 @@
             <li class="min-w-0">
                 <div class="flex items-center gap-1.5 sm:gap-2">
                     @if($step > $progressStep)
-                        <button type="button" wire:click="goToStep({{ $progressStep }})" aria-label="Edit {{ $label }} step" class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                        <button type="button" wire:click="goToStep({{ $progressStep }})" aria-label="Edit {{ $label }} step" class="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                             <x-waggies.icon name="check" size="16" />
                         </button>
                     @elseif($step === $progressStep)
@@ -29,7 +29,7 @@
                     @endif
                 </div>
                 @if($step > $progressStep)
-                    <button type="button" wire:click="goToStep({{ $progressStep }})" class="mt-2 block max-w-full truncate text-left text-[0.68rem] font-semibold leading-tight text-primary-dark underline decoration-primary/30 underline-offset-2 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                    <button type="button" wire:click="goToStep({{ $progressStep }})" class="mt-2 block max-w-full cursor-pointer truncate text-left text-[0.68rem] font-semibold leading-tight text-primary-dark underline decoration-primary/30 underline-offset-2 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                         {{ $label }} <span class="font-normal text-primary/70">· Edit</span>
                     </button>
                 @else

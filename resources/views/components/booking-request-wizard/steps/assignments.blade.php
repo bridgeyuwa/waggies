@@ -20,7 +20,7 @@
                                                     <span class="text-xs font-semibold text-error">Needs a match</span>
                                                 @endif
                                                 @if(count($pets) > 1)
-                                                    <button type="button" wire:click="removePet({{ $petIndex }})" class="text-xs font-semibold text-primary underline decoration-primary/30 underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Remove</button>
+                                                    <button type="button" wire:click="removePet({{ $petIndex }})" class="cursor-pointer text-xs font-semibold text-primary underline decoration-primary/30 underline-offset-2 transition-colors hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">Remove</button>
                                                 @endif
                                             </span>
                                             @error('pets.'.$petIndex.'.assignments') <span class="sr-only">{{ $message }}</span> @enderror
@@ -44,7 +44,7 @@
                                         @foreach($pets as $petIndex => $pet)
                                             @php $compatible = $this->petCompatible($service, $pet); @endphp
                                             <label class="flex min-h-16 items-center gap-3 rounded-xl border p-4 transition-colors {{ in_array($petIndex, array_map('intval', $service['assigned_pet_ids'] ?? []), true) ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15' }} {{ ! $compatible ? 'cursor-not-allowed bg-surface/70 opacity-60' : 'cursor-pointer hover:border-primary/40' }}">
-                                                <input type="checkbox" value="{{ $petIndex }}" wire:model.live="services.{{ $index }}.assigned_pet_ids" @disabled(! $compatible) aria-describedby="booking-service-{{ $index }}-pet-{{ $petIndex }}-status" class="size-5 rounded border-primary/30 text-primary focus:ring-primary">
+                                                        <input type="checkbox" value="{{ $petIndex }}" wire:model.live="services.{{ $index }}.assigned_pet_ids" @disabled(! $compatible) aria-describedby="booking-service-{{ $index }}-pet-{{ $petIndex }}-status" class="size-5 cursor-pointer rounded border-primary/30 text-primary focus:ring-primary disabled:cursor-not-allowed">
                                                 <span class="min-w-0">
                                                     <span class="block font-semibold text-primary-dark">{{ $pet['name'] ?: 'Pet '.($petIndex + 1) }}</span>
                                                     <span id="booking-service-{{ $index }}-pet-{{ $petIndex }}-status" class="mt-1 block text-xs text-primary-dark/60">{{ $this->petSpeciesLabel($pet['species'] ?? null) }}{{ ! $compatible ? ' · '.$this->petCompatibilityReason($service, $pet) : '' }}</span>
@@ -58,24 +58,6 @@
                                     @if($service['service_key'])
                                         <div class="mt-6 border-t border-primary/10 pt-5">
                                             <p class="text-sm font-semibold text-primary-dark">Details for this service</p>
-                                            @if($service['service_key'] === 'relocation' && $service['service_variant'])
-                                                <div class="mt-4 rounded-2xl border border-primary/15 bg-surface-purple/30 p-4" aria-labelledby="booking-service-{{ $index }}-route-heading">
-                                                    <p id="booking-service-{{ $index }}-route-heading" class="text-eyebrow text-primary-dark/50">FLIGHT ROUTE</p>
-                                                    <div class="mt-3 grid items-stretch gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
-                                                        <div class="rounded-xl border border-primary/10 bg-white p-3">
-                                                            <p class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-primary-dark/45">From</p>
-                                                            <p class="mt-1 text-sm font-semibold leading-relaxed text-primary-dark">{{ $this->relocationEndpointLabel($service, 'origin') }}</p>
-                                                        </div>
-                                                        <span class="hidden text-xl font-semibold text-primary/55 sm:block" aria-hidden="true">→</span>
-                                                        <span class="text-center text-xl font-semibold text-primary/55 sm:hidden" aria-hidden="true">↓</span>
-                                                        <div class="rounded-xl border border-primary/10 bg-white p-3">
-                                                            <p class="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-primary-dark/45">To</p>
-                                                            <p class="mt-1 text-sm font-semibold leading-relaxed text-primary-dark">{{ $this->relocationEndpointLabel($service, 'destination') }}</p>
-                                                        </div>
-                                                    </div>
-                                                    <p class="mt-3 text-xs leading-relaxed text-primary-dark/55">The Abuja airport endpoint is fixed. Choose the other country below. If your date or flight is not fixed yet, you can tell us that below.</p>
-                                                </div>
-                                            @endif
                                             @if($this->serviceAssignedCount($service) > 1)
                                                 <p class="mt-2 rounded-lg bg-surface-purple/45 p-3 text-xs leading-relaxed text-primary-dark/65">This information applies to every pet assigned to this service. If their needs differ, mention each pet by name.</p>
                                             @endif
@@ -93,6 +75,18 @@
                                                         $fieldValue = ($field['scope'] ?? 'details') === 'service' ? ($service[$field['key']] ?? null) : ($service['details'][$field['key']] ?? null);
                                                         $fieldRequired = $this->fieldRequired($field, $service);
                                                     @endphp
+                                                    @if($service['service_key'] === 'relocation' && $field['type'] === 'country' && ! ($field['fixed'] ?? false))
+                                                        <div class="sm:col-span-2 border-l-2 border-primary/30 bg-surface-purple/30 px-4 py-3">
+                                                            <p class="text-eyebrow text-primary-dark/50">RELOCATION DIRECTION</p>
+                                                            @if($service['service_variant'] === 'import')
+                                                                <p class="mt-1 text-sm font-semibold text-primary-dark">Import to Nigeria</p>
+                                                                <p class="mt-1 text-sm leading-relaxed text-primary-dark/65">Choose the country your pet is travelling from. Abuja, Nigeria is the fixed arrival point for this request.</p>
+                                                            @else
+                                                                <p class="mt-1 text-sm font-semibold text-primary-dark">Export from Nigeria</p>
+                                                                <p class="mt-1 text-sm leading-relaxed text-primary-dark/65">Choose the country your pet is travelling to. Abuja, Nigeria is the fixed departure point for this request.</p>
+                                                            @endif
+                                                        </div>
+                                                    @endif
                                                     @if($field['type'] === 'textarea')
                                                         <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['placeholder'] ?? null" :required="$fieldRequired" class="sm:col-span-2">
                                                             <textarea id="{{ $fieldId }}" wire:model.live.blur="{{ $model }}" rows="3" maxlength="2000" class="contact-input resize-y"></textarea>
@@ -125,15 +119,15 @@
                                                             @php $fieldMinimum = $this->dateMinimum($service, $field); @endphp
                                                             <div x-data="waggiesDatePicker({ value: @js($fieldValue), minimum: @js($fieldMinimum) })" @keydown.escape="open = false" class="relative">
                                                                 <input id="{{ $fieldId }}-native" x-ref="native" wire:model.live="{{ $model }}" x-on:input="value = $event.target.value" x-on:change="value = $event.target.value" type="date" min="{{ $fieldMinimum }}" hidden aria-hidden="true" tabindex="-1">
-                                                                <button id="{{ $fieldId }}" x-ref="trigger" type="button" @click="open = ! open" :aria-expanded="open" aria-haspopup="dialog" class="contact-input flex items-center justify-between gap-3 text-left focus-visible:outline-none" :class="open ? 'ring-2 ring-primary/40' : ''">
+                                                                <button id="{{ $fieldId }}" x-ref="trigger" type="button" @click="open = ! open" :aria-expanded="open" aria-haspopup="dialog" class="contact-input flex cursor-pointer items-center justify-between gap-3 text-left focus-visible:outline-none" :class="open ? 'ring-2 ring-primary/40' : ''">
                                                                     <span class="min-w-0 flex-1 truncate" :class="value ? 'text-primary-dark' : 'text-primary-dark/45'" x-text="formattedValue() || 'Choose a date'"></span>
                                                                     <x-waggies.icon name="calendar" size="18" class="shrink-0 text-primary/65" />
                                                                 </button>
                                                                 <div x-show="open" x-cloak @click.outside="open = false" role="dialog" aria-modal="false" aria-label="Choose a date" class="absolute left-0 top-[calc(100%+0.5rem)] z-20 w-full min-w-[18rem] rounded-2xl border border-primary/15 bg-white p-4 shadow-lg">
                                                                     <div class="flex items-center justify-between gap-3">
-                                                                        <button type="button" @click="changeMonth(-1)" :disabled="isBeforeMinimumMonth()" aria-label="Previous month" class="flex size-10 items-center justify-center rounded-lg text-primary transition-colors hover:bg-surface-purple disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><x-waggies.icon name="arrow-back" size="18" /></button>
+                                                                        <button type="button" @click="changeMonth(-1)" :disabled="isBeforeMinimumMonth()" aria-label="Previous month" class="flex size-10 cursor-pointer items-center justify-center rounded-lg text-primary transition-colors hover:bg-surface-purple disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><x-waggies.icon name="arrow-back" size="18" /></button>
                                                                         <p class="text-sm font-bold text-primary-dark" aria-live="polite" x-text="monthLabel()"></p>
-                                                                        <button type="button" @click="changeMonth(1)" aria-label="Next month" class="flex size-10 items-center justify-center rounded-lg text-primary transition-colors hover:bg-surface-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><x-waggies.icon name="arrow-forward" size="18" /></button>
+                                                                        <button type="button" @click="changeMonth(1)" aria-label="Next month" class="flex size-10 cursor-pointer items-center justify-center rounded-lg text-primary transition-colors hover:bg-surface-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><x-waggies.icon name="arrow-forward" size="18" /></button>
                                                                     </div>
                                                                     <div class="mt-3 grid grid-cols-7 gap-1 text-center text-[0.68rem] font-bold uppercase tracking-wide text-primary-dark/45" aria-hidden="true">
                                                                         <template x-for="weekday in weekdays()" :key="weekday"><span x-text="weekday"></span></template>
@@ -141,7 +135,7 @@
                                                                     <div class="mt-2 grid grid-cols-7 gap-1" role="grid" aria-label="Calendar dates">
                                                                         <template x-for="(day, dayIndex) in days()" :key="day || `empty-${dayIndex}`">
                                                                             <span class="flex aspect-square items-center justify-center">
-                                                                                <button x-show="day" type="button" @click="choose(day)" :disabled="isDisabled(day)" :aria-current="isToday(day) ? 'date' : null" :aria-pressed="isSelected(day)" :class="{ 'bg-primary text-white': isSelected(day), 'ring-1 ring-primary': isToday(day) && ! isSelected(day), 'text-primary-dark/30': isDisabled(day), 'text-primary-dark hover:bg-surface-purple': ! isDisabled(day) && ! isSelected(day) }" class="flex size-9 items-center justify-center rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" x-text="day ? Number(day.slice(-2)) : ''"></button>
+                                                                                <button x-show="day" type="button" @click="choose(day)" :disabled="isDisabled(day)" :aria-current="isToday(day) ? 'date' : null" :aria-pressed="isSelected(day)" :class="{ 'bg-primary text-white': isSelected(day), 'ring-1 ring-primary': isToday(day) && ! isSelected(day), 'text-primary-dark/30': isDisabled(day), 'text-primary-dark hover:bg-surface-purple': ! isDisabled(day) && ! isSelected(day) }" class="flex size-9 cursor-pointer items-center justify-center rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed" x-text="day ? Number(day.slice(-2)) : ''"></button>
                                                                             </span>
                                                                         </template>
                                                                     </div>
