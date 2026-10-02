@@ -162,7 +162,7 @@ it('renders a single usable gallery item when a product has no media', function 
 
 it('exposes the product resource to authenticated staff', function (): void {
     config()->set('app.env', 'local');
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
 
     $this->get('/admin/products')->assertOk();
 });

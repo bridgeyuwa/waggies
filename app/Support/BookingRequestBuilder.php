@@ -32,6 +32,7 @@ final class BookingRequestBuilder
             'service_variant' => $variant,
             'assigned_pet_ids' => [],
             'requested_date' => null,
+            'requested_end_date' => null,
             'requested_time' => null,
             'location' => null,
             'details' => $details,

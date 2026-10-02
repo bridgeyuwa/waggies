@@ -66,7 +66,11 @@ final class BookingRequestWizardRules
             'services.*.details.trip_type' => 'trip type',
             'services.*.details.origin_country' => 'country your pet is coming from',
             'services.*.details.destination_country' => 'country your pet is going to',
+            'services.*.details.travel_timing' => 'travel timing',
+            'services.*.details.flight_status' => 'flight booking status',
             'services.*.details.documentation_status' => 'documentation status',
+            'services.*.requested_date' => 'expected travel date',
+            'services.*.requested_end_date' => 'latest possible travel date',
             'services.*.details.emergency' => 'emergency veterinary authorization',
             'services.*.details.emergency_vet_authorization' => 'emergency veterinary authorization',
             'pets.*.name' => 'pet name',
@@ -99,6 +103,8 @@ final class BookingRequestWizardRules
             'services.*.details.care_needs.required' => 'Select at least one veterinary care need.',
             'services.*.details.care_needs.min' => 'Select at least one veterinary care need.',
             'services.*.details.care_needs.*.in' => 'Choose a valid veterinary care need.',
+            'services.*.requested_date.required' => 'Add an exact date or the earliest date in your travel window.',
+            'services.*.requested_end_date.required' => 'Add the latest possible date for your travel window.',
         ];
     }
 
@@ -147,6 +153,20 @@ final class BookingRequestWizardRules
         return collect(['dog' => 'Dog', 'cat' => 'Cat'])
             ->filter(fn (string $label, string $type): bool => in_array($type, $allowedPetTypes, true))
             ->all();
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $services
+     */
+    public function requiresPetAge(array $services): bool
+    {
+        foreach ($services as $service) {
+            if (in_array($service['service_key'] ?? null, ['vet-care', 'relocation'], true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -207,13 +227,18 @@ final class BookingRequestWizardRules
      */
     private function petRules(bool $enforceCompatibility, array $services): array
     {
+        $ageRule = [
+            $this->requiresPetAge($services) ? 'required' : 'nullable',
+            Rule::in(array_keys($this->pricingCatalog->petAgeOptions())),
+        ];
+
         return [
             'pets' => ['required', 'array', 'min:1', 'max:8'],
             'pets.*.name' => ['required', 'string', 'max:80'],
             'pets.*.species' => ['required', Rule::in($enforceCompatibility ? array_keys($this->petTypeOptions($services)) : ['dog', 'cat'])],
             'pets.*.size' => ['nullable', Rule::in(array_keys($this->petSizeOptions($services)))],
             'pets.*.breed' => ['nullable', 'string', 'max:120'],
-            'pets.*.age' => ['nullable', Rule::in(array_keys($this->pricingCatalog->petAgeOptions()))],
+            'pets.*.age' => $ageRule,
             'pets.*.sex' => ['required', Rule::in(['male', 'female'])],
             'pets.*.notes' => ['nullable', 'string', 'max:1000'],
         ];
@@ -278,13 +303,17 @@ final class BookingRequestWizardRules
                 $service['service_variant'] ?? null,
             ) as $field) {
                 $model = $this->fieldModel($index, $field);
-                $fieldRules = [$field['required'] ? 'required' : 'nullable'];
+                $fieldRules = [$this->fieldRequired($field, $service) ? 'required' : 'nullable'];
 
                 if ($field['type'] === 'date') {
                     $fieldRules = [...$fieldRules, 'date_format:Y-m-d', 'after_or_equal:today'];
 
                     if ($field['key'] === 'check_out') {
                         $fieldRules[] = "after:services.{$index}.details.check_in";
+                    }
+
+                    if ($field['key'] === 'requested_end_date') {
+                        $fieldRules[] = "after:services.{$index}.requested_date";
                     }
                 } elseif (in_array($field['type'], ['select', 'country'], true)) {
                     $fieldRules[] = Rule::in(array_keys($field['options'] ?? []));
@@ -298,6 +327,29 @@ final class BookingRequestWizardRules
         }
 
         return $rules;
+    }
+
+    /**
+     * @param  array<string, mixed>  $field
+     * @param  array<string, mixed>  $service
+     */
+    private function fieldRequired(array $field, array $service): bool
+    {
+        if (($field['required'] ?? false) === true) {
+            return true;
+        }
+
+        $condition = $field['required_when'] ?? null;
+
+        if (! is_array($condition)) {
+            return false;
+        }
+
+        $value = ($condition['scope'] ?? 'details') === 'service'
+            ? ($service[$condition['key'] ?? ''] ?? null)
+            : (($service['details'] ?? [])[$condition['key'] ?? ''] ?? null);
+
+        return in_array($value, $condition['values'] ?? [], true);
     }
 
     /**

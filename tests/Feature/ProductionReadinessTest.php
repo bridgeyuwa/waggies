@@ -3,7 +3,10 @@
 use App\Models\BusinessProfile;
 use App\Models\Testimonial;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
+
+uses(RefreshDatabase::class);
 
 it('returns a healthy native endpoint with non-sensitive security headers', function (): void {
     $this->get('/up')
@@ -123,7 +126,7 @@ it('keeps the backup configuration destination-driven and notification-safe', fu
 it('allows authenticated staff to reach the admin panel without exposing credentials in source', function (): void {
     config()->set('app.env', 'local');
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->get('/admin')
         ->assertOk();
 });

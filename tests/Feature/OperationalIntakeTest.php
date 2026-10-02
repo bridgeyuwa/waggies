@@ -110,7 +110,7 @@ it('publishes only approved testimonials and preserves their display order', fun
 
 it('exposes all Batch 25 resources to authenticated Filament staff', function (): void {
     config()->set('app.env', 'local');
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
 
     $this->get('/admin/contact-enquiries')->assertOk();
     $this->get('/admin/newsletter-subscribers')->assertOk();

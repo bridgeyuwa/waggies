@@ -145,7 +145,7 @@ final class BookingRequestIntake
      */
     private function normalizeService(array $service): array
     {
-        foreach (['service_key', 'service_variant', 'requested_date', 'requested_time', 'location'] as $key) {
+        foreach (['service_key', 'service_variant', 'requested_date', 'requested_end_date', 'requested_time', 'location'] as $key) {
             if (is_string($service[$key] ?? null)) {
                 $service[$key] = trim($service[$key]);
             }

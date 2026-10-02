@@ -5,14 +5,17 @@ namespace Tests\Feature;
 use App\Filament\Resources\BusinessHours\Pages\CreateBusinessHour;
 use App\Models\BusinessHour;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
 
 class BusinessHoursFilamentTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_closed_exception_can_be_saved_without_opening_times(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
 
         Livewire::test(CreateBusinessHour::class)
             ->fillForm([
@@ -42,7 +45,7 @@ class BusinessHoursFilamentTest extends TestCase
 
     public function test_open_exception_still_requires_a_complete_primary_interval(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
 
         Livewire::test(CreateBusinessHour::class)
             ->fillForm([
@@ -61,7 +64,7 @@ class BusinessHoursFilamentTest extends TestCase
 
     public function test_filament_saves_annual_exception_and_date_range_fields(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
 
         Livewire::test(CreateBusinessHour::class)
             ->fillForm([
@@ -87,7 +90,7 @@ class BusinessHoursFilamentTest extends TestCase
 
     public function test_filament_rejects_overlapping_intervals_through_spatie(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
 
         Livewire::test(CreateBusinessHour::class)
             ->fillForm([

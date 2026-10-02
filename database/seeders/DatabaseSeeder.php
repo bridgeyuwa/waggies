@@ -16,13 +16,18 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        User::query()->firstOrCreate(
+        $admin = User::query()->firstOrCreate(
             ['email' => 'test@example.com'],
             User::factory()->make([
                 'name' => 'Test Admin',
                 'email' => 'test@example.com',
+                'is_admin' => true,
             ])->getAttributes(),
         );
+
+        if (! $admin->is_admin) {
+            $admin->forceFill(['is_admin' => true])->save();
+        }
 
         $this->call([
             WaggiesContentSeeder::class,

@@ -5,10 +5,13 @@ namespace Tests\Feature;
 use App\Models\BusinessHour;
 use DateTimeImmutable;
 use DateTimeZone;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class OpeningHoursPresentationTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_spatie_calculates_current_split_schedule_and_consecutive_groups(): void
     {
         $this->travelTo('2026-09-24 10:30:00');

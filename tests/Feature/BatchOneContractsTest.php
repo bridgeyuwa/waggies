@@ -8,10 +8,13 @@ use App\Models\BusinessHour;
 use App\Models\BusinessProfile;
 use App\Models\User;
 use DomainException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class BatchOneContractsTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_booking_request_persists_context_and_enforces_status_transitions(): void
     {
         $booking = BookingRequest::factory()->create([
@@ -65,7 +68,7 @@ class BatchOneContractsTest extends TestCase
     public function test_batch_one_admin_resources_render_for_staff(): void
     {
         config()->set('app.env', 'local');
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
 
         $this->get('/admin/booking-requests')->assertOk();
         $this->get('/admin/business-profiles')->assertOk();

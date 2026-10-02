@@ -146,9 +146,32 @@ final class BookingRequestSchema
         $countryCatalog = app(CountryCatalog::class);
         $editableCountryOptions = $countryCatalog->options($route['fixed_country_code']);
         $fixedCountryOptions = [$route['fixed_country_code'] => $route['fixed_country_label']];
+        $movement = $variant === 'export' ? 'departure' : 'arrival';
 
         return [
-            self::dateField('requested_date', 'Travel date', 'Import and export requests are reviewed for route, documentation, and timing.', 'service'),
+            self::selectField('travel_timing', 'Travel timing', [
+                'exact' => 'I know the exact date',
+                'window' => 'I have an approximate date or window',
+                'not_decided' => 'I have not decided yet',
+            ], true),
+            self::dateField(
+                'requested_date',
+                'Expected '.ucfirst($movement).' date or earliest possible date',
+                'Use the exact date, or the first date in your expected travel window.',
+                'service',
+                false,
+                ['scope' => 'details', 'key' => 'travel_timing', 'values' => ['exact', 'window']],
+                ['scope' => 'details', 'key' => 'travel_timing', 'values' => ['exact', 'window']],
+            ),
+            self::dateField(
+                'requested_end_date',
+                'Latest possible '.ucfirst($movement).' date',
+                'Add the latest date that could work for this relocation.',
+                'service',
+                false,
+                ['scope' => 'details', 'key' => 'travel_timing', 'values' => ['window']],
+                ['scope' => 'details', 'key' => 'travel_timing', 'values' => ['window']],
+            ),
             self::countryField(
                 'origin_country',
                 'Origin country',
@@ -165,7 +188,12 @@ final class BookingRequestSchema
                 true,
                 $route['destination']['fixed'],
             ),
-            self::textField('airline_airport_details', 'Airline or flight details', 'Share any airline, airport, or flight information already known.'),
+            self::selectField('flight_status', 'Flight booking status', [
+                'booked' => 'My flight is booked',
+                'not_booked' => 'My flight is not booked yet',
+                'need_help' => 'I need help planning the route',
+            ], true),
+            self::textarea('airline_airport_details', 'Airline or flight details', 'Share any airline, airport, flight information, or route preferences already known.'),
             self::selectField('microchip_status', 'Existing microchip status', [
                 'yes' => 'A chip already exists',
                 'no' => 'No chip is currently recorded',
@@ -183,16 +211,25 @@ final class BookingRequestSchema
     /**
      * @return array<string, mixed>
      */
-    private static function dateField(string $key, string $label, string $help, string $scope): array
-    {
-        return [
+    private static function dateField(
+        string $key,
+        string $label,
+        string $help,
+        string $scope,
+        bool $required = true,
+        ?array $visibleWhen = null,
+        ?array $requiredWhen = null,
+    ): array {
+        return array_filter([
             'key' => $key,
             'label' => $label,
             'type' => 'date',
-            'required' => true,
+            'required' => $required,
             'help' => $help,
             'scope' => $scope,
-        ];
+            'visible_when' => $visibleWhen,
+            'required_when' => $requiredWhen,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     /**

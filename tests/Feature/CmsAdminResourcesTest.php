@@ -7,7 +7,7 @@ uses(RefreshDatabase::class);
 
 it('exposes the FAQ and Gallery resources in the authenticated admin panel', function (): void {
     config()->set('app.env', 'local');
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
 
     $this->get('/admin/faqs')->assertOk();
     $this->get('/admin/gallery-items')->assertOk();
@@ -15,7 +15,7 @@ it('exposes the FAQ and Gallery resources in the authenticated admin panel', fun
 
 it('does not expose pricing administration in the authenticated admin panel', function (): void {
     config()->set('app.env', 'local');
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->admin()->create());
 
     $this->get('/admin/service-prices')->assertNotFound();
 });

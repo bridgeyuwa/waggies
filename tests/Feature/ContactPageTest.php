@@ -3,11 +3,14 @@
 namespace Tests\Feature;
 
 use App\Models\BusinessProfile;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
 
 class ContactPageTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_contact_gateway_and_active_booking_contexts_render(): void
     {
         $this->get('/contact')

@@ -1,5 +1,9 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
 test('service feature collections render as unordered lists', function () {
     $view = $this->blade(
         '<x-waggies.service-feature-grid :features="$features" />',

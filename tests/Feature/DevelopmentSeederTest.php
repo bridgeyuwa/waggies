@@ -5,12 +5,15 @@ namespace Tests\Feature;
 use App\Models\GalleryItem;
 use App\Models\Guide;
 use Database\Seeders\DatabaseSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 final class DevelopmentSeederTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_development_dataset_is_repeatable_and_stays_on_the_configured_test_database(): void
     {
         $connection = config('database.default');

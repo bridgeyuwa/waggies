@@ -1,5 +1,9 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
 test('cover hero preserves semantic media and action links', function () {
     $view = $this->blade(
         '<x-waggies.cover-hero :hero="$hero"><x-slot:supporting>Trusted care</x-slot:supporting></x-waggies.cover-hero>',

@@ -69,7 +69,7 @@ class CreateBookingRequest
                     'schema_version' => 1,
                     ...($data['context'] ?? []),
                 ],
-                'requested_date' => $primaryService['requested_date'] ?? $details['check_in'] ?? now()->toDateString(),
+                'requested_date' => $primaryService['requested_date'] ?? $details['check_in'] ?? null,
                 'requested_time' => $primaryService['requested_time'] ?? null,
                 'pet_name' => $primaryPet['name'],
                 'pet_type' => $primaryPet['species'],

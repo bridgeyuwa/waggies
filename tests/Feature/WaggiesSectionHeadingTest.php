@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 final class WaggiesSectionHeadingTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_it_renders_the_required_title_and_optional_section_content(): void
     {
         $view = $this->blade(

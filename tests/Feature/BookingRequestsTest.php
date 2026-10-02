@@ -85,6 +85,18 @@ it('offers both dog and cat choices for boarding and keeps the union across serv
         ->assertSee('value="cat"', false);
 });
 
+it('allows multiple services to be selected upfront and removes only the deselected service', function (): void {
+    Livewire::test('booking-request-wizard')
+        ->call('toggleService', 'boarding')
+        ->call('toggleService', 'relocation')
+        ->assertSee('Configure Boarding')
+        ->assertSee('Configure Relocation')
+        ->call('toggleService', 'boarding')
+        ->assertSet('services.0.service_key', 'relocation')
+        ->assertDontSee('Configure Boarding')
+        ->assertSee('Configure Relocation');
+});
+
 it('requires at least one veterinary care need before leaving the services step', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'vet-care'],
@@ -297,6 +309,43 @@ it('requires a valid age or life stage for every veterinary and relocation varia
         ->call('nextStep')
         ->assertHasErrors(['pets.0.age' => 'required']);
 })->with('age-required booking variants');
+
+it('requires age or life stage before leaving the pet step for age-dependent services', function (string $service, string $variant): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => $service, 'variant' => $variant],
+    ])
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.sex', 'male')
+        ->set('step', 2)
+        ->call('nextStep')
+        ->assertSet('step', 2)
+        ->assertHasErrors(['pets.0.age' => 'required']);
+})->with([
+    'veterinary care' => ['vet-care', 'wellness-consultation'],
+    'relocation' => ['relocation', 'import'],
+]);
+
+it('explains the age requirement on the pet step before service assignment', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'vet-care', 'variant' => 'wellness-consultation'],
+    ])
+        ->set('step', 2)
+        ->assertSee('Required for veterinary care or relocation. Choose Not sure if you do not know.');
+});
+
+it('keeps age optional on the pet step for boarding-only requests', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
+    ])
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.sex', 'male')
+        ->set('step', 2)
+        ->call('nextStep')
+        ->assertSet('step', 3)
+        ->assertHasNoErrors();
+});
 
 it('accepts not sure as a valid required pet life stage', function (): void {
     Livewire::test('booking-request-wizard', [
@@ -857,7 +906,7 @@ it('exposes booking requests and pet-size correction controls to staff', functio
     ]);
     $service->pets()->attach($pet);
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs(User::factory()->admin()->create())
         ->get('/admin/booking-requests')
         ->assertOk()
         ->assertSee($bookingRequest->name);

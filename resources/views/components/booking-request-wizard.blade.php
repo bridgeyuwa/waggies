@@ -88,6 +88,50 @@ new class extends Component
         $this->resetValidation();
     }
 
+    public function toggleService(string $service): void
+    {
+        if (! $this->serviceAvailable($service) || ! array_key_exists($service, $this->serviceOptions())) {
+            return;
+        }
+
+        $serviceIndex = collect($this->services)->search(
+            fn (array $selectedService): bool => ($selectedService['service_key'] ?? null) === $service,
+        );
+
+        if ($serviceIndex !== false) {
+            unset($this->services[$serviceIndex]);
+            $this->services = array_values($this->services);
+
+            if ($this->services === []) {
+                $this->services = [app(BookingRequestBuilder::class)->newService(null, null)];
+            }
+
+            $this->dispatch('booking-wizard-announcement', message: $this->serviceLabel($service).' removed from your request.');
+            $this->resetValidation();
+
+            return;
+        }
+
+        if ($this->selectedServiceCount() >= $this->maxServiceItems()) {
+            $this->dispatch('booking-wizard-announcement', message: 'You can include up to '.$this->maxServiceItems().' services in one request.');
+
+            return;
+        }
+
+        $emptyIndex = collect($this->services)->search(
+            fn (array $selectedService): bool => empty($selectedService['service_key']),
+        );
+
+        if ($emptyIndex !== false) {
+            $this->services[$emptyIndex] = app(BookingRequestBuilder::class)->newService($service, null);
+        } else {
+            $this->services[] = app(BookingRequestBuilder::class)->newService($service, null);
+        }
+
+        $this->dispatch('booking-wizard-announcement', message: $this->serviceLabel($service).' added to your request.');
+        $this->resetValidation();
+    }
+
     public function updatedStep(int|string $step): void
     {
         $this->step = max(1, min(5, (int) $step));
@@ -104,6 +148,19 @@ new class extends Component
             $parts = explode('.', $property);
             $index = (int) ($parts[1] ?? 0);
             $this->services[$index]['assigned_pet_ids'] = [];
+        }
+
+        if (Str::is('services.*.details.travel_timing', $property)) {
+            $parts = explode('.', $property);
+            $index = (int) ($parts[1] ?? 0);
+            $timing = $this->services[$index]['details']['travel_timing'] ?? null;
+
+            if ($timing === 'not_decided') {
+                $this->services[$index]['requested_date'] = null;
+                $this->services[$index]['requested_end_date'] = null;
+            } elseif ($timing !== 'window') {
+                $this->services[$index]['requested_end_date'] = null;
+            }
         }
 
         $rules = app(BookingRequestWizardRules::class)->all($this->services, $this->pets, $this->contact);
@@ -202,6 +259,20 @@ new class extends Component
         unset($this->services[$index]);
         $this->services = array_values($this->services);
         $this->resetValidation();
+    }
+
+    public function serviceSelected(string $service): bool
+    {
+        return collect($this->services)->contains(
+            fn (array $selectedService): bool => ($selectedService['service_key'] ?? null) === $service,
+        );
+    }
+
+    public function selectedServiceCount(): int
+    {
+        return collect($this->services)->filter(
+            fn (array $service): bool => filled($service['service_key'] ?? null),
+        )->count();
     }
 
     public function addPet(): void
@@ -485,7 +556,36 @@ new class extends Component
 
     public function fieldVisible(array $field, array $service): bool
     {
-        return true;
+        $condition = $field['visible_when'] ?? null;
+
+        if (! is_array($condition)) {
+            return true;
+        }
+
+        $value = ($condition['scope'] ?? 'details') === 'service'
+            ? ($service[$condition['key'] ?? ''] ?? null)
+            : (($service['details'] ?? [])[$condition['key'] ?? ''] ?? null);
+
+        return in_array($value, $condition['values'] ?? [], true);
+    }
+
+    public function fieldRequired(array $field, array $service): bool
+    {
+        if (($field['required'] ?? false) === true) {
+            return true;
+        }
+
+        $condition = $field['required_when'] ?? null;
+
+        if (! is_array($condition)) {
+            return false;
+        }
+
+        $value = ($condition['scope'] ?? 'details') === 'service'
+            ? ($service[$condition['key'] ?? ''] ?? null)
+            : (($service['details'] ?? [])[$condition['key'] ?? ''] ?? null);
+
+        return in_array($value, $condition['values'] ?? [], true);
     }
 
     public function serviceSummary(array $service): string
@@ -608,10 +708,7 @@ new class extends Component
 
     public function petAgeRequired(int $petIndex): bool
     {
-        return collect($this->services)->contains(
-            fn (array $service): bool => in_array($service['service_key'] ?? null, ['vet-care', 'relocation'], true)
-                && in_array($petIndex, array_map('intval', $service['assigned_pet_ids'] ?? []), true),
-        );
+        return app(BookingRequestWizardRules::class)->requiresPetAge($this->services);
     }
 
     public function petAgeHelp(int $petIndex): string
@@ -667,8 +764,17 @@ new class extends Component
         }
 
         if ($service['service_key'] === 'relocation') {
+            $dateLabel = match ($details['travel_timing'] ?? null) {
+                'exact' => $dateLabel,
+                'window' => $dateLabel && ! empty($service['requested_end_date'])
+                    ? $dateLabel.' → '.Carbon::parse($service['requested_end_date'])->format('D, M j, Y')
+                    : $dateLabel,
+                'not_decided' => 'Timing not decided',
+                default => null,
+            };
+
             return implode(' · ', array_filter([
-                $dateLabel,
+                $dateLabel ?: 'Travel timing not added yet',
                 '1 relocation',
                 app(CountryCatalog::class)->label($details['origin_country'] ?? null),
                 app(CountryCatalog::class)->label($details['destination_country'] ?? null),
@@ -710,6 +816,10 @@ new class extends Component
     {
         if (($field['key'] ?? null) === 'check_out' && ! empty($service['details']['check_in'])) {
             return Carbon::parse($service['details']['check_in'])->addDay()->toDateString();
+        }
+
+        if (($field['key'] ?? null) === 'requested_end_date' && ! empty($service['requested_date'])) {
+            return Carbon::parse($service['requested_date'])->addDay()->toDateString();
         }
 
         return $this->minimumDate;

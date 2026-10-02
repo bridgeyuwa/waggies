@@ -26,6 +26,7 @@ class BookingRequestsTable
                 TextColumn::make('requested_date')
                     ->label('Requested date')
                     ->date()
+                    ->placeholder('Flexible')
                     ->sortable(),
                 TextColumn::make('requested_time')
                     ->label('Time')

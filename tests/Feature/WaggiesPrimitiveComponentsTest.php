@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 final class WaggiesPrimitiveComponentsTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_button_preserves_navigation_and_action_semantics(): void
     {
         $link = $this->blade('<x-waggies.button href="/contact">Contact</x-waggies.button>');

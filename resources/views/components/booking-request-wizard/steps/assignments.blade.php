@@ -34,7 +34,7 @@
                                     <div>
                                         <p class="text-eyebrow text-primary-dark/50">SERVICE</p>
                                         <h3 id="booking-service-details-heading-{{ $index }}" class="mt-1 font-serif text-xl font-bold text-primary-dark">{{ $this->serviceSummary($service) }}</h3>
-                                        <p class="mt-1 text-sm text-primary-dark/60">{{ $this->servicePetRequirement($service) }} Assign at least one compatible pet.</p>
+                                        <p class="mt-1 text-sm leading-relaxed text-primary-dark/60">{{ $this->servicePetRequirement($service) }} Select every compatible pet who should receive this service — you can choose more than one.</p>
                                         @if($this->isDuplicateService($index))
                                             <p class="mt-3 rounded-lg border border-danger/25 bg-error-light p-3 text-xs font-medium leading-relaxed text-primary-dark" role="alert">This is an identical service item. Assign more pets to one service, or change this service’s schedule or details.</p>
                                         @endif
@@ -73,7 +73,7 @@
                                                             <p class="mt-1 text-sm font-semibold leading-relaxed text-primary-dark">{{ $this->relocationEndpointLabel($service, 'destination') }}</p>
                                                         </div>
                                                     </div>
-                                                    <p class="mt-3 text-xs leading-relaxed text-primary-dark/55">The Abuja airport endpoint is fixed. Choose the other country below, then add any flight details you already have.</p>
+                                                    <p class="mt-3 text-xs leading-relaxed text-primary-dark/55">The Abuja airport endpoint is fixed. Choose the other country below. If your date or flight is not fixed yet, you can tell us that below.</p>
                                                 </div>
                                             @endif
                                             @if($this->serviceAssignedCount($service) > 1)
@@ -91,16 +91,17 @@
                                                         $model = $this->fieldModel($index, $field);
                                                         $fieldId = 'booking-'.$index.'-'.$field['key'];
                                                         $fieldValue = ($field['scope'] ?? 'details') === 'service' ? ($service[$field['key']] ?? null) : ($service['details'][$field['key']] ?? null);
+                                                        $fieldRequired = $this->fieldRequired($field, $service);
                                                     @endphp
                                                     @if($field['type'] === 'textarea')
-                                                        <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['placeholder'] ?? null" :required="$field['required']" class="sm:col-span-2">
+                                                        <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['placeholder'] ?? null" :required="$fieldRequired" class="sm:col-span-2">
                                                             <textarea id="{{ $fieldId }}" wire:model.live.blur="{{ $model }}" rows="3" maxlength="2000" class="contact-input resize-y"></textarea>
                                                         </x-waggies.field>
                                                     @elseif($field['type'] === 'country')
-                                                        <x-waggies.searchable-select :id="$fieldId" :label="$field['label']" :options="$field['options']" :placeholder="$field['placeholder']" wire:model.live="{{ $model }}" :error="$errors->first($model)" :required="$field['required']" />
+                                                        <x-waggies.searchable-select :id="$fieldId" :label="$field['label']" :options="$field['options']" :placeholder="$field['placeholder']" wire:model.live="{{ $model }}" :error="$errors->first($model)" :required="$fieldRequired" />
                                                     @elseif($field['type'] === 'select' && count($field['options']) <= 3)
                                                         <fieldset id="{{ $fieldId }}" aria-labelledby="{{ $fieldId }}-label">
-                                                            <legend id="{{ $fieldId }}-label" class="text-sm font-medium text-primary-dark">{{ $field['label'] }}@if($field['required']) <span class="text-danger" aria-hidden="true">*</span>@endif</legend>
+                                                            <legend id="{{ $fieldId }}-label" class="text-sm font-medium text-primary-dark">{{ $field['label'] }}@if($fieldRequired) <span class="text-danger" aria-hidden="true">*</span>@endif</legend>
                                                             <div class="mt-2 grid gap-3">
                                                                 @foreach($field['options'] as $key => $label)
                                                                     <label wire:key="{{ $fieldId }}-{{ $key }}" class="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-xl border p-3 text-left transition-colors focus-within:outline-none focus-within:ring-2 focus-within:ring-primary {{ $fieldValue === $key ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }}">
@@ -113,14 +114,14 @@
                                                             @if($errors->first($model)) <p class="mt-2 text-sm text-danger" role="alert">{{ $errors->first($model) }}</p> @endif
                                                         </fieldset>
                                                     @elseif($field['type'] === 'select')
-                                                        <x-waggies.select :id="$fieldId" :label="$field['label']" wire:model.live="{{ $model }}" :error="$errors->first($model)" :required="$field['required']">
+                                                        <x-waggies.select :id="$fieldId" :label="$field['label']" wire:model.live="{{ $model }}" :error="$errors->first($model)" :required="$fieldRequired">
                                                             <option value="">Select an option</option>
                                                             @foreach($field['options'] as $key => $label)
                                                                 <option value="{{ $key }}">{{ $label }}</option>
                                                             @endforeach
                                                         </x-waggies.select>
                                                     @elseif($field['type'] === 'date')
-                                                        <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['help'] ?? null" :required="$field['required']">
+                                                        <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['help'] ?? null" :required="$fieldRequired">
                                                             @php $fieldMinimum = $this->dateMinimum($service, $field); @endphp
                                                             <div x-data="waggiesDatePicker({ value: @js($fieldValue), minimum: @js($fieldMinimum) })" @keydown.escape="open = false" class="relative">
                                                                 <input id="{{ $fieldId }}-native" x-ref="native" wire:model.live="{{ $model }}" x-on:input="value = $event.target.value" x-on:change="value = $event.target.value" type="date" min="{{ $fieldMinimum }}" hidden aria-hidden="true" tabindex="-1">
