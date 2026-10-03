@@ -35,6 +35,18 @@
                                         <p class="text-eyebrow text-primary-dark/50">SERVICE</p>
                                         <h3 id="booking-service-details-heading-{{ $index }}" class="mt-1 font-serif text-xl font-bold text-primary-dark">{{ $this->serviceSummary($service) }}</h3>
                                         <p class="mt-1 text-sm leading-relaxed text-primary-dark/60">{{ $this->servicePetRequirement($service) }} Select every compatible pet who should receive this service — you can choose more than one.</p>
+                                        @if($service['service_key'] === 'relocation')
+                                            <div class="mt-4 grid gap-3 rounded-xl border border-primary/10 bg-surface-purple/35 p-4 sm:grid-cols-2" aria-label="Relocation route">
+                                                <div>
+                                                    <p class="text-eyebrow text-primary-dark/50">DEPARTURE POINT</p>
+                                                    <p class="mt-1 text-sm font-semibold leading-relaxed text-primary-dark">{{ $this->relocationEndpointLabel($service, 'origin') }}</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-eyebrow text-primary-dark/50">ARRIVAL POINT</p>
+                                                    <p class="mt-1 text-sm font-semibold leading-relaxed text-primary-dark">{{ $this->relocationEndpointLabel($service, 'destination') }}</p>
+                                                </div>
+                                            </div>
+                                        @endif
                                         @if($this->isDuplicateService($index))
                                             <p class="mt-3 rounded-lg border border-danger/25 bg-error-light p-3 text-xs font-medium leading-relaxed text-primary-dark" role="alert">This is an identical service item. Assign more pets to one service, or change this service’s schedule or details.</p>
                                         @endif

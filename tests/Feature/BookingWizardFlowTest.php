@@ -5,6 +5,170 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
+dataset('valid booking service and pet permutations', [
+    'boarding dog' => [
+        ['service' => 'boarding', 'variant' => 'dogs'],
+        ['name' => 'Bruno', 'species' => 'dog', 'size' => 'medium', 'age' => null, 'sex' => 'male', 'breed' => null],
+        [
+            'requested_date' => null,
+            'details' => [
+                'check_in' => '2026-10-10',
+                'check_out' => '2026-10-12',
+                'emergency_vet_authorization' => 'authorized',
+            ],
+        ],
+    ],
+    'boarding cat' => [
+        ['service' => 'boarding', 'variant' => 'cats'],
+        ['name' => 'Luna', 'species' => 'cat', 'size' => null, 'age' => null, 'sex' => 'female', 'breed' => null],
+        [
+            'requested_date' => null,
+            'details' => [
+                'check_in' => '2026-10-10',
+                'check_out' => '2026-10-12',
+                'emergency_vet_authorization' => 'discuss',
+            ],
+        ],
+    ],
+    'veterinary dog with multiple needs' => [
+        ['service' => 'vet-care', 'variant' => 'wellness-consultation'],
+        ['name' => 'Bruno', 'species' => 'dog', 'size' => null, 'age' => '4-7-years', 'sex' => 'male', 'breed' => null],
+        [
+            'requested_date' => '2026-10-10',
+            'details' => [
+                'care_needs' => ['wellness-consultation', 'vaccination-request'],
+                'reason' => 'Routine wellness and vaccination review.',
+                'urgency' => 'routine',
+            ],
+        ],
+    ],
+    'veterinary cat' => [
+        ['service' => 'vet-care', 'variant' => 'vaccination-request'],
+        ['name' => 'Luna', 'species' => 'cat', 'size' => null, 'age' => 'not-sure', 'sex' => 'female', 'breed' => null],
+        [
+            'requested_date' => '2026-10-10',
+            'details' => [
+                'care_needs' => ['vaccination-request'],
+                'reason' => 'Routine vaccination review.',
+                'urgency' => 'soon',
+            ],
+        ],
+    ],
+    'relocation import dog' => [
+        ['service' => 'relocation', 'variant' => 'import'],
+        ['name' => 'Bruno', 'species' => 'dog', 'size' => null, 'age' => '1-3-years', 'sex' => 'male', 'breed' => 'Mixed breed'],
+        [
+            'requested_date' => '2026-10-10',
+            'details' => [
+                'travel_timing' => 'exact',
+                'origin_country' => 'GH',
+                'destination_country' => 'NG',
+                'flight_status' => 'not_booked',
+                'microchip_status' => 'yes',
+                'documentation_status' => 'ready',
+            ],
+        ],
+    ],
+    'relocation export cat' => [
+        ['service' => 'relocation', 'variant' => 'export'],
+        ['name' => 'Luna', 'species' => 'cat', 'size' => null, 'age' => '8-10-years', 'sex' => 'female', 'breed' => 'Domestic shorthair'],
+        [
+            'requested_date' => '2026-10-10',
+            'details' => [
+                'travel_timing' => 'exact',
+                'origin_country' => 'NG',
+                'destination_country' => 'GH',
+                'flight_status' => 'need_help',
+                'microchip_status' => 'unknown',
+                'documentation_status' => 'in-progress',
+            ],
+        ],
+    ],
+]);
+
+it('completes every active service and compatible pet permutation', function (array $context, array $pet, array $serviceData): void {
+    $serviceData['requested_date'] = $serviceData['requested_date'] === null
+        ? null
+        : now()->addDays(7)->toDateString();
+
+    if (array_key_exists('check_in', $serviceData['details'])) {
+        $serviceData['details']['check_in'] = now()->addDays(7)->toDateString();
+        $serviceData['details']['check_out'] = now()->addDays(9)->toDateString();
+    }
+
+    $component = Livewire::test('booking-request-wizard', [
+        'initialContext' => $context,
+    ]);
+
+    if (isset($serviceData['details']['care_needs'])) {
+        $component->set('services.0.details.care_needs', $serviceData['details']['care_needs']);
+    }
+
+    $component
+        ->call('nextStep')
+        ->assertSet('step', 2);
+
+    foreach ($pet as $key => $value) {
+        if ($value !== null) {
+            $component->set("pets.0.{$key}", $value);
+        }
+    }
+
+    $component
+        ->call('nextStep')
+        ->assertSet('step', 3)
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('services.0.requested_date', $serviceData['requested_date'])
+        ->set('services.0.details', $serviceData['details'])
+        ->call('nextStep')
+        ->assertSet('step', 4)
+        ->set('contact.name', 'Ada Obi')
+        ->set('contact.email', 'permutation@example.com')
+        ->set('contact.phone_country', 'NG')
+        ->set('contact.phone_number', '08080811902')
+        ->call('nextStep')
+        ->assertSet('step', 5)
+        ->assertHasNoErrors();
+})->with('valid booking service and pet permutations');
+
+it('does not carry stale assignments across service-variant changes', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => 'export'],
+    ])
+        ->set('services.0.assigned_pet_ids', [0])
+        ->call('variantChanged', 0, 'import')
+        ->assertSet('services.0.assigned_pet_ids', [])
+        ->assertSet('services.0.details.origin_country', null)
+        ->assertSet('services.0.details.destination_country', 'NG');
+});
+
+it('blocks invalid relocation directions and unassigned pets before continuing', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => 'export'],
+    ])
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
+        ->set('pets.0.age', 'not-sure')
+        ->set('pets.0.sex', 'male')
+        ->set('services.0.details', [
+            'travel_timing' => 'exact',
+            'origin_country' => 'NG',
+            'destination_country' => 'NG',
+            'flight_status' => 'not_booked',
+            'microchip_status' => 'yes',
+            'documentation_status' => 'ready',
+        ])
+        ->set('services.0.requested_date', now()->addDays(7)->toDateString())
+        ->set('step', 3)
+        ->call('nextStep')
+        ->assertSet('step', 3)
+        ->assertHasErrors([
+            'services.0.assigned_pet_ids',
+            'services.0.details.destination_country',
+        ]);
+});
+
 it('moves through the booking steps in order after each step is valid', function (): void {
     $component = Livewire::test('booking-request-wizard')
         ->call('toggleService', 'boarding')
