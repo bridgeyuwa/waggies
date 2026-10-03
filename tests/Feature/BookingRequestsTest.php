@@ -607,6 +607,88 @@ it('replays an idempotent booking request without creating a duplicate', functio
         ->and($second->services)->toHaveCount(1);
 });
 
+it('allows relocation windows with different end dates in one request', function (): void {
+    $bookingRequest = app(CreateBookingRequest::class)->handle([
+        'contact' => [
+            'name' => 'Ada Obi',
+            'email' => 'relocation-windows@example.com',
+            'phone' => '0808 081 1902',
+        ],
+        'pets' => [[
+            'name' => 'Milo',
+            'species' => 'dog',
+            'breed' => 'Mixed breed',
+            'age' => 'not-sure',
+            'sex' => 'male',
+        ]],
+        'services' => [
+            [
+                'service_key' => 'relocation',
+                'service_variant' => 'export',
+                'assigned_pet_ids' => [0],
+                'requested_date' => '2026-10-10',
+                'requested_end_date' => '2026-10-14',
+                'details' => [
+                    'travel_timing' => 'window',
+                    'origin_country' => 'NG',
+                    'destination_country' => 'GH',
+                    'flight_status' => 'not_booked',
+                    'microchip_status' => 'yes',
+                    'documentation_status' => 'ready',
+                ],
+            ],
+            [
+                'service_key' => 'relocation',
+                'service_variant' => 'export',
+                'assigned_pet_ids' => [0],
+                'requested_date' => '2026-10-10',
+                'requested_end_date' => '2026-10-21',
+                'details' => [
+                    'travel_timing' => 'window',
+                    'origin_country' => 'NG',
+                    'destination_country' => 'GH',
+                    'flight_status' => 'not_booked',
+                    'microchip_status' => 'yes',
+                    'documentation_status' => 'ready',
+                ],
+            ],
+        ],
+    ]);
+
+    expect($bookingRequest->services)->toHaveCount(2)
+        ->and($bookingRequest->services->pluck('requested_end_date')->map->toDateString()->all())
+        ->toBe(['2026-10-14', '2026-10-21']);
+});
+
+it('replays a submitted Livewire request without creating a duplicate', function (): void {
+    Mail::fake();
+    BusinessProfile::query()->firstOrFail()->update(['primary_email' => 'operations@waggies.test']);
+
+    $component = Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
+    ])
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.size', 'medium')
+        ->set('pets.0.sex', 'male')
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('services.0.details.check_in', '2026-10-10')
+        ->set('services.0.details.check_out', '2026-10-12')
+        ->set('services.0.details.emergency_vet_authorization', 'authorized')
+        ->set('contact.name', 'Ada Obi')
+        ->set('contact.email', 'livewire-replay@example.com')
+        ->set('contact.phone_country', 'NG')
+        ->set('contact.phone_number', '08080811902')
+        ->call('submit')
+        ->assertSet('submitted', true);
+
+    $component
+        ->call('submit')
+        ->assertSet('submitted', true);
+
+    expect(BookingRequest::query()->where('email', 'livewire-replay@example.com')->count())->toBe(1);
+});
+
 it('queues a staff notification only when a booking request is newly created', function (): void {
     Mail::fake();
     BusinessProfile::query()->firstOrFail()->update(['primary_email' => 'operations@waggies.test']);

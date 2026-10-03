@@ -437,6 +437,7 @@ final class BookingRequestIntake
             'service_key' => $service['service_key'] ?? null,
             'service_variant' => $service['service_variant'] ?? null,
             'requested_date' => $service['requested_date'] ?? null,
+            'requested_end_date' => $service['requested_end_date'] ?? null,
             'requested_time' => $service['requested_time'] ?? null,
             'location' => $service['location'] ?? null,
             'details' => $service['details'] ?? [],
