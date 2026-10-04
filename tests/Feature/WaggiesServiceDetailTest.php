@@ -1,8 +1,39 @@
 <?php
 
+use App\Models\Faq;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
+
+test('services overview shows four ordered published general FAQs from the database', function () {
+    $faqs = collect(range(1, 5))->map(fn (int $sortOrder): Faq => Faq::factory()->create([
+        'category' => 'general',
+        'question' => "Overview question {$sortOrder}",
+        'sort_order' => $sortOrder,
+        'status' => Faq::STATUS_PUBLISHED,
+    ]));
+    $serviceFaq = Faq::factory()->create([
+        'category' => 'boarding',
+        'question' => 'Boarding-specific question',
+        'sort_order' => 0,
+        'status' => Faq::STATUS_PUBLISHED,
+    ]);
+
+    $content = $this->get(route('services.index'))
+        ->assertOk()
+        ->assertSeeText('A Few Questions Before You Choose')
+        ->assertSeeText('View all FAQs')
+        ->assertSeeText($faqs[0]->question)
+        ->assertSeeText($faqs[1]->question)
+        ->assertSeeText($faqs[2]->question)
+        ->assertSeeText($faqs[3]->question)
+        ->assertDontSeeText($faqs[4]->question)
+        ->assertDontSeeText($serviceFaq->question)
+        ->getContent();
+
+    expect(strpos($content, $faqs[0]->question))
+        ->toBeLessThan(strpos($content, $faqs[1]->question));
+});
 
 test('active service pages keep the existing public service composition', function () {
     $this->get(route('services.boarding.species', ['species' => 'dogs']))

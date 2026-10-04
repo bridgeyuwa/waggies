@@ -24,7 +24,7 @@
 
 <x-waggies.proof-band />
 
-<section class="bg-surface py-20"><div class="page-container"><x-waggies.section-heading title="Before You Book, Here&apos;s What You Should Know" subtitle="Quick answers to help you choose the right service for your pet with confidence." spacing="mb-14" /><x-waggies.faq-accordion :faqs="$faqs" /></div></section>
+<section class="bg-surface py-16"><div class="page-container"><x-waggies.section-heading title="A Few Questions Before You Choose" subtitle="Quick answers to help you choose the right service for your pet with confidence." spacing="mb-8" /><x-waggies.faq-accordion :faqs="$faqs" /><p class="mt-6 text-center text-sm text-primary-dark/60">Have another question? <a href="{{ route('faq') }}" class="font-semibold text-primary hover:underline">View all FAQs</a> or <a href="{{ route('contact') }}" class="font-semibold text-primary hover:underline">contact us</a>.</p></div></section>
 
 @php($servicesCta = ['heading' => 'Request Your Pet\'s', 'headingAccent' => 'Next Visit', 'body' => 'Send a service request or speak with our care team today.', 'primaryLabel' => 'Request a Service', 'primaryRoute' => 'book', 'secondaryLabel' => 'Call Us Now', 'secondaryHref' => 'tel:+2349080811902', 'secondaryIcon' => 'phone'])
 <section class="w-full py-20"><div class="page-container"><x-waggies.cta-primary :cta="$servicesCta" /></div></section>

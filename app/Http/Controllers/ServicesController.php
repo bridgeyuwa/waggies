@@ -715,15 +715,10 @@ final class ServicesController extends Controller
     {
         return Faq::query()
             ->published()
-            ->whereIn('category', ['boarding', 'vet-care', 'relocation', 'general'])
-            ->where(function ($query): void {
-                $query
-                    ->whereNotIn('category', ['boarding', 'relocation'])
-                    ->orWhereNull('subcategory')
-                    ->orWhereIn('subcategory', ['dogs', 'cats', 'import', 'export']);
-            })
+            ->where('category', 'general')
             ->orderBy('sort_order')
             ->orderBy('id')
+            ->limit(4)
             ->get()
             ->map(fn (Faq $faq): array => $faq->toPublicArray())
             ->all();
