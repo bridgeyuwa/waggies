@@ -50,4 +50,9 @@ enum BookingRequestStatus: string
             self::Cancelled => [],
         }, true);
     }
+
+    public function isResolved(): bool
+    {
+        return in_array($this, [self::Confirmed, self::Completed, self::Declined, self::Cancelled], true);
+    }
 }

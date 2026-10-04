@@ -6,14 +6,42 @@ use App\Enums\BookingRequestStatus;
 use App\Models\BookingRequest;
 use App\Models\BookingRequestService;
 use App\Support\BookingPricingCatalog;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class ServicesRelationManager extends RelationManager
 {
     protected static string $relationship = 'services';
+
+    public function form(Schema $schema): Schema
+    {
+        return $schema->components([
+            TextInput::make('quote_amount')
+                ->label('Quote amount')
+                ->numeric()
+                ->integer()
+                ->minValue(0)
+                ->helperText('Enter the amount offered for this service, or leave blank when the quote is explained in notes.'),
+            TextInput::make('quote_currency')
+                ->label('Currency')
+                ->default(app(BookingPricingCatalog::class)->currency())
+                ->maxLength(3),
+            Textarea::make('quote_notes')
+                ->label('Quote notes')
+                ->rows(4)
+                ->helperText('Use notes when the service needs a manual quote explanation.'),
+        ]);
+    }
 
     public function table(Table $table): Table
     {
@@ -28,6 +56,10 @@ class ServicesRelationManager extends RelationManager
                     ->label('Options / care needs')
                     ->formatStateUsing(fn (?string $state, BookingRequestService $record): ?string => app(BookingPricingCatalog::class)->serviceSelectionSummary($record->toArray(), $record->pets->toArray()))
                     ->placeholder('Not specified'),
+                TextColumn::make('assigned_pets')
+                    ->label('Assigned pets')
+                    ->state(fn (BookingRequestService $record): ?string => $record->pets->pluck('name')->filter()->join(', ') ?: null)
+                    ->placeholder('Not assigned'),
                 TextColumn::make('requested_date')
                     ->label('Requested date')
                     ->date()
@@ -38,11 +70,72 @@ class ServicesRelationManager extends RelationManager
                 TextColumn::make('location')
                     ->placeholder('Not specified')
                     ->wrap(),
+                TextColumn::make('details')
+                    ->label('Care details')
+                    ->formatStateUsing(fn (mixed $state): string => $this->payloadSummary($state))
+                    ->placeholder('Not specified')
+                    ->wrap(),
+                TextColumn::make('price_snapshot')
+                    ->label('Pricing snapshot')
+                    ->formatStateUsing(fn (mixed $state): string => $this->payloadSummary($state))
+                    ->placeholder('Not captured')
+                    ->wrap(),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (BookingRequestStatus|string|null $state): string => $state instanceof BookingRequestStatus
                         ? BookingRequestStatus::options()[$state->value]
                         : (BookingRequestStatus::options()[$state] ?? (string) $state)),
+                TextColumn::make('quote_amount')
+                    ->label('Quote')
+                    ->numeric()
+                    ->placeholder('Not set'),
+                TextColumn::make('quote_currency')
+                    ->label('Currency')
+                    ->placeholder('—'),
+            ])
+            ->recordActions([
+                EditAction::make(),
+                ActionGroup::make([
+                    $this->statusAction('startServiceReview', 'Start review', BookingRequestStatus::Reviewing),
+                    $this->statusAction('markServiceQuoted', 'Mark quoted', BookingRequestStatus::Quoted, requiresQuote: true),
+                    $this->statusAction('confirmService', 'Confirm service', BookingRequestStatus::Confirmed, requiresQuote: true),
+                    $this->statusAction('declineService', 'Decline service', BookingRequestStatus::Declined),
+                    $this->statusAction('cancelService', 'Cancel service', BookingRequestStatus::Cancelled),
+                    $this->statusAction('completeService', 'Mark completed', BookingRequestStatus::Completed),
+                ]),
             ]);
+    }
+
+    private function statusAction(
+        string $name,
+        string $label,
+        BookingRequestStatus $status,
+        bool $requiresQuote = false,
+    ): Action {
+        return Action::make($name)
+            ->label($label)
+            ->action(function (BookingRequestService $record) use ($status, $label): void {
+                $record->transitionTo($status);
+
+                Notification::make()
+                    ->title("Service {$label}")
+                    ->success()
+                    ->send();
+            })
+            ->disabled(fn (BookingRequestService $record): bool => ! $record->canTransitionTo($status)
+                || ($requiresQuote && ! $record->hasQuoteDecision()));
+    }
+
+    private function payloadSummary(mixed $payload): string
+    {
+        if ($payload === null || $payload === '' || $payload === []) {
+            return 'Not specified';
+        }
+
+        $summary = is_string($payload)
+            ? $payload
+            : json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return Str::limit($summary ?: 'Not specified', 180);
     }
 }

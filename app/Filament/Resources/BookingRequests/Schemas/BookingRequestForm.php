@@ -37,9 +37,11 @@ class BookingRequestForm
                                 ->options(BookingRequest::serviceOptions())
                                 ->disabled()
                                 ->dehydrated(false),
-                            Select::make('status')
-                                ->options(BookingRequestStatus::options())
-                                ->required(),
+                            TextInput::make('status')
+                                ->label('Request status')
+                                ->formatStateUsing(fn (?string $state): string => BookingRequestStatus::options()[$state] ?? (string) $state)
+                                ->disabled()
+                                ->dehydrated(false),
                             DatePicker::make('requested_date')
                                 ->label('Requested date')
                                 ->disabled()
@@ -57,6 +59,15 @@ class BookingRequestForm
                                 ->disabled()
                                 ->dehydrated(false),
                             TextInput::make('source')->label('Source')->disabled()->dehydrated(false),
+                            Textarea::make('context')
+                                ->label('Submission context')
+                                ->formatStateUsing(fn (?array $state): string => $state === [] || $state === null
+                                    ? 'Not provided'
+                                    : (json_encode($state, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: 'Not provided'))
+                                ->disabled()
+                                ->dehydrated(false)
+                                ->rows(3)
+                                ->columnSpanFull(),
                         ]),
                     ])
                     ->columnSpanFull(),
@@ -74,9 +85,24 @@ class BookingRequestForm
                             ->helperText('Never shown on public pages or in customer messages.')
                             ->columnSpanFull(),
                         Grid::make(2)->schema([
-                            TextInput::make('quote_amount')->label('Quote amount')->numeric()->integer()->minValue(0),
-                            TextInput::make('quote_currency')->label('Currency')->default('NGN')->maxLength(3),
-                            Textarea::make('quote_notes')->label('Quote notes')->rows(3)->columnSpanFull(),
+                            TextInput::make('quote_amount')
+                                ->label('Calculated quote total')
+                                ->numeric()
+                                ->integer()
+                                ->disabled()
+                                ->dehydrated(false)
+                                ->helperText('Calculated from the service quotes below.'),
+                            TextInput::make('quote_currency')
+                                ->label('Quote currency')
+                                ->disabled()
+                                ->dehydrated(false),
+                            Textarea::make('quote_notes')
+                                ->label('Calculated quote notes')
+                                ->rows(3)
+                                ->disabled()
+                                ->dehydrated(false)
+                                ->helperText('Service-level quote notes are the source of truth.')
+                                ->columnSpanFull(),
                         ]),
                     ])
                     ->columnSpanFull(),

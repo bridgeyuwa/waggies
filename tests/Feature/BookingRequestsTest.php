@@ -1062,7 +1062,7 @@ it('returns the user to pet details when a required dog size is missing', functi
         ->assertSet('step', 2);
 });
 
-it('exposes booking requests and pet-size correction controls to staff', function (): void {
+it('exposes read-only booking request facts and service review controls to staff', function (): void {
     config()->set('app.env', 'local');
     $bookingRequest = BookingRequest::factory()->create();
     $service = BookingRequestService::factory()->for($bookingRequest)->create();
@@ -1088,7 +1088,8 @@ it('exposes booking requests and pet-size correction controls to staff', functio
     ])
         ->assertOk()
         ->assertCanSeeTableRecords([$pet])
-        ->assertSee('Dog size');
+        ->assertSee('Dog size')
+        ->assertTableActionDoesNotExist('edit', record: $pet);
 });
 
 it('stops adding pets after the configured eight-pet limit', function (): void {

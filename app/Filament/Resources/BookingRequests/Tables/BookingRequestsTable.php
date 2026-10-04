@@ -23,6 +23,10 @@ class BookingRequestsTable
                     ->label('Service')
                     ->formatStateUsing(fn (?string $state): string => BookingRequest::serviceOptions()[$state] ?? (string) $state)
                     ->sortable(),
+                TextColumn::make('services_count')
+                    ->label('Services')
+                    ->counts('services')
+                    ->sortable(),
                 TextColumn::make('requested_date')
                     ->label('Requested date')
                     ->date()
@@ -37,6 +41,10 @@ class BookingRequestsTable
                         ? BookingRequestStatus::options()[$state->value]
                         : (BookingRequestStatus::options()[$state] ?? (string) $state))
                     ->sortable(),
+                TextColumn::make('quote_amount')
+                    ->label('Quote total')
+                    ->numeric()
+                    ->placeholder('Not quoted'),
                 TextColumn::make('created_at')
                     ->label('Received')
                     ->dateTime()
