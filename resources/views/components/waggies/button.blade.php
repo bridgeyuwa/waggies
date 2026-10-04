@@ -21,7 +21,7 @@
 
     $isDisabled = $disabled || $loading;
     $isLink = $href !== null || $attributes->has('x-bind:href');
-    $hrefAttribute = $href !== null ? 'href="'.e($href).'"' : '';
+    $hrefAttribute = $href !== null ? 'href="'.e(htmlspecialchars_decode($href, ENT_QUOTES)).'"' : '';
 @endphp
 
 @if($isLink)

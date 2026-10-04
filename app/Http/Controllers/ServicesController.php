@@ -19,12 +19,26 @@ final class ServicesController extends Controller
             'navSection' => 'services',
             'hero' => ['imageSrc' => '/media/services/hero.jpg', 'imageAlt' => 'Dog outdoors', 'eyebrow' => 'Everything Your Pet Needs', 'title' => 'Pet Care Services,<br/>All Under One Roof', 'description' => 'From overnight boarding to veterinary care and international relocation - Waggies handles each request through a clear review process.', 'actions' => [['label' => 'View Our Services', 'url' => route('services.index').'#services']]],
             'cards' => [
-                ['title' => 'Boarding', 'description' => 'Overnight stays for dogs and cats, priced per pet per night and reviewed before confirmation.', 'href' => route('services.boarding'), 'imageSrc' => '/media/services/boarding/card-dogs.jpg', 'imageAlt' => 'Boarding', 'icon' => 'boarding'],
-                ['title' => 'Veterinary Care', 'description' => 'Wellness consultations, comprehensive examinations, vaccination requests, and microchipping.', 'href' => route('services.vet-care'), 'imageSrc' => '/media/services/vet-care/hero.jpg', 'imageAlt' => 'Veterinarian with dog', 'icon' => 'veterinary-care'],
-                ['title' => 'Pet Relocation', 'description' => 'Custom-quoted import and export coordination for dogs and cats.', 'href' => route('services.relocation'), 'imageSrc' => '/media/services/relocation/hero.jpg', 'imageAlt' => 'Pet travel', 'icon' => 'airport-departure'],
+                ['title' => 'Boarding', 'description' => 'Overnight stays for dogs and cats, priced per pet per night and reviewed before confirmation.', 'route' => 'services.boarding', 'imageSrc' => '/media/services/boarding/card-dogs.jpg', 'imageAlt' => 'Boarding', 'icon' => 'boarding'],
+                ['title' => 'Veterinary Care', 'description' => 'Wellness consultations, comprehensive examinations, vaccination requests, and microchipping.', 'route' => 'services.vet-care', 'imageSrc' => '/media/services/vet-care/hero.jpg', 'imageAlt' => 'Veterinarian with dog', 'icon' => 'veterinary-care'],
+                ['title' => 'Pet Relocation', 'description' => 'Custom-quoted import and export coordination for dogs and cats.', 'route' => 'services.relocation', 'imageSrc' => '/media/services/relocation/hero.jpg', 'imageAlt' => 'Pet travel', 'icon' => 'airport-departure'],
             ],
-            'stats' => [['icon' => 'veterinary-care', 'title' => 'Veterinary Care', 'subtitle' => 'Health-first handling'], ['icon' => 'boarding', 'title' => 'Individual Enclosures', 'subtitle' => 'One enclosure per pet'], ['icon' => 'airport-departure', 'title' => 'Import & Export', 'subtitle' => 'Custom relocation review'], ['icon' => 'verified', 'title' => 'Manual Confirmation', 'subtitle' => 'Clear next steps']],
-            'standards' => [['title' => 'Clear Request Process', 'desc' => 'We review each service and pet detail before confirmation.'], ['title' => 'Routine Boarding Care', 'desc' => 'Water, owner-supplied food, cleaning, and basic welfare checks.'], ['title' => 'Manual Final Pricing', 'desc' => 'Indicative figures never replace the staff-entered quotation.']],
+            'band' => [
+                'eyebrow' => 'The Waggies Standard',
+                'title' => 'Why Our Care System<br/><span class="text-secondary italic">Works So Well</span>',
+                'subtitle' => 'Every pet is handled through structured care protocols designed to ensure safety, comfort, and emotional wellbeing.',
+                'stats' => [
+                    ['icon' => 'veterinary-care', 'title' => 'Veterinary Care', 'subtitle' => 'Health-first handling'],
+                    ['icon' => 'boarding', 'title' => 'Individual Enclosures', 'subtitle' => 'One enclosure per pet'],
+                    ['icon' => 'airport-departure', 'title' => 'Import & Export', 'subtitle' => 'Custom relocation review'],
+                    ['icon' => 'verified', 'title' => 'Manual Confirmation', 'subtitle' => 'Clear next steps'],
+                ],
+                'features' => [
+                    ['icon' => 'process', 'title' => 'Clear Request Process', 'description' => 'We review each service and pet detail before confirmation.'],
+                    ['icon' => 'boarding', 'title' => 'Routine Boarding Care', 'description' => 'Water, owner-supplied food, cleaning, and basic welfare checks.'],
+                    ['icon' => 'verified', 'title' => 'Manual Final Pricing', 'description' => 'Indicative figures never replace the staff-entered quotation.'],
+                ],
+            ],
             'comparisonServices' => $comparison['services'], 'comparisonFeatures' => $comparison['features'],
             'faqs' => $this->serviceIndexFaqs(),
         ]);
@@ -128,7 +142,7 @@ final class ServicesController extends Controller
                 'cards' => [
                     0 => [
                         'title' => 'Dog Boarding',
-                        'description' => 'Individual enclosures, owner-supplied food and feeding instructions, routine cleaning, and basic welfare checks.',
+                        'description' => 'Individual enclosures, owner-supplied food, routine cleaning, and welfare checks.',
                         'route' => 'services.boarding.species',
                         'params' => [
                             'species' => 'dogs',
@@ -139,7 +153,7 @@ final class ServicesController extends Controller
                     ],
                     1 => [
                         'title' => 'Cat Boarding',
-                        'description' => 'Calm individual enclosures for cats, with owner-supplied food, routine cleaning, water, and basic welfare checks.',
+                        'description' => 'Calm individual enclosures, owner-supplied food, routine cleaning, water, and welfare checks.',
                         'route' => 'services.boarding.species',
                         'params' => [
                             'species' => 'cats',
@@ -175,6 +189,7 @@ final class ServicesController extends Controller
                                 'route' => 'book',
                                 'params' => [
                                     'service' => 'boarding',
+                                    'pet_type' => 'dog',
                                 ],
                                 'icon' => 'arrow-forward',
                             ],
@@ -317,6 +332,7 @@ final class ServicesController extends Controller
                         'primaryRoute' => 'book',
                         'primaryParams' => [
                             'service' => 'boarding',
+                            'pet_type' => 'dog',
                         ],
                     ],
                 ],
@@ -336,6 +352,7 @@ final class ServicesController extends Controller
                                 'route' => 'book',
                                 'params' => [
                                     'service' => 'boarding',
+                                    'pet_type' => 'cat',
                                 ],
                                 'icon' => 'arrow-forward',
                             ],
@@ -492,6 +509,7 @@ final class ServicesController extends Controller
                         'primaryRoute' => 'book',
                         'primaryParams' => [
                             'service' => 'boarding',
+                            'pet_type' => 'cat',
                         ],
                     ],
                 ],
@@ -658,10 +676,10 @@ final class ServicesController extends Controller
 
         if ($service === 'vet-care') {
             $page['packages'] = [
-                ['name' => 'Wellness consultation', 'duration' => 'Request an appointment', 'price' => '₦12,000', 'features' => ['Wellness consultation', 'Clinical review before confirmation']],
-                ['name' => 'Comprehensive examination', 'duration' => 'Request an appointment', 'price' => '₦18,000', 'features' => ['Comprehensive examination', 'Clinical review before confirmation']],
-                ['name' => 'Vaccination request', 'duration' => 'Request-only service', 'price' => 'Request review', 'features' => ['Appropriate vaccine selected during review', 'Assessment, administration, and records confirmed by the veterinary team']],
-                ['name' => 'Microchip implantation', 'duration' => 'Identification service', 'price' => 'Request review', 'features' => ['Standalone microchipping available', 'Existing chips are scanned and recorded rather than duplicated']],
+                ['name' => 'Wellness consultation', 'duration' => 'Request an appointment', 'price' => '₦12,000', 'bookingParams' => ['care_need' => 'wellness-consultation'], 'features' => ['Wellness consultation', 'Clinical review before confirmation']],
+                ['name' => 'Comprehensive examination', 'duration' => 'Request an appointment', 'price' => '₦18,000', 'bookingParams' => ['care_need' => 'comprehensive-examination'], 'features' => ['Comprehensive examination', 'Clinical review before confirmation']],
+                ['name' => 'Vaccination request', 'duration' => 'Request-only service', 'price' => 'Request review', 'bookingParams' => ['care_need' => 'vaccination-request'], 'features' => ['Appropriate vaccine selected during review', 'Assessment, administration, and records confirmed by the veterinary team']],
+                ['name' => 'Microchip implantation', 'duration' => 'Identification service', 'price' => 'Request review', 'bookingParams' => ['care_need' => 'microchip'], 'features' => ['Standalone microchipping available', 'Existing chips are scanned and recorded rather than duplicated']],
             ];
         }
 

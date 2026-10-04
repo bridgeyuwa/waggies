@@ -20,6 +20,15 @@ final class WaggiesPrimitiveComponentsTest extends TestCase
         $button->assertDontSee('<a ', false);
     }
 
+    public function test_button_escapes_query_string_urls_once(): void
+    {
+        $url = route('book', ['service' => 'relocation', 'direction' => 'import']);
+        $view = $this->blade('<x-waggies.button :href="$url">Request</x-waggies.button>', ['url' => $url]);
+
+        $view->assertSee('service=relocation&amp;direction=import', false);
+        $view->assertDontSee('amp;amp', false);
+    }
+
     public function test_form_primitives_associate_labels_help_text_and_errors(): void
     {
         $view = $this->blade('<x-waggies.input id="email" name="email" label="Email address" help="We will only use this to reply." error="Enter a valid email address." required />');

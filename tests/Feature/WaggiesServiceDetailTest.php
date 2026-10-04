@@ -18,7 +18,9 @@ test('active service pages keep the existing public service composition', functi
         ->assertSeeText('Wellness consultation')
         ->assertSeeText('Comprehensive examination')
         ->assertSeeText('Vaccination request')
-        ->assertSeeText('Microchip implantation');
+        ->assertSeeText('Microchip implantation')
+        ->assertSee('care_need=vaccination-request', false)
+        ->assertSee('care_need=microchip', false);
 });
 
 test('cat boarding page shows the fixed nightly rate', function () {

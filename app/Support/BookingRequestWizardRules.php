@@ -251,7 +251,13 @@ final class BookingRequestWizardRules
         }
 
         foreach ($services as $service) {
-            foreach ($service['assigned_pet_ids'] ?? [] as $petIndex) {
+            $assignedPetIds = $service['assigned_pet_ids'] ?? [];
+
+            if (! is_array($assignedPetIds)) {
+                continue;
+            }
+
+            foreach ($assignedPetIds as $petIndex) {
                 $petIndex = (int) $petIndex;
 
                 if (! isset($pets[$petIndex])) {

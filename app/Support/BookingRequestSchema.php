@@ -199,7 +199,7 @@ final class BookingRequestSchema
                 'no' => 'No chip is currently recorded',
                 'unknown' => 'I am not sure',
             ], true),
-            self::selectField('documentation_status', 'Documentation status', [
+            self::selectField('documentation_status', 'Relocation document readiness', [
                 'ready' => 'Most documents are ready',
                 'in-progress' => 'Documents are in progress',
                 'not-sure' => 'I need help understanding the requirements',

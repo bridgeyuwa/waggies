@@ -1,8 +1,8 @@
                     @if($step === 1)
-                        <fieldset class="flex flex-col gap-5">
-                            <legend class="text-sm font-semibold text-primary-dark">Which services do you need?</legend>
-                            <p id="booking-services-help" class="-mt-2 text-sm leading-relaxed text-primary-dark/65">Select all the care your pet needs. We will ask a few follow-up questions for each service.</p>
-                            <div class="grid gap-3 sm:grid-cols-2" aria-describedby="booking-services-help">
+                        <fieldset class="flex flex-col">
+                            <legend class="text-sm font-semibold text-primary-dark">Which services do you need? <span class="ml-1 text-xs font-semibold text-error">Required</span></legend>
+                            <p id="booking-services-help" class="mt-2 text-sm leading-relaxed text-primary-dark/65">Select all the care your pet needs. We will ask a few follow-up questions for each service.</p>
+                            <div class="mt-6 grid gap-3 sm:grid-cols-2" aria-describedby="booking-services-help">
                                 @foreach($this->serviceOptions() as $serviceKey => $serviceLabel)
                                     @php $available = $this->serviceAvailable($serviceKey); @endphp
                                     <label wire:key="booking-service-choice-{{ $serviceKey }}" class="group flex min-h-16 items-center justify-between gap-3 rounded-xl border p-4 text-left transition-colors {{ $this->serviceSelected($serviceKey) ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : 'cursor-pointer' }}">
@@ -18,14 +18,14 @@
                                 @endforeach
                             </div>
                             @if($this->selectedServiceCount() === 0)
-                                <p class="rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose at least one service to continue.</p>
+                                <p class="mt-4 rounded-xl bg-surface-purple/55 p-4 text-sm leading-relaxed text-primary-dark/65">Choose at least one service to continue.</p>
                             @else
-                                <p class="text-sm font-semibold text-primary-dark/60" role="status">{{ $this->selectedServiceCount() }} service{{ $this->selectedServiceCount() === 1 ? '' : 's' }} selected. Configure each one below.</p>
+                                <p class="mt-4 text-sm font-semibold text-primary-dark/60" role="status">{{ $this->selectedServiceCount() }} service{{ $this->selectedServiceCount() === 1 ? '' : 's' }} selected. Configure each one below.</p>
                             @endif
 
                             @foreach($services as $index => $service)
                                 @if($service['service_key'])
-                                <div wire:key="booking-service-{{ $index }}" class="rounded-2xl border border-primary/15 bg-white p-5 shadow-sm sm:p-6">
+                                <div wire:key="booking-service-{{ $index }}" class="mt-6 rounded-2xl border border-primary/15 bg-white p-5 shadow-sm sm:p-6">
                                     <div class="flex items-start justify-between gap-4">
                                         <div>
                                             <p class="text-eyebrow text-primary-dark/50">SERVICE {{ $index + 1 }} OF {{ $this->selectedServiceCount() }}</p>
@@ -60,7 +60,7 @@
                                                 </div>
                                                 <div class="mt-5">
                                                     <fieldset id="booking-service-{{ $index }}-care-needs" aria-describedby="booking-service-{{ $index }}-care-needs-help" tabindex="-1" class="rounded-2xl border border-primary/15 bg-surface-purple/30 p-4 {{ $errors->has('services.'.$index.'.details.care_needs') || $errors->has('services.'.$index.'.details.care_needs.*') ? 'border-danger/60 ring-2 ring-danger/15' : '' }}">
-                                                        <legend class="px-1 text-sm font-semibold text-primary-dark">What does your pet need help with? <span class="text-danger" aria-hidden="true">*</span></legend>
+                                                        <legend class="px-1 text-sm font-semibold text-primary-dark">What does your pet need help with? <span class="ml-1 text-xs font-semibold text-error">Required</span></legend>
                                                         <div class="mt-3 grid gap-3 sm:grid-cols-2">
                                                             @foreach($variantOptions as $key => $label)
                                                                 @php $available = $this->variantAvailable($service['service_key'], $key); @endphp
@@ -87,7 +87,7 @@
                                                 </div>
                                                 <div class="mt-5">
                                                     <fieldset id="booking-service-{{ $index }}-variant" tabindex="-1" class="rounded-2xl border border-primary/15 bg-surface-purple/30 p-4 {{ $errors->has('services.'.$index.'.service_variant') ? 'border-danger/60 ring-2 ring-danger/15' : '' }}">
-                                                        <legend class="px-1 text-sm font-semibold text-primary-dark">{{ $this->serviceVariantQuestion($service['service_key']) }} <span class="text-danger" aria-hidden="true">*</span></legend>
+                                                    <legend class="px-1 text-sm font-semibold text-primary-dark">{{ $this->serviceVariantQuestion($service['service_key']) }} <span class="ml-1 text-xs font-semibold text-error">Required</span></legend>
                                                         <div class="mt-3 flex flex-wrap gap-3">
                                                             @foreach($variantOptions as $key => $label)
                                                                 @php $available = $this->variantAvailable($service['service_key'], $key); @endphp

@@ -17,7 +17,7 @@
     <div {{ $attributes->class(['flex flex-col gap-1.5']) }}>
         @if($label)
             <label for="{{ $id }}" class="text-sm font-medium text-primary-dark">
-                {{ $label }}@if($required) <span class="text-primary" aria-hidden="true">*</span>@endif
+                {{ $label }}@if($required) <span class="ml-1 text-xs font-semibold text-error">Required</span>@endif
             </label>
         @endif
 

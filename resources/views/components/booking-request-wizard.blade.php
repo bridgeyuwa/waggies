@@ -19,11 +19,18 @@ new class extends Component
 
     public bool $submitted = false;
 
+    public bool $showValidationSummary = false;
+
     public string $submissionToken = '';
 
     public string $minimumDate = '';
 
     public string $draftContextKey = '';
+
+    public ?string $contextNotice = null;
+
+    /** @var array<string, mixed> */
+    public array $initialContext = [];
 
     public ?string $source = null;
 
@@ -48,25 +55,282 @@ new class extends Component
         'preferred_contact_method' => null,
     ];
 
+    /** @var list<string> */
+    public array $touchedFields = [];
+
     /**
-     * @param  array{service?: ?string, variant?: ?string, source?: ?string, whatsappUrl?: string}  $initialContext
+     * @param  array{service?: ?string, variant?: ?string, pet_type?: ?string, pet_size?: ?string, care_needs?: list<string>, source?: ?string, whatsappUrl?: string, notice?: ?string}  $initialContext
      */
     public function mount(array $initialContext = []): void
+    {
+        $this->initialContext = $initialContext;
+        $this->initialiseFromContext($initialContext);
+    }
+
+    /**
+     * Restore a draft after the browser has confirmed that it belongs to this booking context.
+     * The restored values remain subject to the normal step and submit validation rules.
+     *
+     * @param  array<string, mixed>  $draft
+     */
+    public function restoreDraft(array $draft): void
+    {
+        if (($draft['contextKey'] ?? null) !== $this->draftContextKey) {
+            return;
+        }
+
+        $services = $this->sanitisedDraftServices($draft['services'] ?? null);
+        $pets = $this->sanitisedDraftPets($draft['pets'] ?? null);
+        $contact = $this->sanitisedDraftContact($draft['contact'] ?? null);
+
+        if ($services === [] || $pets === []) {
+            return;
+        }
+
+        $this->services = $services;
+        $this->pets = $pets;
+        $this->contact = $contact;
+        $this->step = max(1, min(5, (int) ($draft['step'] ?? 1)));
+        $this->submissionToken = is_string($draft['submissionToken'] ?? null) && filled($draft['submissionToken'])
+            ? $draft['submissionToken']
+            : (string) Str::uuid();
+        $this->submitted = false;
+        $this->showValidationSummary = false;
+        $this->touchedFields = [];
+        $this->resetValidation();
+        $this->dispatch('booking-wizard-step-changed', step: $this->step);
+        $this->dispatch('booking-wizard-draft-restored');
+    }
+
+    public function resetDraft(): void
+    {
+        $this->initialiseFromContext($this->initialContext);
+        $this->resetWizardValidation();
+        $this->dispatch('booking-wizard-draft-reset');
+    }
+
+    public function clearBooking(): void
+    {
+        $builder = app(BookingRequestBuilder::class);
+
+        $this->services = [$builder->newService(null, null)];
+        $this->pets = [$builder->newPet()];
+        $this->contact = [
+            'name' => null,
+            'email' => null,
+            'phone' => null,
+            'phone_country' => 'NG',
+            'phone_number' => null,
+            'phone_other_country_code' => null,
+            'preferred_contact_method' => null,
+        ];
+        $this->step = 1;
+        $this->submissionToken = (string) Str::uuid();
+        $this->submitted = false;
+        $this->resetWizardValidation();
+        $this->dispatch('booking-wizard-step-changed', step: 1);
+        $this->dispatch('booking-wizard-draft-reset');
+    }
+
+    /**
+     * @param  array<string, mixed>  $initialContext
+     */
+    private function initialiseFromContext(array $initialContext): void
     {
         $serviceOptions = BookingRequestSchema::allServiceOptions();
         $service = $initialContext['service'] ?? null;
         $service = is_string($service) && array_key_exists($service, $serviceOptions) ? $service : null;
+        $catalog = app(BookingPricingCatalog::class);
+        $selectionMode = $catalog->selectionMode($service);
         $variantOptions = BookingRequestSchema::variantOptions($service);
         $variant = $initialContext['variant'] ?? null;
         $variant = is_string($variant) && array_key_exists($variant, $variantOptions) ? $variant : null;
+        $petType = is_string($initialContext['pet_type'] ?? null) ? $initialContext['pet_type'] : null;
+        $petSize = is_string($initialContext['pet_size'] ?? null) ? $initialContext['pet_size'] : null;
+        $careNeeds = $catalog->careNeeds($initialContext['care_needs'] ?? []);
+
+        if ($petType !== null && ! $catalog->isPetCompatible($service ?? '', $variant, $petType)) {
+            $petType = null;
+        }
+
+        if ($petSize !== null && ($petType === 'cat' || ! array_key_exists($petSize, $catalog->sizeOptions('boarding', 'dogs')))) {
+            $petSize = null;
+        }
+
+        if ($selectionMode === 'multiple') {
+            if ($careNeeds === [] && $variant !== null) {
+                $careNeeds = [$variant];
+            }
+
+            $variant = null;
+        }
+
+        if ($selectionMode !== 'single') {
+            $variant = null;
+        }
+
+        $normalisedContext = array_filter([
+            'service' => $service,
+            'variant' => $variant,
+            'pet_type' => $petType,
+            'pet_size' => $petSize,
+            'care_needs' => $careNeeds,
+            'source' => is_string($initialContext['source'] ?? null) ? $initialContext['source'] : null,
+            'whatsappUrl' => is_string($initialContext['whatsappUrl'] ?? null) ? $initialContext['whatsappUrl'] : '#',
+            'notice' => is_string($initialContext['notice'] ?? null) ? $initialContext['notice'] : null,
+        ], static fn (mixed $value): bool => $value !== null && $value !== []);
+
         $this->minimumDate = now()->toDateString();
         $this->submissionToken = (string) Str::uuid();
-        $this->draftContextKey = implode('|', [$service ?? '', $variant ?? '', $initialContext['source'] ?? '']);
-        $this->source = $initialContext['source'] ?? null;
-        $this->whatsappUrl = $initialContext['whatsappUrl'] ?? '#';
+        $this->draftContextKey = implode('|', [
+            $service ?? '',
+            $variant ?? '',
+            $petType ?? '',
+            $petSize ?? '',
+            implode(',', $careNeeds),
+            $normalisedContext['source'] ?? '',
+        ]);
+        $this->contextNotice = $normalisedContext['notice'] ?? null;
+        $this->source = $normalisedContext['source'] ?? null;
+        $this->whatsappUrl = $normalisedContext['whatsappUrl'] ?? '#';
         $builder = app(BookingRequestBuilder::class);
-        $this->services = [$builder->newService($service, $variant)];
+        $this->services = [$builder->newService($service, $selectionMode === 'multiple' ? ($careNeeds[0] ?? null) : $variant)];
         $this->pets = [$builder->newPet()];
+
+        if ($petType !== null) {
+            $this->pets[0]['species'] = $petType;
+        }
+
+        if ($petSize !== null) {
+            $this->pets[0]['size'] = $petSize;
+        }
+
+        if ($careNeeds !== []) {
+            $this->services[0]['details']['care_needs'] = $careNeeds;
+            $this->services[0]['service_variant'] = null;
+        }
+
+        $hasCompleteSelection = $service !== null && match ($selectionMode) {
+            'pet_types' => $petType !== null,
+            'multiple' => $careNeeds !== [],
+            'single' => $variant !== null,
+            default => false,
+        };
+
+        $this->step = $hasCompleteSelection ? 2 : 1;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function sanitisedDraftServices(mixed $services): array
+    {
+        if (! is_array($services)) {
+            return [];
+        }
+
+        $builder = app(BookingRequestBuilder::class);
+        $serviceOptions = BookingRequestSchema::allServiceOptions();
+
+        return collect(array_slice(array_values($services), 0, $this->maxServiceItems()))
+            ->filter(static fn (mixed $service): bool => is_array($service))
+            ->map(function (array $service) use ($builder, $serviceOptions): array {
+                $serviceKey = is_string($service['service_key'] ?? null) && array_key_exists($service['service_key'], $serviceOptions)
+                    ? $service['service_key']
+                    : null;
+                $variantOptions = BookingRequestSchema::variantOptions($serviceKey);
+                $variant = is_string($service['service_variant'] ?? null) && array_key_exists($service['service_variant'], $variantOptions)
+                    ? $service['service_variant']
+                    : null;
+                $selectionMode = BookingRequestSchema::serviceSelectionMode($serviceKey);
+                $restored = $builder->newService($serviceKey, $selectionMode === 'single' ? $variant : null);
+
+                foreach (['requested_date', 'requested_end_date', 'requested_time', 'location'] as $field) {
+                    if (array_key_exists($field, $service) && (is_string($service[$field]) || $service[$field] === null)) {
+                        $restored[$field] = $service[$field];
+                    }
+                }
+
+                $restored['assigned_pet_ids'] = collect(is_array($service['assigned_pet_ids'] ?? null) ? $service['assigned_pet_ids'] : [])
+                    ->filter(static fn (mixed $index): bool => is_int($index) || (is_string($index) && ctype_digit($index)))
+                    ->map(static fn (int|string $index): int => (int) $index)
+                    ->filter(static fn (int $index): bool => $index >= 0 && $index < 8)
+                    ->unique()
+                    ->values()
+                    ->all();
+                $restored['details'] = is_array($service['details'] ?? null) ? array_slice($service['details'], 0, 40, true) : [];
+
+                if ($selectionMode === 'multiple') {
+                    $restored['details']['care_needs'] = app(BookingPricingCatalog::class)->careNeeds($restored['details']['care_needs'] ?? []);
+                }
+
+                if ($serviceKey === 'relocation') {
+                    $restored['details'] = BookingRequestSchema::relocationDetails($variant, $restored['details']);
+                }
+
+                return $restored;
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function sanitisedDraftPets(mixed $pets): array
+    {
+        if (! is_array($pets)) {
+            return [];
+        }
+
+        $fields = ['name', 'species', 'size', 'breed', 'age', 'sex', 'notes'];
+        $builder = app(BookingRequestBuilder::class);
+
+        return collect(array_slice(array_values($pets), 0, 8))
+            ->filter(static fn (mixed $pet): bool => is_array($pet))
+            ->map(function (array $pet) use ($builder, $fields): array {
+                $restored = $builder->newPet();
+
+                foreach ($fields as $field) {
+                    if (array_key_exists($field, $pet) && (is_string($pet[$field]) || $pet[$field] === null)) {
+                        $restored[$field] = $pet[$field];
+                    }
+                }
+
+                $restored['details'] = is_array($pet['details'] ?? null) ? array_slice($pet['details'], 0, 20, true) : [];
+
+                return $restored;
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    private function sanitisedDraftContact(mixed $contact): array
+    {
+        $restored = [
+            'name' => null,
+            'email' => null,
+            'phone' => null,
+            'phone_country' => 'NG',
+            'phone_number' => null,
+            'phone_other_country_code' => null,
+            'preferred_contact_method' => null,
+        ];
+
+        if (! is_array($contact)) {
+            return $restored;
+        }
+
+        foreach (array_keys($restored) as $field) {
+            if (array_key_exists($field, $contact) && (is_string($contact[$field]) || $contact[$field] === null)) {
+                $restored[$field] = $contact[$field];
+            }
+        }
+
+        return $restored;
     }
 
     public function serviceChanged(int $index, ?string $service): void
@@ -79,13 +343,13 @@ new class extends Component
 
         if ($service === null || ! array_key_exists($service, $serviceOptions)) {
             $this->services = app(BookingRequestBuilder::class)->changeService($this->services, $index, null);
-            $this->resetValidation();
+            $this->resetWizardValidation();
 
             return;
         }
 
         $this->services = app(BookingRequestBuilder::class)->changeService($this->services, $index, $service);
-        $this->resetValidation();
+        $this->resetWizardValidation();
     }
 
     public function toggleService(string $service): void
@@ -107,7 +371,7 @@ new class extends Component
             }
 
             $this->dispatch('booking-wizard-announcement', message: $this->serviceLabel($service).' removed from your request.');
-            $this->resetValidation();
+            $this->resetWizardValidation();
 
             return;
         }
@@ -129,7 +393,7 @@ new class extends Component
         }
 
         $this->dispatch('booking-wizard-announcement', message: $this->serviceLabel($service).' added to your request.');
-        $this->resetValidation();
+        $this->resetWizardValidation();
     }
 
     public function updatedStep(int|string $step): void
@@ -139,9 +403,29 @@ new class extends Component
 
     public function updated(string $property): void
     {
+        if ($this->requestHasBlurAction() && $this->isBlurValidatedProperty($property)) {
+            return;
+        }
+
+        if ($this->shouldIgnoreBatchedUntouchedEmptyProperty($property)) {
+            return;
+        }
+
+        $this->rememberTouchedField($property);
+
         if ($property === 'contact.phone' && ! filled($this->contact['phone_number'] ?? null)) {
             $this->contact['phone_country'] = PhoneNumber::defaultCountryCode();
             $this->contact['phone_number'] = $this->contact['phone'];
+        }
+
+        if (Str::is('services.*.assigned_pet_ids', $property)) {
+            $parts = explode('.', $property);
+            $this->normaliseAssignedPetCheckboxValue((int) ($parts[1] ?? 0));
+        }
+
+        if (Str::is('services.*.details.care_needs', $property)) {
+            $parts = explode('.', $property);
+            $this->normaliseCareNeedCheckboxValue((int) ($parts[1] ?? 0));
         }
 
         if (Str::is('services.*.service_variant', $property)) {
@@ -164,13 +448,211 @@ new class extends Component
         }
 
         $rules = app(BookingRequestWizardRules::class)->all($this->services, $this->pets, $this->contact);
-        $ruleKey = collect(array_keys($rules))->first(static fn (string $key): bool => $key === $property || Str::is($key, $property));
+        $this->validateChangedProperties($property, $rules);
+    }
 
-        if ($ruleKey === null) {
+    private function requestHasBlurAction(): bool
+    {
+        foreach (request()->input('components', []) as $component) {
+            foreach ($component['calls'] ?? [] as $call) {
+                if (($call['method'] ?? null) === 'fieldBlurred') {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private function shouldIgnoreBatchedUntouchedEmptyProperty(string $property): bool
+    {
+        if (! $this->requestHasBlurAction()
+            || $this->isBlurValidatedProperty($property)
+            || in_array($property, $this->touchedFields, true)
+            || $this->getErrorBag()->has($property)) {
+            return false;
+        }
+
+        $value = data_get([
+            'services' => $this->services,
+            'pets' => $this->pets,
+            'contact' => $this->contact,
+        ], $property);
+
+        return blank($value);
+    }
+
+    public function fieldBlurred(string $property): void
+    {
+        if (! $this->isBlurValidatedProperty($property)) {
             return;
         }
 
-        $this->validateOnly($property, $rules);
+        $this->rememberTouchedField($property);
+
+        $rules = app(BookingRequestWizardRules::class)->all($this->services, $this->pets, $this->contact);
+        $this->validateChangedProperties($property, $rules);
+    }
+
+    private function isBlurValidatedProperty(string $property): bool
+    {
+        if (Str::is([
+            'pets.*.name',
+            'pets.*.breed',
+            'pets.*.notes',
+            'contact.name',
+            'contact.email',
+            'contact.phone_number',
+            'contact.phone_other_country_code',
+        ], $property)) {
+            return true;
+        }
+
+        if (! Str::is('services.*.details.*', $property)) {
+            return false;
+        }
+
+        $parts = explode('.', $property);
+        $service = $this->services[(int) ($parts[1] ?? 0)] ?? null;
+        $fieldKey = $parts[3] ?? null;
+
+        if (! is_array($service) || ! is_string($fieldKey)) {
+            return false;
+        }
+
+        foreach ($this->serviceFields($service) as $field) {
+            if (($field['key'] ?? null) === $fieldKey) {
+                return in_array($field['type'] ?? null, ['text', 'textarea'], true);
+            }
+        }
+
+        return false;
+    }
+
+    private function rememberTouchedField(string $property): void
+    {
+        if (in_array($property, $this->touchedFields, true)) {
+            return;
+        }
+
+        $this->touchedFields[] = $property;
+    }
+
+    /**
+     * @param  array<string, array<int, mixed>>  $rules
+     */
+    private function validateChangedProperties(string $property, array $rules): void
+    {
+        $keys = $this->validationKeysForProperty($property);
+        $errorKeys = array_keys($this->getErrorBag()->getMessages());
+
+        foreach ($keys as $key) {
+            $ruleKey = $this->validationRuleKey($key, $rules);
+
+            if ($ruleKey === null) {
+                $this->resetValidation($key);
+
+                continue;
+            }
+
+            $shouldValidate = $key === $property
+                || in_array($key, $this->touchedFields, true)
+                || in_array($key, $errorKeys, true);
+
+            if (! $shouldValidate) {
+                continue;
+            }
+
+            $this->resetValidation($key);
+
+            try {
+                $this->validateOnly($key, $rules);
+            } catch (ValidationException $exception) {
+                foreach ($exception->errors() as $errorKey => $messages) {
+                    if ($errorKey !== $key && ! Str::is($ruleKey, $errorKey)) {
+                        continue;
+                    }
+
+                    foreach ($messages as $message) {
+                        $this->addError($errorKey, $message);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function validationKeysForProperty(string $property): array
+    {
+        $keys = [$property];
+
+        foreach (array_keys($this->getErrorBag()->getMessages()) as $errorKey) {
+            if (Str::is("{$property}.*", $errorKey)) {
+                $keys[] = $errorKey;
+            }
+        }
+
+        $add = static function (array &$keys, string $key): void {
+            if (! in_array($key, $keys, true)) {
+                $keys[] = $key;
+            }
+        };
+
+        if (in_array($property, ['contact.phone', 'contact.phone_country'], true)) {
+            $add($keys, 'contact.phone_number');
+            $add($keys, 'contact.phone_other_country_code');
+        }
+
+        if (Str::is('services.*.details.travel_timing', $property)) {
+            $index = explode('.', $property)[1] ?? '0';
+            $add($keys, "services.{$index}.requested_date");
+            $add($keys, "services.{$index}.requested_end_date");
+        }
+
+        if (Str::is('services.*.details.check_in', $property)) {
+            $index = explode('.', $property)[1] ?? '0';
+            $add($keys, "services.{$index}.details.check_out");
+        }
+
+        if (Str::is('services.*.requested_date', $property)) {
+            $index = explode('.', $property)[1] ?? '0';
+            $add($keys, "services.{$index}.requested_end_date");
+        }
+
+        if (Str::is('pets.*.species', $property) || Str::is('services.*.assigned_pet_ids', $property)) {
+            foreach ([...$this->touchedFields, ...array_keys($this->getErrorBag()->getMessages())] as $candidate) {
+                if (Str::is('pets.*.size', $candidate)
+                    || Str::is('pets.*.breed', $candidate)
+                    || Str::is('pets.*.age', $candidate)) {
+                    $add($keys, $candidate);
+                }
+            }
+        }
+
+        return $keys;
+    }
+
+    /**
+     * @param  array<string, array<int, mixed>>  $rules
+     */
+    private function validationRuleKey(string $property, array $rules): ?string
+    {
+        foreach (array_keys($rules) as $ruleKey) {
+            if ($ruleKey === $property || Str::is($ruleKey, $property)) {
+                return $ruleKey;
+            }
+        }
+
+        return null;
+    }
+
+    private function resetWizardValidation(): void
+    {
+        $this->resetValidation();
+        $this->showValidationSummary = false;
+        $this->touchedFields = [];
     }
 
     public function variantChanged(int $index, ?string $variant): void
@@ -190,7 +672,7 @@ new class extends Component
             $variant,
         );
 
-        $this->resetValidation();
+        $this->resetWizardValidation();
     }
 
     public function addService(): void
@@ -202,7 +684,7 @@ new class extends Component
         }
 
         $this->choosingService = true;
-        $this->resetValidation();
+        $this->resetWizardValidation();
     }
 
     public function chooseAdditionalService(string $service): void
@@ -220,7 +702,7 @@ new class extends Component
             $this->choosingService = false;
             $this->dispatch('booking-wizard-focus-target', target: "booking-service-{$emptyIndex}");
             $this->dispatch('booking-wizard-announcement', message: $this->serviceLabel($service).' added to your request.');
-            $this->resetValidation();
+            $this->resetWizardValidation();
 
             return;
         }
@@ -242,7 +724,7 @@ new class extends Component
         $this->choosingService = false;
         $this->dispatch('booking-wizard-focus-target', target: 'booking-service-'.(count($this->services) - 1));
         $this->dispatch('booking-wizard-announcement', message: $this->serviceLabel($service).' added to your request.');
-        $this->resetValidation();
+        $this->resetWizardValidation();
     }
 
     public function cancelAddService(): void
@@ -258,7 +740,7 @@ new class extends Component
 
         unset($this->services[$index]);
         $this->services = array_values($this->services);
-        $this->resetValidation();
+        $this->resetWizardValidation();
     }
 
     public function serviceSelected(string $service): bool
@@ -301,7 +783,7 @@ new class extends Component
 
         $this->dispatch('booking-wizard-focus-target', target: "booking-pet-{$result['focus_index']}-heading");
         $this->dispatch('booking-wizard-announcement', message: 'Pet removed from this request.');
-        $this->resetValidation();
+        $this->resetWizardValidation();
     }
 
     public function nextStep(): void
@@ -333,6 +815,10 @@ new class extends Component
             $this->revealValidationStep($exception->errors());
 
             throw $exception;
+        }
+
+        if ($this->step === 2) {
+            $this->autoAssignSinglePetToServices();
         }
 
         $this->step++;
@@ -515,6 +1001,12 @@ new class extends Component
             ? $validationErrors
             : $this->getErrorBag()->getMessages());
 
+        $this->showValidationSummary = true;
+        $this->touchedFields = array_values(array_unique([
+            ...$this->touchedFields,
+            ...$errorKeys,
+        ]));
+
         if ($errorKeys !== []) {
             $this->step = min(array_map(
                 fn (string $key): int => $this->stepForErrorKey($key),
@@ -661,6 +1153,92 @@ new class extends Component
         }
 
         return $this->step >= 3 ? 'Ready' : 'Ready to match';
+    }
+
+    private function normaliseAssignedPetCheckboxValue(int $index): void
+    {
+        if (! isset($this->services[$index])) {
+            return;
+        }
+
+        $assignedPetIds = $this->services[$index]['assigned_pet_ids'] ?? null;
+
+        if (is_array($assignedPetIds)) {
+            return;
+        }
+
+        if ($assignedPetIds !== true) {
+            $this->services[$index]['assigned_pet_ids'] = [];
+
+            return;
+        }
+
+        $compatiblePetIndexes = collect($this->pets)
+            ->filter(fn (array $pet): bool => $this->petCompatible($this->services[$index], $pet))
+            ->keys()
+            ->map(static fn (int|string $petIndex): int => (int) $petIndex)
+            ->values()
+            ->all();
+
+        $this->services[$index]['assigned_pet_ids'] = count($compatiblePetIndexes) === 1
+            ? $compatiblePetIndexes
+            : [];
+    }
+
+    private function normaliseCareNeedCheckboxValue(int $index): void
+    {
+        if (! isset($this->services[$index]) || ($this->services[$index]['service_key'] ?? null) !== 'vet-care') {
+            return;
+        }
+
+        $careNeeds = $this->services[$index]['details']['care_needs'] ?? null;
+
+        if (is_array($careNeeds)) {
+            return;
+        }
+
+        if ($careNeeds !== true) {
+            $this->services[$index]['details']['care_needs'] = [];
+
+            return;
+        }
+
+        $availableCareNeeds = array_keys($this->variantOptions('vet-care'));
+        $this->services[$index]['details']['care_needs'] = count($availableCareNeeds) === 1
+            ? [$availableCareNeeds[0]]
+            : [];
+    }
+
+    private function autoAssignSinglePetToServices(): void
+    {
+        if (count($this->pets) !== 1) {
+            return;
+        }
+
+        $petIndex = array_key_first($this->pets);
+        $pet = $petIndex === null ? null : $this->pets[$petIndex];
+
+        if ($petIndex === null || ! is_array($pet)) {
+            return;
+        }
+
+        foreach ($this->services as $index => $service) {
+            if (! is_array($service) || blank($service['service_key'] ?? null)) {
+                continue;
+            }
+
+            $assignedPetIds = $service['assigned_pet_ids'] ?? [];
+
+            if (is_array($assignedPetIds) && $assignedPetIds !== []) {
+                continue;
+            }
+
+            if (! $this->petCompatible($service, $pet)) {
+                continue;
+            }
+
+            $this->services[$index]['assigned_pet_ids'] = [(int) $petIndex];
+        }
     }
 
     public function serviceVariantQuestion(?string $service): string
@@ -1094,9 +1672,10 @@ new class extends Component
 };
 ?>
 
-<div data-booking-draft="waggies-booking-request-v2" data-booking-context="{{ $draftContextKey }}" data-booking-draft-label="Booking request">
+<div x-data="waggiesBookingClearDialog" data-booking-draft="waggies-booking-request-v3" data-booking-context="{{ $draftContextKey }}" data-booking-draft-label="Booking request">
     <input type="hidden" wire:model.live="submissionToken" data-booking-draft-model="submissionToken" tabindex="-1" aria-hidden="true">
     <div data-booking-announcement class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <div data-booking-draft-status class="mb-6 empty:hidden" role="status" aria-live="polite" aria-atomic="true"></div>
     @if($submitted)
         <div class="flex flex-col gap-5" role="status" tabindex="-1" data-booking-success>
             <div class="flex h-12 w-12 items-center justify-center rounded-full bg-success-light text-success">
@@ -1114,6 +1693,9 @@ new class extends Component
             </div>
         </div>
     @else
+        @if($contextNotice)
+            <div class="mb-6 rounded-xl border border-secondary/50 bg-secondary/20 p-4 text-sm leading-relaxed text-primary-dark" role="status">{{ $contextNotice }}</div>
+        @endif
         @php
             $stepHeadings = [
                 1 => ['eyebrow' => 'STEP 1 OF 5', 'title' => 'Choose and configure services', 'description' => 'Choose each service you need, then select the options that apply.'],
@@ -1127,11 +1709,15 @@ new class extends Component
 
         <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-12">
             <div class="min-w-0">
-                <div class="mb-7 flex flex-col gap-2">
-                    <p class="text-eyebrow text-primary">{{ $stepHeadings['eyebrow'] }}</p>
-                    <h2 id="booking-form-title" data-booking-step-heading tabindex="-1" class="font-serif text-2xl font-bold text-primary-dark focus:outline-none sm:text-3xl">{{ $stepHeadings['title'] }}</h2>
-                    <p class="max-w-2xl text-sm leading-relaxed text-primary-dark/60">{{ $stepHeadings['description'] }}</p>
-                    <p class="max-w-2xl text-sm font-medium leading-relaxed text-primary-dark/75">This is a request, not a confirmed booking. It does not reserve a slot or confirm an appointment.</p>
+                <div class="mb-9 flex items-start justify-between gap-4">
+                    <div class="min-w-0 flex-1 space-y-3">
+                        <p class="text-eyebrow text-primary">{{ $stepHeadings['eyebrow'] }}</p>
+                        <h2 id="booking-form-title" data-booking-step-heading tabindex="-1" class="font-serif text-2xl font-bold text-primary-dark focus:outline-none sm:text-3xl">{{ $stepHeadings['title'] }}</h2>
+                        <p class="max-w-2xl text-sm leading-relaxed text-primary-dark/60">{{ $stepHeadings['description'] }}</p>
+                        <p class="max-w-2xl text-sm font-medium leading-relaxed text-primary-dark/75">This is a request, not a confirmed booking. It does not reserve a slot or confirm an appointment.</p>
+                        <p class="text-xs leading-relaxed text-primary-dark/55">Fields marked <span class="font-semibold text-error">Required</span> must be completed.</p>
+                    </div>
+                    <x-waggies.button type="button" variant="secondary" size="sm" @click="openDialog()" wire:loading.attr="disabled" wire:target="clearBooking" class="shrink-0 cursor-pointer">Start over</x-waggies.button>
                 </div>
 
                 @if($step > 1)
@@ -1159,7 +1745,7 @@ new class extends Component
 
                 <x-waggies.booking-progress :step="$step" :labels="$progressLabels" />
 
-                @if($this->validationErrorCount() > 0)
+                @if($showValidationSummary && $this->validationErrorCount() > 0)
                     <div id="booking-error-summary" data-booking-error-summary class="mb-6 rounded-xl border border-error/30 bg-error-light p-4 text-sm text-primary-dark" role="alert" tabindex="-1" aria-labelledby="booking-error-summary-heading">
                         <p id="booking-error-summary-heading" class="font-semibold">{{ $this->validationErrorCount() }} {{ $this->validationErrorCount() === 1 ? 'issue needs' : 'issues need' }} your attention.</p>
                         <ul class="mt-2 space-y-1">
@@ -1195,7 +1781,7 @@ new class extends Component
                         <x-waggies.booking-progress :step="$step" :labels="$progressLabels" />
                     </div>
 
-                    @if($this->validationErrorCount() > 0)
+                    @if($showValidationSummary && $this->validationErrorCount() > 0)
                         <div class="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-xl border border-error/30 bg-error-light p-3 shadow-lg lg:hidden" role="status" aria-live="polite">
                             <span class="text-sm font-semibold text-primary-dark">{{ $this->validationErrorCount() }} {{ $this->validationErrorCount() === 1 ? 'issue' : 'issues' }} to fix</span>
                             <a href="#booking-error-summary" class="shrink-0 cursor-pointer rounded-sm text-sm font-bold text-error underline underline-offset-4 transition-colors hover:bg-error-light hover:decoration-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error">Review errors</a>
@@ -1206,10 +1792,10 @@ new class extends Component
                         <p class="max-w-sm text-xs leading-relaxed text-primary-dark/50">Submitting sends a request to Waggies. It does not reserve a slot or confirm an appointment.</p>
                         <div class="flex flex-col-reverse gap-3 sm:flex-row">
                             @if($step > 1)
-                                <x-waggies.button type="button" variant="secondary" wire:click="previousStep" wire:loading.attr="disabled" wire:target="previousStep" class="w-full cursor-pointer sm:w-auto">Back</x-waggies.button>
+                                <x-waggies.button type="button" variant="secondary" wire:click="previousStep" wire:loading.attr="disabled" wire:target="previousStep" class="w-full cursor-pointer sm:w-auto">Back to {{ [2 => 'services', 3 => 'pets', 4 => 'match & details', 5 => 'contact'][$step] ?? 'previous step' }}</x-waggies.button>
                             @endif
                             @if($step < 5)
-                                <x-waggies.button type="button" wire:click="nextStep" wire:loading.attr="disabled" wire:target="nextStep" class="w-full cursor-pointer sm:w-auto">Continue <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
+                                <x-waggies.button type="button" wire:click="nextStep" wire:loading.attr="disabled" wire:target="nextStep" class="w-full cursor-pointer sm:w-auto">{{ [1 => 'Continue to pets', 2 => 'Continue to match & details', 3 => 'Continue to contact', 4 => 'Review request'][$step] ?? 'Continue' }} <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
                             @else
                                 <x-waggies.button type="submit" wire:loading.attr="disabled" wire:target="submit" class="w-full cursor-pointer sm:w-auto">
                                     <span wire:loading.remove wire:target="submit">Submit Booking Request</span>
@@ -1217,7 +1803,8 @@ new class extends Component
                                     <x-waggies.icon name="arrow-forward" size="16" />
                                 </x-waggies.button>
                             @endif
-                        </div>
+    </div>
+
                     </div>
                 </form>
             </div>
@@ -1259,4 +1846,47 @@ new class extends Component
             </aside>
         </div>
     @endif
+
+    <div
+        x-cloak
+        x-show="open"
+        x-transition:enter="transition-opacity duration-[180ms] ease-waggies-out motion-reduce:transition-none"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        class="fixed inset-0 z-layer-lightbox flex items-center justify-center bg-primary-dark/60 p-4 backdrop-blur-[2px] sm:p-6"
+        role="presentation"
+        @click.self="closeDialog()"
+    >
+        <div
+            x-ref="dialog"
+            x-show="open"
+            x-transition:enter="transition-[opacity,transform] duration-[180ms] ease-waggies-out motion-reduce:transition-opacity motion-reduce:duration-[180ms]"
+            x-transition:enter-start="scale-95 opacity-0 motion-reduce:scale-100"
+            x-transition:enter-end="scale-100 opacity-100"
+            class="relative w-full max-w-lg overflow-hidden rounded-2xl border border-primary/10 bg-white p-6 shadow-modal sm:p-8"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="booking-clear-title"
+            aria-describedby="booking-clear-description"
+            :aria-hidden="!open"
+            tabindex="-1"
+            @click.stop
+            @keydown="handleKeydown($event)"
+        >
+            <div class="flex items-start gap-4">
+                <div class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-warning-light text-warning ring-8 ring-warning-light/45" aria-hidden="true">
+                    <x-waggies.icon name="warning" size="22" />
+                </div>
+                <div class="min-w-0">
+                    <h2 id="booking-clear-title" class="font-serif text-2xl font-bold tracking-[-0.02em] text-primary-dark sm:text-3xl">Start over?</h2>
+                    <p id="booking-clear-description" class="mt-2 max-w-md text-sm leading-relaxed text-primary-dark/70">Any information you’ve entered will be cleared, and you’ll return to Step 1.</p>
+                </div>
+            </div>
+
+            <div class="mt-7 flex flex-col-reverse gap-3 border-t border-primary/10 pt-5 sm:flex-row sm:justify-end">
+                <x-waggies.button type="button" variant="secondary" x-ref="cancelButton" @click="closeDialog()" class="w-full cursor-pointer sm:w-auto">Cancel</x-waggies.button>
+                <x-waggies.button type="button" variant="primary" @click="confirmClear()" wire:loading.attr="disabled" wire:target="clearBooking" class="w-full cursor-pointer bg-error! text-white! hover:bg-error! sm:w-auto"><x-waggies.icon name="refresh" size="16" />Start over</x-waggies.button>
+            </div>
+        </div>
+    </div>
 </div>

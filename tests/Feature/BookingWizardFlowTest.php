@@ -142,6 +142,59 @@ it('does not carry stale assignments across service-variant changes', function (
         ->assertSet('services.0.details.destination_country', 'NG');
 });
 
+it('keeps a single compatible pet checkbox assignment as an array', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => 'import'],
+    ])
+        ->set('pets.0.species', 'dog')
+        ->set('services.0.assigned_pet_ids', true)
+        ->assertSet('services.0.assigned_pet_ids', [0]);
+});
+
+dataset('single pet checkbox service modes', [
+    'boarding dogs' => [['service' => 'boarding', 'variant' => 'dogs'], 'dog'],
+    'boarding cats' => [['service' => 'boarding', 'variant' => 'cats'], 'cat'],
+    'veterinary care for dogs' => [['service' => 'vet-care', 'variant' => 'wellness-consultation'], 'dog'],
+    'veterinary care for cats' => [['service' => 'vet-care', 'variant' => 'wellness-consultation'], 'cat'],
+    'relocation import' => [['service' => 'relocation', 'variant' => 'import'], 'dog'],
+    'relocation export' => [['service' => 'relocation', 'variant' => 'export'], 'cat'],
+]);
+
+it('keeps a single compatible pet checkbox assignment as an array across service modes', function (array $context, string $petType): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => $context,
+    ])
+        ->set('pets.0.species', $petType)
+        ->set('services.0.assigned_pet_ids', true)
+        ->assertSet('services.0.assigned_pet_ids', [0]);
+})->with('single pet checkbox service modes');
+
+it('clears a single compatible pet checkbox assignment when unchecked', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => 'import'],
+    ])
+        ->set('pets.0.species', 'dog')
+        ->set('services.0.assigned_pet_ids', true)
+        ->set('services.0.assigned_pet_ids', false)
+        ->assertSet('services.0.assigned_pet_ids', []);
+});
+
+it('keeps a single active veterinary care checkbox as an array', function (): void {
+    $variants = config('waggies_pricing.services.vet-care.variants');
+
+    config([
+        'waggies_pricing.services.vet-care.variants' => [
+            'wellness-consultation' => $variants['wellness-consultation'],
+        ],
+    ]);
+
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'vet-care'],
+    ])
+        ->set('services.0.details.care_needs', true)
+        ->assertSet('services.0.details.care_needs', ['wellness-consultation']);
+});
+
 it('blocks invalid relocation directions and unassigned pets before continuing', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'relocation', 'variant' => 'export'],
@@ -195,6 +248,95 @@ it('moves through the booking steps in order after each step is valid', function
     $component->assertSet('step', 5);
 });
 
+it('preselects the only pet when entering the matching step', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => 'import'],
+    ])
+        ->call('nextStep')
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
+        ->set('pets.0.age', 'not-sure')
+        ->set('pets.0.sex', 'male')
+        ->call('nextStep')
+        ->assertSet('step', 3)
+        ->assertSet('services.0.assigned_pet_ids', [0]);
+});
+
+it('preselects the only pet for every compatible selected service', function (): void {
+    Livewire::test('booking-request-wizard')
+        ->call('toggleService', 'boarding')
+        ->call('toggleService', 'relocation')
+        ->call('variantChanged', 1, 'import')
+        ->call('nextStep')
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.size', 'medium')
+        ->set('pets.0.breed', 'Mixed breed')
+        ->set('pets.0.age', 'not-sure')
+        ->set('pets.0.sex', 'male')
+        ->call('nextStep')
+        ->assertSet('step', 3)
+        ->assertSet('services.0.assigned_pet_ids', [0])
+        ->assertSet('services.1.assigned_pet_ids', [0]);
+});
+
+it('leaves the only pet unassigned for an incompatible service', function (): void {
+    config([
+        'waggies_pricing.services.boarding.pet_types' => ['dog'],
+        'waggies_pricing.services.relocation.pet_types' => ['cat'],
+        'waggies_pricing.services.relocation.variants.import.pet_types' => ['cat'],
+    ]);
+
+    Livewire::test('booking-request-wizard')
+        ->call('toggleService', 'boarding')
+        ->call('toggleService', 'relocation')
+        ->call('variantChanged', 1, 'import')
+        ->call('nextStep')
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.size', 'medium')
+        ->set('pets.0.age', 'not-sure')
+        ->set('pets.0.sex', 'male')
+        ->call('nextStep')
+        ->assertSet('step', 3)
+        ->assertSet('services.0.assigned_pet_ids', [0])
+        ->assertSet('services.1.assigned_pet_ids', []);
+});
+
+it('preserves the automatic assignment when another pet is added', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => 'import'],
+    ])
+        ->call('nextStep')
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
+        ->set('pets.0.age', 'not-sure')
+        ->set('pets.0.sex', 'male')
+        ->call('nextStep')
+        ->call('addPet')
+        ->assertSet('pets.1.name', null)
+        ->assertSet('services.0.assigned_pet_ids', [0]);
+});
+
+it('requires a new match when the only pet clears an automatic assignment', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => 'import'],
+    ])
+        ->call('nextStep')
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
+        ->set('pets.0.age', 'not-sure')
+        ->set('pets.0.sex', 'male')
+        ->call('nextStep')
+        ->set('services.0.assigned_pet_ids', false)
+        ->call('nextStep')
+        ->assertSet('step', 3)
+        ->assertHasErrors(['services.0.assigned_pet_ids' => 'required']);
+});
+
 it('renders friendly labels for every missing relocation detail', function (): void {
     $component = Livewire::test('booking-request-wizard')
         ->call('toggleService', 'relocation')
@@ -215,7 +357,7 @@ it('renders friendly labels for every missing relocation detail', function (): v
         ->assertSee('The destination country field is required.')
         ->assertSee('The flight booking status field is required.')
         ->assertSee('The existing microchip status field is required.')
-        ->assertSee('The documentation status field is required.')
+        ->assertSee('The relocation document readiness field is required.')
         ->assertDontSee('The services.0.details.microchip status field is required.');
 });
 
@@ -276,6 +418,8 @@ it('groups repeated service field errors in the summary', function (): void {
         ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
         ->call('nextStep')
+        ->set('services.0.assigned_pet_ids', false)
+        ->set('services.1.assigned_pet_ids', false)
         ->call('nextStep');
 
     preg_match('/<div id="booking-error-summary".*?<\/div>/s', $component->html(), $matches);
@@ -327,4 +471,102 @@ it('continues from the pet step after the user chooses an explicit life stage', 
         ->call('nextStep');
 
     $component->assertSet('step', 3)->assertHasNoErrors();
+});
+
+it('clears conditional date errors when the travel timing makes those dates optional', function (): void {
+    $component = Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => 'import'],
+    ])
+        ->call('nextStep')
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
+        ->set('pets.0.age', 'not-sure')
+        ->set('pets.0.sex', 'male')
+        ->call('nextStep')
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('services.0.details', [
+            'travel_timing' => 'window',
+            'origin_country' => 'GH',
+            'destination_country' => 'NG',
+            'flight_status' => 'not_booked',
+            'microchip_status' => 'yes',
+            'documentation_status' => 'ready',
+        ])
+        ->call('nextStep')
+        ->assertHasErrors([
+            'services.0.requested_date' => 'required',
+            'services.0.requested_end_date' => 'required',
+        ])
+        ->set('services.0.details.travel_timing', 'not_decided');
+
+    $component->assertHasNoErrors();
+});
+
+it('does not show the global validation summary for a field-level error before navigation is attempted', function (): void {
+    $component = Livewire::test('booking-request-wizard')
+        ->call('toggleService', 'boarding')
+        ->call('nextStep')
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.name', null)
+        ->assertHasErrors(['pets.0.name']);
+
+    expect($component->html())->not->toContain('id="booking-error-summary"');
+});
+
+it('validates only the text field that loses focus', function (): void {
+    $component = Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => 'import'],
+    ])
+        ->call('fieldBlurred', 'pets.0.name');
+
+    expect($component->errors()->has('pets.0.name'))->toBeTrue()
+        ->and($component->errors()->has('pets.0.age'))->toBeFalse()
+        ->and($component->get('touchedFields'))->toBe(['pets.0.name']);
+});
+
+it('clears the other-country-code error when the phone country changes back', function (): void {
+    $component = Livewire::test('booking-request-wizard')
+        ->set('contact.phone_country', 'OTHER')
+        ->set('contact.phone_other_country_code', '+1')
+        ->set('contact.phone_other_country_code', null)
+        ->assertHasErrors(['contact.phone_other_country_code'])
+        ->set('contact.phone_country', 'NG');
+
+    expect($component->errors()->has('contact.phone_other_country_code'))->toBeFalse();
+});
+
+it('revalidates a touched check-out date when the check-in date changes', function (): void {
+    $component = Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
+    ])
+        ->call('nextStep')
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.size', 'medium')
+        ->set('pets.0.sex', 'male')
+        ->call('nextStep')
+        ->set('services.0.details.check_in', now()->addDays(7)->toDateString())
+        ->set('services.0.details.check_out', now()->addDays(9)->toDateString())
+        ->set('services.0.details.check_in', now()->addDays(10)->toDateString());
+
+    $component->assertHasErrors(['services.0.details.check_out']);
+});
+
+it('clears a conditional breed error when a pet is unassigned from relocation', function (): void {
+    $component = Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'relocation', 'variant' => 'import'],
+    ])
+        ->call('nextStep')
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.age', 'not-sure')
+        ->set('pets.0.sex', 'male')
+        ->call('nextStep')
+        ->set('pets.0.breed', 'Mixed breed')
+        ->set('pets.0.breed', null)
+        ->assertHasErrors(['pets.0.breed'])
+        ->set('services.0.assigned_pet_ids', false);
+
+    expect($component->errors()->has('pets.0.breed'))->toBeFalse();
 });

@@ -40,9 +40,9 @@ final class HomeController extends Controller
                 ],
             ],
             'homeServiceCards' => [
-                ['title' => 'Boarding', 'description' => 'Overnight stays for dogs and cats, priced per pet per night and reviewed before confirmation.', 'route' => 'services.boarding', 'imageSrc' => '/media/home/services-boarding.jpg', 'icon' => 'boarding'],
-                ['title' => 'Veterinary Care', 'description' => 'Wellness consultations, comprehensive examinations, vaccination requests, and microchipping.', 'route' => 'services.vet-care', 'imageSrc' => '/media/home/services-vet-care.jpg', 'icon' => 'veterinary-care'],
-                ['title' => 'Pet Relocation', 'description' => 'Custom-quoted import and export coordination for dogs and cats.', 'route' => 'services.relocation', 'imageSrc' => '/media/home/services-relocation.jpg', 'icon' => 'airport-departure'],
+                ['title' => 'Boarding', 'description' => 'Overnight stays for dogs and cats, priced per pet per night and reviewed before confirmation.', 'route' => 'services.boarding', 'imageSrc' => '/media/home/services-boarding.jpg', 'imageAlt' => 'Happy dog enjoying a boarding stay', 'icon' => 'boarding'],
+                ['title' => 'Veterinary Care', 'description' => 'Wellness consultations, comprehensive examinations, vaccination requests, and microchipping.', 'route' => 'services.vet-care', 'imageSrc' => '/media/home/services-vet-care.jpg', 'imageAlt' => 'Veterinarian caring for a dog', 'icon' => 'veterinary-care'],
+                ['title' => 'Pet Relocation', 'description' => 'Custom-quoted import and export coordination for dogs and cats.', 'route' => 'services.relocation', 'imageSrc' => '/media/home/services-relocation.jpg', 'imageAlt' => 'Airplane wing representing pet relocation', 'icon' => 'airport-departure'],
             ],
             'careStandardRows' => [
                 ['title' => '24/7 Supervision', 'description' => 'Your pets are monitored around the clock, never left alone.'],

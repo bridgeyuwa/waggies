@@ -127,54 +127,234 @@ export const registerBookingCalendar = Alpine => {
     }));
 };
 
+export const registerBookingClearDialog = Alpine => {
+    Alpine.data('waggiesBookingClearDialog', () => ({
+        open: false,
+        lastFocus: null,
+
+        openDialog() {
+            if (this.open) return;
+
+            this.lastFocus = document.activeElement;
+            this.open = true;
+            this.$nextTick(() => this.$refs.cancelButton?.focus());
+        },
+
+        closeDialog() {
+            if (!this.open) return;
+
+            const focusTarget = this.lastFocus;
+
+            this.open = false;
+            this.lastFocus = null;
+            this.$nextTick(() => window.requestAnimationFrame(() => focusTarget?.focus?.()));
+        },
+
+        confirmClear() {
+            if (!this.open) return;
+
+            this.closeDialog();
+            this.$wire.clearBooking();
+        },
+
+        handleKeydown(event) {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                this.closeDialog();
+
+                return;
+            }
+
+            if (event.key !== 'Tab') return;
+
+            const focusableElements = this.getFocusableElements();
+
+            if (focusableElements.length === 0) return;
+
+            const first = focusableElements[0];
+            const last = focusableElements[focusableElements.length - 1];
+
+            if (!this.$refs.dialog.contains(document.activeElement) || document.activeElement === this.$refs.dialog) {
+                event.preventDefault();
+                (event.shiftKey ? last : first).focus();
+
+                return;
+            }
+
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        },
+
+        getFocusableElements() {
+            if (!this.$refs.dialog) return [];
+
+            return [...this.$refs.dialog.querySelectorAll(
+                'button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            )].filter(element => element.getClientRects().length > 0 && element.getAttribute('aria-hidden') !== 'true');
+        },
+    }));
+};
+
 export const registerBookingDraftPersistence = () => {
     const initialRoot = document.querySelector('[data-booking-draft]');
 
     if (!initialRoot) return;
 
     const getRoot = () => document.querySelector('[data-booking-draft]');
-
-    const modelControls = () => getRoot()?.querySelectorAll(
-        '[data-booking-draft-model], [wire\\:model], [wire\\:model\\.live], [wire\\:model\\.blur], [wire\\:model\\.live\\.blur]',
-    ) || [];
-
-    const storageKey = initialRoot.dataset.bookingDraft;
+    const baseStorageKey = initialRoot.dataset.bookingDraft;
     const contextKey = initialRoot.dataset.bookingContext || '';
+    const storageKey = `${baseStorageKey}:${encodeURIComponent(contextKey || 'generic')}`;
+    const maxAge = Number(initialRoot.dataset.bookingDraftMaxAge || 86400000);
     let restoring = false;
+    let ignoreSavesUntil = 0;
     let saveTimer;
 
-    const setStatus = message => {
+    const setStatus = (message, actions = {}) => {
         const status = getRoot()?.querySelector('[data-booking-draft-status]');
 
-        if (status) status.textContent = message;
+        if (!status) return;
+
+        status.replaceChildren();
+
+        if (message) {
+            const text = document.createElement('p');
+            text.textContent = message;
+            status.append(text);
+        }
+
+        if (actions.restore || actions.discard) {
+            const controls = document.createElement('div');
+            controls.className = 'mt-3 flex flex-wrap gap-3';
+
+            if (actions.restore) {
+                const restore = document.createElement('button');
+                restore.type = 'button';
+                restore.className = 'min-h-11 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white underline-offset-4 hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary';
+                restore.textContent = 'Restore saved request';
+                restore.addEventListener('click', actions.restore);
+                controls.append(restore);
+            }
+
+            if (actions.discard) {
+                const discard = document.createElement('button');
+                discard.type = 'button';
+                discard.className = 'min-h-11 rounded-lg border border-primary/20 px-4 py-2 text-sm font-semibold text-primary-dark underline-offset-4 hover:bg-surface-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary';
+                discard.textContent = 'Start over';
+                discard.addEventListener('click', actions.discard);
+                controls.append(discard);
+            }
+
+            status.append(controls);
+        }
     };
 
     const readDraft = () => {
         try {
-            return JSON.parse(sessionStorage.getItem(storageKey) || '{}');
+            const draft = JSON.parse(sessionStorage.getItem(storageKey) || 'null');
+
+            return draft && typeof draft === 'object' ? draft : null;
         } catch {
-            return {};
+            return null;
         }
     };
 
-    const writeDraft = () => {
-        if (restoring) return;
+    const wireComponent = () => {
+        const root = getRoot();
+        const id = root?.getAttribute('wire:id');
 
-        const draft = readDraft();
+        return id && window.Livewire?.find ? window.Livewire.find(id) : null;
+    };
 
-        modelControls().forEach(control => {
-            const model = control.getAttribute('data-booking-draft-model')
-                || control.getAttribute('wire:model')
-                || control.getAttribute('wire:model.live')
-                || control.getAttribute('wire:model.blur')
-                || control.getAttribute('wire:model.live.blur');
+    const stateValue = property => {
+        try {
+            return wireComponent()?.$get?.(property);
+        } catch {
+            return undefined;
+        }
+    };
+
+    const controlModel = control => control.getAttribute('data-booking-draft-model')
+        || control.getAttribute('wire:model')
+        || control.getAttribute('wire:model.live')
+        || control.getAttribute('wire:model.blur')
+        || control.getAttribute('wire:model.live.blur');
+
+    const setNestedValue = (target, path, value) => {
+        const parts = path.split('.');
+        let cursor = target;
+
+        parts.forEach((part, index) => {
+            if (index === parts.length - 1) {
+                cursor[part] = value;
+                return;
+            }
+
+            if (cursor[part] === undefined || cursor[part] === null) {
+                cursor[part] = /^\d+$/.test(parts[index + 1]) ? [] : {};
+            }
+
+            cursor = cursor[part];
+        });
+    };
+
+    const mergeRenderedControls = draft => {
+        const root = getRoot();
+        const controls = [...(root?.querySelectorAll(
+            '[data-booking-draft-model], [wire\\:model], [wire\\:model\\.live], [wire\\:model\\.blur], [wire\\:model\\.live\\.blur]',
+        ) || [])];
+        const grouped = new Map();
+
+        controls.forEach(control => {
+            const model = controlModel(control);
             if (!model) return;
 
-            draft[model] = control.type === 'checkbox' ? control.checked : control.value;
+            if (!grouped.has(model)) grouped.set(model, []);
+            grouped.get(model).push(control);
         });
 
+        grouped.forEach((modelControls, model) => {
+            const first = modelControls[0];
+
+            if (first.type === 'radio') {
+                const selected = modelControls.find(control => control.checked);
+                if (selected) setNestedValue(draft, model, selected.value);
+                return;
+            }
+
+            if (first.type === 'checkbox') {
+                const checked = modelControls.filter(control => control.checked);
+                setNestedValue(draft, model, modelControls.length > 1 ? checked.map(control => control.value) : Boolean(first.checked));
+                return;
+            }
+
+            setNestedValue(draft, model, first.value);
+        });
+    };
+
+    const writeDraft = () => {
+        if (restoring || Date.now() < ignoreSavesUntil) return;
+
+        const draft = {
+            version: 1,
+            contextKey,
+            savedAt: Date.now(),
+            step: stateValue('step'),
+            services: stateValue('services'),
+            pets: stateValue('pets'),
+            contact: stateValue('contact'),
+            submissionToken: stateValue('submissionToken'),
+        };
+
+        if (!Array.isArray(draft.services) || !Array.isArray(draft.pets)) return;
+
+        mergeRenderedControls(draft);
+
         try {
-            draft.contextKey = contextKey;
             sessionStorage.setItem(storageKey, JSON.stringify(draft));
             setStatus('Draft saved on this device for this visit.');
         } catch {
@@ -187,44 +367,61 @@ export const registerBookingDraftPersistence = () => {
         saveTimer = window.setTimeout(writeDraft, 250);
     };
 
-    const applyDraft = () => {
-        const draft = readDraft();
-        if (!Object.keys(draft).length || draft.contextKey !== contextKey) return;
-
-        restoring = true;
-        modelControls().forEach(control => {
-            const model = control.getAttribute('data-booking-draft-model')
-                || control.getAttribute('wire:model')
-                || control.getAttribute('wire:model.live')
-                || control.getAttribute('wire:model.blur')
-                || control.getAttribute('wire:model.live.blur');
-            if (!model || !(model in draft)) return;
-
-            const value = draft[model];
-            let changed = false;
-
-            if (control.type === 'checkbox') {
-                changed = control.checked !== Boolean(value);
-                control.checked = Boolean(value);
-            } else if (control.value !== value) {
-                control.value = value;
-                changed = true;
-            }
-
-            if (!changed) return;
-
-            control.dispatchEvent(new Event('input', { bubbles: true }));
-            control.dispatchEvent(new Event('change', { bubbles: true }));
-        });
-        restoring = false;
-
-        setStatus('Unfinished request restored from this device.');
+    const clearDraft = () => {
+        try {
+            sessionStorage.removeItem(storageKey);
+        } catch {
+            // Storage may be unavailable in a private browsing context.
+        }
     };
 
-    const restoreDraftAfterLivewireInitialisation = () => {
-        window.requestAnimationFrame(() => {
-            applyDraft();
+    const restoreDraft = draft => {
+        const wire = wireComponent();
+
+        if (!wire?.$call) return;
+
+        restoring = true;
+        ignoreSavesUntil = Date.now() + 1500;
+        Promise.resolve(wire.$call('restoreDraft', draft)).finally(() => {
+            restoring = false;
+            setStatus('Your unfinished request was restored on this device.');
         });
+    };
+
+    const discardDraft = () => {
+        clearDraft();
+        ignoreSavesUntil = Date.now() + 1500;
+        setStatus('Starting a new request.');
+
+        const wire = wireComponent();
+        if (wire?.$call) {
+            restoring = true;
+            Promise.resolve(wire.$call('resetDraft')).finally(() => {
+                restoring = false;
+            });
+        }
+    };
+
+    const loadDraft = () => {
+        const draft = readDraft();
+
+        if (!draft || draft.version !== 1 || draft.contextKey !== contextKey || !Array.isArray(draft.services) || !Array.isArray(draft.pets)) {
+            if (draft) clearDraft();
+            return;
+        }
+
+        const isStale = !Number.isFinite(draft.savedAt) || Date.now() - draft.savedAt > maxAge;
+
+        if (isStale) {
+            setStatus('You have an older unfinished request. Would you like to restore it?', {
+                restore: () => restoreDraft(draft),
+                discard: discardDraft,
+            });
+
+            return;
+        }
+
+        restoreDraft(draft);
     };
 
     const scheduleSaveForBookingControl = event => {
@@ -236,15 +433,34 @@ export const registerBookingDraftPersistence = () => {
     document.addEventListener('input', scheduleSaveForBookingControl, true);
     document.addEventListener('change', scheduleSaveForBookingControl, true);
 
-    applyDraft();
-
     const bindLivewireEvents = () => {
         if (!window.Livewire?.on) return;
 
         window.Livewire.on('booking-request-submitted', () => {
-            sessionStorage.removeItem(storageKey);
+            clearDraft();
             setStatus('Draft cleared after your request was sent.');
         });
+        window.Livewire.on('booking-wizard-draft-restored', () => {
+            restoring = false;
+            ignoreSavesUntil = Date.now() + 1500;
+            setStatus('Your unfinished request was restored on this device.');
+        });
+        window.Livewire.on('booking-wizard-draft-reset', () => {
+            restoring = false;
+            clearDraft();
+            ignoreSavesUntil = Date.now() + 1500;
+            setStatus('Starting a new request.');
+        });
+
+        if (window.Livewire.interceptMessage) {
+            window.Livewire.interceptMessage(({ message, onSuccess }) => {
+                onSuccess(() => {
+                    const id = getRoot()?.getAttribute('wire:id');
+
+                    if (message?.component?.id === id) scheduleSave();
+                });
+            });
+        }
     };
 
     if (window.Livewire?.on) {
@@ -253,7 +469,9 @@ export const registerBookingDraftPersistence = () => {
         document.addEventListener('livewire:init', bindLivewireEvents, { once: true });
     }
 
-    document.addEventListener('livewire:initialized', restoreDraftAfterLivewireInitialisation, { once: true });
+    document.addEventListener('livewire:initialized', () => {
+        window.requestAnimationFrame(loadDraft);
+    }, { once: true });
 
     const focusStepHeading = () => {
         const heading = getRoot()?.querySelector('[data-booking-step-heading]');

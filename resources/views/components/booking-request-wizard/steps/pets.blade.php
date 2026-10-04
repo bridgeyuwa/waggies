@@ -15,10 +15,10 @@
 
                                     <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
                                         <x-waggies.field id="booking-pet-{{ $index }}-name" label="Pet name" :error="$errors->first('pets.'.$index.'.name')" required>
-                                            <input id="booking-pet-{{ $index }}-name" wire:model.live.blur="pets.{{ $index }}.name" type="text" maxlength="80" autocomplete="off" class="contact-input">
+                                            <input id="booking-pet-{{ $index }}-name" wire:model.live.blur="pets.{{ $index }}.name" wire:blur="fieldBlurred('pets.{{ $index }}.name')" type="text" maxlength="80" autocomplete="off" class="contact-input">
                                         </x-waggies.field>
                                         <fieldset class="sm:col-span-2" aria-labelledby="booking-pet-{{ $index }}-species-heading">
-                                            <legend id="booking-pet-{{ $index }}-species-heading" class="text-sm font-medium text-primary-dark">Pet type <span class="text-danger" aria-hidden="true">*</span></legend>
+                                            <legend id="booking-pet-{{ $index }}-species-heading" class="text-sm font-medium text-primary-dark">Pet type <span class="ml-1 text-xs font-semibold text-error">Required</span></legend>
                                             <div class="mt-2 grid gap-3 sm:grid-cols-2">
                                                 @foreach($this->petTypeOptions() as $key => $label)
                                                     <label wire:key="booking-pet-{{ $index }}-species-{{ $key }}" class="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-xl border p-4 text-left transition-colors focus-within:outline-none focus-within:ring-2 focus-within:ring-primary {{ ($pet['species'] ?? null) === $key ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }}">
@@ -32,7 +32,7 @@
                                         </fieldset>
                                         @if($pet['species'] === 'dog' && $this->petNeedsSize($index))
                                             <fieldset class="sm:col-span-2" aria-labelledby="booking-pet-{{ $index }}-size-heading">
-                                                <legend id="booking-pet-{{ $index }}-size-heading" class="text-sm font-semibold text-primary-dark">Dog size <span class="text-danger" aria-hidden="true">*</span></legend>
+                                            <legend id="booking-pet-{{ $index }}-size-heading" class="text-sm font-semibold text-primary-dark">Dog size <span class="ml-1 text-xs font-semibold text-error">Required</span></legend>
                                                 <p class="mt-1 text-xs leading-relaxed text-primary-dark/60">Choose the closest size. You do not need to know your dog’s exact weight.</p>
                                                 <div class="mt-3 grid gap-3 sm:grid-cols-3">
                                                     @foreach($this->petSizeOptions() as $size => $sizeOption)
@@ -56,7 +56,7 @@
                                         <p class="text-sm font-semibold text-primary-dark">Optional details about this pet</p>
                                         <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
                                             <x-waggies.field id="booking-pet-{{ $index }}-breed" label="Breed" :error="$errors->first('pets.'.$index.'.breed')" :help="$this->petBreedHelp($index)" :required="$this->petRequiresBreed($index)">
-                                                <input id="booking-pet-{{ $index }}-breed" wire:model.live.blur="pets.{{ $index }}.breed" type="text" maxlength="120" class="contact-input">
+                                                <input id="booking-pet-{{ $index }}-breed" wire:model.live.blur="pets.{{ $index }}.breed" wire:blur="fieldBlurred('pets.{{ $index }}.breed')" type="text" maxlength="120" class="contact-input">
                                             </x-waggies.field>
                                             <x-waggies.select id="booking-pet-{{ $index }}-age" label="Age or life stage" wire:model.live="pets.{{ $index }}.age" :error="$errors->first('pets.'.$index.'.age')" :help="$this->petAgeHelp($index)" :required="$this->petAgeRequired($index)">
                                                 <option value="">Select life stage</option>
@@ -65,7 +65,7 @@
                                                 @endforeach
                                             </x-waggies.select>
                                             <fieldset aria-labelledby="booking-pet-{{ $index }}-sex-heading">
-                                                <legend id="booking-pet-{{ $index }}-sex-heading" class="text-sm font-medium text-primary-dark">Sex <span class="text-danger" aria-hidden="true">*</span></legend>
+                                                <legend id="booking-pet-{{ $index }}-sex-heading" class="text-sm font-medium text-primary-dark">Sex <span class="ml-1 text-xs font-semibold text-error">Required</span></legend>
                                                 <div class="mt-2 grid gap-3 sm:grid-cols-2">
                                                     @foreach(['male' => 'Male', 'female' => 'Female'] as $key => $label)
                                                         <label wire:key="booking-pet-{{ $index }}-sex-{{ $key }}" class="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-xl border p-3 text-left transition-colors focus-within:outline-none focus-within:ring-2 focus-within:ring-primary {{ ($pet['sex'] ?? null) === $key ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }}">
@@ -78,7 +78,7 @@
                                                 @error('pets.'.$index.'.sex') <p class="mt-2 text-sm text-danger" role="alert">{{ $message }}</p> @enderror
                                             </fieldset>
                                             <x-waggies.field id="booking-pet-{{ $index }}-notes" label="Pet notes" :error="$errors->first('pets.'.$index.'.notes')" help="Optional. Share temperament, routines, or care notes." class="sm:col-span-2">
-                                                <textarea id="booking-pet-{{ $index }}-notes" wire:model.live.blur="pets.{{ $index }}.notes" rows="3" maxlength="1000" class="contact-input resize-y"></textarea>
+                                                <textarea id="booking-pet-{{ $index }}-notes" wire:model.live.blur="pets.{{ $index }}.notes" wire:blur="fieldBlurred('pets.{{ $index }}.notes')" rows="3" maxlength="1000" class="contact-input resize-y"></textarea>
                                             </x-waggies.field>
                                         </div>
                                     </div>

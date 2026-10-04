@@ -17,8 +17,8 @@ final class RelocationController extends Controller
             'navSection' => 'services',
             'hero' => ['imageSrc' => '/media/services/relocation/hero.jpg', 'imageAlt' => 'International pet relocation service by Waggies'],
             'cards' => [
-                ['title' => 'Pet Import to Nigeria', 'description' => 'Full-service pet import into Nigeria including Ministry import permits, rabies titer verification, veterinary health clearance, and Abuja airport pickup.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
-                ['title' => 'Pet Export from Nigeria', 'description' => 'Seamless international pet export matching UK, EU, US, and global destination requirements — export permits, rabies titers, IATA crates, and flight bookings.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
+                ['title' => 'Pet Import to Nigeria', 'description' => 'Permits, health clearance, rabies titer verification, and Abuja airport pickup.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
+                ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, rabies titers, IATA crates, and airline coordination.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
             ],
             'faqs' => $this->serviceFaqs(),
         ]);
@@ -64,7 +64,8 @@ final class RelocationController extends Controller
                             'label' => 'Request Quote',
                             'route' => 'book',
                             'params' => [
-                                'service' => 'relocation-import',
+                                'service' => 'relocation',
+                                'direction' => 'import',
                             ],
                             'icon' => 'arrow-forward',
                         ],
@@ -140,7 +141,8 @@ final class RelocationController extends Controller
                     'primaryLabel' => 'Request Quote',
                     'primaryRoute' => 'book',
                     'primaryParams' => [
-                        'service' => 'relocation-import',
+                        'service' => 'relocation',
+                        'direction' => 'import',
                     ],
                     'secondaryLabel' => 'View Checklist',
                     'secondaryRoute' => 'relocation.checklist',
@@ -161,7 +163,8 @@ final class RelocationController extends Controller
                             'label' => 'Request Quote',
                             'route' => 'book',
                             'params' => [
-                                'service' => 'relocation-export',
+                                'service' => 'relocation',
+                                'direction' => 'export',
                             ],
                             'icon' => 'arrow-forward',
                         ],
@@ -237,7 +240,8 @@ final class RelocationController extends Controller
                     'primaryLabel' => 'Request Quote',
                     'primaryRoute' => 'book',
                     'primaryParams' => [
-                        'service' => 'relocation-export',
+                        'service' => 'relocation',
+                        'direction' => 'export',
                     ],
                     'secondaryLabel' => 'View Checklist',
                     'secondaryRoute' => 'relocation.checklist',

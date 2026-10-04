@@ -1,5 +1,5 @@
                     @if($step === 3)
-                        <fieldset class="flex flex-col gap-6">
+                        <fieldset class="flex flex-col gap-8 sm:gap-10">
                             <legend class="sr-only">Match pets and service details</legend>
                             <section class="rounded-xl border border-primary/10 bg-surface-purple/45 p-4" aria-labelledby="assignment-overview-heading">
                                 <div class="flex items-start justify-between gap-4">
@@ -9,6 +9,9 @@
                                     </div>
                                     <span class="text-xs font-semibold text-primary-dark/55">{{ collect($services)->sum(fn (array $service): int => $this->serviceAssignedCount($service)) }} matches</span>
                                 </div>
+                                @if(count($pets) === 1)
+                                    <p class="mt-3 text-sm leading-relaxed text-primary-dark/65">Your only pet is preselected for each compatible service. Add another pet if a service should go to a different pet.</p>
+                                @endif
                                 <ul class="mt-3 grid gap-2 text-sm sm:grid-cols-2">
                                     @foreach($pets as $petIndex => $pet)
                                         <li id="booking-pet-assignment-{{ $petIndex }}" class="flex items-start justify-between gap-3 rounded-lg bg-white/70 px-3 py-2 {{ $this->petAssignedServiceCount($petIndex) === 0 ? 'ring-1 ring-error/30' : '' }}">
@@ -77,7 +80,7 @@
                                             @if($hasDateField)
                                                 <p class="mt-3 text-xs font-medium text-primary-dark/55">Dates and times use Africa/Lagos time — WAT (UTC+1).</p>
                                             @endif
-                                            <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                            <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-7 sm:grid-cols-2">
                                                 @foreach($fields as $field)
                                                     @continue(! $this->fieldVisible($field, $service))
                                                     @continue(($field['fixed'] ?? false) === true)
@@ -86,7 +89,16 @@
                                                         $fieldId = 'booking-'.$index.'-'.$field['key'];
                                                         $fieldValue = ($field['scope'] ?? 'details') === 'service' ? ($service[$field['key']] ?? null) : ($service['details'][$field['key']] ?? null);
                                                         $fieldRequired = $this->fieldRequired($field, $service);
+                                                        $isRelocationStatusField = $service['service_key'] === 'relocation' && in_array($field['key'], ['microchip_status', 'documentation_status'], true);
                                                     @endphp
+                                                    @if($isRelocationStatusField && $field['key'] === 'microchip_status')
+                                                        <div class="sm:col-span-2 grid gap-5 sm:gap-6" role="group" aria-labelledby="booking-{{ $index }}-relocation-details-heading">
+                                                            <div class="border-t border-primary/10 pt-8">
+                                                                <p class="text-eyebrow text-primary-dark/50">RELOCATION DETAILS</p>
+                                                                <h4 id="booking-{{ $index }}-relocation-details-heading" class="mt-1 font-serif text-xl font-bold text-primary-dark">Relocation details</h4>
+                                                                <p class="mt-2 max-w-2xl text-sm leading-relaxed text-primary-dark/65">Share what is known about your pet’s microchip and the documents needed for travel. If you’re unsure, choose the option that best describes your situation.</p>
+                                                            </div>
+                                                    @endif
                                                     @if($service['service_key'] === 'relocation' && $field['type'] === 'country' && ! ($field['fixed'] ?? false))
                                                         <div class="sm:col-span-2 border-l-2 border-primary/30 bg-surface-purple/30 px-4 py-3">
                                                             <p class="text-eyebrow text-primary-dark/50">RELOCATION DIRECTION</p>
@@ -101,14 +113,14 @@
                                                     @endif
                                                     @if($field['type'] === 'textarea')
                                                         <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['placeholder'] ?? null" :required="$fieldRequired" class="sm:col-span-2">
-                                                            <textarea id="{{ $fieldId }}" wire:model.live.blur="{{ $model }}" rows="3" maxlength="2000" class="contact-input resize-y"></textarea>
+                                                            <textarea id="{{ $fieldId }}" wire:model.live.blur="{{ $model }}" wire:blur="fieldBlurred('{{ $model }}')" rows="3" maxlength="2000" class="contact-input resize-y"></textarea>
                                                         </x-waggies.field>
                                                     @elseif($field['type'] === 'country')
                                                         <x-waggies.searchable-select :id="$fieldId" :label="$field['label']" :options="$field['options']" :placeholder="$field['placeholder']" wire:model.live="{{ $model }}" :error="$errors->first($model)" :required="$fieldRequired" />
                                                     @elseif($field['type'] === 'select' && count($field['options']) <= 3)
-                                                        <fieldset id="{{ $fieldId }}" aria-labelledby="{{ $fieldId }}-label">
-                                                            <legend id="{{ $fieldId }}-label" class="text-sm font-medium text-primary-dark">{{ $field['label'] }}@if($fieldRequired) <span class="text-danger" aria-hidden="true">*</span>@endif</legend>
-                                                            <div class="mt-2 grid gap-3">
+                                                        <fieldset id="{{ $fieldId }}" aria-labelledby="{{ $fieldId }}-label" class="{{ $isRelocationStatusField ? 'rounded-2xl border border-primary/15 bg-surface-purple/25 p-5 shadow-sm sm:p-6' : '' }}">
+                                                        <legend id="{{ $fieldId }}-label" class="text-sm font-medium text-primary-dark">{{ $field['label'] }}@if($fieldRequired) <span class="ml-1 text-xs font-semibold text-error">Required</span>@endif</legend>
+                                                            <div class="mt-4 grid gap-3">
                                                                 @foreach($field['options'] as $key => $label)
                                                                     <label wire:key="{{ $fieldId }}-{{ $key }}" class="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-xl border p-3 text-left transition-colors focus-within:outline-none focus-within:ring-2 focus-within:ring-primary {{ $fieldValue === $key ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }}">
                                                                         <input type="radio" name="{{ $fieldId }}" value="{{ $key }}" @checked($fieldValue === $key) wire:model.live="{{ $model }}" class="sr-only peer">
@@ -156,9 +168,12 @@
                                                             </div>
                                                         </x-waggies.field>
                                                     @else
-                                                        <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['help'] ?? null" :required="$field['required']">
-                                                            <input id="{{ $fieldId }}" wire:model.live.blur="{{ $model }}" type="{{ $field['type'] }}" @if(isset($field['placeholder'])) placeholder="{{ $field['placeholder'] }}" @endif class="contact-input">
+                                                        <x-waggies.field :id="$fieldId" :label="$field['label']" :error="$errors->first($model)" :help="$field['help'] ?? null" :required="$fieldRequired">
+                                                            <input id="{{ $fieldId }}" wire:model.live.blur="{{ $model }}" wire:blur="fieldBlurred('{{ $model }}')" type="{{ $field['type'] }}" @if(isset($field['placeholder'])) placeholder="{{ $field['placeholder'] }}" @endif class="contact-input">
                                                         </x-waggies.field>
+                                                    @endif
+                                                    @if($isRelocationStatusField && $field['key'] === 'documentation_status')
+                                                        </div>
                                                     @endif
                                                 @endforeach
                                             </div>

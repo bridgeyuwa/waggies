@@ -69,10 +69,10 @@ class RelocationRoutesTest extends TestCase
 
         $this->get(route('relocation.import'))
             ->assertOk()
-            ->assertSee('Request Quote');
+            ->assertSee('href="'.e(route('book', ['service' => 'relocation', 'direction' => 'import'])).'"', false);
 
         $this->get(route('relocation.export'))
             ->assertOk()
-            ->assertSee('Request Quote');
+            ->assertSee('href="'.e(route('book', ['service' => 'relocation', 'direction' => 'export'])).'"', false);
     }
 }

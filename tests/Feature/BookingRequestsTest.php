@@ -59,6 +59,85 @@ it('renders a draft-persisted submission token for retry-safe booking requests',
         ->assertSee('data-booking-draft-model="submissionToken"', false);
 });
 
+it('derives the booking start step from valid semantic URL context', function (): void {
+    $this->get(route('book', ['service' => 'boarding', 'pet_type' => 'dog']))
+        ->assertOk()
+        ->assertSee('STEP 2 OF 5')
+        ->assertSee('value="dog"', false);
+
+    $this->get(route('book', ['service' => 'vet-care', 'care_need' => 'microchip']))
+        ->assertOk()
+        ->assertSee('STEP 2 OF 5')
+        ->assertSee('Microchip implantation');
+
+    $this->get(route('book', ['service' => 'relocation', 'direction' => 'export']))
+        ->assertOk()
+        ->assertSee('STEP 2 OF 5')
+        ->assertSee('Export from Nigeria');
+});
+
+it('preserves valid URL context while safely falling back for invalid parts', function (): void {
+    $this->get(route('book', ['service' => 'boarding', 'pet_type' => 'unicorn']))
+        ->assertOk()
+        ->assertSee('STEP 1 OF 5')
+        ->assertSee('We could not use the pet type in that link');
+
+    $this->get(route('book', ['service' => 'boarding-dogs']))
+        ->assertOk()
+        ->assertSee('STEP 1 OF 5')
+        ->assertSee('That booking link is no longer available');
+});
+
+it('restores a complete draft through the guarded Livewire boundary', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding'],
+    ])
+        ->assertSet('draftContextKey', 'boarding|||||')
+        ->call('restoreDraft', [
+            'contextKey' => 'boarding|||||',
+            'step' => 4,
+            'submissionToken' => 'draft-token',
+            'services' => [[
+                'service_key' => 'boarding',
+                'service_variant' => 'dogs',
+                'assigned_pet_ids' => [0],
+                'details' => [],
+            ]],
+            'pets' => [[
+                'name' => 'Bruno',
+                'species' => 'dog',
+                'sex' => 'male',
+            ]],
+            'contact' => [
+                'name' => 'Ada Obi',
+                'email' => 'ada@example.com',
+                'phone_country' => 'NG',
+            ],
+        ])
+        ->assertSet('step', 4)
+        ->assertSet('submissionToken', 'draft-token')
+        ->assertSet('pets.0.name', 'Bruno')
+        ->assertSet('contact.name', 'Ada Obi');
+});
+
+it('clears the booking request and keeps the request notice visible', function (): void {
+    Livewire::test('booking-request-wizard', [
+        'initialContext' => ['service' => 'boarding', 'pet_type' => 'dog'],
+    ])
+        ->set('step', 4)
+        ->set('pets.0.name', 'Bruno')
+        ->set('contact.name', 'Ada Obi')
+        ->call('clearBooking')
+        ->assertSet('step', 1)
+        ->assertSet('services.0.service_key', null)
+        ->assertSet('pets.0.name', null)
+        ->assertSet('contact.name', null)
+        ->assertSee('This is a request, not a confirmed booking.')
+        ->assertSee('Start over')
+        ->assertSee('Any information you’ve entered will be cleared, and you’ll return to Step 1.')
+        ->assertDontSee('wire:confirm', false);
+});
+
 it('preserves active boarding context while moving pet type selection into pet assignment', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'boarding', 'variant' => 'cats'],

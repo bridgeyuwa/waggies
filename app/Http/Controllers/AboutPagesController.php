@@ -106,8 +106,8 @@ final class AboutPagesController extends Controller
                 'imageAlt' => 'Dog in a boarding suite',
                 'actions' => [
                     0 => [
-                        'label' => 'Book a Stay',
-                        'route' => 'services.boarding',
+                        'label' => 'Explore Services',
+                        'route' => 'services.index',
                     ],
                     1 => [
                         'label' => 'Contact Us',

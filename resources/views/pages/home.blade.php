@@ -20,21 +20,10 @@
             </div>
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-6">
                 @foreach ($homeServiceCards as $index => $card)
-                    @php($starts = ['lg:col-start-1', 'lg:col-start-3', 'lg:col-start-5', 'lg:col-start-2', 'lg:col-start-4'])
-                    <a href="{{ route($card['route'], $card['params'] ?? []) }}"
-                        class="w-card w-card-hover group block h-full overflow-hidden p-0 md:col-span-1 lg:col-span-2 {{ $starts[$index] }} {{ $index === 4 ? 'md:col-span-2 md:mx-auto md:max-w-md' : '' }}">
-                        <div class="relative aspect-3/2 overflow-hidden"><img src="{{ $card['imageSrc'] }}"
-                                alt="{{ $card['title'] }}" loading="lazy"
-                                class="w-card-media w-card-media--zoom h-full w-full object-cover motion-reduce:transform-none">
-                        </div>
-                        <div class="p-6">
-                            <div class="mb-2 flex items-center gap-2.5"><x-waggies.icon name="{{ $card['icon'] }}"
-                                    size="20" class="text-primary" />
-                                <h3 class="font-serif text-lg font-bold text-primary-dark">{{ $card['title'] }}</h3>
-                            </div>
-                            <p class="text-body-sm">{{ $card['description'] }}</p>
-                        </div>
-                    </a>
+                    @php($starts = ['lg:col-start-1', 'lg:col-start-3', 'lg:col-start-5'])
+                    <div class="h-full md:col-span-1 lg:col-span-2 {{ $starts[$index] ?? '' }}">
+                        <x-waggies.service-card :card="$card" />
+                    </div>
                 @endforeach
             </div>
         </div>

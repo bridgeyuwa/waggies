@@ -31,25 +31,17 @@ final class BookingRequestsController extends Controller
                 ->toArray(),
         ]);
 
-        $requestedService = trim((string) $request->query('service', ''));
-        $aliases = [
-            'boarding-dogs' => ['service' => 'boarding', 'variant' => 'dogs'],
-            'boarding-cats' => ['service' => 'boarding', 'variant' => 'cats'],
-            'relocation-import' => ['service' => 'relocation', 'variant' => 'import'],
-            'relocation-export' => ['service' => 'relocation', 'variant' => 'export'],
-            'vet' => ['service' => 'vet-care'],
-        ];
-        $resolved = $aliases[$requestedService] ?? ['service' => $requestedService, 'variant' => (string) $request->query('variant', '')];
-        $service = $resolved['service'];
-        $variant = (string) ($request->query('variant', '') ?: ($resolved['variant'] ?? ''));
-        $source = trim((string) $request->query('source', ''));
+        $source = $this->queryString($request->query('source')) ?? '';
         $serviceOptions = app(BookingPricingCatalog::class)->serviceOptions();
         $whatsappUrl = BusinessProfile::current()->whatsapp_url;
+        $context = $this->bookingContextFromRequest($request, $serviceOptions);
+        $service = $context['service'];
+        $variant = $context['variant'];
 
         return view('pages.book', $metadata + [
             'navSection' => 'contact',
             'serviceOptions' => $serviceOptions,
-            'selectedService' => array_key_exists($service, $serviceOptions) ? $service : null,
+            'selectedService' => $service,
             'selectedVariant' => $variant,
             'source' => $source,
             'whatsappUrl' => $whatsappUrl.'?text='.rawurlencode('Hello Waggies, I submitted a booking request and would like to continue the conversation.'),
@@ -57,13 +49,127 @@ final class BookingRequestsController extends Controller
             'bookingSubmitted' => (bool) session('booking_submitted'),
             'enableLivewire' => true,
             'bookingContext' => [
-                'service' => array_key_exists($service, $serviceOptions) ? $service : null,
-                'variant' => $variant !== '' ? $variant : null,
+                'service' => $service,
+                'variant' => $variant,
+                'pet_type' => $context['pet_type'],
+                'pet_size' => $context['pet_size'],
+                'care_needs' => $context['care_needs'],
                 'tier' => null,
                 'source' => $source !== '' ? $source : null,
                 'whatsappUrl' => $whatsappUrl.'?text='.rawurlencode('Hello Waggies, I submitted a booking request and would like to continue the conversation.'),
+                'notice' => $context['notice'],
             ],
         ]);
+    }
+
+    /**
+     * @param  array<string, string>  $serviceOptions
+     * @return array{service: ?string, variant: ?string, pet_type: ?string, pet_size: ?string, care_needs: list<string>, notice: ?string}
+     */
+    private function bookingContextFromRequest(Request $request, array $serviceOptions): array
+    {
+        $requestedService = $this->queryString($request->query('service')) ?? '';
+        $service = array_key_exists($requestedService, $serviceOptions) ? $requestedService : null;
+        $catalog = app(BookingPricingCatalog::class);
+        $petType = $this->queryString($request->query('pet_type'));
+        $petSize = $this->queryString($request->query('pet_size'));
+        $direction = $this->queryString($request->query('direction'));
+        $legacyVariant = $this->queryString($request->query('variant')) ?? '';
+        $careNeeds = $this->queryValues($request->query('care_needs', []));
+        $careNeed = $this->queryString($request->query('care_need')) ?? '';
+        $noticeParts = [];
+
+        if ($legacyVariant !== '') {
+            $noticeParts[] = 'This booking link used an older format, so its option was not preselected.';
+        }
+
+        if ($requestedService !== '' && $service === null) {
+            $noticeParts[] = 'That booking link is no longer available, so please choose a service below.';
+        }
+
+        if ($service === 'boarding') {
+            if ($petType !== null && ! $catalog->isPetCompatible($service, null, $petType)) {
+                $petType = null;
+                $noticeParts[] = 'We could not use the pet type in that link, so you can choose it on the next step.';
+            }
+
+            if ($petSize !== null && ($petType === 'cat' || ! array_key_exists($petSize, $catalog->sizeOptions($service, 'dogs')))) {
+                $petSize = null;
+                $noticeParts[] = 'We could not use the dog size in that link, so you can choose it on the next step.';
+            } elseif ($petSize !== null) {
+                $petType ??= 'dog';
+            }
+        } elseif ($petType !== null) {
+            $petType = null;
+            $noticeParts[] = 'We could not use that pet type for this service, so it was left unselected.';
+        } elseif ($petSize !== null) {
+            $petSize = null;
+            $noticeParts[] = 'We could not use that dog size for this service.';
+        }
+
+        $variant = null;
+
+        if ($service === 'relocation') {
+            if ($direction !== null && array_key_exists($direction, $catalog->variantOptions($service))) {
+                $variant = $direction;
+            } elseif ($direction !== null) {
+                $noticeParts[] = 'We could not use that relocation direction, so you can choose it below.';
+            }
+        } elseif ($direction !== null) {
+            $noticeParts[] = 'We could not use that relocation direction for this service.';
+        }
+
+        if ($service === 'vet-care') {
+            if ($careNeed !== '') {
+                $careNeeds[] = $careNeed;
+            }
+
+            $validCareNeeds = $catalog->careNeeds($careNeeds);
+
+            if (count($validCareNeeds) !== count(array_unique(array_filter($careNeeds, 'is_string')))) {
+                $noticeParts[] = 'One or more care options in that link were not available, so they were left unselected.';
+            }
+
+            $careNeeds = $validCareNeeds;
+        } elseif ($careNeeds !== [] || $careNeed !== '') {
+            $noticeParts[] = 'Those care options are only available for veterinary care.';
+            $careNeeds = [];
+        }
+
+        return [
+            'service' => $service,
+            'variant' => $variant,
+            'pet_type' => $petType,
+            'pet_size' => $petSize,
+            'care_needs' => $careNeeds,
+            'notice' => $noticeParts === [] ? null : implode(' ', $noticeParts),
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function queryValues(mixed $value): array
+    {
+        $values = is_array($value) ? $value : [$value];
+
+        return collect($values)
+            ->filter(static fn (mixed $item): bool => is_string($item) && trim($item) !== '')
+            ->map(static fn (string $item): string => trim($item))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function queryString(mixed $value): ?string
+    {
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return $value === '' ? null : $value;
     }
 
     public function store(StoreBookingRequest $request, CreateBookingRequest $createBookingRequest): RedirectResponse
