@@ -86,12 +86,13 @@ class ShopController extends Controller
         ]);
     }
 
-    public function show(Product $product): View
+    public function show(string $product): View
     {
         if (! config('services.waggies_shop.enabled', false)) {
             return $this->unavailable();
         }
 
+        $product = Product::query()->where('slug', $product)->firstOrFail();
         abort_unless($product->isPublished(), 404);
 
         $product->loadMissing('media');
