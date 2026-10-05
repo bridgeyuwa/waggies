@@ -120,11 +120,10 @@
                                     <x-waggies.icon name="arrow-forward" size="16" />
                                 </button>
                             </div>
-                            <a href="{{ route('about.testimonials') }}"
-                                class="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 hover:text-primary-dark hover:underline">
+                            <x-waggies.button href="{{ route('about.testimonials') }}" variant="link" class="text-sm">
                                 Read all testimonials
                                 <x-waggies.icon name="arrow-forward" size="16" />
-                            </a>
+                            </x-waggies.button>
                         </div>
                     @endif
                 </div>

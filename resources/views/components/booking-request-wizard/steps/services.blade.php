@@ -2,7 +2,7 @@
                         <fieldset class="flex flex-col">
                             <legend class="text-sm font-semibold text-primary-dark">Which services do you need? <span class="ml-1 text-xs font-semibold text-error">Required</span></legend>
                             <p id="booking-services-help" class="mt-2 text-sm leading-relaxed text-primary-dark/65">Select all the care your pet needs. We will ask a few follow-up questions for each service.</p>
-                            <div class="mt-6 grid gap-3 sm:grid-cols-2" aria-describedby="booking-services-help">
+                            <div class="w-collection w-collection--gap-3 w-collection--sm-2 mt-6" aria-describedby="booking-services-help">
                                 @foreach($this->serviceOptions() as $serviceKey => $serviceLabel)
                                     @php $available = $this->serviceAvailable($serviceKey); @endphp
                                     <label wire:key="booking-service-choice-{{ $serviceKey }}" class="group flex min-h-16 items-center justify-between gap-3 rounded-xl border p-4 text-left transition-colors {{ $this->serviceSelected($serviceKey) ? 'border-primary bg-surface-purple ring-1 ring-primary' : 'border-primary/15 bg-white hover:border-primary/40' }} {{ ! $available ? 'cursor-not-allowed opacity-55' : 'cursor-pointer' }}">

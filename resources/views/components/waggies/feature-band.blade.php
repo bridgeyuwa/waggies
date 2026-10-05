@@ -34,7 +34,7 @@
                 @endif
                 @if($cta !== null)
                     <div class="pt-2">
-                        <x-waggies.button href="{{ $ctaDestination($cta) }}" class="bg-secondary! text-primary-dark! hover:bg-secondary-hover!">
+                        <x-waggies.button href="{{ $ctaDestination($cta) }}" tone="dark">
                             {{ $cta['label'] }}
                             <x-waggies.icon name="arrow-forward" size="16" />
                         </x-waggies.button>
