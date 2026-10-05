@@ -6,9 +6,9 @@ use App\Enums\BookingRequestStatus;
 use App\Models\BookingRequest;
 use App\Models\BookingRequestService;
 use App\Support\BookingPricingCatalog;
+use DomainException;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -25,7 +25,15 @@ class ServicesRelationManager extends RelationManager
 
     public function form(Schema $schema): Schema
     {
-        return $schema->components([
+        return $schema->components($this->quoteForm());
+    }
+
+    /**
+     * @return array<int, TextInput|Textarea>
+     */
+    private function quoteForm(): array
+    {
+        return [
             TextInput::make('quote_amount')
                 ->label('Quote amount')
                 ->numeric()
@@ -40,7 +48,7 @@ class ServicesRelationManager extends RelationManager
                 ->label('Quote notes')
                 ->rows(4)
                 ->helperText('Use notes when the service needs a manual quote explanation.'),
-        ]);
+        ];
     }
 
     public function table(Table $table): Table
@@ -94,7 +102,36 @@ class ServicesRelationManager extends RelationManager
                     ->placeholder('—'),
             ])
             ->recordActions([
-                EditAction::make(),
+                Action::make('edit')
+                    ->label('Edit quote')
+                    ->modalHeading('Edit service quote')
+                    ->fillForm(fn (BookingRequestService $record): array => [
+                        'quote_amount' => $record->quote_amount,
+                        'quote_currency' => $record->quote_currency,
+                        'quote_notes' => $record->quote_notes,
+                    ])
+                    ->schema($this->quoteForm())
+                    ->action(function (array $data, BookingRequestService $record): void {
+                        try {
+                            $record->updateOperationalQuote(
+                                amount: filled($data['quote_amount'] ?? null) ? (int) $data['quote_amount'] : null,
+                                currency: $data['quote_currency'] ?? null,
+                                notes: $data['quote_notes'] ?? null,
+                            );
+                        } catch (DomainException $exception) {
+                            Notification::make()
+                                ->title($exception->getMessage())
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        Notification::make()
+                            ->title('Service quote updated')
+                            ->success()
+                            ->send();
+                    }),
                 ActionGroup::make([
                     $this->statusAction('startServiceReview', 'Start review', BookingRequestStatus::Reviewing),
                     $this->statusAction('markServiceQuoted', 'Mark quoted', BookingRequestStatus::Quoted, requiresQuote: true),
