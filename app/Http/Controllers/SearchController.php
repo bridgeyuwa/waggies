@@ -23,6 +23,7 @@ final class SearchController extends Controller
 
         $results = SearchDocument::search($query)
             ->where('searchable', true)
+            ->when(! config('services.waggies_shop.enabled', false), static fn ($query) => $query->where('source_type', '!=', 'product'))
             ->orderBy('boost', 'desc')
             ->orderBy('published_at', 'desc')
             ->take(8)

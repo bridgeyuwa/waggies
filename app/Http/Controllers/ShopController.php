@@ -12,6 +12,10 @@ class ShopController extends Controller
 {
     public function index(Request $request): View
     {
+        if (! config('services.waggies_shop.enabled', false)) {
+            return $this->unavailable();
+        }
+
         $search = trim((string) $request->query('q', ''));
         $sort = (string) $request->query('sort', 'featured');
         $sortOptions = [
@@ -84,6 +88,10 @@ class ShopController extends Controller
 
     public function show(Product $product): View
     {
+        if (! config('services.waggies_shop.enabled', false)) {
+            return $this->unavailable();
+        }
+
         abort_unless($product->isPublished(), 404);
 
         $product->loadMissing('media');
@@ -141,5 +149,19 @@ class ShopController extends Controller
             'recentProducts' => $recentProducts,
             'navSection' => 'shop',
         ]);
+    }
+
+    private function unavailable(): View
+    {
+        $metadata = [
+            'title' => 'Waggies Services and Support',
+            'description' => 'Waggies services and support are available. Contact us or stay connected for updates.',
+            'canonical' => null,
+            'robots' => ['noindex', 'nofollow'],
+        ];
+
+        $this->setPageHead($metadata);
+
+        return view('pages.shop-unavailable', $metadata);
     }
 }

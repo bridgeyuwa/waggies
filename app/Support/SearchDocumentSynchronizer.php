@@ -80,13 +80,21 @@ final class SearchDocumentSynchronizer
      */
     private function publicModels(): array
     {
-        return [
+        $models = [
             ...Guide::query()->indexable()->get()->all(),
             ...KnowledgeArticle::query()->indexable()->get()->all(),
-            ...Product::query()->indexable()->get()->all(),
             ...Faq::query()->published()->whereIn('category', ['boarding', 'vet-care', 'relocation', 'general'])->get()->all(),
             ...JobOpening::query()->open()->get()->all(),
         ];
+
+        if (config('services.waggies_shop.enabled', false)) {
+            $models = [
+                ...$models,
+                ...Product::query()->indexable()->get()->all(),
+            ];
+        }
+
+        return $models;
     }
 
     /**

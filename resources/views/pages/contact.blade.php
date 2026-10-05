@@ -16,24 +16,6 @@
             ],
         ],
         [
-            'title' => 'SHOP & PRODUCTS',
-            'description' => 'Questions about catalogue products',
-            'items' => [
-                [
-                    'label' => 'Ask about a product',
-                    'description' => 'Enquire about a shop product',
-                    'icon' => 'shopping-bag',
-                    'href' => route('contact', ['intent' => 'product-inquiry']),
-                ],
-                [
-                    'label' => 'Ask about selected products',
-                    'description' => 'Use your saved product list to ask about availability',
-                    'icon' => 'shopping-cart',
-                    'href' => route('contact', ['intent' => 'cart-order']),
-                ],
-            ],
-        ],
-        [
             'title' => 'GENERAL & BUSINESS',
             'description' => 'General enquiries, partnerships, careers, media',
             'items' => [
@@ -52,6 +34,28 @@
             ],
         ],
     ];
+
+    if (config('services.waggies_shop.enabled', false)) {
+        array_splice($gateway, 1, 0, [[
+            'title' => 'SHOP & PRODUCTS',
+            'description' => 'Questions about catalogue products',
+            'items' => [
+                [
+                    'label' => 'Ask about a product',
+                    'description' => 'Enquire about a shop product',
+                    'icon' => 'shopping-bag',
+                    'href' => route('contact', ['intent' => 'product-inquiry']),
+                ],
+                [
+                    'label' => 'Ask about selected products',
+                    'description' => 'Use your saved product list to ask about availability',
+                    'icon' => 'shopping-cart',
+                    'href' => route('contact', ['intent' => 'cart-order']),
+                ],
+            ],
+        ]]);
+    }
+
     $mapUrl = $business['mapUrl'];
 @endphp
 
@@ -70,7 +74,7 @@
                     </span>
                 </div>
                 <h1 class="text-display mb-7 text-primary-dark">Contact Waggies</h1>
-                <p class="max-w-2xl text-lg leading-relaxed text-primary-dark/70">Have a question, need help with a product, or want to start a service request? Choose the path that fits and we&rsquo;ll continue the conversation on WhatsApp.</p>
+                <p class="max-w-2xl text-lg leading-relaxed text-primary-dark/70">@if(config('services.waggies_shop.enabled', false))Have a question, need help with a product, or want to start a service request?@elseHave a question or want to start a service request?@endif Choose the path that fits and we&rsquo;ll continue the conversation on WhatsApp.</p>
             </div>
         </div>
     </section>

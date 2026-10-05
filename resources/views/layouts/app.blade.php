@@ -11,7 +11,7 @@
         @endif
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-surface text-primary-dark antialiased" data-contact-url="{{ route('contact') }}" data-contact-enquiry-url="{{ route('contact-enquiries.store') }}" data-search-url="{{ route('search') }}" data-assistant-url="{{ route('assistant.store') }}" data-assistant-stream-url="{{ route('assistant.stream') }}" data-boarding-url="{{ route('services.boarding') }}" data-vet-care-url="{{ route('services.vet-care') }}" data-relocation-hub="{{ route('services.relocation') }}">
+    <body class="min-h-screen bg-surface text-primary-dark antialiased" data-contact-url="{{ route('contact') }}" data-contact-enquiry-url="{{ route('contact-enquiries.store') }}" data-search-url="{{ route('search') }}" @if(config('services.waggies_ai.enabled', false)) data-assistant-url="{{ route('assistant.store') }}" data-assistant-stream-url="{{ route('assistant.stream') }}" @endif data-boarding-url="{{ route('services.boarding') }}" data-vet-care-url="{{ route('services.vet-care') }}" data-relocation-hub="{{ route('services.relocation') }}">
         <div data-navigation-progress hidden class="navigation-progress" role="status" aria-label="Loading page"></div>
         <x-waggies.skip-link />
         <x-waggies.navbar :nav-section="$navSection ?? ''" />
@@ -28,7 +28,7 @@
 
         <div id="global-search-dialog" x-data="waggiesSearch" x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-layer-search bg-primary-dark/40 p-4 sm:p-8" role="dialog" aria-modal="true" aria-labelledby="search-title" :aria-hidden="!open" tabindex="-1" @click.self="close()" @keydown="handleDialogKeydown($event)">
             <div class="mx-auto mt-12 max-w-2xl overflow-hidden rounded-2xl border border-primary/10 bg-white shadow-2xl" @click.stop>
-                <div class="relative flex items-center gap-3 border-b border-surface-purple p-4"><x-waggies.icon name="search" size="20"/><label id="search-title" class="sr-only" for="global-search">Search query</label><input id="global-search" x-ref="input" x-model="query" role="combobox" :aria-expanded="!loading && Boolean(results.length)" aria-autocomplete="list" aria-controls="search-results-list" :aria-activedescendant="selectedResultId ? resultId(selectedResultId) : null" @keydown="handleSearchKeydown($event)" @input.debounce.150ms="fetchResults()" autocomplete="off" class="min-w-0 flex-1 border-0 text-lg focus:outline-none" placeholder="Search services, articles, products, FAQs…"><button type="button" @click="close()" aria-label="Close search" class="flex h-11 w-11 items-center justify-center rounded-full hover:bg-surface-purple"><x-waggies.icon name="close" size="20"/></button></div>
+                <div class="relative flex items-center gap-3 border-b border-surface-purple p-4"><x-waggies.icon name="search" size="20"/><label id="search-title" class="sr-only" for="global-search">Search query</label><input id="global-search" x-ref="input" x-model="query" role="combobox" :aria-expanded="!loading && Boolean(results.length)" aria-autocomplete="list" aria-controls="search-results-list" :aria-activedescendant="selectedResultId ? resultId(selectedResultId) : null" @keydown="handleSearchKeydown($event)" @input.debounce.150ms="fetchResults()" autocomplete="off" class="min-w-0 flex-1 border-0 text-lg focus:outline-none" placeholder="Search services, articles, FAQs…"><button type="button" @click="close()" aria-label="Close search" class="flex h-11 w-11 items-center justify-center rounded-full hover:bg-surface-purple"><x-waggies.icon name="close" size="20"/></button></div>
                 <div x-show="!query && !loading" class="p-4"><p class="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-primary-dark/50">Popular</p><div class="flex flex-wrap gap-2"><template x-for="term in ['Boarding', 'Veterinary care', 'Boarding prices', 'Pet import', 'Pet export', 'Vaccination']" :key="term"><button type="button" class="rounded-xl bg-surface-purple px-3 py-2 text-sm font-medium text-primary-dark hover:bg-primary hover:text-white" x-text="term" @click="query = term; fetchResults()"></button></template></div></div>
                 <div x-show="loading" class="p-8 text-center text-sm text-primary-dark/60">Searching…</div>
                 <ul id="search-results-list" x-show="!loading && results.length" class="max-h-[60vh] space-y-1 overflow-y-auto p-2" role="listbox" aria-label="Search results"><template x-for="result in results" :key="result.key"><li :id="resultId(result.key)" role="option" :aria-selected="String(selectedResultId) === String(result.key)" class="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-left hover:bg-surface-purple" :class="String(selectedResultId) === String(result.key) ? 'bg-surface-purple' : ''" @mouseenter="selectedResultId = result.key" @click="navigate(result.href)"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary"><x-waggies.icon name="search" size="18"/></span><span class="min-w-0 flex-1"><span class="block truncate font-medium text-primary-dark" x-text="result.title"></span><span class="block line-clamp-1 text-sm text-primary-dark/60" x-text="result.description"></span></span><span class="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase text-primary" x-text="result.category"></span></li></template></ul>
@@ -36,6 +36,7 @@
             </div>
         </div>
 
+        @if(config('services.waggies_shop.enabled', false))
         <div id="global-cart-dialog" x-data="waggiesCart" x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-layer-cart bg-primary-dark/40" role="dialog" aria-modal="true" aria-labelledby="cart-title" :aria-hidden="!open" tabindex="-1" @click.self="close()" @keydown="handleDialogKeydown($event)">
             <aside class="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-2xl">
                 <div class="border-b border-primary/5 px-6 pb-4 pt-6">
@@ -76,6 +77,7 @@
                 </template>
             </aside>
         </div>
+        @endif
 
         <div x-data="waggiesToasts" class="fixed right-4 top-20 z-layer-toast space-y-2" aria-live="polite"><template x-for="toast in items" :key="toast.id"><div class="rounded-xl bg-primary-dark px-4 py-3 text-sm text-white shadow-lg" x-text="toast.message"></div></template></div>
         @if($enableLivewire ?? false)
