@@ -17,6 +17,84 @@ const parseIsoDate = value => {
         : null;
 };
 
+export const registerBookingWhatsAppActions = Alpine => {
+    Alpine.data('waggiesBookingWhatsAppActions', (config = {}) => ({
+        whatsappUrl: config.url || '',
+        remainingSeconds: 5,
+        statusMessage: '',
+        countdownTimer: null,
+        hasOpened: false,
+
+        init() {
+            if (!this.canOpenWhatsApp()) return;
+
+            this.updateCountdownMessage();
+            this.countdownTimer = window.setInterval(() => {
+                this.remainingSeconds -= 1;
+
+                if (this.remainingSeconds <= 0) {
+                    this.stopCountdown();
+                    this.openWhatsApp();
+
+                    return;
+                }
+
+                this.updateCountdownMessage();
+            }, 1000);
+        },
+
+        destroy() {
+            this.stopCountdown();
+        },
+
+        canOpenWhatsApp() {
+            try {
+                const url = new URL(this.whatsappUrl, window.location.href);
+
+                return ['http:', 'https:'].includes(url.protocol);
+            } catch {
+                return false;
+            }
+        },
+
+        stopCountdown() {
+            if (!this.countdownTimer) return;
+
+            window.clearInterval(this.countdownTimer);
+            this.countdownTimer = null;
+        },
+
+        updateCountdownMessage() {
+            this.statusMessage = `Opening WhatsApp in ${this.remainingSeconds} second${this.remainingSeconds === 1 ? '' : 's'}…`;
+        },
+
+        handleClick(event) {
+            const link = event.target.closest?.('a[target="_blank"]');
+
+            if (!link) return;
+
+            this.stopCountdown();
+            this.hasOpened = true;
+            this.statusMessage = 'Opening WhatsApp in a new window.';
+        },
+
+        openWhatsApp() {
+            if (this.hasOpened || !this.canOpenWhatsApp()) return;
+
+            const popup = window.open(this.whatsappUrl, '_blank', 'noopener,noreferrer');
+
+            if (!popup) {
+                this.statusMessage = 'WhatsApp could not open automatically. Use the button below to continue.';
+
+                return;
+            }
+
+            this.hasOpened = true;
+            this.statusMessage = 'WhatsApp opened in a new window.';
+        },
+    }));
+};
+
 export const registerBookingCalendar = Alpine => {
     Alpine.data('waggiesDatePicker', (config = {}) => ({
         value: config.value || '',

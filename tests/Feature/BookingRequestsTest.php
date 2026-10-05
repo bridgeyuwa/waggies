@@ -556,6 +556,42 @@ it('selects dog size directly and stores it on the submitted pet', function (): 
         ->and($bookingRequest->services->first()->price_snapshot)->toBeNull();
 });
 
+it('adds the submitted build to the Livewire WhatsApp message', function (): void {
+    $component = Livewire::test('booking-request-wizard', [
+        'initialContext' => [
+            'service' => 'boarding',
+            'variant' => 'dogs',
+            'whatsappUrl' => 'https://wa.me/2348000000000?text=old',
+        ],
+    ])
+        ->set('services.0.details.check_in', '2026-10-10')
+        ->set('services.0.details.check_out', '2026-10-12')
+        ->set('services.0.details.emergency_vet_authorization', 'authorized')
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('pets.0.name', 'Bruno')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.size', 'medium')
+        ->set('pets.0.sex', 'male')
+        ->set('contact.name', 'Ada Obi')
+        ->set('contact.email', 'livewire-whatsapp@example.com')
+        ->set('contact.phone', '0808 081 1902')
+        ->set('step', 5)
+        ->call('submit')
+        ->assertSet('submitted', true);
+
+    $whatsappUrl = $component->get('whatsappUrl');
+    $query = [];
+    parse_str((string) parse_url($whatsappUrl, PHP_URL_QUERY), $query);
+
+    expect($query['text'] ?? '')
+        ->toContain('Name: Ada Obi')
+        ->toContain('Service 1: Boarding · Dogs')
+        ->toContain('Bruno')
+        ->toContain('Sat, Oct 10, 2026')
+        ->not->toContain('livewire-whatsapp@example.com')
+        ->not->toContain('0808 081 1902');
+});
+
 it('supports relocation requests for dogs and cats without a local transport service', function (): void {
     expect(BookingRequest::serviceOptions())
         ->toHaveKeys(['boarding', 'vet-care', 'relocation'])
@@ -631,6 +667,27 @@ it('persists a valid request as received and leaves quotation authority with sta
         ->and($bookingRequest->serviceLabel())->toBe('Boarding')
         ->and($bookingRequest->services->first()->quote_amount)->toBeNull()
         ->and($bookingRequest->services->first()->price_snapshot)->toBeNull();
+});
+
+it('adds the submitted build to the standard POST WhatsApp message', function (): void {
+    $response = $this->post(route('booking-requests.store'), bookingRequestPayload());
+
+    $response
+        ->assertRedirect(route('book'))
+        ->assertSessionHas('booking_submitted', true)
+        ->assertSessionHas('booking_whatsapp_url');
+
+    $whatsappUrl = session('booking_whatsapp_url');
+    $query = [];
+    parse_str((string) parse_url($whatsappUrl, PHP_URL_QUERY), $query);
+
+    expect($query['text'] ?? '')
+        ->toContain('Name: Ada Obi')
+        ->toContain('Service 1: Boarding · Dogs')
+        ->toContain('Bruno')
+        ->toContain('Maitama, Abuja')
+        ->not->toContain('ada@example.com')
+        ->not->toContain('0808 081 1902');
 });
 
 it('accepts the simple POST contract for fixed-rate cat boarding', function (): void {

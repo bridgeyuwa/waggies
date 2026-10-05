@@ -6,6 +6,7 @@ use App\Actions\CreateBookingRequest;
 use App\Http\Requests\StoreBookingRequest;
 use App\Models\BusinessProfile;
 use App\Support\BookingPricingCatalog;
+use App\Support\BookingWhatsAppMessage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -13,7 +14,7 @@ use Spatie\SchemaOrg\Schema;
 
 final class BookingRequestsController extends Controller
 {
-    public function create(Request $request): View
+    public function create(Request $request, BookingWhatsAppMessage $bookingWhatsAppMessage): View
     {
         $metadata = [
             'title' => 'Request a Service - Waggies Pet Care Abuja',
@@ -33,7 +34,8 @@ final class BookingRequestsController extends Controller
 
         $source = $this->queryString($request->query('source')) ?? '';
         $serviceOptions = app(BookingPricingCatalog::class)->serviceOptions();
-        $whatsappUrl = BusinessProfile::current()->whatsapp_url;
+        $whatsappUrl = session('booking_whatsapp_url')
+            ?? $bookingWhatsAppMessage->genericUrl(BusinessProfile::current()->whatsapp_url);
         $context = $this->bookingContextFromRequest($request, $serviceOptions);
         $service = $context['service'];
         $variant = $context['variant'];
@@ -44,7 +46,7 @@ final class BookingRequestsController extends Controller
             'selectedService' => $service,
             'selectedVariant' => $variant,
             'source' => $source,
-            'whatsappUrl' => $whatsappUrl.'?text='.rawurlencode('Hello Waggies, I submitted a booking request and would like to continue the conversation.'),
+            'whatsappUrl' => $whatsappUrl,
             'minimumDate' => now()->toDateString(),
             'bookingSubmitted' => (bool) session('booking_submitted'),
             'enableLivewire' => true,
@@ -56,7 +58,7 @@ final class BookingRequestsController extends Controller
                 'care_needs' => $context['care_needs'],
                 'tier' => null,
                 'source' => $source !== '' ? $source : null,
-                'whatsappUrl' => $whatsappUrl.'?text='.rawurlencode('Hello Waggies, I submitted a booking request and would like to continue the conversation.'),
+                'whatsappUrl' => $whatsappUrl,
                 'notice' => $context['notice'],
             ],
         ]);
@@ -172,8 +174,11 @@ final class BookingRequestsController extends Controller
         return $value === '' ? null : $value;
     }
 
-    public function store(StoreBookingRequest $request, CreateBookingRequest $createBookingRequest): RedirectResponse
-    {
+    public function store(
+        StoreBookingRequest $request,
+        CreateBookingRequest $createBookingRequest,
+        BookingWhatsAppMessage $bookingWhatsAppMessage,
+    ): RedirectResponse {
         $validated = $request->safe()->only([
             'name',
             'email',
@@ -200,7 +205,7 @@ final class BookingRequestsController extends Controller
             'source' => $validated['source'] ?? null,
         ]);
 
-        $createBookingRequest->handle([
+        $bookingData = [
             'idempotency_key' => $validated['idempotency_key'] ?? null,
             'contact' => [
                 'name' => $validated['name'],
@@ -229,10 +234,22 @@ final class BookingRequestsController extends Controller
             ]],
             'source' => $validated['source'] ?? null,
             'context' => $context,
-        ]);
+        ];
+
+        $createBookingRequest->handle($bookingData);
+
+        $whatsappUrl = $bookingWhatsAppMessage->bookingUrl(
+            BusinessProfile::current()->whatsapp_url,
+            $bookingData['contact'],
+            $bookingData['pets'],
+            $bookingData['services'],
+        );
 
         return redirect()
             ->route('book')
-            ->with('booking_submitted', true);
+            ->with([
+                'booking_submitted' => true,
+                'booking_whatsapp_url' => $whatsappUrl,
+            ]);
     }
 }
