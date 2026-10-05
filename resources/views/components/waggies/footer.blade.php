@@ -60,7 +60,9 @@
 
                 <nav aria-label="Footer" class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm sm:justify-end">
                     <a href="{{ route('services.index') }}" class="text-white/70 hover:text-white">Services</a>
-                    <a href="{{ route('shop.index') }}" class="text-white/70 hover:text-white">Shop</a>
+                    @if(config('services.waggies_shop.enabled', false))
+                        <a href="{{ route('shop.index') }}" class="text-white/70 hover:text-white">Shop</a>
+                    @endif
                     <a href="{{ route('contact') }}" class="text-white/70 hover:text-white">Contact</a>
                 </nav>
             </div>
