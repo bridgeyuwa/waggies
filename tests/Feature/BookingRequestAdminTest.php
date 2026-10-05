@@ -134,6 +134,89 @@ it('allows staff to update a service quote and synchronizes the parent summary',
         'subject_id' => $service->getKey(),
         'causer_id' => $admin->getKey(),
     ]);
+
+    $activity = Activity::query()
+        ->where('subject_type', BookingRequestService::class)
+        ->where('subject_id', $service->getKey())
+        ->latest('id')
+        ->firstOrFail();
+
+    expect($activity->created_at)->not->toBeNull()
+        ->and($activity->attribute_changes->toArray()['attributes']['quote_amount'])
+        ->toBe(25000)
+        ->and($activity->attribute_changes->toArray()['old']['quote_amount'])
+        ->toBeNull();
+});
+
+it('accepts note-only service quotes but rejects empty quotes', function (): void {
+    $request = BookingRequest::factory()->create();
+    $service = BookingRequestService::factory()->for($request)->create();
+
+    $service->updateOperationalQuote(null, null, 'Manual quote required after the care review.');
+
+    expect($service->fresh()->hasQuoteDecision())->toBeTrue()
+        ->and($service->fresh()->quote_amount)->toBeNull()
+        ->and(function () use ($service): void {
+            $service->updateOperationalQuote(null, null, null);
+        })
+        ->toThrow(\DomainException::class);
+});
+
+it('moves a mixed service request to awaiting customer', function (): void {
+    $request = BookingRequest::factory()->create(['status' => BookingRequestStatus::Quoted]);
+    $confirmedService = BookingRequestService::factory()->for($request)->create([
+        'status' => BookingRequestStatus::Quoted,
+        'quote_amount' => 25000,
+        'quote_currency' => 'NGN',
+    ]);
+    BookingRequestService::factory()->for($request)->create([
+        'status' => BookingRequestStatus::Reviewing,
+    ]);
+
+    $confirmedService->transitionTo(BookingRequestStatus::Confirmed);
+
+    expect($request->fresh()->status)->toBe(BookingRequestStatus::AwaitingCustomer);
+});
+
+it('uses service quotes as the parent quote readiness source', function (): void {
+    $request = BookingRequest::factory()->create(['status' => BookingRequestStatus::Reviewing]);
+    $service = BookingRequestService::factory()->for($request)->create();
+
+    $service->updateOperationalQuote(null, null, 'Manual quote required for this service.');
+
+    expect($request->fresh()->canTransitionTo(BookingRequestStatus::Quoted))->toBeTrue();
+
+    $request->transitionTo(BookingRequestStatus::Quoted);
+
+    expect($request->fresh()->status)->toBe(BookingRequestStatus::Quoted)
+        ->and($request->fresh()->quote_amount)->toBeNull()
+        ->and($request->fresh()->quote_notes)->toContain('Manual quote required');
+});
+
+it('logs lifecycle status changes with actor and old and new values', function (): void {
+    $admin = User::factory()->admin()->create();
+    $request = BookingRequest::factory()->create();
+    $service = BookingRequestService::factory()->for($request)->create([
+        'status' => BookingRequestStatus::Reviewing,
+        'quote_amount' => 25000,
+        'quote_currency' => 'NGN',
+    ]);
+
+    $this->actingAs($admin);
+
+    $service->transitionTo(BookingRequestStatus::Quoted);
+
+    $activity = Activity::query()
+        ->where('subject_type', BookingRequestService::class)
+        ->where('subject_id', $service->getKey())
+        ->latest('id')
+        ->firstOrFail();
+    $changes = $activity->attribute_changes->toArray();
+
+    expect($activity->causer_id)->toBe($admin->getKey())
+        ->and($activity->created_at)->not->toBeNull()
+        ->and($changes['attributes']['status'])->toBe(BookingRequestStatus::Quoted->value)
+        ->and($changes['old']['status'])->toBe(BookingRequestStatus::Reviewing->value);
 });
 
 it('does not allow parent confirmation until every service is confirmed', function (): void {

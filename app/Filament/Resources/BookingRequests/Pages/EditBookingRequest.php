@@ -17,8 +17,8 @@ class EditBookingRequest extends EditRecord
     {
         return [
             $this->statusAction('startReview', 'Start review', BookingRequestStatus::Reviewing),
-            $this->statusAction('markQuoted', 'Mark quoted', BookingRequestStatus::Quoted, requiresQuote: true),
-            $this->statusAction('confirmRequest', 'Confirm request', BookingRequestStatus::Confirmed, requiresAllServices: true),
+            $this->statusAction('markQuoted', 'Mark quoted', BookingRequestStatus::Quoted),
+            $this->statusAction('confirmRequest', 'Confirm request', BookingRequestStatus::Confirmed),
             $this->statusAction('declineRequest', 'Decline request', BookingRequestStatus::Declined),
             $this->statusAction('cancelRequest', 'Cancel request', BookingRequestStatus::Cancelled),
             $this->statusAction('completeRequest', 'Mark completed', BookingRequestStatus::Completed),
@@ -29,8 +29,6 @@ class EditBookingRequest extends EditRecord
         string $name,
         string $label,
         BookingRequestStatus $status,
-        bool $requiresQuote = false,
-        bool $requiresAllServices = false,
     ): Action {
         return Action::make($name)
             ->label($label)
@@ -44,13 +42,11 @@ class EditBookingRequest extends EditRecord
                     ->success()
                     ->send();
             })
-            ->disabled(function () use ($requiresAllServices, $requiresQuote, $status): bool {
+            ->disabled(function () use ($status): bool {
                 /** @var BookingRequest $record */
                 $record = $this->getRecord();
 
-                return ! $record->canTransitionTo($status)
-                    || ($requiresQuote && ! $record->hasQuoteDecision())
-                    || ($requiresAllServices && ! $record->canBeConfirmed());
+                return ! $record->canTransitionTo($status);
             });
     }
 }

@@ -108,6 +108,8 @@ class BookingRequest extends Model
 
     public function transitionTo(BookingRequestStatus $status): void
     {
+        $this->refresh();
+
         $current = $this->getAttribute('status');
         $current = $current instanceof BookingRequestStatus
             ? $current
@@ -121,12 +123,16 @@ class BookingRequest extends Model
             throw new DomainException("Booking request cannot transition from {$current->value} to {$status->value}.");
         }
 
+        if ($status === BookingRequestStatus::Quoted && ! $this->servicesAreQuoteReady()) {
+            throw new DomainException('A booking request needs a calculated amount or quote note before it can be marked quoted.');
+        }
+
         if ($status === BookingRequestStatus::Confirmed && ! $this->canBeConfirmed()) {
             throw new DomainException('Booking request cannot be confirmed until every service is confirmed.');
         }
 
-        if ($status === BookingRequestStatus::Quoted && ! $this->hasQuoteDecision()) {
-            throw new DomainException('A booking request needs a calculated amount or quote note before it can be marked quoted.');
+        if ($status === BookingRequestStatus::Completed && ! $this->canBeCompleted()) {
+            throw new DomainException('Booking request cannot be completed until every service is completed.');
         }
 
         DB::transaction(function () use ($status): void {
@@ -138,9 +144,10 @@ class BookingRequest extends Model
                 $this->services()
                     ->get()
                     ->each(function (BookingRequestService $service) use ($status): void {
-                        $serviceStatus = $service->status instanceof BookingRequestStatus
-                            ? $service->status
-                            : BookingRequestStatus::from((string) $service->status);
+                        $serviceStatus = $service->getAttribute('status');
+                        $serviceStatus = $serviceStatus instanceof BookingRequestStatus
+                            ? $serviceStatus
+                            : BookingRequestStatus::from((string) $serviceStatus);
 
                         if (! $serviceStatus->isResolved()) {
                             $service->transitionTo($status);
@@ -157,7 +164,20 @@ class BookingRequest extends Model
             ? $current
             : BookingRequestStatus::from((string) $current);
 
-        return $current === $status || $current->canTransitionTo($status);
+        if ($current === $status) {
+            return true;
+        }
+
+        if (! $current->canTransitionTo($status)) {
+            return false;
+        }
+
+        return match ($status) {
+            BookingRequestStatus::Quoted => $this->servicesAreQuoteReady(),
+            BookingRequestStatus::Confirmed => $this->canBeConfirmed(),
+            BookingRequestStatus::Completed => $this->canBeCompleted(),
+            default => true,
+        };
     }
 
     public function canBeConfirmed(): bool
@@ -170,7 +190,47 @@ class BookingRequest extends Model
 
     public function hasQuoteDecision(): bool
     {
-        return $this->quote_amount !== null || filled($this->quote_notes);
+        return $this->servicesAreQuoteReady();
+    }
+
+    public function canBeCompleted(): bool
+    {
+        return $this->services()->exists()
+            && ! $this->services()
+                ->where('status', '!=', BookingRequestStatus::Completed->value)
+                ->exists();
+    }
+
+    public function servicesAreQuoteReady(): bool
+    {
+        $services = $this->services()->get(['quote_amount', 'quote_currency', 'quote_notes']);
+
+        return $services->isNotEmpty()
+            && $services->every(fn (BookingRequestService $service): bool => $service->hasQuoteDecision());
+    }
+
+    public function syncMixedServiceOutcome(): void
+    {
+        $statuses = $this->services()->pluck('status');
+        $hasConfirmedService = $statuses->contains(fn (mixed $status): bool => $this->statusValue($status) === BookingRequestStatus::Confirmed->value);
+        $hasUnresolvedOrDeclinedService = $statuses->contains(function (mixed $status): bool {
+            $statusValue = $this->statusValue($status);
+
+            return $statusValue === BookingRequestStatus::Declined->value
+                || $statusValue === BookingRequestStatus::Cancelled->value
+                || ! BookingRequestStatus::tryFrom($statusValue)?->isResolved();
+        });
+
+        if (! $hasConfirmedService || ! $hasUnresolvedOrDeclinedService) {
+            return;
+        }
+
+        $this->refresh();
+
+        if ($this->statusValue($this->getAttribute('status')) !== BookingRequestStatus::AwaitingCustomer->value
+            && $this->canTransitionTo(BookingRequestStatus::AwaitingCustomer)) {
+            $this->transitionTo(BookingRequestStatus::AwaitingCustomer);
+        }
     }
 
     public function syncQuoteSummary(): void
@@ -211,5 +271,10 @@ class BookingRequest extends Model
             ->values();
 
         return $notes->isNotEmpty() ? $notes->implode(PHP_EOL) : null;
+    }
+
+    private function statusValue(mixed $status): string
+    {
+        return $status instanceof BookingRequestStatus ? $status->value : (string) $status;
     }
 }

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -95,9 +96,12 @@ class BookingRequestService extends Model
 
     public function transitionTo(BookingRequestStatus $status): void
     {
-        $current = $this->status instanceof BookingRequestStatus
-            ? $this->status
-            : BookingRequestStatus::from((string) $this->status);
+        $this->refresh();
+
+        $current = $this->getAttribute('status');
+        $current = $current instanceof BookingRequestStatus
+            ? $current
+            : BookingRequestStatus::from((string) $current);
 
         if ($current === $status) {
             return;
@@ -111,22 +115,65 @@ class BookingRequestService extends Model
             throw new DomainException('A service needs a quote amount or quote note before it can be quoted or confirmed.');
         }
 
-        $this->setAttribute('status', $status);
-        $this->status_changed_at = now();
-        $this->save();
+        DB::transaction(function () use ($status): void {
+            $this->setAttribute('status', $status);
+            $this->status_changed_at = now();
+            $this->save();
+
+            $this->bookingRequest()->first()?->syncMixedServiceOutcome();
+        });
     }
 
     public function canTransitionTo(BookingRequestStatus $status): bool
     {
-        $current = $this->status instanceof BookingRequestStatus
-            ? $this->status
-            : BookingRequestStatus::from((string) $this->status);
+        $current = $this->getAttribute('status');
+        $current = $current instanceof BookingRequestStatus
+            ? $current
+            : BookingRequestStatus::from((string) $current);
 
-        return $current === $status || $current->canTransitionTo($status);
+        if ($current === $status) {
+            return true;
+        }
+
+        if (! $current->canTransitionTo($status)) {
+            return false;
+        }
+
+        return ! in_array($status, [BookingRequestStatus::Quoted, BookingRequestStatus::Confirmed], true)
+            || $this->hasQuoteDecision();
     }
 
     public function hasQuoteDecision(): bool
     {
-        return $this->quote_amount !== null || filled($this->quote_notes);
+        return ($this->quote_amount !== null && filled($this->quote_currency))
+            || filled($this->quote_notes);
+    }
+
+    public function updateOperationalQuote(?int $amount, ?string $currency, ?string $notes): void
+    {
+        if ($amount !== null && $amount < 0) {
+            throw new DomainException('A service quote amount cannot be negative.');
+        }
+
+        $currency = filled($currency) ? strtoupper(trim($currency)) : null;
+        $notes = filled($notes) ? trim($notes) : null;
+
+        if ($currency !== null && strlen($currency) > 3) {
+            throw new DomainException('A service quote currency cannot exceed three characters.');
+        }
+
+        if ($amount === null && $notes === null) {
+            throw new DomainException('A service quote needs an amount or quote notes before it can be saved.');
+        }
+
+        if ($amount !== null && $currency === null && $notes === null) {
+            throw new DomainException('A service quote amount needs a currency unless quote notes explain the offer.');
+        }
+
+        $this->forceFill([
+            'quote_amount' => $amount,
+            'quote_currency' => $currency,
+            'quote_notes' => $notes,
+        ])->save();
     }
 }
