@@ -7,5 +7,5 @@
 <x-waggies.proof-band variant="boarding" />
 <section class="bg-surface py-20"><div class="page-container"><x-waggies.section-heading eyebrow="FREQUENT QUESTIONS" title="Before You Book Boarding" subtitle="Quick answers to help you prepare your pet for their upcoming stay with peace of mind." spacing="mb-14" /><x-waggies.faq-accordion :faqs="$faqs" /></div></section>
 @php($boardingCta = ['heading' => 'Request Your Pet’s Stay', 'headingAccent' => 'While You\'re Away', 'body' => 'Send your preferred dates and pet details. Waggies will review availability, care needs, and final pricing with you.', 'primaryLabel' => 'Submit Boarding Request', 'primaryRoute' => 'book', 'primaryParams' => ['service' => 'boarding']])
-<section class="w-full py-20"><div class="page-container"><x-waggies.cta-split :cta="$boardingCta" /></div></section>
+<section class="w-full py-20"><div class="page-container"><x-waggies.cta-primary :cta="$boardingCta" /></div></section>
 @endsection

@@ -27,14 +27,14 @@
                         <p class="text-sm text-primary-dark/60">Looking for a particular service?</p>
 
                         <nav class="flex flex-wrap items-center gap-x-6 gap-y-2" aria-label="More Waggies links">
-                            <x-waggies.button href="{{ route('services.index') }}" variant="link" class="text-sm">
+                            <a href="{{ route('services.index') }}" class="inline-flex min-h-11 items-center gap-1.5 rounded-sm text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2">
                                 Browse services
                                 <x-waggies.icon name="arrow-forward" size="16" />
-                            </x-waggies.button>
-                            <x-waggies.button href="{{ route('contact') }}" variant="link" class="text-sm">
+                            </a>
+                            <a href="{{ route('contact') }}" class="inline-flex min-h-11 items-center gap-1.5 rounded-sm text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2">
                                 Contact Waggies
                                 <x-waggies.icon name="arrow-forward" size="16" />
-                            </x-waggies.button>
+                            </a>
                         </nav>
                     </div>
                 </div>

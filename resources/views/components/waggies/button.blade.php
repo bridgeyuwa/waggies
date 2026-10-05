@@ -1,7 +1,6 @@
 @props([
     'href' => null,
     'variant' => 'primary',
-    'tone' => 'light',
     'size' => 'md',
     'type' => 'button',
     'disabled' => false,
@@ -9,13 +8,11 @@
 ])
 
 @php
-    $isDarkTone = $tone === 'dark';
     $variantClasses = match ($variant) {
-        'secondary' => $isDarkTone ? 'w-cta w-cta--secondary-on-dark' : 'w-cta w-cta--secondary',
-        'link' => $isDarkTone
-            ? 'w-cta-link inline-flex min-h-11 items-center gap-1.5 font-semibold text-secondary transition-colors hover:text-white hover:underline'
-            : 'w-cta-link inline-flex min-h-11 items-center gap-1.5 font-semibold text-primary transition-colors hover:text-primary-dark hover:underline',
-        default => $isDarkTone ? 'w-cta w-cta--primary-on-dark' : 'w-cta w-cta--primary',
+        'secondary' => 'w-cta w-cta--secondary',
+        'outline' => 'w-cta w-cta--secondary bg-transparent',
+        'link' => 'w-cta-link inline-flex min-h-11 items-center gap-1.5 font-semibold text-primary transition-colors hover:text-primary-dark hover:underline',
+        default => 'w-cta w-cta--primary',
     };
     $sizeClasses = match ($size) {
         'sm' => 'w-cta--sm',

@@ -25,7 +25,7 @@
             @foreach(['health', 'calculator', 'reference', 'utility'] as $category)
                 @php($items = $grouped->get($category, collect())->reject(fn ($tool) => $tool['id'] === $featured['id'])->values())
                 @if($items->isNotEmpty())
-                    <div class="mb-12 last:mb-0"><h3 class="text-eyebrow mb-5 text-primary-dark/40">{{ $labels[$category] }}</h3><div class="w-collection w-collection--gap-4 w-collection--sm-2 {{ $items->count() <= 2 ? '' : 'w-collection--lg-3' }}">
+                    <div class="mb-12 last:mb-0"><h3 class="text-eyebrow mb-5 text-primary-dark/40">{{ $labels[$category] }}</h3><div class="grid grid-cols-1 gap-4 {{ $items->count() <= 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3' }}">
                         @foreach($items as $tool)
                             <x-waggies.card hover class="group h-full p-5"><a href="{{ $destination($tool) }}" class="block h-full"><div class="flex items-start gap-4"><div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface-purple text-primary transition-colors group-hover:bg-primary group-hover:text-white"><x-waggies.icon name="{{ $tool['icon'] }}" size="20" /></div><div class="min-w-0 flex-1"><h4 class="truncate font-serif text-base font-bold text-primary-dark transition-colors group-hover:text-primary">{{ $tool['name'] }}</h4><p class="mt-1 line-clamp-2 text-sm leading-relaxed text-primary-dark/50">{{ $tool['description'] }}</p><span class="mt-3 inline-block rounded-full bg-surface-purple px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary">{{ $labels[$category] }}</span></div></div></a></x-waggies.card>
                         @endforeach

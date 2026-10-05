@@ -140,7 +140,7 @@ final class WaggiesContentSeeder extends Seeder
                 continue;
             }
 
-            $seededTestimonial = Testimonial::query()->firstOrCreate(
+            Testimonial::query()->firstOrCreate(
                 [
                     'author_name' => $testimonial['authorName'],
                     'service' => $testimonial['service'],
@@ -155,10 +155,6 @@ final class WaggiesContentSeeder extends Seeder
                     'sort_order' => $sortOrder,
                 ],
             );
-
-            if ($seededTestimonial->consented_at === null) {
-                $seededTestimonial->update(['consented_at' => now()]);
-            }
         }
     }
 

@@ -1685,7 +1685,12 @@ new class extends Component
                 <h2 id="booking-form-title" class="font-serif text-2xl font-bold text-primary-dark sm:text-3xl">Your request was received</h2>
                 <p class="mt-3 max-w-xl text-sm leading-relaxed text-primary-dark/70">Our team will review each service, pet assignment, and date, then contact you to confirm the next steps. Your requested dates are not reserved until Waggies confirms them.</p>
             </div>
-            <x-waggies.booking-request-success-actions :whatsapp-url="$this->whatsappUrl" />
+            <div class="flex flex-col gap-3 sm:flex-row">
+                <x-waggies.button href="{{ $this->whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="w-full cursor-pointer sm:w-auto">
+                    Continue on WhatsApp <x-waggies.icon name="arrow-forward" size="16" />
+                </x-waggies.button>
+                <x-waggies.button href="{{ route('book') }}" variant="secondary" class="w-full cursor-pointer sm:w-auto">Send another request</x-waggies.button>
+            </div>
         </div>
     @else
         @if($contextNotice)
@@ -1836,7 +1841,7 @@ new class extends Component
                     <div class="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-surface-purple text-primary"><x-waggies.brand-icon name="whatsapp" size="18" /></div>
                     <h3 id="booking-whatsapp-heading" class="font-serif text-xl font-bold text-primary-dark">Prefer to talk now?</h3>
                     <p class="mt-2 text-sm leading-relaxed text-primary-dark/60">After sending your request, you can continue the conversation on WhatsApp.</p>
-                    <x-waggies.button href="{{ $whatsappUrl }}" variant="link" target="_blank" rel="noopener noreferrer" class="mt-3 text-sm">Open WhatsApp <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
+                    <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex min-h-11 cursor-pointer items-center gap-2 text-sm font-semibold text-primary hover:text-primary-dark">Open WhatsApp <x-waggies.icon name="arrow-forward" size="16" /></a>
                 </section>
             </aside>
         </div>

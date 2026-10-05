@@ -153,7 +153,11 @@
                                         <p class="text-sm text-primary-dark/60">We couldn&rsquo;t find that product in our
                                             catalog. Browse the shop to find the right item, or send a general inquiry
                                             instead.</p>
-                                        <x-waggies.contact-shop-actions />
+                                        <div class="flex gap-3"><x-waggies.button href="{{ route('shop.index') }}">Browse
+                                                Shop <x-waggies.icon name="arrow-forward"
+                                                    size="18" /></x-waggies.button><x-waggies.button
+                                                href="{{ route('contact') }}" variant="secondary"><x-waggies.icon
+                                                    name="arrow-back" size="18" />Back</x-waggies.button></div>
                                     </div>
                                 </template>
                                 <template x-if="schema.intent === 'CART_ORDER' && cartEmpty && step === 'form'">
@@ -164,7 +168,11 @@
                                             <p class="text-sm text-primary-dark/60">Add products to your saved list before
                                                 asking about availability.</p>
                                         </div>
-                                        <x-waggies.contact-shop-actions />
+                                        <div class="flex gap-3"><x-waggies.button href="{{ route('shop.index') }}">Browse
+                                                Shop <x-waggies.icon name="arrow-forward"
+                                                    size="18" /></x-waggies.button><x-waggies.button
+                                                href="{{ route('contact') }}" variant="secondary"><x-waggies.icon
+                                                    name="arrow-back" size="18" />Back</x-waggies.button></div>
                                     </div>
                                 </template>
                                 <template

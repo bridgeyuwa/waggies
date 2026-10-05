@@ -4,24 +4,27 @@
 ])
 
 @php
+    /** @var array<int, array{label: string, url: string, icon?: string, iconBefore?: string}> $actions */
     $isImageTone = $tone === 'image';
-    $normalizedActions = [];
-
-    foreach ($actions as $index => $action) {
-        $isPrimary = $index === 0;
-
-        $normalizedActions[] = [
-            'href' => $action['href'] ?? $action['url'] ?? null,
-            'label' => $action['label'],
-            'variant' => $action['variant'] ?? ($isPrimary ? 'primary' : 'secondary'),
-            'tone' => $isImageTone ? 'dark' : 'light',
-            'iconBefore' => $action['iconBefore'] ?? null,
-            'iconAfter' => $action['iconAfter'] ?? $action['icon'] ?? ($isPrimary ? 'arrow-forward' : null),
-            'iconSize' => $action['iconSize'] ?? 18,
-            'target' => $action['target'] ?? null,
-            'rel' => $action['rel'] ?? null,
-        ];
-    }
 @endphp
 
-<x-waggies.cta-actions :actions="$normalizedActions" align="start" {{ $attributes }} />
+<div {{ $attributes->class(['flex flex-wrap gap-3']) }}>
+    @foreach($actions as $index => $action)
+        @php($isPrimary = $index === 0)
+        <x-waggies.button
+            href="{{ $action['url'] }}"
+            variant="{{ $isPrimary ? 'primary' : 'outline' }}"
+            class="{{ $isPrimary && $isImageTone ? 'bg-secondary! text-primary-dark! hover:bg-secondary-hover!' : '' }} {{ ! $isPrimary && $isImageTone ? 'border-white/30 bg-transparent text-white hover:bg-white/10' : '' }}"
+        >
+            @if(! empty($action['iconBefore']))
+                <x-waggies.icon name="{{ $action['iconBefore'] }}" size="18" class="{{ $isImageTone ? 'text-white' : '' }}" />
+            @endif
+
+            {{ $action['label'] }}
+
+            @if($isPrimary)
+                <x-waggies.icon name="{{ $action['icon'] ?? 'arrow-forward' }}" size="18" />
+            @endif
+        </x-waggies.button>
+    @endforeach
+</div>

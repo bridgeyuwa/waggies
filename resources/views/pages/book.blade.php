@@ -36,9 +36,7 @@
                     </summary>
                     <div class="pt-4">
                         <p class="text-sm leading-relaxed text-primary-dark/60">After sending your request, you can continue the conversation on WhatsApp. Your request is saved before you leave this page.</p>
-                        <x-waggies.button href="{{ $whatsappUrl }}" variant="link" target="_blank" rel="noopener noreferrer" class="mt-4 text-sm">
-                            Open WhatsApp <x-waggies.icon name="arrow-forward" size="16" />
-                        </x-waggies.button>
+                        <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary hover:text-primary-dark">Open WhatsApp <x-waggies.icon name="arrow-forward" size="16" /></a>
                     </div>
                 </details>
             </div>
@@ -53,7 +51,12 @@
                             <h2 id="booking-form-title" class="font-serif text-2xl font-bold text-primary-dark">Your request was received</h2>
                             <p class="mt-3 max-w-xl text-sm leading-relaxed text-primary-dark/70">Our team will review your service, date, and pet details, then contact you to confirm the arrangements. Your requested time is not reserved until Waggies confirms it.</p>
                         </div>
-                        <x-waggies.booking-request-success-actions :whatsapp-url="$whatsappUrl" />
+                        <div class="flex flex-col gap-3 sm:flex-row">
+                            <x-waggies.button href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto">
+                                Continue on WhatsApp <x-waggies.icon name="arrow-forward" size="16" />
+                            </x-waggies.button>
+                            <x-waggies.button href="{{ route('book') }}" variant="secondary" class="w-full sm:w-auto">Send another request</x-waggies.button>
+                        </div>
                     </div>
                 @else
                     @livewire('booking-request-wizard', ['initialContext' => $bookingContext])

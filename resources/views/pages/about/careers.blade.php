@@ -15,10 +15,10 @@
 
                 <div class="border-t border-primary/12 pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
                     <p class="text-sm leading-relaxed text-primary-dark/60">Have a question about careers at Waggies?</p>
-                    <x-waggies.button href="{{ route('contact', ['intent' => 'careers', 'source' => 'careers-page']) }}" variant="link" class="mt-3">
+                    <a href="{{ route('contact', ['intent' => 'careers', 'source' => 'careers-page']) }}" class="mt-3 inline-flex min-h-11 items-center gap-2 font-semibold text-primary transition-colors hover:text-primary-dark focus-visible:underline">
                         Talk to Waggies
                         <x-waggies.icon name="arrow-forward" size="17" />
-                    </x-waggies.button>
+                    </a>
                 </div>
             </div>
         </div>

@@ -27,7 +27,7 @@
                     <p class="mt-5 line-clamp-2 text-sm leading-relaxed text-primary-dark/65">{{ $tool['description'] }}</p><span class="mt-auto inline-flex min-h-[44px] items-center gap-1 pt-4 text-sm font-semibold text-primary">Explore <x-waggies.icon name="arrow-forward" size="15" /></span>
                 </a>
             @endforeach
-        </div><x-waggies.button href="{{ route('tools.index') }}" variant="link" class="mt-4 text-sm">View all tools <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
+        </div><a href="{{ route('tools.index') }}" class="mt-4 inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-primary hover:underline">View all tools <x-waggies.icon name="arrow-forward" size="16" /></a>
     </div>
 </section>
 @endif

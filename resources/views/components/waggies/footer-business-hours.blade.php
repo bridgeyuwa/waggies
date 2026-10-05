@@ -24,10 +24,10 @@
                     @endforeach
                 </div>
             </div>
-            <x-waggies.button href="{{ route('contact') }}" variant="link" tone="dark" class="shrink-0 text-sm">
+            <a href="{{ route('contact') }}" class="inline-flex min-h-11 shrink-0 items-center gap-1.5 text-sm font-semibold text-secondary underline-offset-4 hover:text-white hover:underline">
                 View full hours
                 <x-waggies.icon name="arrow-forward" size="16" />
-            </x-waggies.button>
+            </a>
         </div>
     </section>
 @else
@@ -51,10 +51,10 @@
                     @endforeach
                 </div>
             </div>
-            <x-waggies.button href="{{ route('contact') }}" variant="link" tone="dark" class="shrink-0 text-sm">
+            <a href="{{ route('contact') }}" class="inline-flex min-h-11 shrink-0 items-center gap-1.5 text-sm font-semibold text-secondary underline-offset-4 hover:text-white hover:underline">
                 View full hours
                 <x-waggies.icon name="arrow-forward" size="16" />
-            </x-waggies.button>
+            </a>
         </div>
     </section>
 @endif

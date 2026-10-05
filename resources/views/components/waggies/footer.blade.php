@@ -93,7 +93,8 @@
                                 placeholder="you@example.com" :value="old('email')" :error="$errors->first('email')"
                                 class="h-11! min-h-0! rounded-lg! border-white/20! bg-white/8! pl-10! pr-3! text-sm! text-white! placeholder:text-white/50! focus:border-secondary/60! focus:outline-none! focus:ring-2! focus:ring-secondary/30!" />
                         </div>
-                        <x-waggies.button type="submit" tone="dark" class="w-full text-sm sm:w-auto"
+                        <x-waggies.button type="submit"
+                            class="h-11 w-full rounded-lg bg-secondary px-5 text-sm text-primary-dark shadow-sm hover:bg-secondary-hover sm:w-auto"
                             aria-label="Subscribe to newsletter" x-bind:disabled="submitting"
                             x-bind:aria-busy="submitting">
                             <span x-show="!submitting" class="inline-flex items-center gap-2"><x-waggies.icon
