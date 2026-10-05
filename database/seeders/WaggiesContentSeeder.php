@@ -83,6 +83,11 @@ final class WaggiesContentSeeder extends Seeder
                     'slug' => $guide['slug'],
                     'excerpt' => $guide['excerpt'],
                     'category' => $guide['category'],
+                    'relocation_direction' => $guide['relocationDirection'] ?? null,
+                    'origin_country_code' => $guide['originCountryCode'] ?? null,
+                    'destination_country_code' => $guide['destinationCountryCode'] ?? null,
+                    'last_reviewed_at' => $guide['lastReviewedAt'] ?? null,
+                    'source_links' => $guide['sourceLinks'] ?? null,
                     'image' => $guide['image'] ?? null,
                     'image_alt' => $guide['imageAlt'] ?? null,
                     'read_time' => $guide['readTime'] ?? null,
@@ -95,6 +100,16 @@ final class WaggiesContentSeeder extends Seeder
                     'include_in_sitemap' => true,
                 ],
             );
+
+            if (filled($guide['relocationDirection'] ?? null) && blank($record->relocation_direction)) {
+                $record->fill([
+                    'relocation_direction' => $guide['relocationDirection'],
+                    'origin_country_code' => $guide['originCountryCode'],
+                    'destination_country_code' => $guide['destinationCountryCode'],
+                    'last_reviewed_at' => $guide['lastReviewedAt'],
+                    'source_links' => $guide['sourceLinks'],
+                ])->save();
+            }
 
             $this->attachInitialMediaIfMissing($record, 'cover', $guide['image'] ?? null);
         }
