@@ -34,7 +34,7 @@
                 @if(count($related) > 0)
                     <section class="mt-16">
                         <h2 class="font-serif text-h3 font-bold text-primary-dark mb-8">Related Articles</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="w-collection w-collection--gap-6 w-collection--md-2 w-collection--lg-3">
                             @foreach($related as $relatedArticle)
                                 <x-waggies.article-card :guide="$relatedArticle" route-name="knowledge-base.show" show-meta />
                             @endforeach

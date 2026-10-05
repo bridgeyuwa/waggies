@@ -21,7 +21,7 @@
                     <x-waggies.article-card :guide="$featured" featured class="mb-8" />
 
                     @if(count($rest) > 0)
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="w-collection w-collection--gap-6 w-collection--md-2 w-collection--lg-3">
                             @foreach($rest as $guide)
                                 <x-waggies.article-card :guide="$guide" />
                             @endforeach

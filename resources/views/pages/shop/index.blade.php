@@ -26,7 +26,7 @@
             @endforeach
         </div>
 
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div class="w-collection w-collection--gap-6 w-collection--sm-2 w-collection--lg-3 w-collection--xl-4">
             @foreach($products as $product)
                 <x-waggies.shop-product-card :product="$product" visibility="activeCategory === 'All' || activeCategory === '{{ $product['category'] }}'" />
             @endforeach

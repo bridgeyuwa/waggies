@@ -16,13 +16,13 @@ abstract class Controller
     {
         return array_map(static function (array $action): array {
             if (isset($action['route'])) {
-                $action['url'] = route($action['route'], $action['params'] ?? []);
+                $action['href'] = route($action['route'], $action['params'] ?? []);
                 unset($action['route'], $action['params']);
             }
 
-            if (isset($action['href'])) {
-                $action['url'] = $action['href'];
-                unset($action['href']);
+            if (isset($action['url'])) {
+                $action['href'] = $action['url'];
+                unset($action['url']);
             }
 
             return $action;

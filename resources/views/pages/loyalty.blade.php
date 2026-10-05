@@ -48,7 +48,7 @@
         <div class="page-container">
             <x-waggies.section-heading :eyebrow="$page['tiersHeading']['eyebrow']" :title="$page['tiersHeading']['title']" />
 
-            <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
+            <div class="w-collection w-collection--gap-8 w-collection--md-3 mt-10">
                 @foreach($page['tiers'] as $tier)
                     <x-waggies.card hover class="p-8">
                         <x-waggies.icon name="{{ $tier['icon'] }}" variant="filled" size="36" class="text-4xl {{ $tier['color'] }} mb-3 block!" />

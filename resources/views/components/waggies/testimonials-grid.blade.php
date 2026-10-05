@@ -8,7 +8,7 @@
             @endforeach
         </div></fieldset></div>
         <p class="text-sm text-primary-dark/50 mb-6" aria-live="polite">Showing <span x-text="filteredCount()"></span> of {{ count($items) }} testimonials</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="w-collection w-collection--gap-6 w-collection--md-2 w-collection--lg-3">
             @foreach($items as $item)
                 <x-waggies.card x-show="selected === 'all' || selected === '{{ $item['service'] }}'" x-transition.opacity class="p-7 transition-shadow flex flex-col gap-4 h-full">
                     @php($rating = (int) ($item['stars'] ?? 0))

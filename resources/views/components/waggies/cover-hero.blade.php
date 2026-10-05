@@ -9,8 +9,8 @@
 
 @php
     $sizeClasses = match ($size) {
-        'compact' => 'min-h-105 md:min-h-112',
-        default => 'min-h-140',
+        'compact' => 'w-cover-hero--compact',
+        default => '',
     };
 
     $contentPositionClasses = match ($contentPosition) {
@@ -27,13 +27,13 @@
     };
 
     $scrimClass = match ($scrim ?? $hero['scrim'] ?? 'standard') {
-        'light' => 'bg-[linear-gradient(to_bottom,rgba(0,0,0,0.06)_0%,rgba(0,0,0,0.18)_52%,rgba(0,0,0,0.46)_100%)]',
-        'strong' => 'bg-[linear-gradient(to_bottom,rgba(0,0,0,0.16)_0%,rgba(0,0,0,0.42)_52%,rgba(0,0,0,0.82)_100%)]',
-        default => 'bg-[linear-gradient(to_bottom,rgba(0,0,0,0.10)_0%,rgba(0,0,0,0.28)_52%,rgba(0,0,0,0.70)_100%)]',
+        'light' => 'bg-gradient-to-b from-primary-dark/5 via-primary-dark/15 to-primary-dark/45',
+        'strong' => 'bg-gradient-to-b from-primary-dark/20 via-primary-dark/40 to-primary-dark/80',
+        default => 'bg-gradient-to-b from-primary-dark/10 via-primary-dark/30 to-primary-dark/70',
     };
 @endphp
 
-<section {{ $attributes->class(['relative isolate flex flex-col overflow-hidden bg-primary-dark', $sizeClasses, $contentPositionClasses]) }} aria-labelledby="{{ $titleId }}">
+<section {{ $attributes->class(['w-cover-hero relative isolate flex flex-col overflow-hidden bg-primary-dark', $sizeClasses, $contentPositionClasses]) }} aria-labelledby="{{ $titleId }}">
     <x-waggies.image
         :src="$hero['imageSrc']"
         :alt="$hero['imageAlt']"
@@ -53,7 +53,7 @@
                     </span>
                 @endif
 
-                <h1 id="{{ $titleId }}" class="mb-4 text-balance font-serif text-4xl font-bold leading-tight text-white md:text-5xl lg:text-[3.25rem] lg:leading-[1.08]">{!! $hero['title'] !!}</h1>
+                <h1 id="{{ $titleId }}" class="text-h1 mb-4 text-balance text-white">{!! $hero['title'] !!}</h1>
 
                 @if(isset($supporting) && $supporting->isNotEmpty())
                     <div class="mb-5">

@@ -33,6 +33,8 @@ if (app()->isLocal()) {
         Route::get('/500', fn () => abort(500));
         Route::get('/503', fn () => abort(503));
     });
+
+    Route::view('/__test/ctas', 'pages.cta-audit')->name('__test.ctas');
 }
 
 Route::get('/', HomeController::class)->name('home');

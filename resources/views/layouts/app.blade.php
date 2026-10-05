@@ -43,7 +43,7 @@
                     <p class="mt-1 text-sm text-primary-dark/50" x-text="items.length === 0 ? 'Your saved list is empty' : `${items.length} item${items.length === 1 ? '' : 's'} saved for enquiry`"></p>
                 </div>
                 <div x-show="items.length === 0" class="flex flex-1 flex-col items-center justify-center gap-4 px-6">
-                    <x-waggies.icon name="shopping-cart" size="48" class="text-primary-dark/15"/><p class="text-center text-sm text-primary-dark/60">No products saved yet. Browse the catalogue to find something for your pet.</p><a href="{{ route('shop.index') }}" @click="close()" class="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-dark"><x-waggies.icon name="arrow-forward" size="16"/>Browse catalogue</a>
+                    <x-waggies.icon name="shopping-cart" size="48" class="text-primary-dark/15"/><p class="text-center text-sm text-primary-dark/60">No products saved yet. Browse the catalogue to find something for your pet.</p><x-waggies.button href="{{ route('shop.index') }}" variant="link" @click="close()" class="mt-2 text-sm"><x-waggies.icon name="arrow-forward" size="16"/>Browse catalogue</x-waggies.button>
                 </div>
                 <template x-if="items.length > 0">
                     <div class="flex min-h-0 flex-1 flex-col">
