@@ -91,9 +91,11 @@ class BookingRequestsTable
 
     private static function nextStep(BookingRequest $record): string
     {
-        $status = $record->status instanceof BookingRequestStatus
-            ? $record->status
-            : BookingRequestStatus::from((string) $record->status);
+        $status = BookingRequestStatus::tryFrom((string) $record->getRawOriginal('status'));
+
+        if ($status === null) {
+            return 'Unknown status';
+        }
 
         return match ($status) {
             BookingRequestStatus::New => 'Start review',

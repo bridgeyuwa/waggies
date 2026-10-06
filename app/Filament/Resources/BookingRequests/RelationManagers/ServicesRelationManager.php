@@ -10,6 +10,7 @@ use App\Models\BookingRequestService;
 use App\Support\BookingPricingCatalog;
 use App\Support\BookingRequestCorrectionLogger;
 use App\Support\BookingRequestSchema;
+use DateTimeInterface;
 use DomainException;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -225,7 +226,7 @@ class ServicesRelationManager extends RelationManager
                             ->schema(fn (Get $get, BookingRequestService $record): array => BookingRequestDetailFields::serviceFields(
                                 filled($get('service_key')) ? (string) $get('service_key') : null,
                                 filled($get('service_variant')) ? (string) $get('service_variant') : null,
-                                array_key_exists('message', $record->details ?? []),
+                                array_key_exists('message', self::details($record)),
                             ))
                             ->columnSpanFull(),
                     ])
@@ -245,7 +246,7 @@ class ServicesRelationManager extends RelationManager
                     ->columnSpanFull(),
             ])
             ->fillForm(function (BookingRequestService $record): array {
-                $details = $record->details ?? [];
+                $details = self::details($record);
 
                 if ($record->service_key === 'vet-care'
                     && empty($details['care_needs'])
@@ -259,8 +260,8 @@ class ServicesRelationManager extends RelationManager
                     'service_key' => $record->service_key,
                     'service_variant' => $record->service_variant,
                     'pricing_tier' => $record->pricing_tier,
-                    'requested_date' => $record->requested_date?->format('Y-m-d'),
-                    'requested_end_date' => $record->requested_end_date?->format('Y-m-d'),
+                    'requested_date' => self::formatDate($record->getAttribute('requested_date')),
+                    'requested_end_date' => self::formatDate($record->getAttribute('requested_end_date')),
                     'requested_time' => $record->requested_time,
                     'location' => $record->location,
                     'details' => $details,
@@ -274,7 +275,7 @@ class ServicesRelationManager extends RelationManager
             ->action(function (array $data, BookingRequestService $record): void {
                 $bookingRequest = $record->bookingRequest()->firstOrFail();
                 $isPrimaryService = $this->matchesParentSummary($bookingRequest, $record);
-                $originalDetails = $record->details ?? [];
+                $originalDetails = self::details($record);
                 $originalAdditionalDetails = BookingRequestDetailFields::additionalDetails(
                     $originalDetails,
                     BookingRequestDetailFields::serviceDetailKeys(
@@ -318,10 +319,10 @@ class ServicesRelationManager extends RelationManager
                 $details = array_replace($details, $additionalDetails);
                 $requestedDate = array_key_exists('requested_date', $data)
                     ? ($data['requested_date'] ?: null)
-                    : ($serviceKey === $record->service_key ? $record->requested_date?->format('Y-m-d') : null);
+                     : ($serviceKey === $record->service_key ? self::formatDate($record->getAttribute('requested_date')) : null);
                 $requestedEndDate = array_key_exists('requested_end_date', $data)
                     ? ($data['requested_end_date'] ?: null)
-                    : ($serviceKey === $record->service_key ? $record->requested_end_date?->format('Y-m-d') : null);
+                     : ($serviceKey === $record->service_key ? self::formatDate($record->getAttribute('requested_end_date')) : null);
 
                 if ($serviceKey === 'boarding') {
                     $requestedDate = $details['check_in'] ?? null;
@@ -338,8 +339,8 @@ class ServicesRelationManager extends RelationManager
                     'service_key' => $record->service_key,
                     'service_variant' => $record->service_variant,
                     'pricing_tier' => $record->pricing_tier,
-                    'requested_date' => $record->requested_date?->format('Y-m-d'),
-                    'requested_end_date' => $record->requested_end_date?->format('Y-m-d'),
+                    'requested_date' => self::formatDate($record->getAttribute('requested_date')),
+                    'requested_end_date' => self::formatDate($record->getAttribute('requested_end_date')),
                     'requested_time' => $record->requested_time,
                     'location' => $record->location,
                     'details' => $originalDetails,
@@ -398,7 +399,7 @@ class ServicesRelationManager extends RelationManager
                             'service_key' => $record->service_key,
                             'service_variant' => $record->service_variant,
                             'pricing_tier' => $record->pricing_tier,
-                            'requested_date' => $record->requested_date?->format('Y-m-d') ?? data_get($record->details, 'check_in'),
+                            'requested_date' => self::formatDate($record->getAttribute('requested_date')) ?? data_get($details, 'check_in'),
                             'requested_time' => $record->requested_time,
                             'location' => $record->location ?? data_get($record->details, 'pickup'),
                         ])->saveQuietly();
@@ -431,7 +432,13 @@ class ServicesRelationManager extends RelationManager
      */
     private function assignedPetOptions(): array
     {
-        return $this->getOwnerRecord()
+        $ownerRecord = $this->getOwnerRecord();
+
+        if (! $ownerRecord instanceof BookingRequest) {
+            return [];
+        }
+
+        return $ownerRecord
             ->pets()
             ->orderBy('name')
             ->get()
@@ -447,8 +454,8 @@ class ServicesRelationManager extends RelationManager
 
     private function matchesParentSummary(BookingRequest $bookingRequest, BookingRequestService $service): bool
     {
-        $serviceDate = $service->requested_date?->format('Y-m-d') ?? data_get($service->details, 'check_in');
-        $requestDate = $bookingRequest->requested_date?->format('Y-m-d');
+        $serviceDate = self::formatDate($service->getAttribute('requested_date')) ?? data_get(self::details($service), 'check_in');
+        $requestDate = self::formatDate($bookingRequest->getAttribute('requested_date'));
 
         return $bookingRequest->service_key === $service->service_key
             && $bookingRequest->service_variant === $service->service_variant
@@ -456,6 +463,25 @@ class ServicesRelationManager extends RelationManager
             && $requestDate === $serviceDate
             && $bookingRequest->requested_time === $service->requested_time
             && $bookingRequest->location === ($service->location ?? data_get($service->details, 'pickup'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function details(BookingRequestService $service): array
+    {
+        $details = $service->getAttribute('details');
+
+        return is_array($details) ? $details : [];
+    }
+
+    private static function formatDate(mixed $date): ?string
+    {
+        if ($date instanceof DateTimeInterface) {
+            return $date->format('Y-m-d');
+        }
+
+        return is_string($date) && $date !== '' ? $date : null;
     }
 
     private function refreshServiceFields(Select $component): void

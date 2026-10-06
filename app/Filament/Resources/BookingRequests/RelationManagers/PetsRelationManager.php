@@ -102,7 +102,8 @@ class PetsRelationManager extends RelationManager
                             ->columnSpanFull(),
                     ])
                     ->fillForm(function (BookingRequestPet $record): array {
-                        $details = $record->details ?? [];
+                        $details = $record->getAttribute('details');
+                        $details = is_array($details) ? $details : [];
 
                         return [
                             'name' => $record->name,

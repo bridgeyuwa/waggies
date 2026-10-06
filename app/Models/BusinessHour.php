@@ -382,16 +382,18 @@ final class BusinessHour extends Model
      */
     private static function exceptionRow(self $record, OpeningHours $openingHours): array
     {
-        $exceptionHours = $openingHours->forDate($record->date);
+        $date = self::dateAttribute($record, 'date');
+        $endDate = self::optionalDateAttribute($record, 'end_date');
+        $exceptionHours = $openingHours->forDate($date);
         $intervals = self::presentationIntervals($exceptionHours);
 
         return [
             'key' => $record->packageExceptionKey(),
-            'date' => $record->date?->toDateString(),
+            'date' => $date->format('Y-m-d'),
             'dateLabel' => $record->exceptionDateLabel(),
             'label' => $record->label,
             'recurrence' => $record->recurrence ?? self::RECURRENCE_ONCE,
-            'isRange' => $record->end_date !== null && ! $record->date?->isSameDay($record->end_date),
+            'isRange' => $endDate !== null && $date->format('Y-m-d') !== $endDate->format('Y-m-d'),
             'isClosed' => $exceptionHours->isEmpty(),
             'hours24' => self::hoursLabel($intervals, 'label24'),
             'hours12' => self::hoursLabel($intervals, 'label12'),
@@ -414,8 +416,8 @@ final class BusinessHour extends Model
 
     private function packageExceptionKey(): string
     {
-        $start = $this->date;
-        $end = $this->end_date ?: $start;
+        $start = self::dateAttribute($this, 'date');
+        $end = self::optionalDateAttribute($this, 'end_date') ?? $start;
         $format = ($this->recurrence ?? self::RECURRENCE_ONCE) === self::RECURRENCE_YEARLY ? 'm-d' : 'Y-m-d';
         $startKey = $start->format($format);
         $endKey = $end->format($format);
@@ -425,15 +427,17 @@ final class BusinessHour extends Model
 
     private function exceptionDateLabel(): ?string
     {
-        if ($this->date === null) {
+        $date = self::optionalDateAttribute($this, 'date');
+
+        if ($date === null) {
             return null;
         }
 
         $isYearly = ($this->recurrence ?? self::RECURRENCE_ONCE) === self::RECURRENCE_YEARLY;
-        $start = $this->date->format($isYearly ? 'j M' : 'j M Y');
-        $end = $this->end_date;
+        $start = $date->format($isYearly ? 'j M' : 'j M Y');
+        $end = self::optionalDateAttribute($this, 'end_date');
 
-        if ($end === null || $this->date->isSameDay($end)) {
+        if ($end === null || $date->format('Y-m-d') === $end->format('Y-m-d')) {
             return $isYearly ? "{$start} (every year)" : $start;
         }
 
@@ -442,6 +446,28 @@ final class BusinessHour extends Model
         return $isYearly
             ? "{$start} – {$endLabel} (every year)"
             : "{$start} – {$endLabel}";
+    }
+
+    private static function dateAttribute(self $record, string $attribute): DateTimeInterface
+    {
+        $date = self::optionalDateAttribute($record, $attribute);
+
+        if ($date === null) {
+            throw new \LogicException("Business hour attribute [{$attribute}] must contain a date.");
+        }
+
+        return $date;
+    }
+
+    private static function optionalDateAttribute(self $record, string $attribute): ?DateTimeInterface
+    {
+        $date = $record->getAttribute($attribute);
+
+        if ($date instanceof DateTimeInterface) {
+            return $date;
+        }
+
+        return is_string($date) && $date !== '' ? CarbonImmutable::parse($date) : null;
     }
 
     private static function shortDayName(string $day): string
