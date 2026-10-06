@@ -233,21 +233,6 @@ final class BookingRequestSchema
     }
 
     /**
-     * @return array<string, mixed>
-     */
-    private static function textField(string $key, string $label, string $placeholder, bool $required = false): array
-    {
-        return [
-            'key' => $key,
-            'label' => $label,
-            'type' => 'text',
-            'required' => $required,
-            'placeholder' => $placeholder,
-            'scope' => 'details',
-        ];
-    }
-
-    /**
      * @param  array<string, string>  $options
      * @return array<string, mixed>
      */

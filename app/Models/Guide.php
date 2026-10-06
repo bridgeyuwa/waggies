@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Support\CountryCatalog;
 use Carbon\Carbon;
+use DateTimeInterface;
 use Filament\Forms\Components\RichEditor\FileAttachmentProviders\SpatieMediaLibraryFileAttachmentProvider;
 use Filament\Forms\Components\RichEditor\Models\Concerns\InteractsWithRichContent;
 use Filament\Forms\Components\RichEditor\Models\Contracts\HasRichContent;
@@ -343,6 +344,7 @@ final class Guide extends Model implements HasMedia, HasRichContent
         $cover = $this->getFirstMedia('cover');
         $countryCatalog = app(CountryCatalog::class);
         $directionOptions = self::relocationDirectionOptions();
+        $lastReviewedAt = $this->getAttribute('last_reviewed_at');
 
         return [
             'id' => $this->id,
@@ -364,7 +366,9 @@ final class Guide extends Model implements HasMedia, HasRichContent
                 'routeLabel' => $this->route_label,
                 'originCountry' => $countryCatalog->label($this->origin_country_code),
                 'destinationCountry' => $countryCatalog->label($this->destination_country_code),
-                'lastReviewedAt' => $this->last_reviewed_at?->format('F j, Y'),
+                'lastReviewedAt' => $lastReviewedAt instanceof DateTimeInterface
+                    ? $lastReviewedAt->format('F j, Y')
+                    : null,
                 'sourceLinks' => $this->publicSourceLinks(),
             ],
         ];
@@ -448,8 +452,13 @@ final class Guide extends Model implements HasMedia, HasRichContent
     private function publicSourceLinks(): array
     {
         $links = [];
+        $sourceLinks = $this->getAttribute('source_links');
 
-        foreach ($this->source_links ?? [] as $sourceLink) {
+        if (! is_array($sourceLinks)) {
+            return [];
+        }
+
+        foreach ($sourceLinks as $sourceLink) {
             if (! is_array($sourceLink)) {
                 continue;
             }
