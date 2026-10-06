@@ -6,9 +6,11 @@
     $whatsappHref = $businessProfile->whatsapp_url;
     $footerColumns = [
         'Services' => [
-            ['Boarding', route('services.boarding')],
+            ['Dog Boarding', route('services.boarding.species', ['species' => 'dogs'])],
+            ['Cat Boarding', route('services.boarding.species', ['species' => 'cats'])],
             ['Veterinary Care', route('services.vet-care')],
-            ['Relocation', route('services.relocation')],
+            ['Pet Import to Nigeria', route('relocation.import')],
+            ['Pet Export from Nigeria', route('relocation.export')],
         ],
         'Company' => [
             ['About', route('about')],
@@ -33,9 +35,6 @@
             ['Boarding Requirements', route('boarding-policy')],
             ['Cancellation & Refunds', route('cancellation-policy')],
             ['Relocation Policy', route('relocation-policy')],
-            ['Privacy Policy', route('privacy-policy')],
-            ['Terms of Service', route('terms-of-service')],
-            ['Cookies Policy', route('cookies-policy')],
         ],
     ];
     $socials = [
@@ -60,7 +59,9 @@
 
                 <nav aria-label="Footer" class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm sm:justify-end">
                     <a href="{{ route('services.index') }}" class="text-white/70 hover:text-white">Services</a>
-                    <a href="{{ route('shop.index') }}" class="text-white/70 hover:text-white">Shop</a>
+                    @if(config('services.waggies_shop.enabled', false))
+                        <a href="{{ route('shop.index') }}" class="text-white/70 hover:text-white">Shop</a>
+                    @endif
                     <a href="{{ route('contact') }}" class="text-white/70 hover:text-white">Contact</a>
                 </nav>
             </div>

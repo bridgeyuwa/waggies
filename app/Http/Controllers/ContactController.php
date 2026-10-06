@@ -19,6 +19,10 @@ class ContactController extends Controller
         $resolvedService = $context['resolvedService'];
         $intent = $context['intent'];
 
+        if (! config('services.waggies_shop.enabled', false) && in_array($intent, ['PRODUCT_INQUIRY', 'CART_ORDER'], true)) {
+            abort(404);
+        }
+
         if ($this->isRemovedBookingContext($intent, $resolvedService)) {
             abort(404);
         }
@@ -26,12 +30,17 @@ class ContactController extends Controller
         $product = $context['product'];
         unset($context['product']);
         $businessProfile = BusinessProfile::current();
+        $shopEnabled = config('services.waggies_shop.enabled', false);
 
         $metadata = [
             'title' => 'Contact Us — Waggies Pet Care Abuja',
-            'description' => 'Get in touch with Waggies Pet Services in Abuja for general questions, partnerships, product enquiries, or support.',
+            'description' => $shopEnabled
+                ? 'Get in touch with Waggies Pet Services in Abuja for general questions, partnerships, product enquiries, or support.'
+                : 'Get in touch with Waggies Pet Services in Abuja for general questions, service requests, partnerships, or support.',
             'ogTitle' => 'Contact Waggies — Abuja Pet Care',
-            'ogDescription' => 'Get in touch with Waggies Pet Services in Abuja. Call, WhatsApp, email, or visit us.',
+            'ogDescription' => $shopEnabled
+                ? 'Get in touch with Waggies Pet Services in Abuja. Call, WhatsApp, email, or visit us.'
+                : 'Get in touch with Waggies Pet Services in Abuja for service requests and support. Call, WhatsApp, email, or visit us.',
             'canonical' => route('contact'),
             'robots' => $request->query() === [] ? ['index', 'follow'] : ['noindex', 'follow'],
         ];

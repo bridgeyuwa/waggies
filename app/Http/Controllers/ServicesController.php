@@ -19,9 +19,11 @@ final class ServicesController extends Controller
             'navSection' => 'services',
             'hero' => ['imageSrc' => '/media/services/hero.jpg', 'imageAlt' => 'Dog outdoors', 'eyebrow' => 'Everything Your Pet Needs', 'title' => 'Pet Care Services,<br/>All Under One Roof', 'description' => 'From overnight boarding to veterinary care and international relocation - Waggies handles each request through a clear review process.', 'actions' => [['label' => 'View Our Services', 'url' => route('services.index').'#services']]],
             'cards' => [
-                ['title' => 'Boarding', 'description' => 'Overnight stays for dogs and cats, priced per pet per night and reviewed before confirmation.', 'route' => 'services.boarding', 'imageSrc' => '/media/services/boarding/card-dogs.jpg', 'imageAlt' => 'Boarding', 'icon' => 'boarding'],
+                ['title' => 'Dog Boarding', 'description' => 'Individual enclosures, owner-supplied food, routine cleaning, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'dogs'], 'imageSrc' => '/media/services/boarding/card-dogs.jpg', 'imageAlt' => 'Happy dogs at Waggies', 'icon' => 'pets'],
+                ['title' => 'Cat Boarding', 'description' => 'Calm individual enclosures, owner-supplied food, routine cleaning, water, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'cats'], 'imageSrc' => '/media/services/boarding/card-cats.jpg', 'imageAlt' => 'Cat settled into an individual boarding enclosure', 'icon' => 'cat'],
                 ['title' => 'Veterinary Care', 'description' => 'Wellness consultations, comprehensive examinations, vaccination requests, and microchipping.', 'route' => 'services.vet-care', 'imageSrc' => '/media/services/vet-care/hero.jpg', 'imageAlt' => 'Veterinarian with dog', 'icon' => 'veterinary-care'],
-                ['title' => 'Pet Relocation', 'description' => 'Custom-quoted import and export coordination for dogs and cats.', 'route' => 'services.relocation', 'imageSrc' => '/media/services/relocation/hero.jpg', 'imageAlt' => 'Pet travel', 'icon' => 'airport-departure'],
+                ['title' => 'Pet Import to Nigeria', 'description' => 'Permits, health clearance, rabies titer verification, and Abuja airport pickup.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
+                ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, rabies titers, IATA crates, and airline coordination.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
             ],
             'band' => [
                 'eyebrow' => 'The Waggies Standard',
@@ -66,23 +68,26 @@ final class ServicesController extends Controller
         $page = $boardingPages['species'][$species];
         if ($species === 'cats' && is_numeric($fixedNightlyRate)) {
             $formattedCatRate = '₦'.number_format((int) $fixedNightlyRate);
-            $page['stats'][3] = [
+            $page['stats'][2] = [
                 'value' => $formattedCatRate,
                 'label' => 'Per Pet / Night',
             ];
             $page['pricingHeading'] = [
                 'eyebrow' => 'Cat Boarding Pricing',
                 'title' => 'One Fixed Nightly Rate',
-                'subtitle' => "Cat boarding is a fixed {$formattedCatRate} per cat per night. Availability, dates, and special-care needs are confirmed during review.",
+                'subtitle' => 'A simple per-cat nightly rate. Availability and special-care needs are confirmed during review.',
             ];
         }
-        $page['hero']['imageSrc'] = "/media/services/boarding/{$species}/hero.jpg";
+        $page['hero']['imageSrc'] = "/media/services/boarding/{$species}/hero.jpg?v=2";
         $page['daily']['images'] = array_map(
-            static fn (int $index): string => "/media/services/boarding/{$species}/daily-".str_pad((string) $index, 2, '0', STR_PAD_LEFT).'.jpg',
+            fn (int $index): string => "/media/services/boarding/{$species}/daily-".str_pad((string) $index, 2, '0', STR_PAD_LEFT).'.jpg?v=2',
             [1, 2, 3, 4],
         );
         if ($species === 'cats') {
             $page['feline']['image'] = '/media/services/boarding/cats/feline.jpg';
+        }
+        if ($species === 'dogs') {
+            $page['canine']['image'] = '/media/services/boarding/dogs/canine.jpg';
         }
         $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
         $faqs = $this->publishedFaqs('boarding', $species);
@@ -178,14 +183,14 @@ final class ServicesController extends Controller
                     'description' => 'Dog boarding in Abuja with individual enclosures, owner-supplied food, routine cleaning, and basic welfare checks.',
                     'hero' => [
                         'imageSrc' => '/media/services/boarding/dogs/hero.jpg',
-                        'imageAlt' => 'Happy dog enjoying a boarding stay at Waggies',
+                        'imageAlt' => 'Dog resting calmly in an individual boarding enclosure',
                         'eyebrow' => 'Dog Boarding',
                         'eyebrowIcon' => 'pets',
                         'title' => 'A Safe, Structured Stay for Your Dog',
                         'description' => 'Individual enclosures and predictable routines designed to keep your dog comfortable while you\'re away.',
                         'actions' => [
                             0 => [
-                                'label' => 'Request boarding',
+                                'label' => 'Request dog boarding',
                                 'route' => 'book',
                                 'params' => [
                                     'service' => 'boarding',
@@ -197,85 +202,22 @@ final class ServicesController extends Controller
                     ],
                     'stats' => [
                         0 => [
-                            'value' => '5k+',
-                            'label' => 'Happy Pet Guests',
-                        ],
-                        1 => [
                             'value' => '1',
                             'label' => 'Enclosure per Pet',
                         ],
-                        2 => [
-                            'value' => 'Nightly',
-                            'label' => 'Per-Pet Pricing',
-                        ],
-                        3 => [
-                            'value' => '100%',
-                            'label' => 'Health Information Reviewed',
-                        ],
-                    ],
-                    'activityHighlights' => [
-                        0 => [
-                            'icon' => 'boarding',
-                            'title' => 'Individual Enclosures',
-                            'desc' => 'Every boarding dog receives its own enclosure.',
-                        ],
                         1 => [
-                            'icon' => 'water',
-                            'title' => 'Water & Cleaning',
-                            'desc' => 'Routine water provision and cleaning are included.',
+                            'value' => 'Routine',
+                            'label' => 'Care Reviewed',
                         ],
                         2 => [
-                            'icon' => 'nutrition',
-                            'title' => 'Owner-Supplied Food',
-                            'desc' => 'We follow your food and feeding instructions.',
-                        ],
-                        3 => [
-                            'icon' => 'verified',
-                            'title' => 'Basic Welfare Checks',
-                            'desc' => 'Routine care is checked and reviewed before confirmation.',
+                            'value' => 'By Size',
+                            'label' => 'Nightly Pricing',
                         ],
                     ],
                     'pricingHeading' => [
                         'eyebrow' => 'Dog Boarding Pricing',
-                        'title' => 'Per-Pet Nightly Boarding',
-                        'subtitle' => 'Choose your dog\'s size for an indicative nightly range. Above 40kg or unusual sizes require manual review.',
-                    ],
-                    'featuresHeading' => [
-                        'eyebrow' => 'What\'s Included',
-                        'title' => 'Everything Your Dog Needs',
-                        'subtitle' => 'Water, owner-supplied food, routine cleaning, basic welfare checks, and a light bath or wash before pickup where safe and appropriate.',
-                    ],
-                    'features' => [
-                        0 => [
-                            'icon' => 'boarding',
-                            'title' => 'Individual Enclosure',
-                            'desc' => 'Each boarding dog receives its own enclosure.',
-                        ],
-                        1 => [
-                            'icon' => 'water',
-                            'title' => 'Water & Cleaning',
-                            'desc' => 'Water and routine cleaning are part of boarding care.',
-                        ],
-                        2 => [
-                            'icon' => 'nutrition',
-                            'title' => 'Owner-Supplied Food',
-                            'desc' => 'We follow the food and feeding instructions you provide.',
-                        ],
-                        3 => [
-                            'icon' => 'verified',
-                            'title' => 'Basic Welfare Checks',
-                            'desc' => 'Routine boarding includes basic welfare checks.',
-                        ],
-                        4 => [
-                            'icon' => 'water',
-                            'title' => 'Light Bath or Wash',
-                            'desc' => 'For boarded dogs before pickup where safe and appropriate.',
-                        ],
-                        5 => [
-                            'icon' => 'verified',
-                            'title' => 'Special-Care Review',
-                            'desc' => 'Medication, handling, and intensive supervision needs are reviewed separately.',
-                        ],
+                        'title' => "Choose your dog's size",
+                        'subtitle' => 'Select the closest size to see an indicative nightly range. Your choice carries into the request, and the team confirms final availability and pricing during review.',
                     ],
                     'daily' => [
                         'heading' => 'Routine Boarding Care',
@@ -314,21 +256,47 @@ final class ServicesController extends Controller
                             3 => '/media/services/boarding/dogs/daily-04.jpg',
                         ],
                     ],
+                    'canine' => [
+                        'eyebrow' => 'WHY DOGS THRIVE AT WAGGIES',
+                        'title' => 'Built for Safe, Structured Stays',
+                        'body' => 'Each dog has individual space, a familiar care rhythm, and a clear review process before the stay is confirmed.',
+                        'bullets' => [
+                            0 => [
+                                'icon' => 'boarding',
+                                'bold' => 'Individual space',
+                                'text' => 'Every boarding dog receives its own enclosure for a calmer stay.',
+                            ],
+                            1 => [
+                                'icon' => 'nutrition',
+                                'bold' => 'Familiar routines',
+                                'text' => 'Owner-supplied food and feeding instructions help keep care recognizable.',
+                            ],
+                            2 => [
+                                'icon' => 'verified',
+                                'bold' => 'Clear safety review',
+                                'text' => 'Health, behaviour, and care needs are reviewed before admission.',
+                            ],
+                        ],
+                        'image' => '/media/services/boarding/dogs/canine.jpg',
+                        'imageAlt' => 'Dog resting calmly in an individual boarding enclosure',
+                    ],
                     'safety' => [
-                        'title' => 'Safety First Policy',
-                        'intro' => 'Boarding admission is reviewed around your dog’s health information, behaviour, care needs, and the practical details of the requested stay.',
+                        'title' => 'Safety Review Before Check-In',
+                        'heading' => 'Clear requirements before every stay',
+                        'intro' => 'Before a stay is confirmed, the team reviews your dog’s health information, behaviour, care needs, and the practical details of the request.',
                         'bullets' => [
                             0 => 'Health and parasite concerns are reviewed before admission',
-                            1 => 'Owners must disclose aggression, escape behaviour, bite history, anxiety, or handling difficulties',
-                            2 => 'Waggies may decline admission when a pet appears ill or needs care beyond the agreed arrangement',
+                            1 => 'Behaviour, escape, bite, anxiety, and handling history must be disclosed',
+                            2 => 'Admission may be declined when needs fall outside the agreed arrangement',
                             3 => 'Emergency veterinary authorization is collected as part of the boarding request',
                         ],
-                        'linkLabel' => 'Ask about boarding requirements',
+                        'linkLabel' => 'See boarding requirements',
                     ],
                     'cta' => [
                         'heading' => 'Ready to Request Your Dog\'s Stay?',
-                        'body' => 'Send a boarding request with your preferred dates. Waggies will confirm availability and details with you.',
-                        'primaryLabel' => 'Request boarding',
+                        'headingAccent' => '',
+                        'body' => 'Send a boarding request with your preferred dates and dog size. Waggies will confirm availability and details with you.',
+                        'primaryLabel' => 'Request dog boarding',
                         'primaryRoute' => 'book',
                         'primaryParams' => [
                             'service' => 'boarding',
@@ -348,7 +316,7 @@ final class ServicesController extends Controller
                         'description' => 'Individual enclosures, owner-supplied food, routine cleaning, water, and basic welfare checks for cats.',
                         'actions' => [
                             0 => [
-                                'label' => 'Request a stay',
+                                'label' => 'Request cat boarding',
                                 'route' => 'book',
                                 'params' => [
                                     'service' => 'boarding',
@@ -368,70 +336,14 @@ final class ServicesController extends Controller
                             'label' => 'Care Reviewed',
                         ],
                         2 => [
-                            'value' => 'Nightly',
-                            'label' => 'Per-Pet Pricing',
-                        ],
-                        3 => [
                             'value' => 'Fixed',
                             'label' => 'Rate per Night',
-                        ],
-                    ],
-                    'sanctuary' => [
-                        'eyebrow' => 'Calm Cat Boarding',
-                        'title' => 'A Quiet, Predictable Stay for Your Cat',
-                        'body' => 'We provide a calm individual enclosure, routine care, and time for each cat to settle. Specific arrangements are reviewed before confirmation.',
-                        'badges' => [
-                            0 => [
-                                'icon' => 'privacy',
-                                'label' => 'Individual Enclosures',
-                            ],
-                            1 => [
-                                'icon' => 'home',
-                                'label' => 'Routine Care',
-                            ],
                         ],
                     ],
                     'pricingHeading' => [
                         'eyebrow' => 'Cat Boarding Pricing',
                         'title' => 'One Fixed Nightly Rate',
-                        'subtitle' => 'Cat boarding uses one fixed nightly rate rather than packages or tiers. Availability and special-care needs are confirmed during review.',
-                    ],
-                    'featuresHeading' => [
-                        'eyebrow' => 'Cat Boarding Includes',
-                        'title' => 'A Calm Environment for Cats',
-                        'subtitle' => 'Cats are sensitive travellers. We provide calm routine care and review any medication, handling, or special-care needs separately.',
-                    ],
-                    'features' => [
-                        0 => [
-                            'icon' => 'boarding',
-                            'title' => 'Individual Enclosures',
-                            'desc' => 'Each boarding cat receives its own enclosure.',
-                        ],
-                        1 => [
-                            'icon' => 'privacy',
-                            'title' => 'Water & Cleaning',
-                            'desc' => 'Routine water provision and cleaning are included.',
-                        ],
-                        2 => [
-                            'icon' => 'verified',
-                            'title' => 'Basic Welfare Checks',
-                            'desc' => 'Routine care includes basic welfare checks.',
-                        ],
-                        3 => [
-                            'icon' => 'nutrition',
-                            'title' => 'Tailored Feeding',
-                            'desc' => 'We follow your owner-supplied food and feeding instructions.',
-                        ],
-                        4 => [
-                            'icon' => 'verified',
-                            'title' => 'Manual Review',
-                            'desc' => 'Medication and special-care needs are reviewed before confirmation.',
-                        ],
-                        5 => [
-                            'icon' => 'notifications',
-                            'title' => 'One Nightly Rate',
-                            'desc' => 'Cat boarding is not split into packages or tiers.',
-                        ],
+                        'subtitle' => 'A simple per-cat nightly rate. Availability and special-care needs are confirmed during review.',
                     ],
                     'daily' => [
                         'heading' => 'A Day in the Life for Cats',
@@ -473,19 +385,22 @@ final class ServicesController extends Controller
                     'feline' => [
                         'eyebrow' => 'Why Cats Love Waggies',
                         'title' => 'Built for Feline Instincts',
-                        'body' => 'An individual enclosure, familiar food instructions, and predictable routine care help cats settle while away from home.',
+                        'body' => 'A quiet enclosure, familiar feeding instructions, and steady welfare checks give cats room to settle while they are away.',
                         'bullets' => [
                             0 => [
-                                'bold' => 'Individual enclosure',
-                                'text' => ' - gives each boarding cat its own space.',
+                                'icon' => 'boarding',
+                                'bold' => 'Private space',
+                                'text' => 'Each cat has its own enclosure for a calmer stay.',
                             ],
                             1 => [
-                                'bold' => 'Owner-supplied food',
-                                'text' => ' - helps us follow your cat’s usual feeding instructions.',
+                                'icon' => 'nutrition',
+                                'bold' => 'Familiar feeding',
+                                'text' => 'Owner-supplied food keeps the routine recognizable.',
                             ],
                             2 => [
-                                'bold' => 'Routine welfare checks',
-                                'text' => ' - with special handling needs reviewed before confirmation.',
+                                'icon' => 'verified',
+                                'bold' => 'Quiet observation',
+                                'text' => 'Welfare checks respect each cat’s pace; special handling is reviewed before confirmation.',
                             ],
                         ],
                         'image' => '/media/services/boarding/cats/feline.jpg',
@@ -493,14 +408,14 @@ final class ServicesController extends Controller
                     ],
                     'safety' => [
                         'title' => 'Feline Safety & Comfort Standards',
-                        'intro' => 'We give cats time to settle in their individual enclosure and follow the agreed food and care instructions. Specific arrangements are reviewed before confirmation.',
+                        'intro' => 'Health information and special-care needs are reviewed before check-in, then the agreed care plan is followed during the stay.',
                         'bullets' => [
                             0 => 'Health information requested during review is checked before check-in',
-                            1 => 'Owner-supplied food and feeding instructions are followed',
-                            2 => 'Medication and special handling are reviewed separately',
-                            3 => 'Welfare concerns are escalated to the appropriate team',
+                            1 => 'Medication and special handling are reviewed separately',
+                            2 => 'Welfare concerns are escalated to the appropriate team',
+                            3 => 'The team confirms arrangements before check-in',
                         ],
-                        'linkLabel' => 'Discuss your cat\'s needs',
+                        'linkLabel' => 'Ask about special care',
                     ],
                     'cta' => [
                         'heading' => 'Ready to Request Your Cat\'s Stay?',

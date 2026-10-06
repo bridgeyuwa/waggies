@@ -26,8 +26,11 @@ final class SearchCatalog
             ['key' => 'contact', 'type' => 'page', 'title' => 'Contact', 'excerpt' => 'Contact Waggies in Abuja for a service request, booking request, quote or general question.', 'route' => 'contact', 'section' => 'Support', 'category' => 'Page', 'keywords' => 'contact phone WhatsApp booking request', 'boost' => 8],
             ['key' => 'careers', 'type' => 'page', 'title' => 'Careers at Waggies', 'excerpt' => 'See current job openings and learn how to apply to join the Waggies team.', 'route' => 'about.careers', 'section' => 'About', 'category' => 'Page', 'keywords' => 'jobs careers vacancies employment', 'boost' => 6],
             ['key' => 'loyalty', 'type' => 'page', 'title' => 'Loyalty Programme', 'excerpt' => 'Learn about Waggies loyalty benefits and ask the team about current eligibility.', 'route' => 'loyalty', 'section' => 'About', 'category' => 'Page', 'keywords' => 'loyalty rewards benefits', 'boost' => 6],
-            ['key' => 'shop', 'type' => 'page', 'title' => 'Pet Shop', 'excerpt' => 'Browse pet food, toys, grooming supplies, health products and accessories.', 'route' => 'shop.index', 'section' => 'Shop', 'category' => 'Page', 'keywords' => 'products pet shop supplies food toys', 'boost' => 7],
         ];
+
+        if (config('services.waggies_shop.enabled', false)) {
+            $entries[] = ['key' => 'shop', 'type' => 'page', 'title' => 'Pet Shop', 'excerpt' => 'Browse pet food, toys, grooming supplies, health products and accessories.', 'route' => 'shop.index', 'section' => 'Shop', 'category' => 'Page', 'keywords' => 'products pet shop supplies food toys', 'boost' => 7];
+        }
 
         foreach (ToolData::catalogue() as $tool) {
             $entries[] = [

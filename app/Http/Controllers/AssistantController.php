@@ -13,6 +13,8 @@ final class AssistantController extends Controller
 {
     public function store(AssistantRequest $request, ClinicalSafetyBoundary $safetyBoundary): JsonResponse
     {
+        abort_unless(config('services.waggies_ai.enabled', false), 404);
+
         if ($safeResponse = $safetyBoundary->responseFor($request->string('message')->toString())) {
             return response()->json(['message' => $safeResponse, 'sources' => []]);
         }

@@ -126,6 +126,27 @@ class CreateBookingRequest
                 ));
                 $requestedDate = $service['requested_date'] ?? $details['check_in'] ?? null;
                 $requestedEndDate = $service['requested_end_date'] ?? $details['check_out'] ?? null;
+                $assignedPets = array_map(function (int $index) use ($petModels): array {
+                    $pet = $petModels[$index];
+
+                    return [
+                        'name' => $pet->name,
+                        'species' => $pet->species,
+                        'breed' => $pet->breed,
+                        'age' => $pet->age,
+                        'sex' => $pet->sex,
+                        'size' => data_get($pet->details, 'size'),
+                        'details' => $pet->details ?? [],
+                    ];
+                }, $servicePetIndexes);
+                $pricingSnapshot = $this->pricingCatalog->quoteForService([
+                    ...$service,
+                    'requested_date' => $requestedDate,
+                    'requested_end_date' => $requestedEndDate,
+                    'requested_time' => $service['requested_time'] ?? null,
+                    'location' => $service['location'] ?? null,
+                    'details' => $details,
+                ], $assignedPets);
 
                 $bookingService = $bookingRequest->services()->create([
                     'service_key' => $service['service_key'],
@@ -138,7 +159,7 @@ class CreateBookingRequest
                     'details' => $details,
                     'quote_amount' => null,
                     'quote_currency' => $this->pricingCatalog->currency(),
-                    'price_snapshot' => null,
+                    'price_snapshot' => $pricingSnapshot,
                 ]);
 
                 $bookingService->pets()->attach(array_map(

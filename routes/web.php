@@ -35,6 +35,7 @@ if (app()->isLocal()) {
     });
 
     Route::view('/__test/ctas', 'pages.cta-audit')->name('__test.ctas');
+    Route::view('/__test/cta-panels', 'pages.cta-panels-prototype')->name('__test.cta-panels');
 }
 
 Route::get('/', HomeController::class)->name('home');
@@ -76,7 +77,7 @@ Route::controller(BookingRequestsController::class)->group(function (): void {
 });
 Route::get('/loyalty', LoyaltyController::class)->name('loyalty');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
-Route::get('/shop/{product:slug}', [ShopController::class, 'show'])->where('product', '[a-z0-9-]+')->name('shop.show');
+Route::get('/shop/{product}', [ShopController::class, 'show'])->where('product', '[a-z0-9-]+')->name('shop.show');
 Route::get('/guides', [GuidesController::class, 'index'])->name('guides.index');
 Route::get('/guides/{slug}', [GuidesController::class, 'show'])->name('guides.show');
 Route::get('/knowledge-base', [KnowledgeBaseController::class, 'index'])->name('knowledge-base.index');

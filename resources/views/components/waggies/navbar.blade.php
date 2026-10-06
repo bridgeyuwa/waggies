@@ -76,13 +76,17 @@
                     @endif
                 </li>
             @endforeach
-            @php($shopCurrent = $navSection === 'shop' || str_starts_with($currentPath, '/shop/'))
-            <li><a href="{{ route('shop.index') }}" class="flex min-h-[44px] items-center rounded-full px-4 py-2 text-[0.8125rem] font-medium uppercase tracking-[0.08em] transition-colors hover:bg-surface-purple hover:text-primary {{ $shopCurrent ? 'bg-surface-purple font-semibold text-primary' : 'text-primary-dark/60' }}" @if($shopCurrent) aria-current="page" @endif>Shop</a></li>
+            @if(config('services.waggies_shop.enabled', false))
+                @php($shopCurrent = $navSection === 'shop' || str_starts_with($currentPath, '/shop/'))
+                <li><a href="{{ route('shop.index') }}" class="flex min-h-[44px] items-center rounded-full px-4 py-2 text-[0.8125rem] font-medium uppercase tracking-[0.08em] transition-colors hover:bg-surface-purple hover:text-primary {{ $shopCurrent ? 'bg-surface-purple font-semibold text-primary' : 'text-primary-dark/60' }}" @if($shopCurrent) aria-current="page" @endif>Shop</a></li>
+            @endif
         </ul>
 
         <div class="flex items-center gap-3">
             <div class="hidden items-center gap-2 lg:flex">
-                <button x-data="waggiesCartIndicator" type="button" aria-controls="global-cart-dialog" aria-expanded="false" class="relative flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-surface-purple focus:outline-none focus:ring-2 focus:ring-primary/60" aria-label="Open saved list" :aria-label="`Open saved list${count > 0 ? `, ${count} item${count === 1 ? '' : 's'}` : ''}`" @click="$dispatch('waggies:open-cart', { trigger: $event.currentTarget })"><x-waggies.icon name="shopping-cart" size="20" class="text-primary-dark" /><span x-show="count > 0" x-cloak class="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-white" x-text="count > 99 ? '99+' : count"></span></button>
+                @if(config('services.waggies_shop.enabled', false))
+                    <button x-data="waggiesCartIndicator" type="button" aria-controls="global-cart-dialog" aria-expanded="false" class="relative flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-surface-purple focus:outline-none focus:ring-2 focus:ring-primary/60" aria-label="Open saved list" :aria-label="`Open saved list${count > 0 ? `, ${count} item${count === 1 ? '' : 's'}` : ''}`" @click="$dispatch('waggies:open-cart', { trigger: $event.currentTarget })"><x-waggies.icon name="shopping-cart" size="20" class="text-primary-dark" /><span x-show="count > 0" x-cloak class="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-white" x-text="count > 99 ? '99+' : count"></span></button>
+                @endif
                 <button type="button" aria-controls="global-search-dialog" aria-expanded="false" class="group relative flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-surface-purple focus:outline-none focus:ring-2 focus:ring-primary/60" aria-label="Search the site" title="Search the site (⌘K / Ctrl+K)" @click="$dispatch('waggies:open-search', { trigger: $event.currentTarget })"><x-waggies.icon name="search" size="20" class="text-primary-dark transition-transform group-hover:scale-110" /></button>
             </div>
             <x-waggies.button href="{{ route('book') }}" class="hidden gap-1.5! px-6 py-3 text-sm lg:block">Request a booking</x-waggies.button>
@@ -151,7 +155,9 @@
                 </div>
             @endforeach
 
-            <a href="{{ route('shop.index') }}" class="mobile-nav-link {{ $navSection === 'shop' || str_starts_with($currentPath, '/shop/') ? 'bg-surface-purple text-primary' : '' }}" @click="closeMobile()" @if($navSection === 'shop' || str_starts_with($currentPath, '/shop/')) aria-current="page" @endif>Shop</a>
+            @if(config('services.waggies_shop.enabled', false))
+                <a href="{{ route('shop.index') }}" class="mobile-nav-link {{ $navSection === 'shop' || str_starts_with($currentPath, '/shop/') ? 'bg-surface-purple text-primary' : '' }}" @click="closeMobile()" @if($navSection === 'shop' || str_starts_with($currentPath, '/shop/')) aria-current="page" @endif>Shop</a>
+            @endif
             <a href="{{ route('contact') }}" class="mobile-nav-link" @click="closeMobile()">Contact</a>
         </nav>
         <div class="sticky bottom-0 space-y-3 border-t border-nav-border bg-white/95 px-4 py-4 backdrop-blur-sm"><x-waggies.button href="{{ route('book') }}" class="w-full gap-1.5! px-6 py-3 text-sm" @click="closeMobile()">Request a booking</x-waggies.button></div>

@@ -40,9 +40,11 @@ final class HomeController extends Controller
                 ],
             ],
             'homeServiceCards' => [
-                ['title' => 'Boarding', 'description' => 'Overnight stays for dogs and cats, priced per pet per night and reviewed before confirmation.', 'route' => 'services.boarding', 'imageSrc' => '/media/home/services-boarding.jpg', 'imageAlt' => 'Happy dog enjoying a boarding stay', 'icon' => 'boarding'],
+                ['title' => 'Dog Boarding', 'description' => 'Individual enclosures, owner-supplied food, routine cleaning, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'dogs'], 'imageSrc' => '/media/services/boarding/card-dogs.jpg', 'imageAlt' => 'Happy dogs at Waggies', 'icon' => 'pets'],
+                ['title' => 'Cat Boarding', 'description' => 'Calm individual enclosures, owner-supplied food, routine cleaning, water, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'cats'], 'imageSrc' => '/media/services/boarding/card-cats.jpg', 'imageAlt' => 'Cat settled into an individual boarding enclosure', 'icon' => 'cat'],
                 ['title' => 'Veterinary Care', 'description' => 'Wellness consultations, comprehensive examinations, vaccination requests, and microchipping.', 'route' => 'services.vet-care', 'imageSrc' => '/media/home/services-vet-care.jpg', 'imageAlt' => 'Veterinarian caring for a dog', 'icon' => 'veterinary-care'],
-                ['title' => 'Pet Relocation', 'description' => 'Custom-quoted import and export coordination for dogs and cats.', 'route' => 'services.relocation', 'imageSrc' => '/media/home/services-relocation.jpg', 'imageAlt' => 'Airplane wing representing pet relocation', 'icon' => 'airport-departure'],
+                ['title' => 'Pet Import to Nigeria', 'description' => 'Permits, health clearance, rabies titer verification, and Abuja airport pickup.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
+                ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, rabies titers, IATA crates, and airline coordination.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
             ],
             'careStandardRows' => [
                 ['title' => '24/7 Supervision', 'description' => 'Your pets are monitored around the clock, never left alone.'],

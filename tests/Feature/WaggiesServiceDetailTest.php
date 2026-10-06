@@ -36,13 +36,26 @@ test('services overview shows four ordered published general FAQs from the datab
 });
 
 test('active service pages keep the existing public service composition', function () {
-    $this->get(route('services.boarding.species', ['species' => 'dogs']))
+    $dogBoardingPage = $this->get(route('services.boarding.species', ['species' => 'dogs']))
         ->assertOk()
         ->assertSeeText('Individual enclosure')
-        ->assertSeeText('Light Bath or Wash')
-        ->assertSeeText('Request boarding')
+        ->assertSeeText('Built for Safe, Structured Stays')
+        ->assertSeeText('Routine Boarding Care')
+        ->assertSeeText("Choose your dog's size")
+        ->assertSeeText('₦8,000–₦12,000')
+        ->assertSeeText('Request dog boarding')
+        ->assertSeeText('See boarding requirements')
+        ->assertDontSeeText("What's Included")
+        ->assertDontSeeText('Water & Cleaning')
+        ->assertDontSeeText('100%')
         ->assertDontSeeText('Daily photos')
         ->assertDontSeeText('Structured play');
+
+    $content = $dogBoardingPage->getContent();
+    expect(strpos($content, 'Built for Safe, Structured Stays'))
+        ->toBeLessThan(strpos($content, 'Routine Boarding Care'))
+        ->and(strpos($content, 'Routine Boarding Care'))
+        ->toBeLessThan(strpos($content, "Choose your dog's size"));
 
     $this->get(route('services.vet-care'))
         ->assertOk()
@@ -55,13 +68,27 @@ test('active service pages keep the existing public service composition', functi
 });
 
 test('cat boarding page shows the fixed nightly rate', function () {
-    $this->get(route('services.boarding.species', ['species' => 'cats']))
+    $content = $this->get(route('services.boarding.species', ['species' => 'cats']))
         ->assertOk()
-        ->assertSeeText('₦12,000 / night')
+        ->assertSeeText('₦12,000')
+        ->assertSeeText('Per cat / night')
         ->assertSeeText('One Fixed Nightly Rate')
         ->assertSeeText('Per Pet / Night')
+        ->assertSeeText('Built for Feline Instincts')
+        ->assertSeeText('A Day in the Life for Cats')
+        ->assertSeeText('Request cat boarding')
+        ->assertDontSeeText('A Quiet, Predictable Stay for Your Cat')
+        ->assertDontSeeText('Cat Boarding Includes')
+        ->assertDontSeeText('A Calm Environment for Cats')
+        ->assertDontSeeText('Submit Booking Request')
         ->assertDontSeeText('Quote required')
-        ->assertDontSeeText('Rate Confirmed During Review');
+        ->assertDontSeeText('Rate Confirmed During Review')
+        ->getContent();
+
+    expect(strpos($content, 'Built for Feline Instincts'))
+        ->toBeLessThan(strpos($content, 'A Day in the Life for Cats'))
+        ->and(strpos($content, 'A Day in the Life for Cats'))
+        ->toBeLessThan(strpos($content, 'One Fixed Nightly Rate'));
 });
 
 test('removed service pages no longer resolve or appear as active calls to action', function () {

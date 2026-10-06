@@ -3,7 +3,10 @@
 namespace App\Filament\Resources\Guides\Schemas;
 
 use App\Models\Guide;
+use App\Support\CountryCatalog;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
 use Filament\Forms\Components\Select;
@@ -14,6 +17,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Image;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
@@ -23,6 +27,11 @@ class GuideForm
     public static function configure(Schema $schema): Schema
     {
         $categories = Guide::categoryOptions();
+        $countryCatalog = app(CountryCatalog::class);
+        $fixedCountryCode = strtoupper((string) config('waggies_booking.relocation.fixed_country_code', 'NG'));
+        $fixedCountryLabel = $countryCatalog->label($fixedCountryCode) ?? $fixedCountryCode;
+        $editableCountryOptions = $countryCatalog->options($fixedCountryCode);
+        $fixedCountryOptions = [$fixedCountryCode => $fixedCountryLabel];
 
         return $schema
             ->components([
@@ -46,6 +55,7 @@ class GuideForm
                         ]),
                         Select::make('category')
                             ->options(array_combine($categories, $categories) ?: [])
+                            ->live()
                             ->required(),
                         Textarea::make('excerpt')
                             ->required()
@@ -67,6 +77,62 @@ class GuideForm
                             ->fileAttachmentsAcceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
                             ->preventFileAttachmentPathTampering()
                             ->columnSpanFull(),
+                    ])
+                    ->columnSpanFull(),
+                Section::make('Relocation metadata')
+                    ->description('Use a scope for standard export or grouped import guides. Use country fields only for a genuinely single-country route.')
+                    ->visible(fn (Get $get): bool => $get('category') === Guide::RELOCATION_CATEGORY || filled($get('relocation_direction')))
+                    ->schema([
+                        Grid::make(2)->schema([
+                            Select::make('relocation_scope')
+                                ->label('Guide scope')
+                                ->options(Guide::relocationScopeOptions())
+                                ->helperText('Grouped guides should explain the shared framework and the differences inside the guide body.')
+                                ->live(),
+                            TextInput::make('route_label')
+                                ->label('Route label')
+                                ->helperText('Example: United Kingdom, EU countries & UAE → Nigeria.')
+                                ->required(fn (Get $get): bool => filled($get('relocation_scope')))
+                                ->visible(fn (Get $get): bool => filled($get('relocation_scope')))
+                                ->maxLength(255),
+                            Select::make('relocation_direction')
+                                ->label('Relocation direction')
+                                ->options(Guide::relocationDirectionOptions())
+                                ->helperText('Waggies currently handles exports from Nigeria and imports to Nigeria.')
+                                ->live(),
+                            DatePicker::make('last_reviewed_at')
+                                ->label('Last reviewed')
+                                ->helperText('Use the date the route requirements were last checked against official sources.'),
+                            Select::make('origin_country_code')
+                                ->label('Origin country')
+                                ->options(fn (Get $get): array => $get('relocation_direction') === Guide::RELOCATION_DIRECTION_EXPORT ? $fixedCountryOptions : $editableCountryOptions)
+                                ->searchable()
+                                ->visible(fn (Get $get): bool => blank($get('relocation_scope')))
+                                ->required(fn (Get $get): bool => filled($get('relocation_direction')) && blank($get('relocation_scope'))),
+                            Select::make('destination_country_code')
+                                ->label('Destination country')
+                                ->options(fn (Get $get): array => $get('relocation_direction') === Guide::RELOCATION_DIRECTION_IMPORT ? $fixedCountryOptions : $editableCountryOptions)
+                                ->searchable()
+                                ->visible(fn (Get $get): bool => blank($get('relocation_scope')))
+                                ->required(fn (Get $get): bool => filled($get('relocation_direction')) && blank($get('relocation_scope'))),
+                        ]),
+                        Repeater::make('source_links')
+                            ->label('Official source links')
+                            ->schema([
+                                TextInput::make('label')
+                                    ->label('Source name')
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('url')
+                                    ->label('Source URL')
+                                    ->url()
+                                    ->required()
+                                    ->maxLength(2048),
+                            ])
+                            ->columns(2)
+                            ->defaultItems(0)
+                            ->addActionLabel('Add source link')
+                            ->helperText('Use official government, embassy, airline, or veterinary authority sources.'),
                     ])
                     ->columnSpanFull(),
                 Section::make('Publication')

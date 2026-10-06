@@ -15,9 +15,22 @@
     $secondaryDestination = !empty($cta['secondaryRoute'])
         ? route($cta['secondaryRoute'], $cta['secondaryParams'] ?? [])
         : $resolveHref($cta['secondaryHref'] ?? null);
-    $headingClass = $size === 'sm' ? 'text-xl sm:text-2xl' : 'text-3xl md:text-4xl';
-    $bodyClass = $size === 'sm' ? 'mt-2 text-sm sm:text-base' : 'mt-4 text-base';
-    $actionsClass = $size === 'sm' ? 'mt-6' : 'mt-7';
+    $headingClass = match ($size) {
+        'sm' => 'text-xl sm:text-2xl',
+        'panel' => 'mb-4 text-3xl text-balance md:text-[2.75rem] md:leading-[1.1]',
+        default => 'text-3xl md:text-4xl',
+    };
+    $bodyWidthClass = $size === 'panel' ? 'max-w-md' : 'max-w-lg';
+    $bodyClass = match ($size) {
+        'sm' => 'mt-2 text-sm sm:text-base',
+        'panel' => 'mb-9 text-base',
+        default => 'mt-4 text-base',
+    };
+    $actionsClass = match ($size) {
+        'sm' => 'mt-6',
+        'panel' => 'mt-0',
+        default => 'mt-7',
+    };
     $actions = [
         [
             'href' => $primaryDestination,
@@ -42,10 +55,14 @@
     <h2 class="font-serif font-bold leading-tight {{ $headingClass }} {{ $isDark ? 'text-white' : 'text-primary-dark' }}">
         {{ $cta['heading'] }}
         @if(!empty($cta['headingAccent']))
-            <br /><span class="italic {{ $isDark ? 'text-secondary' : 'text-primary' }}">{{ $cta['headingAccent'] }}</span>
+            @if($size === 'panel')
+                <span class="italic {{ $isDark ? 'text-secondary' : 'text-primary' }}"> {{ $cta['headingAccent'] }}</span>
+            @else
+                <br /><span class="italic {{ $isDark ? 'text-secondary' : 'text-primary' }}">{{ $cta['headingAccent'] }}</span>
+            @endif
         @endif
     </h2>
-    <p class="mx-auto max-w-lg leading-relaxed {{ $bodyClass }} {{ $isDark ? 'text-white/65' : 'text-primary-dark/60' }}">
+    <p class="mx-auto {{ $bodyWidthClass }} leading-relaxed {{ $bodyClass }} {{ $isDark ? 'text-white/65' : 'text-primary-dark/60' }}">
         {{ $cta['body'] }}
     </p>
     <x-waggies.cta-actions :actions="$actions" class="{{ $actionsClass }}" />

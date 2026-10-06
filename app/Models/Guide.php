@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\CountryCatalog;
 use Carbon\Carbon;
 use Filament\Forms\Components\RichEditor\FileAttachmentProviders\SpatieMediaLibraryFileAttachmentProvider;
 use Filament\Forms\Components\RichEditor\Models\Concerns\InteractsWithRichContent;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\Conversions\Manipulations;
@@ -32,6 +34,18 @@ final class Guide extends Model implements HasMedia, HasRichContent
 
     public const string STATUS_ARCHIVED = 'archived';
 
+    public const string RELOCATION_CATEGORY = 'Pet Relocation';
+
+    public const string RELOCATION_DIRECTION_IMPORT = 'import';
+
+    public const string RELOCATION_DIRECTION_EXPORT = 'export';
+
+    public const string RELOCATION_SCOPE_STANDARD_EXPORT = 'standard_export';
+
+    public const string RELOCATION_SCOPE_IMPORT_GROUP = 'import_group';
+
+    public const string RELOCATION_SCOPE_IMPORT_COUNTRY = 'import_country';
+
     protected $attributes = [
         'status' => self::STATUS_DRAFT,
         'is_indexable' => true,
@@ -43,6 +57,13 @@ final class Guide extends Model implements HasMedia, HasRichContent
         'slug',
         'excerpt',
         'category',
+        'relocation_direction',
+        'relocation_scope',
+        'route_label',
+        'origin_country_code',
+        'destination_country_code',
+        'last_reviewed_at',
+        'source_links',
         'image',
         'image_alt',
         'read_time',
@@ -61,6 +82,8 @@ final class Guide extends Model implements HasMedia, HasRichContent
             if (! in_array($guide->status, array_keys(self::statusOptions()), true)) {
                 throw new InvalidArgumentException("Invalid Guide status [{$guide->status}].");
             }
+
+            $guide->assertRelocationMetadataIsConsistent();
 
             if ($guide->status === self::STATUS_PUBLISHED && $guide->published_at === null) {
                 $guide->published_at = now();
@@ -97,6 +120,8 @@ final class Guide extends Model implements HasMedia, HasRichContent
             'is_indexable' => 'boolean',
             'include_in_sitemap' => 'boolean',
             'published_at' => 'datetime',
+            'last_reviewed_at' => 'date',
+            'source_links' => 'array',
         ];
     }
 
@@ -178,13 +203,43 @@ final class Guide extends Model implements HasMedia, HasRichContent
      */
     public static function categoryOptions(): array
     {
-        return self::query()
+        $categories = self::query()
             ->whereNotNull('category')
             ->orderBy('category')
             ->pluck('category')
             ->unique()
             ->values()
             ->all();
+
+        return collect([...$categories, self::RELOCATION_CATEGORY])
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function relocationDirectionOptions(): array
+    {
+        return [
+            self::RELOCATION_DIRECTION_EXPORT => 'Nigeria → destination country',
+            self::RELOCATION_DIRECTION_IMPORT => 'Origin country → Nigeria',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function relocationScopeOptions(): array
+    {
+        return [
+            self::RELOCATION_SCOPE_STANDARD_EXPORT => 'Standard export from Nigeria',
+            self::RELOCATION_SCOPE_IMPORT_GROUP => 'Grouped import to Nigeria',
+            self::RELOCATION_SCOPE_IMPORT_COUNTRY => 'Single-country import to Nigeria',
+        ];
     }
 
     /**
@@ -195,6 +250,28 @@ final class Guide extends Model implements HasMedia, HasRichContent
         return [
             'grooming-services-explained',
             'pet-transport-what-to-know',
+            ...array_keys(self::retiredPublicSlugRedirects()),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function retiredPublicSlugRedirects(): array
+    {
+        return [
+            'moving-your-pet-from-nigeria-to-the-european-union' => 'requirements-for-exporting-your-pet-from-nigeria',
+            'bringing-your-pet-from-the-european-union-to-nigeria' => 'requirements-for-importing-your-pet-to-nigeria-from-uk-eu-and-uae',
+            'moving-your-pet-from-nigeria-to-kenya' => 'requirements-for-exporting-your-pet-from-nigeria',
+            'bringing-your-pet-from-kenya-to-nigeria' => 'requirements-for-importing-your-pet-to-nigeria-from-kenya',
+            'moving-your-pet-from-nigeria-to-the-united-kingdom' => 'requirements-for-exporting-your-pet-from-nigeria',
+            'bringing-your-pet-from-the-united-kingdom-to-nigeria' => 'requirements-for-importing-your-pet-to-nigeria-from-uk-eu-and-uae',
+            'moving-your-pet-from-nigeria-to-the-united-arab-emirates' => 'requirements-for-exporting-your-pet-from-nigeria',
+            'bringing-your-pet-from-the-united-arab-emirates-to-nigeria' => 'requirements-for-importing-your-pet-to-nigeria-from-uk-eu-and-uae',
+            'moving-your-pet-from-nigeria-to-the-united-states' => 'requirements-for-exporting-your-pet-from-nigeria',
+            'bringing-your-pet-from-the-united-states-to-nigeria' => 'requirements-for-importing-your-pet-to-nigeria-from-the-united-states',
+            'moving-your-pet-from-nigeria-to-south-africa' => 'requirements-for-exporting-your-pet-from-nigeria',
+            'bringing-your-pet-from-south-africa-to-nigeria' => 'requirements-for-importing-your-pet-to-nigeria-from-south-africa',
         ];
     }
 
@@ -264,6 +341,8 @@ final class Guide extends Model implements HasMedia, HasRichContent
     public function toPublicArray(?string $fallbackImage = null): array
     {
         $cover = $this->getFirstMedia('cover');
+        $countryCatalog = app(CountryCatalog::class);
+        $directionOptions = self::relocationDirectionOptions();
 
         return [
             'id' => $this->id,
@@ -276,7 +355,120 @@ final class Guide extends Model implements HasMedia, HasRichContent
             'imageAlt' => $this->image_alt ?: $this->title,
             'readTime' => $this->read_time,
             'content' => $this->content ?? '',
+            'relocation' => [
+                'isGuide' => $this->category === self::RELOCATION_CATEGORY,
+                'direction' => $this->relocation_direction,
+                'directionLabel' => $directionOptions[$this->relocation_direction] ?? null,
+                'scope' => $this->relocation_scope,
+                'scopeLabel' => self::relocationScopeOptions()[$this->relocation_scope] ?? null,
+                'routeLabel' => $this->route_label,
+                'originCountry' => $countryCatalog->label($this->origin_country_code),
+                'destinationCountry' => $countryCatalog->label($this->destination_country_code),
+                'lastReviewedAt' => $this->last_reviewed_at?->format('F j, Y'),
+                'sourceLinks' => $this->publicSourceLinks(),
+            ],
         ];
+    }
+
+    private function assertRelocationMetadataIsConsistent(): void
+    {
+        if (filled($this->relocation_scope)) {
+            if (! array_key_exists($this->relocation_scope, self::relocationScopeOptions())) {
+                throw new InvalidArgumentException("Invalid relocation guide scope [{$this->relocation_scope}].");
+            }
+
+            if (blank($this->relocation_direction) || blank($this->route_label)) {
+                throw new InvalidArgumentException('Relocation guide scope, direction, and route label must be provided together.');
+            }
+
+            if ($this->relocation_scope === self::RELOCATION_SCOPE_STANDARD_EXPORT && $this->relocation_direction !== self::RELOCATION_DIRECTION_EXPORT) {
+                throw new InvalidArgumentException('Standard export guides must use the export direction.');
+            }
+
+            if (in_array($this->relocation_scope, [self::RELOCATION_SCOPE_IMPORT_GROUP, self::RELOCATION_SCOPE_IMPORT_COUNTRY], true) && $this->relocation_direction !== self::RELOCATION_DIRECTION_IMPORT) {
+                throw new InvalidArgumentException('Import guides must use the import direction.');
+            }
+
+            return;
+        }
+
+        $metadata = [
+            $this->relocation_direction,
+            $this->origin_country_code,
+            $this->destination_country_code,
+        ];
+        $filledMetadata = array_values(array_filter(
+            $metadata,
+            static fn (mixed $value): bool => filled($value),
+        ));
+
+        if ($filledMetadata === []) {
+            return;
+        }
+
+        if (count($filledMetadata) !== count($metadata)) {
+            throw new InvalidArgumentException('Relocation direction, origin country, and destination country must be provided together.');
+        }
+
+        $direction = (string) $this->relocation_direction;
+        $originCountryCode = strtoupper((string) $this->origin_country_code);
+        $destinationCountryCode = strtoupper((string) $this->destination_country_code);
+
+        if (! array_key_exists($direction, self::relocationDirectionOptions())) {
+            throw new InvalidArgumentException("Invalid relocation direction [{$direction}].");
+        }
+
+        $countryCatalog = app(CountryCatalog::class);
+
+        if ($countryCatalog->label($originCountryCode) === null || $countryCatalog->label($destinationCountryCode) === null) {
+            throw new InvalidArgumentException('Relocation origin and destination must use valid country codes.');
+        }
+
+        if ($originCountryCode === $destinationCountryCode) {
+            throw new InvalidArgumentException('Relocation origin and destination must be different countries.');
+        }
+
+        $fixedCountryCode = strtoupper((string) config('waggies_booking.relocation.fixed_country_code', 'NG'));
+
+        if ($direction === self::RELOCATION_DIRECTION_EXPORT && $originCountryCode !== $fixedCountryCode) {
+            throw new InvalidArgumentException('Export relocation guides must start from the configured Waggies country.');
+        }
+
+        if ($direction === self::RELOCATION_DIRECTION_IMPORT && $destinationCountryCode !== $fixedCountryCode) {
+            throw new InvalidArgumentException('Import relocation guides must end in the configured Waggies country.');
+        }
+
+        $this->origin_country_code = $originCountryCode;
+        $this->destination_country_code = $destinationCountryCode;
+    }
+
+    /**
+     * @return list<array{label: string, url: string}>
+     */
+    private function publicSourceLinks(): array
+    {
+        $links = [];
+
+        foreach ($this->source_links ?? [] as $sourceLink) {
+            if (! is_array($sourceLink)) {
+                continue;
+            }
+
+            $label = trim((string) ($sourceLink['label'] ?? ''));
+            $url = Str::sanitizeUrl(trim((string) ($sourceLink['url'] ?? '')));
+            $scheme = is_string($url) ? parse_url($url, PHP_URL_SCHEME) : null;
+
+            if ($label === '' || ! is_string($url) || ! in_array($scheme, ['http', 'https'], true)) {
+                continue;
+            }
+
+            $links[] = [
+                'label' => $label,
+                'url' => $url,
+            ];
+        }
+
+        return $links;
     }
 
     private function assertSlugIsNotOwnedByAnotherGuide(): void

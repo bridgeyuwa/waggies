@@ -28,6 +28,31 @@ it('imports the guide seed fixture into the persisted guide source', function ()
     }
 });
 
+it('persists route metadata and official sources for relocation guides', function (): void {
+    $guide = Guide::query()->where('slug', 'requirements-for-exporting-your-pet-from-nigeria')->firstOrFail();
+
+    expect($guide->relocation_direction)->toBe(Guide::RELOCATION_DIRECTION_EXPORT)
+        ->and($guide->relocation_scope)->toBe(Guide::RELOCATION_SCOPE_STANDARD_EXPORT)
+        ->and($guide->route_label)->toBe('Nigeria → international destinations')
+        ->and($guide->origin_country_code)->toBe('NG')
+        ->and($guide->destination_country_code)->toBeNull()
+        ->and($guide->last_reviewed_at?->toDateString())->toBe('2026-10-06')
+        ->and($guide->source_links)->toContain([
+            'label' => 'Nigeria Agricultural Quarantine Service: Animal export requirements',
+            'url' => 'https://naqs.gov.ng/animal-export-requirements/',
+        ]);
+
+    $this->get(route('guides.show', ['slug' => $guide->slug]))
+        ->assertOk()
+        ->assertSee('Nigeria → international destinations')
+        ->assertSee('Requirements for Exporting Your Pet from Nigeria');
+});
+
+it('redirects superseded relocation guide URLs to the consolidated guides', function (): void {
+    $this->get(route('guides.show', ['slug' => 'bringing-your-pet-from-the-united-states-to-nigeria']))
+        ->assertPermanentRedirect(route('guides.show', ['slug' => 'requirements-for-importing-your-pet-to-nigeria-from-the-united-states']));
+});
+
 it('falls back to the guide title when a source image alt description is unavailable', function (): void {
     $guide = Guide::query()->where('slug', 'preparing-pet-boarding')->firstOrFail();
 
@@ -103,6 +128,42 @@ it('preserves published guide canonical and search behavior', function (): void 
     $this->get(route('search', ['q' => 'boarding request']))
         ->assertOk()
         ->assertJsonFragment(['href' => $url]);
+});
+
+it('renders relocation route metadata, reviewed date, sources, and booking direction', function (): void {
+    $guide = Guide::create(guide_payload([
+        'title' => 'Relocating Your Pet from Nigeria to the United Kingdom',
+        'slug' => 'relocating-pet-nigeria-united-kingdom',
+        'category' => Guide::RELOCATION_CATEGORY,
+        'relocation_direction' => Guide::RELOCATION_DIRECTION_EXPORT,
+        'origin_country_code' => 'NG',
+        'destination_country_code' => 'GB',
+        'last_reviewed_at' => '2026-10-05',
+        'source_links' => [
+            ['label' => 'Official route source', 'url' => 'https://www.gov.uk/bringing-your-pet-to-great-britain'],
+        ],
+        'status' => Guide::STATUS_PUBLISHED,
+    ]));
+
+    $this->get(route('guides.show', ['slug' => $guide->slug]))
+        ->assertOk()
+        ->assertSee('Relocation guide details')
+        ->assertSee('Nigeria')
+        ->assertSee('United Kingdom')
+        ->assertSee('Route information last reviewed October 5, 2026.')
+        ->assertSee('Official route source')
+        ->assertSee('href="'.e(route('book', ['service' => 'relocation', 'direction' => 'export'])).'"', false);
+});
+
+it('rejects route metadata outside the Nigeria import and export model', function (): void {
+    $this->expectException(InvalidArgumentException::class);
+
+    Guide::create(guide_payload([
+        'category' => Guide::RELOCATION_CATEGORY,
+        'relocation_direction' => Guide::RELOCATION_DIRECTION_EXPORT,
+        'origin_country_code' => 'GB',
+        'destination_country_code' => 'US',
+    ]));
 });
 
 it('sanitizes article body HTML while preserving the existing heading contract', function (): void {

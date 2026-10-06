@@ -67,6 +67,18 @@ final class GuidesController extends Controller
             ->first();
 
         if ($guideRecord === null) {
+            $replacementSlug = Guide::retiredPublicSlugRedirects()[$slug] ?? null;
+
+            if (is_string($replacementSlug)) {
+                $canonical = route('guides.show', ['slug' => $replacementSlug]);
+
+                if ($request->getQueryString() !== null) {
+                    $canonical .= '?'.$request->getQueryString();
+                }
+
+                return redirect()->to($canonical, 308);
+            }
+
             $slugHistory = GuideSlugHistory::query()
                 ->where('slug', $slug)
                 ->first();

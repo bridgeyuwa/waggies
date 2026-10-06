@@ -2,6 +2,7 @@
     x-data="waggiesChat"
     class="fixed bottom-20 right-4 z-layer-sticky flex flex-col items-end gap-3 sm:bottom-6 sm:right-6 lg:bottom-6"
 >
+    @if(config('services.waggies_ai.enabled', false))
     <div
         x-cloak
         x-show="chatOpen"
@@ -176,6 +177,7 @@
             </form>
         </div>
     </div>
+    @endif
 
     <div x-show="!chatOpen && showTop" x-transition class="waggies-fab--back-to-top fixed z-layer-floating group">
         <button
@@ -206,19 +208,21 @@
         </div>
     </div>
 
-    <div x-show="!chatOpen" x-transition class="waggies-fab--assistant fixed z-layer-floating group">
-        <button
-            type="button"
-            class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-2xl transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white"
-            aria-label="Open Waggies AI Assistant"
-            aria-controls="waggies-chat-dialog"
-            :aria-expanded="chatOpen"
-            @click="openChat()"
-        >
-            <x-waggies.icon name="assistant" size="24" class="text-white" />
-        </button>
-        <div aria-hidden="true" class="pointer-events-none absolute bottom-full right-0 mb-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
-            <div class="whitespace-nowrap rounded-full bg-primary-dark px-3 py-1.5 text-xs font-semibold text-white shadow-md">Open Waggies AI Assistant</div>
+    @if(config('services.waggies_ai.enabled', false))
+        <div x-show="!chatOpen" x-transition class="waggies-fab--assistant fixed z-layer-floating group">
+            <button
+                type="button"
+                class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-2xl transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white"
+                aria-label="Open Waggies AI Assistant"
+                aria-controls="waggies-chat-dialog"
+                :aria-expanded="chatOpen"
+                @click="openChat()"
+            >
+                <x-waggies.icon name="assistant" size="24" class="text-white" />
+            </button>
+            <div aria-hidden="true" class="pointer-events-none absolute bottom-full right-0 mb-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+                <div class="whitespace-nowrap rounded-full bg-primary-dark px-3 py-1.5 text-xs font-semibold text-white shadow-md">Open Waggies AI Assistant</div>
+            </div>
         </div>
-    </div>
+    @endif
 </div>

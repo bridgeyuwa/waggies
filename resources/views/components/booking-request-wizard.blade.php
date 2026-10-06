@@ -6,6 +6,7 @@ use App\Support\BookingRequestBuilder;
 use App\Support\BookingRequestIntake;
 use App\Support\BookingRequestSchema;
 use App\Support\BookingRequestWizardRules;
+use App\Support\BookingWhatsAppMessage;
 use App\Support\CountryCatalog;
 use App\Support\PhoneNumber;
 use Illuminate\Support\Carbon;
@@ -1595,7 +1596,10 @@ new class extends Component
         $this->dispatch('booking-wizard-focus-target', target: "booking-service-details-heading-{$index}");
     }
 
-    public function submit(CreateBookingRequest $createBookingRequest): void
+    public function submit(
+        CreateBookingRequest $createBookingRequest,
+        BookingWhatsAppMessage $bookingWhatsAppMessage,
+    ): void
     {
         $this->syncLegacyPhoneFields();
 
@@ -1615,6 +1619,12 @@ new class extends Component
                     'submitted_from' => 'livewire-booking-wizard',
                 ],
             ]);
+            $this->whatsappUrl = $bookingWhatsAppMessage->bookingUrl(
+                $this->whatsappUrl,
+                $this->contact,
+                $this->pets,
+                $this->services,
+            );
         } catch (ValidationException $exception) {
             $this->revealValidationStep($exception->errors());
 
