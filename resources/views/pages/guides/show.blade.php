@@ -22,10 +22,16 @@
                         <section class="mb-8 rounded-2xl border border-primary/10 bg-surface-purple/40 p-5 sm:p-6" aria-labelledby="relocation-guide-details">
                             <h2 id="relocation-guide-details" class="font-serif text-lg font-bold text-primary-dark">Relocation guide details</h2>
 
-                            @if(!empty($guide['relocation']['originCountry']) && !empty($guide['relocation']['destinationCountry']))
+                            @if(!empty($guide['relocation']['routeLabel']))
+                                <p class="mt-2 text-sm font-semibold text-primary-dark">{{ $guide['relocation']['routeLabel'] }}</p>
+                            @elseif(!empty($guide['relocation']['originCountry']) && !empty($guide['relocation']['destinationCountry']))
                                 <p class="mt-2 text-sm font-semibold text-primary-dark">
                                     {{ $guide['relocation']['originCountry'] }} <span aria-hidden="true">→</span> {{ $guide['relocation']['destinationCountry'] }}
                                 </p>
+                            @endif
+
+                            @if(!empty($guide['relocation']['scopeLabel']))
+                                <p class="mt-2 text-sm text-primary-dark/70">{{ $guide['relocation']['scopeLabel'] }}</p>
                             @endif
 
                             @if(!empty($guide['relocation']['lastReviewedAt']))

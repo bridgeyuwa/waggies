@@ -80,14 +80,25 @@ class GuideForm
                     ])
                     ->columnSpanFull(),
                 Section::make('Relocation metadata')
-                    ->description('Use this section for route-specific relocation guides. Leave route fields empty for a general guide.')
+                    ->description('Use a scope for standard export or grouped import guides. Use country fields only for a genuinely single-country route.')
                     ->visible(fn (Get $get): bool => $get('category') === Guide::RELOCATION_CATEGORY || filled($get('relocation_direction')))
                     ->schema([
                         Grid::make(2)->schema([
+                            Select::make('relocation_scope')
+                                ->label('Guide scope')
+                                ->options(Guide::relocationScopeOptions())
+                                ->helperText('Grouped guides should explain the shared framework and the differences inside the guide body.')
+                                ->live(),
+                            TextInput::make('route_label')
+                                ->label('Route label')
+                                ->helperText('Example: United Kingdom, EU countries & UAE → Nigeria.')
+                                ->required(fn (Get $get): bool => filled($get('relocation_scope')))
+                                ->visible(fn (Get $get): bool => filled($get('relocation_scope')))
+                                ->maxLength(255),
                             Select::make('relocation_direction')
                                 ->label('Relocation direction')
                                 ->options(Guide::relocationDirectionOptions())
-                                ->helperText('Waggies currently handles Nigeria-to-country and country-to-Nigeria routes.')
+                                ->helperText('Waggies currently handles exports from Nigeria and imports to Nigeria.')
                                 ->live(),
                             DatePicker::make('last_reviewed_at')
                                 ->label('Last reviewed')
@@ -96,12 +107,14 @@ class GuideForm
                                 ->label('Origin country')
                                 ->options(fn (Get $get): array => $get('relocation_direction') === Guide::RELOCATION_DIRECTION_EXPORT ? $fixedCountryOptions : $editableCountryOptions)
                                 ->searchable()
-                                ->required(fn (Get $get): bool => filled($get('relocation_direction'))),
+                                ->visible(fn (Get $get): bool => blank($get('relocation_scope')))
+                                ->required(fn (Get $get): bool => filled($get('relocation_direction')) && blank($get('relocation_scope'))),
                             Select::make('destination_country_code')
                                 ->label('Destination country')
                                 ->options(fn (Get $get): array => $get('relocation_direction') === Guide::RELOCATION_DIRECTION_IMPORT ? $fixedCountryOptions : $editableCountryOptions)
                                 ->searchable()
-                                ->required(fn (Get $get): bool => filled($get('relocation_direction'))),
+                                ->visible(fn (Get $get): bool => blank($get('relocation_scope')))
+                                ->required(fn (Get $get): bool => filled($get('relocation_direction')) && blank($get('relocation_scope'))),
                         ]),
                         Repeater::make('source_links')
                             ->label('Official source links')

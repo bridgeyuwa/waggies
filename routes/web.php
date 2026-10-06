@@ -35,6 +35,7 @@ if (app()->isLocal()) {
     });
 
     Route::view('/__test/ctas', 'pages.cta-audit')->name('__test.ctas');
+    Route::view('/__test/cta-panels', 'pages.cta-panels-prototype')->name('__test.cta-panels');
 }
 
 Route::get('/', HomeController::class)->name('home');

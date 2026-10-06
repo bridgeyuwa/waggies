@@ -7,7 +7,7 @@
                 class="inline-flex max-w-full items-center gap-2 rounded-full border border-primary/10 bg-white px-3.5 py-1.5 shadow-sm">
                 <x-waggies.icon name="verified" size="18" variant="filled" class="shrink-0 text-primary" />
                 <span class="whitespace-nowrap text-xs font-semibold tracking-wide text-primary-dark/80 sm:text-sm">
-                    Three services. One trusted team.
+                    Five services. One trusted team.
                 </span>
             </span>
         </x-slot:supporting>
@@ -20,7 +20,7 @@
             </div>
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-6">
                 @foreach ($homeServiceCards as $index => $card)
-                    @php($starts = ['lg:col-start-1', 'lg:col-start-3', 'lg:col-start-5'])
+                    @php($starts = ['lg:col-start-1', 'lg:col-start-3', 'lg:col-start-5', 'lg:col-start-2', 'lg:col-start-4'])
                     <div class="h-full md:col-span-1 lg:col-span-2 {{ $starts[$index] ?? '' }}">
                         <x-waggies.service-card :card="$card" />
                     </div>
@@ -182,10 +182,7 @@
     <section class="section-pad bg-surface">
         <div class="page-container">
             @php($homeBookingCta = ['heading' => 'Ready to', 'headingAccent' => 'book?', 'body' => 'Start a booking request for your pet, or contact the care team if you have a general question.', 'primaryLabel' => 'Request a booking', 'primaryRoute' => 'book', 'secondaryLabel' => 'View Services', 'secondaryRoute' => 'services.index'])
-            <div class="relative overflow-hidden rounded-3xl bg-primary-dark px-8 py-16 md:px-16 md:py-20">
-                <div class="pointer-events-none absolute inset-x-8 top-0 h-px bg-secondary/60 md:inset-x-16"></div>
-                <x-waggies.cta-centered :cta="$homeBookingCta" />
-            </div>
+            <x-waggies.cta-panel variant="centered" :cta="$homeBookingCta" />
         </div>
     </section>
 @endsection

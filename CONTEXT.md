@@ -12,7 +12,7 @@ _Avoid_: reservation, confirmed booking (when referring to an unconfirmed submis
 One requested pet-care service within a booking request. Each service owns its requested timing, care details, assigned pets, pricing snapshot, quote information, and operational status.
 
 **Booking request review**:
-The staff workflow for inspecting a booking request, correcting or clarifying operational details when permitted, recording internal notes, preparing quotes, and progressing request and service statuses.
+The staff workflow for inspecting a booking request, correcting customer-submitted contact, pet, service, care, timing, location, and assignment details when needed, recording internal notes, preparing quotes, and progressing request and service statuses. Corrections are audited with the responsible staff member, time, and old/new values; the intake pricing snapshot remains historical.
 
 **Request status**:
 The lifecycle state of the overall booking request, representing Waggies' current position in reviewing or completing the customer's request.

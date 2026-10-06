@@ -12,6 +12,7 @@ use App\Models\BookingRequestService;
 use App\Models\BusinessProfile;
 use App\Models\User;
 use App\Support\BookingRequestSchema;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
@@ -431,7 +432,7 @@ it('accepts not sure as a valid required pet life stage', function (): void {
         'initialContext' => ['service' => 'vet-care', 'variant' => 'wellness-consultation'],
     ])
         ->set('services.0.assigned_pet_ids', [0])
-        ->set('services.0.requested_date', '2026-10-05')
+        ->set('services.0.requested_date', now()->toDateString())
         ->set('services.0.details', [
             'reason' => 'Routine wellness check.',
             'urgency' => 'routine',
@@ -553,7 +554,44 @@ it('selects dog size directly and stores it on the submitted pet', function (): 
 
     expect($bookingRequest->pets->first()->details['size'])->toBe('medium')
         ->and($bookingRequest->services->first()->quote_amount)->toBeNull()
-        ->and($bookingRequest->services->first()->price_snapshot)->toBeNull();
+        ->and($bookingRequest->services->first()->price_snapshot)->toBeArray();
+});
+
+it('persists every service selected in the livewire multi-service submission', function (): void {
+    $checkIn = now()->addDays(4)->toDateString();
+    $checkOut = now()->addDays(7)->toDateString();
+    $appointmentDate = now()->addDays(5)->toDateString();
+
+    Livewire::test('booking-request-wizard')
+        ->call('toggleService', 'boarding')
+        ->call('toggleService', 'vet-care')
+        ->set('services.0.assigned_pet_ids', [0])
+        ->set('services.0.details.check_in', $checkIn)
+        ->set('services.0.details.check_out', $checkOut)
+        ->set('services.0.details.emergency_vet_authorization', 'authorized')
+        ->set('services.1.assigned_pet_ids', [0])
+        ->set('services.1.requested_date', $appointmentDate)
+        ->set('services.1.details.care_needs', ['wellness-consultation'])
+        ->set('services.1.details.reason', 'Routine check and vaccine review.')
+        ->set('services.1.details.urgency', 'routine')
+        ->set('pets.0.name', 'Milo')
+        ->set('pets.0.species', 'dog')
+        ->set('pets.0.size', 'medium')
+        ->set('pets.0.age', '1-3-years')
+        ->set('pets.0.sex', 'male')
+        ->set('contact.name', 'Ada Obi')
+        ->set('contact.email', 'multi-livewire@example.com')
+        ->set('contact.phone', '0808 081 1902')
+        ->set('step', 5)
+        ->call('submit')
+        ->assertSet('submitted', true);
+
+    $bookingRequest = BookingRequest::query()
+        ->where('email', 'multi-livewire@example.com')
+        ->firstOrFail();
+
+    expect($bookingRequest->services->pluck('service_key')->all())
+        ->toBe(['boarding', 'vet-care']);
 });
 
 it('adds the submitted build to the Livewire WhatsApp message', function (): void {
@@ -666,7 +704,7 @@ it('persists a valid request as received and leaves quotation authority with sta
     expect($bookingRequest->status)->toBe(BookingRequestStatus::New)
         ->and($bookingRequest->serviceLabel())->toBe('Boarding')
         ->and($bookingRequest->services->first()->quote_amount)->toBeNull()
-        ->and($bookingRequest->services->first()->price_snapshot)->toBeNull();
+        ->and($bookingRequest->services->first()->price_snapshot)->toBeArray();
 });
 
 it('adds the submitted build to the standard POST WhatsApp message', function (): void {
@@ -706,7 +744,7 @@ it('accepts the simple POST contract for fixed-rate cat boarding', function (): 
     expect($bookingRequest->pets->first()->species)->toBe('cat')
         ->and($bookingRequest->services->first()->service_variant)->toBeNull()
         ->and($bookingRequest->services->first()->quote_amount)->toBeNull()
-        ->and($bookingRequest->services->first()->price_snapshot)->toBeNull();
+        ->and($bookingRequest->services->first()->price_snapshot)->toBeArray();
 });
 
 it('replays an idempotent booking request without creating a duplicate', function (): void {
@@ -997,7 +1035,7 @@ it('persists multiple veterinary care needs in service details without creating 
         ->and($bookingRequest->services->first()->details['care_needs'])
         ->toBe(['wellness-consultation', 'vaccination-request'])
         ->and($bookingRequest->services->first()->quote_amount)->toBeNull()
-        ->and($bookingRequest->services->first()->price_snapshot)->toBeNull();
+        ->and($bookingRequest->services->first()->price_snapshot)->toBeArray();
 });
 
 it('normalizes sparse pet and service indexes before persisting assignments', function (): void {
@@ -1119,7 +1157,7 @@ it('returns the user to pet details when a required dog size is missing', functi
         ->assertSet('step', 2);
 });
 
-it('exposes read-only booking request facts and service review controls to staff', function (): void {
+it('exposes booking request facts and correction controls to staff', function (): void {
     config()->set('app.env', 'local');
     $bookingRequest = BookingRequest::factory()->create();
     $service = BookingRequestService::factory()->for($bookingRequest)->create();
@@ -1145,8 +1183,8 @@ it('exposes read-only booking request facts and service review controls to staff
     ])
         ->assertOk()
         ->assertCanSeeTableRecords([$pet])
-        ->assertSee('Dog size')
-        ->assertTableActionDoesNotExist('edit', record: $pet);
+        ->assertTableColumnVisible('details.size')
+        ->assertActionExists(TestAction::make('editPetDetails')->table($pet));
 });
 
 it('stops adding pets after the configured eight-pet limit', function (): void {

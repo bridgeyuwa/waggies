@@ -6,6 +6,7 @@ use App\Models\BusinessProfile;
 use App\Models\Faq;
 use App\Models\GalleryItem;
 use App\Models\Guide;
+use App\Models\GuideSlugHistory;
 use App\Models\KnowledgeArticle;
 use App\Models\Testimonial;
 use Illuminate\Database\Seeder;
@@ -84,6 +85,8 @@ final class WaggiesContentSeeder extends Seeder
                     'excerpt' => $guide['excerpt'],
                     'category' => $guide['category'],
                     'relocation_direction' => $guide['relocationDirection'] ?? null,
+                    'relocation_scope' => $guide['relocationScope'] ?? null,
+                    'route_label' => $guide['routeLabel'] ?? null,
                     'origin_country_code' => $guide['originCountryCode'] ?? null,
                     'destination_country_code' => $guide['destinationCountryCode'] ?? null,
                     'last_reviewed_at' => $guide['lastReviewedAt'] ?? null,
@@ -104,6 +107,8 @@ final class WaggiesContentSeeder extends Seeder
             if (filled($guide['relocationDirection'] ?? null) && blank($record->relocation_direction)) {
                 $record->fill([
                     'relocation_direction' => $guide['relocationDirection'],
+                    'relocation_scope' => $guide['relocationScope'],
+                    'route_label' => $guide['routeLabel'],
                     'origin_country_code' => $guide['originCountryCode'],
                     'destination_country_code' => $guide['destinationCountryCode'],
                     'last_reviewed_at' => $guide['lastReviewedAt'],
@@ -112,6 +117,31 @@ final class WaggiesContentSeeder extends Seeder
             }
 
             $this->attachInitialMediaIfMissing($record, 'cover', $guide['image'] ?? null);
+        }
+
+        foreach (Guide::retiredPublicSlugRedirects() as $oldSlug => $newSlug) {
+            $replacement = Guide::query()->where('slug', $newSlug)->first();
+
+            if ($replacement === null) {
+                continue;
+            }
+
+            Guide::query()
+                ->where('slug', $oldSlug)
+                ->update([
+                    'status' => Guide::STATUS_ARCHIVED,
+                    'published_at' => null,
+                    'is_indexable' => false,
+                    'include_in_sitemap' => false,
+                ]);
+
+            GuideSlugHistory::query()->firstOrCreate(
+                ['slug' => $oldSlug],
+                [
+                    'guide_id' => $replacement->getKey(),
+                    'created_at' => now(),
+                ],
+            );
         }
     }
 

@@ -316,6 +316,8 @@ function waggiesLivewireSelect() {
         refreshOptions() {
             const native = this.$refs.native;
 
+            if (! native) return;
+
             this.options = [...native.options].map(option => ({
                 value: option.value,
                 label: option.textContent?.trim() || '',
@@ -325,6 +327,9 @@ function waggiesLivewireSelect() {
 
         sync() {
             const native = this.$refs.native;
+
+            if (! native) return;
+
             this.selectedValue = native.value;
             this.selectedLabel = native.selectedOptions[0]?.textContent?.trim() || 'Select an option';
             this.isPlaceholder = native.value === '';
@@ -548,6 +553,8 @@ function waggiesSearchableSelect() {
         refreshOptions() {
             const native = this.$refs.native;
 
+            if (! native) return;
+
             this.options = [...native.options].map(option => ({
                 value: option.value,
                 label: option.textContent?.trim() || '',
@@ -574,6 +581,9 @@ function waggiesSearchableSelect() {
 
         sync() {
             const native = this.$refs.native;
+
+            if (! native) return;
+
             this.selectedValue = native.value;
             this.selectedLabel = native.selectedOptions[0]?.textContent?.trim() || this.$root.dataset.placeholder || 'Select an option';
             this.isPlaceholder = native.value === '';

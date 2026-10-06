@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\BookingRequestStatus;
 use App\Support\BookingPricingCatalog;
+use App\Support\BookingRequestCorrectionLogger;
 use Database\Factories\BookingRequestFactory;
 use DomainException;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -252,6 +253,34 @@ class BookingRequest extends Model
         if ($this->isDirty(['quote_amount', 'quote_currency', 'quote_notes'])) {
             $this->saveQuietly();
         }
+    }
+
+    public function syncLegacyServiceMessage(): void
+    {
+        $service = $this->services()->get()->first(
+            fn (BookingRequestService $service): bool => array_key_exists('message', $service->details ?? []),
+        );
+
+        if (! $service instanceof BookingRequestService) {
+            return;
+        }
+
+        $details = $service->details ?? [];
+
+        if (($details['message'] ?? null) === $this->message) {
+            return;
+        }
+
+        $oldDetails = $details;
+        $details['message'] = $this->message;
+
+        $service->forceFill(['details' => $details])->save();
+        app(BookingRequestCorrectionLogger::class)->record(
+            $service,
+            'Customer message corrected',
+            ['details' => $oldDetails],
+            ['details' => $details],
+        );
     }
 
     /**

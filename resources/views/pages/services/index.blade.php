@@ -10,7 +10,7 @@
         <div class="mb-12 max-w-2xl"><span class="text-eyebrow mb-2 block">What We Offer</span><h2 class="text-h2">Services Built Around<br/>Your Pet’s Wellbeing</h2><p class="mt-3 text-primary-dark/60">Every service is designed with your pet's comfort, health, and happiness at the centre.</p></div>
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-6">
             @foreach($cards as $i => $card)
-                <div class="h-full lg:col-span-2 {{ ['lg:col-start-1', 'lg:col-start-3', 'lg:col-start-5'][$i] ?? '' }}"><x-waggies.service-card :card="$card" /></div>
+                <div class="h-full lg:col-span-2 {{ ['lg:col-start-1', 'lg:col-start-3', 'lg:col-start-5', 'lg:col-start-2', 'lg:col-start-4'][$i] ?? '' }}"><x-waggies.service-card :card="$card" /></div>
             @endforeach
         </div>
     </div>

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\BookingRequestStatus;
 use App\Filament\Resources\BookingRequests\Pages\EditBookingRequest;
 use App\Filament\Resources\BookingRequests\Pages\ListBookingRequests;
+use App\Filament\Resources\BookingRequests\Pages\ViewBookingRequest;
 use App\Filament\Resources\BookingRequests\RelationManagers\PetsRelationManager;
 use App\Filament\Resources\BookingRequests\RelationManagers\ServicesRelationManager;
 use App\Models\BookingRequest;
@@ -33,11 +34,58 @@ it('shows the canonical booking request work queue to admins', function (): void
         ->assertTableColumnVisible('quote_amount');
 });
 
+it('offers a read-only booking request view alongside the review action', function (): void {
+    $admin = User::factory()->admin()->create();
+    $request = BookingRequest::factory()->create(['name' => 'Ada Obi']);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListBookingRequests::class)
+        ->assertActionExists(TestAction::make('view')->table($request));
+
+    Livewire::test(ViewBookingRequest::class, ['record' => $request->getKey()])
+        ->assertOk()
+        ->assertSee('Ada Obi')
+        ->assertSee('Request summary')
+        ->assertDontSee('Request context')
+        ->assertSee('Edit')
+        ->assertActionExists('delete');
+});
+
+it('allows admins to delete a booking request and its related records', function (): void {
+    $admin = User::factory()->admin()->create();
+    $request = BookingRequest::factory()->create();
+    $pet = BookingRequestPet::factory()->for($request)->create();
+    $service = BookingRequestService::factory()->for($request)->create();
+    $service->pets()->attach($pet);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListBookingRequests::class)
+        ->assertActionExists(TestAction::make('delete')->table($request))
+        ->callAction(TestAction::make('delete')->table($request));
+
+    expect(BookingRequest::find($request->getKey()))->toBeNull()
+        ->and(BookingRequestPet::find($pet->getKey()))->toBeNull()
+        ->and(BookingRequestService::find($service->getKey()))->toBeNull();
+
+    $this->assertDatabaseMissing('booking_request_service_pet', [
+        'booking_request_service_id' => $service->getKey(),
+        'booking_request_pet_id' => $pet->getKey(),
+    ]);
+});
+
 it('shows all canonical pets and services in the request review workspace', function (): void {
     $admin = User::factory()->admin()->create();
     $request = BookingRequest::factory()->create();
-    $pet = BookingRequestPet::factory()->for($request)->create(['name' => 'Milo']);
-    $secondPet = BookingRequestPet::factory()->for($request)->create(['name' => 'Luna']);
+    $pet = BookingRequestPet::factory()->for($request)->create([
+        'name' => 'Milo',
+        'species' => 'dog',
+    ]);
+    $secondPet = BookingRequestPet::factory()->for($request)->create([
+        'name' => 'Luna',
+        'species' => 'cat',
+    ]);
     $service = BookingRequestService::factory()->for($request)->create([
         'service_key' => 'boarding',
         'service_variant' => 'dogs',
@@ -46,8 +94,8 @@ it('shows all canonical pets and services in the request review workspace', func
     ]);
     $secondService = BookingRequestService::factory()->for($request)->create([
         'service_key' => 'vet-care',
-        'service_variant' => 'microchip',
-        'details' => ['care_needs' => ['microchip']],
+        'service_variant' => 'wellness-consultation',
+        'details' => ['care_needs' => ['wellness-consultation']],
         'price_snapshot' => ['source' => 'catalogue', 'amount' => 5000],
     ]);
     $service->pets()->attach($pet);
@@ -58,7 +106,8 @@ it('shows all canonical pets and services in the request review workspace', func
     Livewire::test(EditBookingRequest::class, ['record' => $request->getKey()])
         ->assertOk()
         ->assertSee($request->name)
-        ->assertSeeLivewire(ServicesRelationManager::class);
+        ->assertSeeLivewire(ServicesRelationManager::class)
+        ->assertActionExists('delete');
 
     Livewire::test(PetsRelationManager::class, [
         'ownerRecord' => $request,
@@ -72,12 +121,18 @@ it('shows all canonical pets and services in the request review workspace', func
         ->assertCanSeeTableRecords([$service, $secondService])
         ->assertSee('Milo')
         ->assertSee('Luna')
+        ->assertSee('Dogs')
+        ->assertSee('Wellness consultation')
+        ->assertSee('Care Notes: Keep the routine calm.')
+        ->assertSee('Veterinary care needs: Wellness consultation')
+        ->assertSee('NGN 20,000')
+        ->assertSee('NGN 5,000')
         ->assertTableColumnVisible('assigned_pets')
         ->assertTableColumnVisible('details')
         ->assertTableColumnVisible('price_snapshot');
 });
 
-it('keeps customer-submitted facts read-only while allowing internal notes', function (): void {
+it('allows staff to correct customer details while recording the correction', function (): void {
     $admin = User::factory()->admin()->create();
     $request = BookingRequest::factory()->create([
         'name' => 'Ada Obi',
@@ -98,9 +153,18 @@ it('keeps customer-submitted facts read-only while allowing internal notes', fun
 
     $request->refresh();
 
-    expect($request->name)->toBe('Ada Obi')
-        ->and($request->email)->toBe('ada@example.com')
-        ->and($request->internal_notes)->toBe('Review the requested dates before quoting.');
+    $activity = Activity::query()
+        ->where('subject_type', BookingRequest::class)
+        ->where('subject_id', $request->getKey())
+        ->latest('id')
+        ->firstOrFail();
+
+    expect($request->name)->toBe('Changed by staff')
+        ->and($request->email)->toBe('changed@example.com')
+        ->and($request->internal_notes)->toBe('Review the requested dates before quoting.')
+        ->and($activity->causer_id)->toBe($admin->getKey())
+        ->and($activity->properties->toArray()['attributes']['name'])->toBe('Changed by staff')
+        ->and($activity->properties->toArray()['old']['name'])->toBe('Ada Obi');
 });
 
 it('allows staff to update a service quote and synchronizes the parent summary', function (): void {
@@ -114,7 +178,7 @@ it('allows staff to update a service quote and synchronizes the parent summary',
         'ownerRecord' => $request,
         'pageClass' => EditBookingRequest::class,
     ])
-        ->callAction(TestAction::make('edit')->table($service), [
+        ->callAction(TestAction::make('editQuote')->table($service), [
             'quote_amount' => 25000,
             'quote_currency' => 'NGN',
             'quote_notes' => 'Confirmed by the care team.',
@@ -146,6 +210,63 @@ it('allows staff to update a service quote and synchronizes the parent summary',
         ->toBe(25000)
         ->and($activity->attribute_changes->toArray()['old']['quote_amount'])
         ->toBeNull();
+});
+
+it('allows staff to correct one service inside a multi-service request', function (): void {
+    $admin = User::factory()->admin()->create();
+    $request = BookingRequest::factory()->create();
+    $pet = BookingRequestPet::factory()->for($request)->create(['name' => 'Milo']);
+    $updatedDate = now()->addDays(12)->toDateString();
+    BookingRequestService::factory()->for($request)->create([
+        'service_key' => 'boarding',
+        'service_variant' => 'dogs',
+        'details' => [
+            'check_in' => now()->addDays(7)->toDateString(),
+            'check_out' => now()->addDays(9)->toDateString(),
+            'emergency_vet_authorization' => 'authorized',
+        ],
+    ]);
+    $service = BookingRequestService::factory()->for($request)->create([
+        'service_key' => 'vet-care',
+        'service_variant' => null,
+        'details' => [
+            'care_needs' => ['microchip'],
+            'urgency' => 'routine',
+        ],
+    ]);
+    $service->pets()->attach($pet);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ServicesRelationManager::class, [
+        'ownerRecord' => $request,
+        'pageClass' => EditBookingRequest::class,
+    ])
+        ->callAction(TestAction::make('editRequestDetails')->table($service), [
+            'service_key' => 'vet-care',
+            'service_variant' => null,
+            'pricing_tier' => null,
+            'requested_date' => $updatedDate,
+            'requested_time' => '11:00',
+            'location' => 'Waggies clinic',
+            'details' => [
+                'care_needs' => ['microchip'],
+                'reason' => 'Please update the appointment note.',
+                'urgency' => 'soon',
+            ],
+            'additional_details' => [],
+            'pet_ids' => [$pet->getKey()],
+        ])
+        ->assertHasNoFormErrors()
+        ->assertNotified();
+
+    $service->refresh();
+
+    expect($service->details['reason'])->toBe('Please update the appointment note.')
+        ->and($service->details['urgency'])->toBe('soon')
+        ->and($service->requested_date?->format('Y-m-d'))->toBe($updatedDate)
+        ->and($service->location)->toBe('Waggies clinic')
+        ->and($service->pets->modelKeys())->toContain($pet->getKey());
 });
 
 it('accepts note-only service quotes but rejects empty quotes', function (): void {

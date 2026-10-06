@@ -4,9 +4,11 @@ namespace App\Filament\Resources\BookingRequests;
 
 use App\Filament\Resources\BookingRequests\Pages\EditBookingRequest;
 use App\Filament\Resources\BookingRequests\Pages\ListBookingRequests;
+use App\Filament\Resources\BookingRequests\Pages\ViewBookingRequest;
 use App\Filament\Resources\BookingRequests\RelationManagers\PetsRelationManager;
 use App\Filament\Resources\BookingRequests\RelationManagers\ServicesRelationManager;
 use App\Filament\Resources\BookingRequests\Schemas\BookingRequestForm;
+use App\Filament\Resources\BookingRequests\Schemas\BookingRequestInfolist;
 use App\Filament\Resources\BookingRequests\Tables\BookingRequestsTable;
 use App\Models\BookingRequest;
 use BackedEnum;
@@ -32,6 +34,11 @@ class BookingRequestResource extends Resource
         return BookingRequestForm::configure($schema);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return BookingRequestInfolist::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return BookingRequestsTable::configure($table);
@@ -49,6 +56,7 @@ class BookingRequestResource extends Resource
     {
         return [
             'index' => ListBookingRequests::route('/'),
+            'view' => ViewBookingRequest::route('/{record}'),
             'edit' => EditBookingRequest::route('/{record}/edit'),
         ];
     }

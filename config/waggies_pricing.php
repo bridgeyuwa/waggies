@@ -47,7 +47,7 @@ return [
                     'size_rates' => [
                         'small' => [
                             'label' => 'Small',
-                            'booking_label' => 'Small — up to 10kg',
+                            'booking_label' => 'Small – up to 10kg',
                             'guidance' => 'Up to 10kg',
                             'min_weight_kg' => 0,
                             'min_weight_inclusive' => true,
@@ -58,7 +58,7 @@ return [
                         ],
                         'medium' => [
                             'label' => 'Medium',
-                            'booking_label' => 'Medium — over 10kg through 25kg',
+                            'booking_label' => 'Medium – over 10kg through 25kg',
                             'guidance' => 'Over 10kg through 25kg',
                             'min_weight_kg' => 10,
                             'min_weight_inclusive' => false,
@@ -69,7 +69,7 @@ return [
                         ],
                         'large' => [
                             'label' => 'Large',
-                            'booking_label' => 'Large — over 25kg through 40kg',
+                            'booking_label' => 'Large – over 25kg through 40kg',
                             'guidance' => 'Over 25kg through 40kg',
                             'min_weight_kg' => 25,
                             'min_weight_inclusive' => false,
@@ -80,7 +80,7 @@ return [
                         ],
                         'manual-review' => [
                             'label' => 'Manual review',
-                            'booking_label' => 'Above 40kg or unusual size — staff review',
+                            'booking_label' => 'Above 40kg or unusual size – staff review',
                             'guidance' => 'Above 40kg or unusual size requires manual review.',
                             'min_weight_kg' => 40,
                             'min_weight_inclusive' => false,

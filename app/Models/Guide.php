@@ -40,6 +40,12 @@ final class Guide extends Model implements HasMedia, HasRichContent
 
     public const string RELOCATION_DIRECTION_EXPORT = 'export';
 
+    public const string RELOCATION_SCOPE_STANDARD_EXPORT = 'standard_export';
+
+    public const string RELOCATION_SCOPE_IMPORT_GROUP = 'import_group';
+
+    public const string RELOCATION_SCOPE_IMPORT_COUNTRY = 'import_country';
+
     protected $attributes = [
         'status' => self::STATUS_DRAFT,
         'is_indexable' => true,
@@ -52,6 +58,8 @@ final class Guide extends Model implements HasMedia, HasRichContent
         'excerpt',
         'category',
         'relocation_direction',
+        'relocation_scope',
+        'route_label',
         'origin_country_code',
         'destination_country_code',
         'last_reviewed_at',
@@ -223,6 +231,18 @@ final class Guide extends Model implements HasMedia, HasRichContent
     }
 
     /**
+     * @return array<string, string>
+     */
+    public static function relocationScopeOptions(): array
+    {
+        return [
+            self::RELOCATION_SCOPE_STANDARD_EXPORT => 'Standard export from Nigeria',
+            self::RELOCATION_SCOPE_IMPORT_GROUP => 'Grouped import to Nigeria',
+            self::RELOCATION_SCOPE_IMPORT_COUNTRY => 'Single-country import to Nigeria',
+        ];
+    }
+
+    /**
      * @return list<string>
      */
     public static function retiredPublicSlugs(): array
@@ -230,6 +250,28 @@ final class Guide extends Model implements HasMedia, HasRichContent
         return [
             'grooming-services-explained',
             'pet-transport-what-to-know',
+            ...array_keys(self::retiredPublicSlugRedirects()),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function retiredPublicSlugRedirects(): array
+    {
+        return [
+            'moving-your-pet-from-nigeria-to-the-european-union' => 'requirements-for-exporting-your-pet-from-nigeria',
+            'bringing-your-pet-from-the-european-union-to-nigeria' => 'requirements-for-importing-your-pet-to-nigeria-from-uk-eu-and-uae',
+            'moving-your-pet-from-nigeria-to-kenya' => 'requirements-for-exporting-your-pet-from-nigeria',
+            'bringing-your-pet-from-kenya-to-nigeria' => 'requirements-for-importing-your-pet-to-nigeria-from-kenya',
+            'moving-your-pet-from-nigeria-to-the-united-kingdom' => 'requirements-for-exporting-your-pet-from-nigeria',
+            'bringing-your-pet-from-the-united-kingdom-to-nigeria' => 'requirements-for-importing-your-pet-to-nigeria-from-uk-eu-and-uae',
+            'moving-your-pet-from-nigeria-to-the-united-arab-emirates' => 'requirements-for-exporting-your-pet-from-nigeria',
+            'bringing-your-pet-from-the-united-arab-emirates-to-nigeria' => 'requirements-for-importing-your-pet-to-nigeria-from-uk-eu-and-uae',
+            'moving-your-pet-from-nigeria-to-the-united-states' => 'requirements-for-exporting-your-pet-from-nigeria',
+            'bringing-your-pet-from-the-united-states-to-nigeria' => 'requirements-for-importing-your-pet-to-nigeria-from-the-united-states',
+            'moving-your-pet-from-nigeria-to-south-africa' => 'requirements-for-exporting-your-pet-from-nigeria',
+            'bringing-your-pet-from-south-africa-to-nigeria' => 'requirements-for-importing-your-pet-to-nigeria-from-south-africa',
         ];
     }
 
@@ -317,6 +359,9 @@ final class Guide extends Model implements HasMedia, HasRichContent
                 'isGuide' => $this->category === self::RELOCATION_CATEGORY,
                 'direction' => $this->relocation_direction,
                 'directionLabel' => $directionOptions[$this->relocation_direction] ?? null,
+                'scope' => $this->relocation_scope,
+                'scopeLabel' => self::relocationScopeOptions()[$this->relocation_scope] ?? null,
+                'routeLabel' => $this->route_label,
                 'originCountry' => $countryCatalog->label($this->origin_country_code),
                 'destinationCountry' => $countryCatalog->label($this->destination_country_code),
                 'lastReviewedAt' => $this->last_reviewed_at?->format('F j, Y'),
@@ -327,6 +372,26 @@ final class Guide extends Model implements HasMedia, HasRichContent
 
     private function assertRelocationMetadataIsConsistent(): void
     {
+        if (filled($this->relocation_scope)) {
+            if (! array_key_exists($this->relocation_scope, self::relocationScopeOptions())) {
+                throw new InvalidArgumentException("Invalid relocation guide scope [{$this->relocation_scope}].");
+            }
+
+            if (blank($this->relocation_direction) || blank($this->route_label)) {
+                throw new InvalidArgumentException('Relocation guide scope, direction, and route label must be provided together.');
+            }
+
+            if ($this->relocation_scope === self::RELOCATION_SCOPE_STANDARD_EXPORT && $this->relocation_direction !== self::RELOCATION_DIRECTION_EXPORT) {
+                throw new InvalidArgumentException('Standard export guides must use the export direction.');
+            }
+
+            if (in_array($this->relocation_scope, [self::RELOCATION_SCOPE_IMPORT_GROUP, self::RELOCATION_SCOPE_IMPORT_COUNTRY], true) && $this->relocation_direction !== self::RELOCATION_DIRECTION_IMPORT) {
+                throw new InvalidArgumentException('Import guides must use the import direction.');
+            }
+
+            return;
+        }
+
         $metadata = [
             $this->relocation_direction,
             $this->origin_country_code,

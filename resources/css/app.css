@@ -1248,7 +1248,7 @@
         background-color: color-mix(in oklab, var(--color-surface-raised) 60%, transparent);
         color: var(--color-primary-dark);
         font-weight: 600;
-        border-radius: var(--radius-lg);
+        border-radius: var(--radius-pill);
     }
 
     .w-cta--secondary:hover {
@@ -1261,7 +1261,7 @@
         background-color: transparent;
         color: var(--color-waggies-on-brand);
         font-weight: 600;
-        border-radius: var(--radius-lg);
+        border-radius: var(--radius-pill);
     }
 
     .w-cta--secondary-on-dark:hover {
