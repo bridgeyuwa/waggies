@@ -10,6 +10,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | tests/** | .ai/rules/boost/tests.md |
 | app/Http/Controllers/**, routes/** | .ai/rules/controllers.md |
 | resources/views/**, resources/css/**, resources/js/**, app/Livewire/**, app/Filament/**, app/Providers/Filament/** | .ai/rules/frontend-design-skills.md |
+| ** | .ai/rules/general.md |
 | app/Filament/**, app/Providers/Filament/**, database/seeders/**, resources/views/filament/**, tests/** | .ai/rules/local-filament-testing.md |
 | app/Providers/** | .ai/rules/providers.md |
 | app/**, bootstrap/**, config/**, database/**, resources/**, routes/**, tests/**, public/**, composer.json, package.json, config/waggies_pricing.php | .ai/rules/reuse-before-reinventing.md |

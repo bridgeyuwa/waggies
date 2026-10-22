@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "recover": "node scripts/git-recover.mjs"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.3.3",
