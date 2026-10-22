@@ -467,4 +467,4 @@ Use the canonical labels `needs-triage`, `needs-info`, `ready-for-agent`, `ready
 
 ### Domain docs
 
-This repo uses the single-context layout with a root `CONTEXT.md` and `docs/adr/`. See `docs/agents/domain.md`.
+This repo uses the single-context layout with a root `GLOSSARY.md` and `docs/adr/`. See `docs/agents/domain.md`.
