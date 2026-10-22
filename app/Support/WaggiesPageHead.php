@@ -106,7 +106,7 @@ final class WaggiesPageHead
                 static fn (object $breadcrumb, int $index): object => Schema::listItem()
                     ->position($index + 1)
                     ->name((string) $breadcrumb->title)
-                    ->item((string) ($breadcrumb->url ?: url()->current()))
+                    ->item(Schema::webPage()->url((string) ($breadcrumb->url ?: url()->current())))
             )->all())
             ->toArray();
 

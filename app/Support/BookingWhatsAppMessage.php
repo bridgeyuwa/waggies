@@ -243,7 +243,7 @@ final class BookingWhatsAppMessage
             if ($dateLabel !== null && $endDateLabel !== null) {
                 try {
                     $nights = Carbon::parse((string) $details['check_in'])->diffInDays(Carbon::parse((string) $details['check_out']));
-                    $dateLabel .= " → {$endDateLabel} · {$nights} night".($nights === 1 ? '' : 's');
+                    $dateLabel .= " → {$endDateLabel} · {$nights} night".((int) $nights === 1 ? '' : 's');
                 } catch (\Throwable) {
                     $dateLabel .= " → {$endDateLabel}";
                 }

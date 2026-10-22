@@ -73,7 +73,6 @@ class BookingRequestDetailFields
     }
 
     /**
-     * @param  array<string, mixed>  $details
      * @return array<int, string>
      */
     public static function serviceDetailKeys(?string $service, ?string $variant, bool $hasMessage): array

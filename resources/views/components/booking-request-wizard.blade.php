@@ -1793,16 +1793,16 @@ new class extends Component
                         </div>
                     @endif
 
-                    <div class="mt-8 flex flex-col gap-3 border-t border-primary/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="mt-8 flex flex-col gap-3 border-t border-primary/10 pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                         <p class="max-w-sm text-xs leading-relaxed text-primary-dark/50">Submitting sends a request to Waggies. It does not reserve a slot or confirm an appointment.</p>
                         <div class="flex flex-col-reverse gap-3 sm:flex-row">
                             @if($step > 1)
-                                <x-waggies.button type="button" variant="secondary" wire:click="previousStep" wire:loading.attr="disabled" wire:target="previousStep" class="w-full cursor-pointer sm:w-auto">Back to {{ [2 => 'services', 3 => 'pets', 4 => 'match & details', 5 => 'contact'][$step] ?? 'previous step' }}</x-waggies.button>
+                                <x-waggies.button type="button" variant="secondary" wire:click="previousStep" wire:loading.attr="disabled" wire:target="previousStep" class="w-full cursor-pointer sm:w-auto sm:shrink-0 sm:whitespace-nowrap md:w-72">Back to {{ [2 => 'services', 3 => 'pets', 4 => 'match & details', 5 => 'contact'][$step] ?? 'previous step' }}</x-waggies.button>
                             @endif
                             @if($step < 5)
-                                <x-waggies.button type="button" wire:click="nextStep" wire:loading.attr="disabled" wire:target="nextStep" class="w-full cursor-pointer sm:w-auto">{{ [1 => 'Continue to pets', 2 => 'Continue to match & details', 3 => 'Continue to contact', 4 => 'Review request'][$step] ?? 'Continue' }} <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
+                                <x-waggies.button type="button" wire:click="nextStep" wire:loading.attr="disabled" wire:target="nextStep" class="w-full cursor-pointer sm:w-auto sm:shrink-0 sm:whitespace-nowrap md:w-80">{{ [1 => 'Continue to pets', 2 => 'Continue to match & details', 3 => 'Continue to contact', 4 => 'Review request'][$step] ?? 'Continue' }} <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button>
                             @else
-                                <x-waggies.button type="submit" wire:loading.attr="disabled" wire:target="submit" class="w-full cursor-pointer sm:w-auto">
+                                <x-waggies.button type="submit" wire:loading.attr="disabled" wire:target="submit" class="w-full cursor-pointer sm:w-auto sm:shrink-0 sm:whitespace-nowrap md:w-80">
                                     <span wire:loading.remove wire:target="submit">Submit Booking Request</span>
                                     <span wire:loading wire:target="submit">Submitting request...</span>
                                     <x-waggies.icon name="arrow-forward" size="16" />

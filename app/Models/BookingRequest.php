@@ -258,14 +258,19 @@ class BookingRequest extends Model
     public function syncLegacyServiceMessage(): void
     {
         $service = $this->services()->get()->first(
-            fn (BookingRequestService $service): bool => array_key_exists('message', $service->details ?? []),
+            function (BookingRequestService $service): bool {
+                $details = $service->getAttribute('details');
+
+                return is_array($details) && array_key_exists('message', $details);
+            },
         );
 
         if (! $service instanceof BookingRequestService) {
             return;
         }
 
-        $details = $service->details ?? [];
+        $details = $service->getAttribute('details');
+        $details = is_array($details) ? $details : [];
 
         if (($details['message'] ?? null) === $this->message) {
             return;
