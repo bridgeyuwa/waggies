@@ -10,18 +10,13 @@
             'iconAfter' => 'arrow-forward',
             'class' => 'w-full sm:w-auto',
         ],
-        [
-            'href' => route('book'),
-            'label' => 'Send another request',
-            'variant' => 'secondary',
-            'class' => 'w-full sm:w-auto',
-        ],
     ];
 @endphp
 
 <div
     x-data="waggiesBookingWhatsAppActions({ url: @js($whatsappUrl) })"
     @click="handleClick($event)"
+    data-booking-success-actions
     {{ $attributes->class(['flex flex-col gap-3']) }}
 >
     <p
@@ -34,5 +29,15 @@
         aria-atomic="true"
     ></p>
 
-    <x-waggies.cta-actions :actions="$actions" align="start" />
+    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <x-waggies.cta-actions :actions="$actions" align="start" />
+        <x-waggies.button
+            href="{{ route('book') }}"
+            variant="secondary"
+            class="w-full sm:w-auto"
+            data-booking-new-request
+        >
+            Send another request
+        </x-waggies.button>
+    </div>
 </div>

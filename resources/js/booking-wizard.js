@@ -69,6 +69,14 @@ export const registerBookingWhatsAppActions = Alpine => {
         },
 
         handleClick(event) {
+            const newRequestLink = event.target.closest?.('[data-booking-new-request]');
+
+            if (newRequestLink) {
+                this.startAnotherRequest();
+
+                return;
+            }
+
             const link = event.target.closest?.('a[target="_blank"]');
 
             if (!link) return;
@@ -91,6 +99,20 @@ export const registerBookingWhatsAppActions = Alpine => {
 
             this.hasOpened = true;
             this.statusMessage = 'WhatsApp opened in a new window.';
+        },
+
+        startAnotherRequest() {
+            this.stopCountdown();
+            this.hasOpened = true;
+
+            try {
+                const draftKeys = Array.from({ length: window.sessionStorage.length }, (_, index) => window.sessionStorage.key(index))
+                    .filter(key => key?.startsWith('waggies-booking-request-v3:'));
+
+                draftKeys.forEach(key => window.sessionStorage.removeItem(key));
+            } catch {
+                // Storage may be unavailable in a private browsing context.
+            }
         },
     }));
 };
@@ -289,6 +311,7 @@ export const registerBookingDraftPersistence = () => {
     const storageKey = `${baseStorageKey}:${encodeURIComponent(contextKey || 'generic')}`;
     const maxAge = Number(initialRoot.dataset.bookingDraftMaxAge || 86400000);
     let restoring = false;
+    let submissionComplete = false;
     let ignoreSavesUntil = 0;
     let saveTimer;
 
@@ -415,7 +438,7 @@ export const registerBookingDraftPersistence = () => {
     };
 
     const writeDraft = () => {
-        if (restoring || Date.now() < ignoreSavesUntil) return;
+        if (submissionComplete || restoring || Date.now() < ignoreSavesUntil) return;
 
         const draft = {
             version: 1,
@@ -441,6 +464,8 @@ export const registerBookingDraftPersistence = () => {
     };
 
     const scheduleSave = () => {
+        if (submissionComplete) return;
+
         window.clearTimeout(saveTimer);
         saveTimer = window.setTimeout(writeDraft, 250);
     };
@@ -515,8 +540,9 @@ export const registerBookingDraftPersistence = () => {
         if (!window.Livewire?.on) return;
 
         window.Livewire.on('booking-request-submitted', () => {
+            submissionComplete = true;
+            window.clearTimeout(saveTimer);
             clearDraft();
-            setStatus('Draft cleared after your request was sent.');
         });
         window.Livewire.on('booking-wizard-draft-restored', () => {
             restoring = false;
@@ -550,6 +576,16 @@ export const registerBookingDraftPersistence = () => {
     document.addEventListener('livewire:initialized', () => {
         window.requestAnimationFrame(loadDraft);
     }, { once: true });
+
+    document.addEventListener('click', event => {
+        const link = event.target.closest?.('[data-booking-new-request]');
+
+        if (!link || !getRoot()?.contains(link)) return;
+
+        submissionComplete = true;
+        window.clearTimeout(saveTimer);
+        clearDraft();
+    }, true);
 
     const focusStepHeading = () => {
         const heading = getRoot()?.querySelector('[data-booking-step-heading]');
@@ -595,6 +631,21 @@ export const registerBookingDraftPersistence = () => {
         });
     };
 
+    const focusBookingSuccess = () => {
+        window.requestAnimationFrame(() => {
+            const success = getRoot()?.querySelector('[data-booking-success]');
+            const actions = success?.querySelector('[data-booking-success-actions]');
+
+            if (!success || !actions) return;
+
+            success.focus({ preventScroll: true });
+            actions.scrollIntoView({
+                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                block: 'center',
+            });
+        });
+    };
+
     const announce = message => {
         const announcement = getRoot()?.querySelector('[data-booking-announcement]');
 
@@ -611,6 +662,7 @@ export const registerBookingDraftPersistence = () => {
         window.Livewire.on('booking-wizard-validation-failed', focusErrorSummary);
         window.Livewire.on('booking-wizard-focus-target', ({ target }) => focusTarget(target));
         window.Livewire.on('booking-wizard-announcement', ({ message }) => announce(message));
+        window.Livewire.on('booking-request-submitted', focusBookingSuccess);
     };
 
     if (window.Livewire?.on) {

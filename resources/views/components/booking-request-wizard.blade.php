@@ -1795,7 +1795,7 @@ new class extends Component
 
                     <div class="mt-8 flex flex-col gap-3 border-t border-primary/10 pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                         <p class="max-w-sm text-xs leading-relaxed text-primary-dark/50">Submitting sends a request to Waggies. It does not reserve a slot or confirm an appointment.</p>
-                        <div class="flex flex-col-reverse gap-3 sm:flex-row">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                             @if($step > 1)
                                 <x-waggies.button type="button" variant="secondary" wire:click="previousStep" wire:loading.attr="disabled" wire:target="previousStep" class="w-full cursor-pointer sm:w-auto sm:shrink-0 sm:whitespace-nowrap md:w-72">Back to {{ [2 => 'services', 3 => 'pets', 4 => 'match & details', 5 => 'contact'][$step] ?? 'previous step' }}</x-waggies.button>
                             @endif
