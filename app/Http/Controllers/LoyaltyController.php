@@ -31,8 +31,6 @@ final class LoyaltyController extends Controller
     {
         return [
             'hero' => [
-                'rating' => '4.9',
-                'reviewCount' => '500+',
                 'title' => 'A loyalty programme managed by<br/><span class="text-primary italic">the Waggies team</span>',
                 'description' => 'Loyalty is a manual programme managed through our team and SuiteCRM. Ask us about current benefits and eligibility; the website does not create accounts or track points.',
                 'actions' => [

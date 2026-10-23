@@ -179,6 +179,7 @@
     </div>
     @endif
 
+    @unless(request()->routeIs('book'))
     <div x-show="!chatOpen && showTop" x-transition class="waggies-fab--back-to-top fixed z-layer-floating group">
         <button
             type="button"
@@ -207,6 +208,7 @@
             <div class="whitespace-nowrap rounded-full bg-primary-dark px-3 py-1.5 text-xs font-semibold text-white shadow-md">Chat on WhatsApp</div>
         </div>
     </div>
+    @endunless
 
     @if(config('services.waggies_ai.enabled', false))
         <div x-show="!chatOpen" x-transition class="waggies-fab--assistant fixed z-layer-floating group">

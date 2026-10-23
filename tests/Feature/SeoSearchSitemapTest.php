@@ -31,6 +31,37 @@ class SeoSearchSitemapTest extends TestCase
         $this->assertSame(1, substr_count($html, 'rel="canonical"'));
     }
 
+    public function test_relocation_metadata_and_service_schema_match_the_confirmed_scope(): void
+    {
+        $description = 'Pet import and export coordination for dogs and cats, including permits, veterinary documents, customs clearance, import airport pickup, airline booking, and departure transport. Final scope is confirmed by route and quote.';
+        $response = $this->get(route('services.relocation'))->assertOk();
+        $html = $response->getContent();
+        $siteUrl = rtrim((string) config('app.url'), '/');
+
+        $response->assertSee('<title>Pet Relocation Services - Waggies</title>', false)
+            ->assertSee('<meta name="description" content="'.$description.'">', false)
+            ->assertSee('<link rel="canonical" href="'.$siteUrl.'/services/relocation">', false)
+            ->assertSeeText('Airport support does not include door-to-door delivery.');
+
+        preg_match_all('/<script type="application\/ld\+json"[^>]*>(.*?)<\/script>/s', $html, $matches);
+
+        $schemas = array_map(
+            static fn (string $schema): array => json_decode($schema, true, flags: JSON_THROW_ON_ERROR),
+            $matches[1] ?? [],
+        );
+        $serviceSchemas = array_values(array_filter(
+            $schemas,
+            static fn (array $schema): bool => ($schema['@type'] ?? null) === 'Service'
+                && ($schema['name'] ?? null) === 'Pet Relocation Services Abuja - Waggies',
+        ));
+
+        $this->assertCount(1, $serviceSchemas);
+        $this->assertSame($description, $serviceSchemas[0]['description']);
+        $this->assertSame($siteUrl.'/services/relocation', $serviceSchemas[0]['url']);
+        $this->assertArrayNotHasKey('aggregateRating', $serviceSchemas[0]);
+        $this->assertArrayNotHasKey('review', $serviceSchemas[0]);
+    }
+
     public function test_breadcrumb_schema_is_rendered_once_through_laravel_head(): void
     {
         $html = $this->get(route('services.boarding'))->assertOk()->getContent();
@@ -49,7 +80,8 @@ class SeoSearchSitemapTest extends TestCase
         $this->assertCount(1, $breadcrumbSchemas);
         $this->assertSame('Home', $breadcrumbSchemas[0]['itemListElement'][0]['name']);
         $lastBreadcrumb = $breadcrumbSchemas[0]['itemListElement'][array_key_last($breadcrumbSchemas[0]['itemListElement'])];
-        $this->assertSame(route('services.boarding'), $lastBreadcrumb['item']);
+        $this->assertSame('WebPage', $lastBreadcrumb['item']['@type']);
+        $this->assertSame(route('services.boarding'), $lastBreadcrumb['item']['url']);
     }
 
     public function test_query_state_is_not_indexable_and_search_response_is_not_indexable(): void

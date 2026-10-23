@@ -29,8 +29,8 @@ final class HomeController extends Controller
         return view('pages.home', $metadata + [
             'navSection' => 'home',
             'homeHero' => [
-                'eyebrow' => "ABUJA'S TRUSTED PET CARE",
-                'title' => "Your Pet's Home Away From Home",
+                'eyebrow' => 'PET CARE IN ABUJA',
+                'title' => 'Boarding, Veterinary Care & Pet Relocation',
                 'description' => 'Boarding, veterinary care, and dog and cat relocation — all handled through a clear request and review process in Abuja.',
                 'imageSrc' => '/media/home/hero.jpg',
                 'imageAlt' => 'Happy dog sitting with their owner outdoors',
@@ -43,8 +43,8 @@ final class HomeController extends Controller
                 ['title' => 'Dog Boarding', 'description' => 'Individual enclosures, owner-supplied food, routine cleaning, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'dogs'], 'imageSrc' => '/media/services/boarding/card-dogs.jpg', 'imageAlt' => 'Happy dogs at Waggies', 'icon' => 'pets'],
                 ['title' => 'Cat Boarding', 'description' => 'Calm individual enclosures, owner-supplied food, routine cleaning, water, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'cats'], 'imageSrc' => '/media/services/boarding/card-cats.jpg', 'imageAlt' => 'Cat settled into an individual boarding enclosure', 'icon' => 'cat'],
                 ['title' => 'Veterinary Care', 'description' => 'Wellness consultations, comprehensive examinations, vaccination requests, and microchipping.', 'route' => 'services.vet-care', 'imageSrc' => '/media/home/services-vet-care.jpg', 'imageAlt' => 'Veterinarian caring for a dog', 'icon' => 'veterinary-care'],
-                ['title' => 'Pet Import to Nigeria', 'description' => 'Permits, health clearance, rabies titer verification, and Abuja airport pickup.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
-                ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, rabies titers, IATA crates, and airline coordination.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
+                ['title' => 'Pet Import to Nigeria', 'description' => 'Import permits, veterinary and health documents, customs coordination, and Abuja airport pickup, confirmed for your route and quote.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
+                ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, veterinary documents, crate planning, airline booking, and departure airport transport, confirmed for your route and quote.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
             ],
             'careStandardRows' => [
                 ['title' => '24/7 Supervision', 'description' => 'Your pets are monitored around the clock, never left alone.'],

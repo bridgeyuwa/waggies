@@ -65,7 +65,9 @@ class RelocationRoutesTest extends TestCase
             ->assertOk()
             ->assertSee('Pet Import to Nigeria')
             ->assertSee('Pet Export from Nigeria')
-            ->assertSee('Request-based import and export coordination');
+            ->assertSeeText('import and export coordination for dogs and cats')
+            ->assertSeeText('Your quote confirms the route-specific scope and costs.')
+            ->assertSeeText('Airport support does not include door-to-door delivery.');
 
         $this->get(route('relocation.import'))
             ->assertOk()

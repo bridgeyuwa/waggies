@@ -13,8 +13,7 @@
         <x-slot:supporting>
             <span class="inline-flex items-center gap-2 rounded-full border border-surface-purple bg-white px-4 py-1.5 shadow-sm">
                 <x-waggies.icon name="star" variant="filled" size="18" class="text-gold" />
-                <span class="text-xs font-bold text-primary-dark">{{ $page['hero']['rating'] }} · {{ $page['hero']['reviewCount'] }} Reviews</span>
-                <span class="h-2 w-2 rounded-full bg-primary" aria-hidden="true"></span>
+                <span class="text-xs font-bold text-primary-dark">Waggies Loyalty Programme</span>
             </span>
         </x-slot:supporting>
 

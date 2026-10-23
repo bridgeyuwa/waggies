@@ -3,11 +3,9 @@
 <x-waggies.breadcrumb-strip :items="[['label' => 'About']]" class="border-b border-primary/5 bg-white" />
 <x-waggies.cover-hero :hero="$hero">
     <x-slot:supporting>
-        <span class="inline-flex items-center gap-2 rounded-full border border-surface-purple bg-white px-4 py-1.5 shadow-sm">
-            <x-waggies.icon name="star" variant="filled" size="18" class="text-gold" />
-            <span class="text-xs font-bold text-primary-dark">4.9 · 500+ Reviews</span>
-            <span class="h-2 w-2 rounded-full bg-primary" aria-hidden="true"></span>
-        </span>
+        <a href="https://maps.app.goo.gl/yY27wWx8mLPC4z4c8" target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-full border border-surface-purple bg-white px-4 py-1.5 text-xs font-bold text-primary-dark shadow-sm hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+            Read Waggies reviews on Google
+        </a>
     </x-slot:supporting>
 </x-waggies.cover-hero>
 

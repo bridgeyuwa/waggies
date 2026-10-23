@@ -7,7 +7,7 @@
                 class="inline-flex max-w-full items-center gap-2 rounded-full border border-primary/10 bg-white px-3.5 py-1.5 shadow-sm">
                 <x-waggies.icon name="verified" size="18" variant="filled" class="shrink-0 text-primary" />
                 <span class="whitespace-nowrap text-xs font-semibold tracking-wide text-primary-dark/80 sm:text-sm">
-                    Five services. One trusted team.
+                    Your Pet&apos;s Home Away From Home
                 </span>
             </span>
         </x-slot:supporting>

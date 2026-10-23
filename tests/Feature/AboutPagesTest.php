@@ -10,6 +10,31 @@ final class AboutPagesTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_about_page_increments_completed_years_each_august(): void
+    {
+        $this->travelTo('2026-07-31 12:00:00');
+
+        $this->get('/about')
+            ->assertSeeTextInOrder(['Clients Served', '7', 'Years in Business']);
+
+        $this->travelTo('2026-08-01 12:00:00');
+
+        $this->get('/about')
+            ->assertSeeTextInOrder(['Clients Served', '8', 'Years in Business']);
+    }
+
+    public function test_about_page_keeps_verified_metrics_and_a_neutral_google_review_link(): void
+    {
+        $this->get('/about')
+            ->assertSeeTextInOrder(['500+', 'Clients Served'])
+            ->assertSeeTextInOrder(['15+', 'Specialists'])
+            ->assertSeeTextInOrder(['100%', 'Protocol-Based Handling'])
+            ->assertSee('href="https://maps.app.goo.gl/yY27wWx8mLPC4z4c8"', false)
+            ->assertSeeText('Read Waggies reviews on Google')
+            ->assertDontSeeText('2 reviews')
+            ->assertDontSeeText('5 stars');
+    }
+
     public function test_about_child_pages_render_with_page_metadata(): void
     {
         $pages = [

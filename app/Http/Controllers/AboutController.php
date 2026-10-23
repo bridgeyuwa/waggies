@@ -8,12 +8,22 @@ use Spatie\SchemaOrg\Schema;
 
 final class AboutController extends Controller
 {
+    private const REGISTRATION_YEAR = 2018;
+
+    private const REGISTRATION_MONTH = 8;
+
     public function __invoke(): View
     {
         $businessProfile = BusinessProfile::current();
+        $currentDate = now();
+        $yearsInBusiness = $currentDate->year - self::REGISTRATION_YEAR;
+
+        if ($currentDate->month < self::REGISTRATION_MONTH) {
+            $yearsInBusiness--;
+        }
 
         $metadata = [
-            'title' => 'About Us',
+            'title' => 'About Waggies - Pet Care in Abuja',
             'description' => 'Waggies is a pet care centre in Abuja offering boarding, veterinary care, and dog and cat relocation.',
             'canonical' => route('about'),
             'ogTitle' => 'About Waggies - Pet Care in Abuja',
@@ -31,32 +41,32 @@ final class AboutController extends Controller
         return view('pages.about', $metadata + [
             'navSection' => 'about',
             'hero' => [
-                'title' => 'Complete Veterinary & Pet Care in Abuja',
+                'title' => 'Meet the Waggies Team in Abuja',
                 'description' => 'Boarding, veterinary care, and dog and cat relocation - all coordinated through one clear request process.',
                 'actions' => [
                     ['label' => 'Submit Booking Request', 'url' => route('book')],
                     ['label' => 'Explore Services', 'url' => route('services.index')],
                 ],
                 'imageSrc' => '/media/about/intro.jpg',
-                'imageAlt' => 'Complete Veterinary & Pet Care in Abuja',
+                'imageAlt' => 'A woman in a white coat standing outdoors',
             ],
             'stats' => [
                 ['value' => '500+', 'label' => 'Clients Served'],
-                ['value' => '3', 'label' => 'Core Services'],
-                ['value' => '15+', 'label' => 'Global Specialists'],
-                ['value' => '100%', 'label' => '100% Protocol-Based Handling'],
+                ['value' => $yearsInBusiness, 'label' => 'Years in Business'],
+                ['value' => '15+', 'label' => 'Specialists'],
+                ['value' => '100%', 'label' => 'Protocol-Based Handling'],
             ],
             'philosophy' => [
-                'eyebrow' => 'Our Philosophy', 'title' => 'Pet Care Standards in West Africa',
+                'eyebrow' => 'Our Philosophy', 'title' => 'Clear Standards for Pet Care in Abuja',
                 'body' => [
-                    "Founded to bridge the gap in dedicated pet services, Waggies has grown into Abuja's most comprehensive pet care centre. We believe thorough, consistent care matters.",
+                    'Waggies offers boarding, veterinary care, and dog and cat relocation coordination in Abuja. We focus on clear requests, careful review, and practical next steps.',
                     'Our facility combines veterinary care with comfortable, clean spaces. Whether it is a boarding request, a veterinary visit, or international relocation, we handle each request with care and precision.',
-                    'Pet Care Should Never Be Reactive: We believe animals benefit from the same structure and planning as human healthcare - not rushed decisions, not inconsistent handling, but deliberate care built around long-term wellbeing.',
+                    'Clear planning helps owners understand what needs to happen next. We review each request and explain service availability, pricing, and next steps before confirmation.',
                 ],
                 'features' => [
                     ['icon' => 'values', 'title' => 'High Standards', 'description' => 'Clean enclosures and consistent care routines.'],
-                    ['icon' => 'global', 'title' => 'Global Mobility', 'description' => 'Experienced in straightforward international pet travel.'],
-                    ['icon' => 'verified', 'title' => 'Expert Review', 'description' => 'Care needs and final arrangements are reviewed before confirmation.'],
+                    ['icon' => 'global', 'title' => 'Pet Travel Coordination', 'description' => 'Request-based import and export coordination for dogs and cats.'],
+                    ['icon' => 'verified', 'title' => 'Request Review', 'description' => 'Care needs and final arrangements are reviewed before confirmation.'],
                     ['icon' => 'hours', 'title' => 'Clear Communication', 'description' => 'We explain availability, pricing, and next steps before confirmation.'],
                 ],
             ],
@@ -67,12 +77,12 @@ final class AboutController extends Controller
             'story' => [
                 'title' => 'Built by Pet Lovers,<br />for Pet Owners',
                 'paragraphs' => [
-                    'Waggies was born from a personal experience  -  a pet owner in Abuja struggling to find a boarding facility that matched the standard of care they gave their own dog at home. What started as a small dog hotel has grown into Abuja\'s most comprehensive pet care centre.',
-                    'Today, we offer boarding, veterinary care, and import and export relocation coordination for dogs and cats - all through one consistent request and review process.',
-                    'Every member of our team is an animal lover first. We believe the best pet care comes from genuine passion  -  not just process.',
-                    'Waggies began with a simple but frustrating reality - pet owners in Abuja needed clearer, more dependable coordination for boarding, veterinary care, and pet travel. Our work is focused on making those requests easier to understand and safer to review.',
+                    'Waggies began as a pet boarding service for dogs and cats in Abuja. Today, the team also offers veterinary care and import and export coordination.',
+                    'Waggies offers dog and cat boarding, veterinary care, and import and export relocation coordination through a request-and-review process.',
+                    'We believe pet care should be attentive to each animal and clear for the people responsible for them.',
+                    'Before a service is confirmed, the team explains availability, pricing, and next steps.',
                 ],
-                'stats' => [['value' => '500+', 'label' => 'Happy Clients'], ['value' => '7', 'label' => 'Years in Business'], ['value' => '4.9', 'label' => 'Average Rating'], ['value' => '15+', 'label' => 'Team Members']],
+                'stats' => [['value' => 'Boarding', 'label' => 'For dogs and cats'], ['value' => 'Vet Care', 'label' => 'Veterinary requests'], ['value' => 'Import', 'label' => 'Pet travel to Nigeria'], ['value' => 'Export', 'label' => 'Pet travel from Nigeria']],
             ],
             'standards' => [
                 'eyebrow' => 'Operating Standards', 'title' => 'Our Standard of Handling<br/><span class="text-secondary italic">Across All Services</span>',

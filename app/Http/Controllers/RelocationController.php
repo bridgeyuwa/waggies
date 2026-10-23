@@ -10,15 +10,16 @@ final class RelocationController extends Controller
 {
     public function index(): View
     {
-        $metadata = ['title' => 'Pet Relocation Services - Waggies', 'description' => 'Custom-quoted pet import and export coordination for dogs and cats, including document, veterinary, airline, and airport coordination.', 'canonical' => route('services.relocation'), 'ogTitle' => 'Pet Relocation Services Abuja - Waggies', 'ogDescription' => 'Custom-quoted pet import and export coordination for dogs and cats, including document, veterinary, airline, and airport coordination.'];
+        $description = 'Pet import and export coordination for dogs and cats, including permits, veterinary documents, customs clearance, import airport pickup, airline booking, and departure transport. Final scope is confirmed by route and quote.';
+        $metadata = ['title' => 'Pet Relocation Services - Waggies', 'description' => $description, 'canonical' => route('services.relocation'), 'ogTitle' => 'Pet Relocation Services Abuja - Waggies', 'ogDescription' => $description];
         $this->setPageHead($metadata, [$this->serviceSchema('Pet Relocation Services Abuja - Waggies', $metadata)]);
 
         return view('pages.services.relocation', $metadata + [
             'navSection' => 'services',
             'hero' => ['imageSrc' => '/media/services/relocation/hero.jpg', 'imageAlt' => 'International pet relocation service by Waggies'],
             'cards' => [
-                ['title' => 'Pet Import to Nigeria', 'description' => 'Permits, health clearance, rabies titer verification, and Abuja airport pickup.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
-                ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, rabies titers, IATA crates, and airline coordination.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
+                ['title' => 'Pet Import to Nigeria', 'description' => 'Import permits, veterinary and health documents, customs clearance, and Abuja airport pickup. Scope depends on route and quote.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
+                ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, veterinary documents, crate planning, airline booking, and departure airport transport. Scope depends on route and quote.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
             ],
             'faqs' => $this->serviceFaqs(),
         ]);
@@ -51,14 +52,14 @@ final class RelocationController extends Controller
         return [
             'import' => [
                 'metaTitle' => 'Import a Pet to Nigeria',
-                'description' => 'Full-service pet import to Nigeria — permits, health certificates, microchip verification, and airport collection in Abuja.',
+                'description' => 'Waggies coordinates import permits, veterinary and health documents, customs clearance, and Abuja airport pickup. Route-specific scope and costs are confirmed in your quote.',
                 'ogTitle' => 'Import Pets to Nigeria - Waggies Abuja',
                 'hero' => [
                     'imageSrc' => '/media/services/relocation/import/hero.jpg',
                     'imageAlt' => 'Pet prepared for import travel',
                     'eyebrow' => 'Pet Import · Nigeria',
                     'title' => 'Bringing Your Pet<br/>to Nigeria?',
-                    'description' => 'We manage every import requirement  -  from advance permits and health certificates to airport collection and quarantine coordination.',
+                    'description' => 'Waggies coordinates import permits, veterinary and health documents, customs clearance, and Abuja airport pickup. Your quote confirms the route-specific scope and costs.',
                     'actions' => [
                         0 => [
                             'label' => 'Request Quote',
@@ -77,45 +78,45 @@ final class RelocationController extends Controller
                 ],
                 'sectionHeading' => [
                     'eyebrow' => 'Import Process',
-                    'title' => 'What We Handle<br/>for You',
-                    'subtitle' => 'Importing a pet to Nigeria involves strict documentation and coordination. We take care of every step.',
+                    'title' => 'Import Support We Can Coordinate',
+                    'subtitle' => 'We coordinate permits, veterinary and health documents, customs clearance, and airport pickup, with the route-specific scope confirmed in your quote.',
                 ],
                 'features' => [
                     0 => [
                         'icon' => 'document',
-                        'title' => 'Import Permit',
-                        'desc' => 'We obtain the required import permits from Nigerian veterinary and customs authorities on your behalf.',
+                        'title' => 'Permits & Customs Clearance',
+                        'desc' => 'We coordinate required import permits and customs-clearance steps for your route. Your quote confirms the scope and costs.',
                     ],
                     1 => [
                         'icon' => 'vaccination',
-                        'title' => 'Health & Vaccination Checks',
-                        'desc' => 'Review of your pet\'s vaccination records to confirm compliance with Nigerian import requirements.',
+                        'title' => 'Veterinary & Health Documents',
+                        'desc' => 'We coordinate required veterinary checks, vaccinations, health records, and rabies-titer steps for your route.',
                     ],
                     2 => [
                         'icon' => 'microchip',
                         'title' => 'Microchip Verification',
-                        'desc' => 'Confirmation that your pet\'s microchip meets the ISO standard required for entry.',
+                        'desc' => 'We check the available microchip details against the requirements for your route and flag anything to confirm.',
                     ],
                     3 => [
                         'icon' => 'airport-arrival',
-                        'title' => 'Airport Collection',
-                        'desc' => 'Our team collects your pet from the cargo terminal and handles all on-arrival documentation.',
+                        'title' => 'Airport Pickup',
+                        'desc' => 'Waggies arranges airport pickup for imports. Route feasibility, provider availability, and related costs are confirmed in your quote.',
                     ],
                     4 => [
                         'icon' => 'home',
                         'title' => 'Post-Arrival Care',
-                        'desc' => 'Optional post-arrival boarding and health check while your pet settles into their new home.',
+                        'desc' => 'Boarding or veterinary care after arrival may be available by request and is confirmed with your service enquiry.',
                     ],
                     5 => [
                         'icon' => 'coordinator',
-                        'title' => 'Dedicated Coordinator',
-                        'desc' => 'One point of contact throughout  -  keeping you informed every step of the way.',
+                        'title' => 'Request Review',
+                        'desc' => 'The team reviews your route and timing, then explains the available service options and next steps.',
                     ],
                 ],
                 'processHeading' => [
                     'eyebrow' => 'How It Works',
                     'title' => 'A clear path to arrival',
-                    'subtitle' => 'We keep the moving parts visible, with a named next step at every stage.',
+                    'subtitle' => 'We review your route and timing before confirming the next steps for your request.',
                 ],
                 'processSteps' => [
                     0 => [
@@ -126,18 +127,18 @@ final class RelocationController extends Controller
                     1 => [
                         'step' => '02',
                         'title' => 'Prepare permits and health records',
-                        'description' => 'We coordinate import permits, vaccination records, microchip checks, and the required veterinary paperwork.',
+                        'description' => 'We coordinate import permits, vaccination and health records, microchip checks, and required veterinary documents for your route.',
                     ],
                     2 => [
                         'step' => '03',
                         'title' => 'Coordinate arrival',
-                        'description' => 'We align airport collection, customs handling, and optional post-arrival care around your arrival plan.',
+                        'description' => 'We coordinate customs clearance and Abuja airport pickup. Airport pickup is not door-to-door delivery; any post-arrival care is arranged separately.',
                     ],
                 ],
                 'cta' => [
-                    'eyebrow' => 'Timeline assurance',
+                    'eyebrow' => 'Travel planning',
                     'heading' => 'Ready to start your pet\'s import process?',
-                    'body' => 'We recommend reaching out at least 4-6 weeks before your intended travel date to ensure all Ministry import permits and rabies titer documentation are processed smoothly.',
+                    'body' => 'Start as early as you can. Permit, veterinary, and destination requirements vary by route and can take time. Share your destination and travel date so the team can review the next steps.',
                     'primaryLabel' => 'Request Quote',
                     'primaryRoute' => 'book',
                     'primaryParams' => [
@@ -150,14 +151,14 @@ final class RelocationController extends Controller
             ],
             'export' => [
                 'metaTitle' => 'Export a Pet from Nigeria',
-                'description' => 'Full-service pet export from Nigeria — health certificates, IATA crates, export permits, and airline coordination.',
+                'description' => 'Waggies coordinates export permits, veterinary and health documents, crate arrangements, airline booking, customs clearance, and transport to the departure airport. Route-specific scope and costs are confirmed in your quote.',
                 'ogTitle' => 'Export Pets from Nigeria - Waggies Abuja',
                 'hero' => [
                     'imageSrc' => '/media/services/relocation/export/hero.jpg',
                     'imageAlt' => 'Dog prepared for international export',
                     'eyebrow' => 'Pet Export · Nigeria',
                     'title' => 'Moving Abroad<br/>with Your Pet?',
-                    'description' => 'We manage health certificates, export permits, IATA-approved crates, and airline coordination for a smooth international departure.',
+                    'description' => 'Waggies coordinates export permits, veterinary and health documents, crate arrangements, airline booking, customs clearance, and departure airport transport. Your quote confirms the route-specific scope and costs.',
                     'actions' => [
                         0 => [
                             'label' => 'Request Quote',
@@ -176,45 +177,45 @@ final class RelocationController extends Controller
                 ],
                 'sectionHeading' => [
                     'eyebrow' => 'Export Process',
-                    'title' => 'Everything Covered<br/>Before Departure',
-                    'subtitle' => 'Exporting a pet from Nigeria requires careful planning. We handle it all so your pet travels safely.',
+                    'title' => 'Export Support We Can Coordinate',
+                    'subtitle' => 'We coordinate export permits, veterinary documents, crate and airline arrangements, customs clearance, and departure transport, with route-specific scope confirmed in your quote.',
                 ],
                 'features' => [
                     0 => [
                         'icon' => 'document',
-                        'title' => 'Export Health Certificate',
-                        'desc' => 'Our vet issues an official government-endorsed health certificate valid for international travel.',
+                        'title' => 'Veterinary & Health Documents',
+                        'desc' => 'We coordinate required veterinary checks, health certificates, and export endorsements for your destination.',
                     ],
                     1 => [
                         'icon' => 'vaccination',
                         'title' => 'Vaccination Compliance',
-                        'desc' => 'Review and update of vaccinations to meet the destination country\'s entry requirements.',
+                        'desc' => 'We check vaccination records against destination requirements and coordinate any required veterinary steps.',
                     ],
                     2 => [
                         'icon' => 'supplies',
-                        'title' => 'IATA-Approved Crate',
-                        'desc' => 'Supply and sizing of an IATA-compliant travel crate appropriate for your pet and the airline.',
+                        'title' => 'Crate Planning',
+                        'desc' => 'We coordinate crate sizing and sourcing based on your pet, route, and airline requirements.',
                     ],
                     3 => [
                         'icon' => 'airport-departure',
                         'title' => 'Airline Booking',
-                        'desc' => 'We liaise with the airline to book your pet as cabin or cargo, and manage all airline paperwork.',
+                        'desc' => 'Waggies coordinates airline booking and transport to the departure airport. Carrier, provider availability, and costs are confirmed in your quote.',
                     ],
                     4 => [
                         'icon' => 'microchip',
-                        'title' => 'Microchip & Passport',
-                        'desc' => 'Verification of microchip and preparation of a pet passport where required by the destination.',
+                        'title' => 'Microchip & Travel Documents',
+                        'desc' => 'For export requests, Waggies arranges microchipping if no chip is found; existing chips are scanned and recorded. Passport documents are prepared where required.',
                     ],
                     5 => [
                         'icon' => 'coordinator',
                         'title' => 'Destination Guidance',
-                        'desc' => 'Guidance on entry requirements at your destination country  -  so there are no surprises on arrival.',
+                        'desc' => 'We help you identify destination entry requirements to review before confirming travel arrangements.',
                     ],
                 ],
                 'processHeading' => [
                     'eyebrow' => 'How It Works',
                     'title' => 'A calmer route to departure',
-                    'subtitle' => 'Your documents, crate, and airline handoff are coordinated against the travel date.',
+                    'subtitle' => 'We review the destination, timeline, and arrangements available for your pet\'s journey.',
                 ],
                 'processSteps' => [
                     0 => [
@@ -225,18 +226,18 @@ final class RelocationController extends Controller
                     1 => [
                         'step' => '02',
                         'title' => 'Complete vet and travel documents',
-                        'description' => 'We coordinate health certification, vaccination checks, microchip records, and export paperwork.',
+                        'description' => 'We coordinate veterinary checks, health certificates, and export documents for your destination requirements.',
                     ],
                     2 => [
                         'step' => '03',
                         'title' => 'Prepare for departure',
-                        'description' => 'We arrange the IATA-compliant crate, airline booking, airport handoff, and destination guidance.',
+                        'description' => 'We coordinate the crate, airline booking, and departure airport transport. Carrier, provider availability, and costs are confirmed in your quote.',
                     ],
                 ],
                 'cta' => [
-                    'eyebrow' => 'Global compliance',
+                    'eyebrow' => 'Travel planning',
                     'heading' => 'Planning an international move from Nigeria?',
-                    'body' => 'Different destinations require varying preparation windows — for example, the UK/EU require a rabies blood titer test done 3+ months prior. Contact our team early to stay on schedule.',
+                    'body' => 'Preparation time and documents vary by destination and airline. Contact the team early with your route and travel date so current requirements can be reviewed.',
                     'primaryLabel' => 'Request Quote',
                     'primaryRoute' => 'book',
                     'primaryParams' => [
@@ -249,7 +250,7 @@ final class RelocationController extends Controller
             ],
             'checklist' => [
                 'metaTitle' => 'Pet Relocation Checklist',
-                'description' => 'Comprehensive step-by-step checklist for relocating your pet internationally - from 3 months out to the day of travel.',
+                'description' => 'A practical checklist for planning your pet\'s international relocation around your destination requirements and travel date.',
                 'ogTitle' => 'Pet Relocation Checklist - Waggies',
                 'hero' => [
                     'imageSrc' => '/media/services/relocation/checklist/hero.jpg',
@@ -257,51 +258,51 @@ final class RelocationController extends Controller
                     'eyebrow' => 'Relocation Checklist',
                     'eyebrowIcon' => 'checklist',
                     'title' => 'Your Pet Relocation Checklist',
-                    'description' => 'Stay on top of every requirement. Start early  -  some steps can take weeks to complete.',
+                    'description' => 'Start early. Permit and veterinary requirements vary by route and can take time to complete.',
                 ],
                 'phases' => [
                     0 => [
-                        'heading' => '3+ Months Before Travel',
+                        'heading' => 'Start Planning',
                         'icon' => 'calendar',
                         'items' => [
-                            0 => 'Research the destination country\'s pet import requirements',
-                            1 => 'Confirm your pet is microchipped (ISO 11784/11785 standard)',
-                            2 => 'Check vaccination requirements  -  especially rabies',
-                            3 => 'Contact Waggies to begin the relocation process',
-                            4 => 'Book your travel and confirm airline pet policies',
+                            0 => 'Research your destination country\'s pet entry requirements',
+                            1 => 'Confirm your pet\'s microchip details against your route requirements',
+                            2 => 'Check vaccination and rabies requirements for your route',
+                            3 => 'Contact Waggies to review the relocation request',
+                            4 => 'Check airline pet policies before booking travel',
                         ],
                     ],
                     1 => [
-                        'heading' => '6-8 Weeks Before Travel',
+                        'heading' => 'Arrange Permits and Veterinary Checks',
                         'icon' => 'document',
                         'items' => [
-                            0 => 'Apply for export permit from the Nigerian Federal Department of Livestock',
-                            1 => 'Book health examination with our on-site vet',
-                            2 => 'Order an IATA-approved travel crate (allow time for crate-training)',
+                            0 => 'Coordinate the required import or export permits with Waggies',
+                            1 => 'Arrange any required health examination with a veterinarian',
+                            2 => 'Ask Waggies about crate arrangements that meet your airline\'s requirements',
                             3 => 'Confirm destination country quarantine requirements',
-                            4 => 'Arrange travel insurance for your pet',
+                            4 => 'Consider travel insurance for your pet',
                         ],
                     ],
                     2 => [
-                        'heading' => '2-4 Weeks Before Travel',
+                        'heading' => 'Confirm Travel and Prepare Documents',
                         'icon' => 'checklist',
                         'items' => [
-                            0 => 'Complete official veterinary health certificate (signed and endorsed)',
-                            1 => 'Confirm all vaccinations are within the required validity windows',
-                            2 => 'Confirm airline booking  -  cargo or cabin  -  with airline reference',
-                            3 => 'Prepare a comfort pack: familiar toy, blanket, and food for travel',
-                            4 => 'Check crate sizing meets airline and IATA requirements',
+                            0 => 'Confirm which veterinary health certificates and endorsements your route requires',
+                            1 => 'Check that vaccinations meet the requirements for your route and travel date',
+                            2 => 'Confirm the airline booking and travel arrangements with Waggies',
+                            3 => 'Prepare a comfort pack with familiar items and food for travel',
+                            4 => 'Confirm crate sizing against your airline and route requirements',
                         ],
                     ],
                     3 => [
                         'heading' => 'Day of Travel',
                         'icon' => 'airport-departure',
                         'items' => [
-                            0 => 'Arrive at the airport early  -  cargo check-in takes longer than passenger',
+                            0 => 'Follow your airline\'s airport arrival and cargo check-in instructions',
                             1 => 'Carry all original documents in your hand luggage',
-                            2 => 'Do not feed your pet within 4 hours of the flight (unless advised otherwise)',
+                            2 => 'Follow your veterinarian\'s and airline\'s guidance on feeding before travel',
                             3 => 'Attach a "Live Animal" label and your contact details to the crate',
-                            4 => 'Confirm collection arrangements at the destination',
+                            4 => 'Confirm any arrival collection with the destination contact; Waggies does not offer door-to-door delivery',
                         ],
                     ],
                 ],
