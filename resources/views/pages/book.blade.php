@@ -13,7 +13,24 @@
 
     <section class="bg-surface py-8 md:py-8" aria-labelledby="booking-form-title">
         <div class="page-container">
-            <div class="order-1 flex flex-col gap-3 lg:hidden" aria-label="Booking reassurance">
+            <div class="rounded-2xl border border-primary/10 bg-white p-5 shadow-sm sm:p-6">
+                @if($bookingSubmitted)
+                    <div class="flex flex-col gap-5" role="status" tabindex="-1">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-success-light text-success">
+                            <x-waggies.icon name="check-circle" variant="filled" size="28" />
+                        </div>
+                        <div>
+                            <h2 id="booking-form-title" class="font-serif text-2xl font-bold text-primary-dark">Your request was received</h2>
+                            <p class="mt-3 max-w-xl text-sm leading-relaxed text-primary-dark/70">Our team will review your service, date, and pet details, then contact you to confirm the arrangements. Your requested time is not reserved until Waggies confirms it.</p>
+                        </div>
+                        <x-waggies.booking-request-success-actions :whatsapp-url="$whatsappUrl" />
+                    </div>
+                @else
+                    @livewire('booking-request-wizard', ['initialContext' => $bookingContext])
+                @endif
+            </div>
+
+            <div class="mt-6 flex flex-col gap-3 lg:hidden" aria-label="Booking reassurance">
                 <details class="rounded-2xl bg-primary-dark p-5 text-white">
                     <summary class="items-center justify-between gap-4 text-sm font-bold text-white">
                         <span>What happens next?</span>
@@ -41,23 +58,6 @@
                         </x-waggies.button>
                     </div>
                 </details>
-            </div>
-
-            <div class="rounded-2xl border border-primary/10 bg-white p-5 shadow-sm sm:p-6">
-                @if($bookingSubmitted)
-                    <div class="flex flex-col gap-5" role="status" tabindex="-1">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-success-light text-success">
-                            <x-waggies.icon name="check-circle" variant="filled" size="28" />
-                        </div>
-                        <div>
-                            <h2 id="booking-form-title" class="font-serif text-2xl font-bold text-primary-dark">Your request was received</h2>
-                            <p class="mt-3 max-w-xl text-sm leading-relaxed text-primary-dark/70">Our team will review your service, date, and pet details, then contact you to confirm the arrangements. Your requested time is not reserved until Waggies confirms it.</p>
-                        </div>
-                        <x-waggies.booking-request-success-actions :whatsapp-url="$whatsappUrl" />
-                    </div>
-                @else
-                    @livewire('booking-request-wizard', ['initialContext' => $bookingContext])
-                @endif
             </div>
 
         </div>
