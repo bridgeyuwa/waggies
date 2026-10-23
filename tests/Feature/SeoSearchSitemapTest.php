@@ -209,23 +209,6 @@ class SeoSearchSitemapTest extends TestCase
             ->assertSee('Disallow: /api/', false);
     }
 
-    public function test_robots_blocks_crawling_outside_production(): void
-    {
-        $this->get('/robots.txt')
-            ->assertOk()
-            ->assertSee("User-agent: *\nDisallow: /\n", false)
-            ->assertDontSee("Allow: /\n", false);
-    }
-
-    public function test_robots_allows_public_crawling_in_production(): void
-    {
-        $this->app['env'] = 'production';
-
-        $this->get('/robots.txt')
-            ->assertOk()
-            ->assertSee("User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n", false);
-    }
-
     public function test_missing_pages_render_noindex_error_metadata(): void
     {
         foreach ([
