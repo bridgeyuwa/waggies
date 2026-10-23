@@ -34,11 +34,46 @@ it('renders published FAQs from the database and hides drafts', function (): voi
     ]);
 
     $response = $this->get(route('faq'));
+    $html = $response->getContent();
+    $publishedFaqPattern = sprintf(
+        '/<details\b[^>]*data-faq-id="%s"[^>]*>(.*?)<\/details>/s',
+        preg_quote($published->id, '/'),
+    );
+    preg_match($publishedFaqPattern, $html, $publishedFaqMarkup);
 
     $response
         ->assertOk()
         ->assertSee($published->question)
         ->assertDontSee($draft->question);
+
+    expect($publishedFaqMarkup)
+        ->toHaveCount(2)
+        ->and($publishedFaqMarkup[1])
+        ->toContain($published->question)
+        ->and($publishedFaqMarkup[1])
+        ->toContain($published->answer);
+});
+
+it('escapes stored markup in the server-rendered FAQ content', function (): void {
+    $unsafeMarkup = '<img src=x onerror=alert(1)>';
+    $faq = Faq::factory()->create([
+        'question' => "Question with {$unsafeMarkup}",
+        'answer' => "Answer with {$unsafeMarkup}",
+        'status' => Faq::STATUS_PUBLISHED,
+    ]);
+
+    $html = $this->get(route('faq'))->assertOk()->getContent();
+    $faqPattern = sprintf(
+        '/<details\b[^>]*data-faq-id="%s"[^>]*>(.*?)<\/details>/s',
+        preg_quote($faq->id, '/'),
+    );
+    preg_match($faqPattern, $html, $faqMarkup);
+
+    expect($faqMarkup)
+        ->toHaveCount(2)
+        ->and($faqMarkup[1])
+        ->toContain('&lt;img src=x onerror=alert(1)&gt;')
+        ->not->toContain($unsafeMarkup);
 });
 
 it('limits category FAQ structured data to the selected category', function (): void {

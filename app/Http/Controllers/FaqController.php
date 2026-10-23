@@ -21,6 +21,7 @@ final class FaqController extends Controller
             ->map(fn (Faq $faq): array => $faq->toPublicArray())
             ->all();
         $categories = collect($faqs)->pluck('category')->unique()->values()->all();
+        $faqsByCategory = collect($faqs)->groupBy('category')->all();
 
         $categoryMeta = [
             'boarding' => ['title' => 'Boarding FAQs', 'description' => 'Frequently asked questions about pet boarding at Waggies Abuja — admission, feeding, stay durations, special care, and what happens if your pet becomes unwell.'],
@@ -62,6 +63,7 @@ final class FaqController extends Controller
                 'description' => "Quick answers to the questions we hear most often. Can't find what you need? Contact us directly.",
             ],
             'faqs' => $faqs,
+            'faqsByCategory' => $faqsByCategory,
             'categories' => $categories,
         ]);
     }

@@ -26,15 +26,24 @@
         </div>
 
         <div x-show="query.trim()" x-transition class="mx-auto max-w-3xl">
-            <p x-show="results().length" class="mb-4 text-sm text-primary-dark/60">Showing <span class="font-semibold text-primary" x-text="results().length"></span> <span x-text="results().length === 1 ? 'result' : 'results'"></span> for <span class="font-semibold text-primary-dark" x-text="'“' + query.trim() + '”'"></span></p>
-            <div x-show="!results().length" class="rounded-2xl border border-primary/10 bg-white px-6 py-16 text-center"><div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface-purple text-primary"><x-waggies.icon name="search" size="24" /></div><p class="mb-1 font-serif text-xl font-bold text-primary-dark">No results found</p><p class="mb-6 text-sm text-primary-dark/60">We couldn&apos;t find anything matching &ldquo;<span x-text="query.trim()"></span>&rdquo;. Try a different search or browse the categories.</p><x-waggies.button type="button" @click="query = ''"> <x-waggies.icon name="arrow-back" size="16" /> Browse all FAQs</x-waggies.button></div>
-            <div class="space-y-3"><template x-for="faq in results()" :key="faq.id"><details :data-faq-id="faq.id" class="group scroll-mt-32 rounded-2xl border border-primary/10 bg-white transition hover:border-primary/30 hover:shadow-sm"><summary class="flex w-full cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 font-semibold text-primary-dark transition-colors hover:text-primary"><span x-html="highlight(faq.question)"></span><x-waggies.icon name="chevron-down" size="20" class="shrink-0 text-primary transition-transform duration-200 group-open:rotate-180" /></summary><div class="px-6 pb-5 pt-3 text-sm leading-relaxed text-primary-dark/65" x-html="highlight(faq.answer)"></div></details></template></div>
+            <p x-show="results().length" role="status" aria-live="polite" class="mb-4 text-sm text-primary-dark/60">Showing <span class="font-semibold text-primary" x-text="results().length"></span> <span x-text="results().length === 1 ? 'result' : 'results'"></span> for <span class="font-semibold text-primary-dark" x-text="'“' + query.trim() + '”'"></span></p>
+            <div x-show="!results().length" class="rounded-2xl border border-primary/10 bg-white px-6 py-16 text-center"><div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface-purple text-primary"><x-waggies.icon name="search" size="24" /></div><p role="status" aria-live="polite" class="mb-1 font-serif text-xl font-bold text-primary-dark">No results found</p><p class="mb-6 text-sm text-primary-dark/60">We couldn&apos;t find anything matching &ldquo;<span x-text="query.trim()"></span>&rdquo;. Try a different search or browse the categories.</p><x-waggies.button type="button" @click="query = ''"> <x-waggies.icon name="arrow-back" size="16" /> Browse all FAQs</x-waggies.button></div>
         </div>
 
-        <div id="faq-panel" role="tabpanel" tabindex="0" aria-live="polite" :aria-labelledby="tabId(active)" x-show="!query.trim()" x-transition>
-            <template x-for="category in visibleCategories()" :key="category">
-                <section class="mx-auto mb-10 max-w-3xl"><h3 x-show="active === 'all'" class="mb-4 font-serif text-lg font-bold capitalize text-primary-dark" x-text="category.replace('-', ' ')"></h3><div class="space-y-3"><template x-for="faq in faqs.filter(item => item.category === category)" :key="faq.id"><details :data-faq-id="faq.id" class="group scroll-mt-32 rounded-2xl border border-primary/10 bg-white transition hover:border-primary/30 hover:shadow-sm"><summary class="flex w-full cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 font-semibold text-primary-dark transition-colors hover:text-primary"><span x-text="faq.question"></span><x-waggies.icon name="chevron-down" size="20" class="shrink-0 text-primary transition-transform duration-200 group-open:rotate-180" /></summary><div class="px-6 pb-5 pt-3 text-sm leading-relaxed text-primary-dark/65" x-text="faq.answer"></div></details></template></div></section>
-            </template>
+        <div id="faq-panel" role="tabpanel" tabindex="0" aria-live="polite" aria-labelledby="faq-tab-all" aria-label="FAQ content and search results" :aria-labelledby="query.trim() ? null : tabId(active)">
+            @foreach($categories as $category)
+                <section x-show="categoryVisible(@js($category))" class="mx-auto mb-10 max-w-3xl">
+                    <h3 x-show="active === 'all' && !query.trim()" class="mb-4 font-serif text-lg font-bold capitalize text-primary-dark">{{ str_replace('-', ' ', $category) }}</h3>
+                    <div class="space-y-3">
+                        @foreach($faqsByCategory[$category] as $faq)
+                            <details data-faq-id="{{ $faq['id'] }}" x-show="faqVisible(@js($faq['id']))" class="group scroll-mt-32 rounded-2xl border border-primary/10 bg-white transition hover:border-primary/30 hover:shadow-sm">
+                                <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 font-semibold text-primary-dark transition-colors hover:text-primary"><span x-html="highlight(@js($faq['question']))">{{ $faq['question'] }}</span><x-waggies.icon name="chevron-down" size="20" class="shrink-0 text-primary transition-transform duration-200 group-open:rotate-180" /></summary>
+                                <div class="px-6 pb-5 pt-3 text-sm leading-relaxed text-primary-dark/65" x-html="highlight(@js($faq['answer']))">{{ $faq['answer'] }}</div>
+                            </details>
+                        @endforeach
+                    </div>
+                </section>
+            @endforeach
         </div>
 
         <div class="mt-14 text-center"><p class="mb-4 text-sm text-primary-dark/60">Still unsure? Talk to our care team before booking.</p><x-waggies.button href="{{ route('contact') }}">Contact Us <x-waggies.icon name="arrow-forward" size="16" /></x-waggies.button></div>

@@ -6,8 +6,10 @@ const faqPage = (faqs, categories) => ({
     init() { if (!this.categories.includes(this.active)) this.active = 'all'; },
     select(category) { this.active = category; const url = new URL(window.location.href); category === 'all' ? url.searchParams.delete('category') : url.searchParams.set('category', category); history.replaceState({}, '', url); },
     tabId(category) { return `faq-tab-${String(category).replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase()}`; },
-    visibleCategories() { return this.active === 'all' ? this.categories : this.categories.filter(category => category === this.active); },
-    results() { const q = this.query.trim().toLowerCase(); return q ? this.faqs.filter(faq => faq.question.toLowerCase().includes(q) || faq.answer.toLowerCase().includes(q)) : []; },
+    matches(faq) { const q = this.query.trim().toLowerCase(); return q ? faq.question.toLowerCase().includes(q) || faq.answer.toLowerCase().includes(q) : false; },
+    results() { return this.query.trim() ? this.faqs.filter(faq => this.matches(faq)) : []; },
+    faqVisible(id) { const faq = this.faqs.find(item => item.id === id); if (!faq) return false; return this.query.trim() ? this.matches(faq) : this.active === 'all' || faq.category === this.active; },
+    categoryVisible(category) { return this.query.trim() ? this.faqs.some(faq => faq.category === category && this.matches(faq)) : this.active === 'all' || this.active === category; },
     highlight(text) { const escaped = text.replace(/[&<>\"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', "'": '&#039;' }[char])); const q = this.query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); return q ? escaped.replace(new RegExp(`(${q})`, 'gi'), '<mark class="rounded bg-primary/15 px-0.5 py-0.5 text-primary-dark">$1</mark>') : escaped; },
     popularClick(id) { const faq = this.faqs.find(item => item.id === id); if (!faq) return; this.select(faq.category); requestAnimationFrame(() => requestAnimationFrame(() => { const node = document.querySelector(`[data-faq-id="${id}"]`); if (node) { node.open = true; node.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); node.focus(); } })); },
     tabKeydown(event) {
