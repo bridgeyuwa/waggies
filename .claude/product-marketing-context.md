@@ -52,7 +52,15 @@ Waggies is a local consumer service, so B2B buying roles do not apply. The disti
 
 ## Competitive Landscape
 
-**Direct:** Abuja pet-care providers advertise overlapping veterinary, boarding, and pet-travel services. BlissPets, for example, publicly lists veterinary, boarding, and export-permit services in Abuja ([BlissPets](https://blisspetssuperstores.com/about/)). Doggies Dreamland publicly describes a boarding facility ([Doggies Dreamland](https://doggiesdreamland.org/our-boarding-facility/)). These pages establish advertised overlap, not comparative quality or current availability.
+**Direct — Abuja care:** BlissPets publicly lists veterinary, boarding, grooming, and export-permit support in Abuja ([BlissPets](https://blisspetssuperstores.com/about/)). Doggies Dreamland lists veterinary and diagnostic services, boarding, training, grooming, and pet retail in Kubwa ([Doggies Dreamland](https://doggiesdreamland.org/)). These are advertised overlaps, not evidence of comparative quality or current availability.
+
+**Direct — Nigerian pet travel:** Move My Pet Ltd advertises domestic and international travel and appears in the [IPATA directory](https://www.ipata.org/member/2367) with Lagos as its primary airport and Abuja as secondary. Wastol Express advertises domestic routes including Lagos, Abuja, and Port Harcourt, and international transport ([Wastol Express](https://wastolexpresslimited.com/)). KOEMAN Nigeria lists pet relocation alongside its nationwide logistics services ([KOEMAN Nigeria](https://koemannigeria.com/)); a pet-shipper directory associates it with Lagos and Abuja airports, but its site has little pet-specific process detail. MyGoToVet advertises veterinary-led travel documentation and permit support ([MyGoToVet](https://www.mygotovet.com/pet-travel)). Zero3Logistics advertises routes, boarding/transit care, itemized estimates, and journey updates ([Zero3Logistics](https://zero3logistics.com/)); its site currently contradicts itself by showing “500+ pets moved” while its About page schedules that milestone for 2029, so its scale and operating claims remain unverified. Public listings establish advertised scope only; current routes, quote terms, capacity, and service outcomes need direct validation.
+
+**Other Nigerian care providers:** Lagos examples include [Exotic Pet Café](https://exoticpetcafe.com/) and [Critters Veterinary Centre](https://critters.ng/faq-page/), which publicly list overlapping boarding, veterinary, grooming, or house-call services. [PawlyOne](https://pawlyone.com/) in Ibadan advertises veterinary care, grooming, daycare/boarding, pickup/delivery, and app-based dog-park bookings. They are national digital alternatives and service-design references, not Abuja-neighborhood competitors.
+
+**Regional and international benchmarks, not direct Nigerian competitors:** [Yoani Yapperville / YappaVille](https://www.ipata.org/member/1501) in Nairobi, Kenya is the closest integrated African analogue found: its IPATA profile lists in-house veterinary services, dog/cat boarding, a five-acre walking park, and import/export and transport services. The official site could not be reached during the 2026-10-23 research check; verify current operations directly, and do not treat IPATA membership as a performance guarantee. [Rover](https://www.rover.com/) illustrates searchable sitter profiles, verified reviews, meet-and-greets, in-platform booking, and support. [Dogtopia](https://www.dogtopia.com/webcams/) illustrates visible care updates and published boarding routines. [PetRelocation](https://www.petrelocation.com/costs-international) illustrates transparent relocation cost components, while [Global Pet Relocation](https://www.globalpetrelocation.com/) describes dedicated coordination and door-to-door handoffs. These are benchmark practices, not assumptions about what Waggies currently offers or can deliver in Nigeria.
+
+See [the dated competitive landscape research](../docs/research/waggies-competitive-landscape-2026-10.md) for sources, limitations, implications, and the ordered evidence gates. Competitor websites and directories do not establish who is best, market share, or why Waggies customers choose Waggies.
 
 **Secondary:** Owners may arrange boarding and veterinary care separately, or coordinate travel requirements directly with agencies, airlines, veterinarians, and airport providers. This is an alternative workflow, not a verified competitor weakness.
 
@@ -66,7 +74,7 @@ Waggies is a local consumer service, so B2B buying roles do not apply. The disti
 
 **Why it may help:** Route feasibility, timing, provider availability, pricing, and service scope are reviewed before a relocation request is confirmed.
 
-**Why customers choose Waggies:** Unknown until supported by customer interviews or attributed feedback.
+**Why customers choose Waggies:** Unknown; no customer-derived evidence is available for this strategy pass. Use public evidence and owner-confirmed operations, then revisit with attributed customer feedback only if it becomes available.
 
 ## Objections
 
@@ -156,5 +164,5 @@ No verbatim customer language has been collected for this document. Do not prese
 - Recheck the Google rating and review count before any future use in public proof copy.
 - Confirm route-specific scope, provider availability, and costs in relocation quotes; door-to-door delivery is not offered.
 - Validate route- and country-specific relocation guidance against current authorities before publication. Nigeria's NAQS describes its inspection, permit, certification, and quarantine role for animal import/export ([NAQS Animal Quarantine](https://naqs.gov.ng/animal/)).
-- Replace the audience and differentiation hypotheses with customer interviews or attributed feedback when available.
+- For this strategy pass, use public evidence and owner-confirmed operations; Waggies has no customer base for customer-derived evidence. If an eligible customer base develops later, revisit these hypotheses only with consented, attributed feedback.
 - Confirm the production domain and final production environment before live SEO/indexation review.

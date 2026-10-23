@@ -1,3 +1,7 @@
+## Waggies environment path
+
+Waggies has local development through Laravel Herd and production. Work and verify locally, then release directly from development to production; production-only checks wait until the production domain and host are configured. For deployment procedures, follow `DEPLOYMENT.md`.
+
 <laravel-boost-guidelines>
 === .ai/refactoring-ui/core rules ===
 

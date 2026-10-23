@@ -135,7 +135,7 @@ The application does not currently trust arbitrary reverse proxies. If the chose
 
 Public Booking, Contact, Newsletter, and Testimonial submissions use CSRF where applicable, validation, honeypots, and named rate limiters. Testimonial publication requires moderation, consent, a CRM customer match, identity verification, and customer-relationship verification; CRM failures do not publish a testimonial. Testimonial and admin uploads are image-constrained and Media Library rejects dangerous filename extensions; public media is stored on the public disk by explicit collection policy. Filament is protected by its authentication middleware. Operational records are not rendered on public pages.
 
-WhatsApp is a handoff URL from the database-backed BusinessProfile; it is not an API integration and does not provide delivery confirmation. The current search, canonical URLs, robots, and sitemap use the configured `APP_URL`; staging must use a staging `APP_URL` and must not be indexed. In-process search reads database/config content and has no rebuild or search service deployment step.
+WhatsApp is a handoff URL from the database-backed BusinessProfile; it is not an API integration and does not provide delivery confirmation. The current search, canonical URLs, robots, and sitemap use the configured `APP_URL`. Waggies has local development through Laravel Herd and production; local development uses its local `APP_URL`, while production uses the configured production host. Production checks wait until that host is available. In-process search reads database/config content and has no rebuild or search service deployment step.
 
 ## Smoke-test checklist
 
@@ -145,7 +145,7 @@ Run after every production deployment:
 - Homepage, Services, Pricing, Booking, Contact, Shop, one product detail, Guides, Knowledge Base, FAQ, Gallery, Careers, Loyalty, and the existing search endpoint load.
 - `/sitemap.xml` returns canonical URLs for the current `APP_URL`; `/robots.txt` disallows `/admin/` and `/api/`.
 - Booking, Contact, Newsletter, and Testimonial forms reject invalid input and keep the documented request boundary.
-- A guest request to `/admin` redirects to authentication; an authenticated staff check is performed separately with real local/staging credentials.
+- A guest request to `/admin` redirects to authentication; an authenticated staff check is performed separately with authorized credentials for the target environment.
 - Public media URLs resolve through the configured storage link/disk, while private operational data is not present in public HTML.
 
 Do not treat a local production-like run as proof of a real web server, HTTPS proxy, SMTP provider, object-storage destination, or external monitoring service. Those remain environment-specific verification items.
