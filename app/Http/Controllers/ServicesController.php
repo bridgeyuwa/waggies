@@ -112,7 +112,7 @@ final class ServicesController extends Controller
     {
         $page = $this->withCanonicalPackagePricing($service, $this->serviceDetails()[$service]);
         $faqs = $this->publishedFaqs($service);
-        $metadata = ['title' => $page['meta']['title'].' - Waggies', 'description' => $page['meta']['description'], 'canonical' => route("services.{$service}"), 'ogTitle' => $page['meta']['title'].' - Waggies', 'ogDescription' => $page['meta']['description']];
+        $metadata = ['title' => $page['meta']['title'].' | Waggies', 'description' => $page['meta']['description'], 'canonical' => route("services.{$service}"), 'ogTitle' => $page['meta']['title'].' | Waggies', 'ogDescription' => $page['meta']['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($metadata['ogTitle'], $metadata)]);
 
         return view('pages.services.detail', $metadata + [
@@ -540,8 +540,8 @@ final class ServicesController extends Controller
                 'shareTitle' => 'Veterinary Care - Waggies',
                 'shareDescription' => 'Request veterinary consultations, examinations, vaccination review, or standalone microchipping for dogs and cats at Waggies Abuja.',
                 'meta' => [
-                    'title' => 'Veterinary Care',
-                    'description' => 'Request veterinary consultations, examinations, vaccination review, or standalone microchipping for dogs and cats at Waggies Abuja.',
+                    'title' => 'Veterinary Care for Dogs and Cats in Abuja',
+                    'description' => 'Veterinary care in Abuja for dogs and cats: consultations, examinations, vaccination requests, and microchipping. Request an appointment with Waggies.',
                 ],
             ],
         ];
