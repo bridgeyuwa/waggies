@@ -51,15 +51,15 @@ final class RelocationController extends Controller
     {
         return [
             'import' => [
-                'metaTitle' => 'Import a Pet to Nigeria',
-                'description' => 'Waggies coordinates import permits, veterinary and health documents, customs clearance, and Abuja airport pickup. Route-specific scope and costs are confirmed in your quote.',
+                'metaTitle' => 'Pet Import to Nigeria',
+                'description' => 'Bringing a pet into Nigeria? Waggies coordinates route-specific permits, health documents, customs steps, and pickup at Abuja Airport (ABV). Request a quote.',
                 'ogTitle' => 'Import Pets to Nigeria - Waggies Abuja',
                 'hero' => [
                     'imageSrc' => '/media/services/relocation/import/hero.jpg',
                     'imageAlt' => 'Pet prepared for import travel',
                     'eyebrow' => 'Pet Import · Nigeria',
                     'title' => 'Bringing Your Pet<br/>to Nigeria?',
-                    'description' => 'Waggies coordinates import permits, veterinary and health documents, customs clearance, and Abuja airport pickup. Your quote confirms the route-specific scope and costs.',
+                    'description' => 'Pet import requirements depend on your origin and travel date. Share your route with us; we’ll confirm the steps Waggies can coordinate and the costs in your quote.',
                     'actions' => [
                         0 => [
                             'label' => 'Request Quote',
@@ -316,7 +316,8 @@ final class RelocationController extends Controller
         $page['hero']['imageSrc'] = "/media/services/relocation/{$type}/hero.jpg";
         $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
         $route = "relocation.{$type}";
-        $metadata = ['title' => $page['metaTitle'].' - Waggies', 'description' => $page['description'], 'canonical' => route($route), 'ogTitle' => $page['ogTitle'], 'ogDescription' => $page['description']];
+        $titleSuffix = $type === 'import' ? ' | Waggies' : ' - Waggies';
+        $metadata = ['title' => "{$page['metaTitle']}{$titleSuffix}", 'description' => $page['description'], 'canonical' => route($route), 'ogTitle' => $page['ogTitle'], 'ogDescription' => $page['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($page['ogTitle'], $metadata)]);
 
         return view("pages.relocation.{$type}", $metadata + [
