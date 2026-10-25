@@ -50,7 +50,7 @@ final class ServicesController extends Controller
     {
         $page = $this->boardingPages()['index'];
         $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
-        $metadata = ['title' => 'Pet Boarding for Dogs and Cats in Abuja | Waggies', 'description' => 'Request boarding for your dog or cat at Waggies in Abuja. Prices are per pet per night; staff review each request and confirm availability before the stay.', 'canonical' => route('services.boarding'), 'ogTitle' => 'Pet Boarding for Dogs and Cats in Abuja | Waggies', 'ogDescription' => 'Request boarding for your dog or cat at Waggies in Abuja. Prices are per pet per night; staff review each request and confirm availability before the stay.'];
+        $metadata = ['title' => 'Pet Boarding for Dogs and Cats in Abuja | Waggies', 'description' => 'See dog and cat boarding options in Abuja, with care details for each. Request a stay for your preferred dates.', 'canonical' => route('services.boarding'), 'ogTitle' => 'Pet Boarding for Dogs and Cats in Abuja | Waggies', 'ogDescription' => 'Request boarding for your dog or cat at Waggies in Abuja. Prices are per pet per night; staff review each request and confirm availability before the stay.'];
         $this->setPageHead($metadata, [$this->serviceSchema('Dog and Cat Boarding in Abuja', $metadata)]);
 
         return view('pages.services.boarding.index', $metadata + [
@@ -132,7 +132,7 @@ final class ServicesController extends Controller
                     'eyebrow' => 'Pet Boarding in Abuja',
                     'eyebrowIcon' => 'pets',
                     'title' => 'Dog and Cat Boarding in Abuja',
-                    'description' => 'Each pet has an assigned carrier for resting. Boarding also includes water, routine cleaning, basic welfare checks, and care based on your instructions.',
+                    'description' => 'Each pet has an assigned carrier for resting. Stays include water, routine cleaning, and basic welfare checks; our team follows your care instructions.',
                     'actions' => [
                         0 => [
                             'label' => 'Request boarding',
