@@ -147,7 +147,7 @@ final class ServicesController extends Controller
                 'cards' => [
                     0 => [
                         'title' => 'Dog Boarding',
-                        'description' => 'Owner-supplied food, routine cleaning, and welfare checks.',
+                        'description' => 'Water, owner-supplied food, routine cleaning, and welfare checks.',
                         'route' => 'services.boarding.species',
                         'params' => [
                             'species' => 'dogs',
@@ -158,7 +158,7 @@ final class ServicesController extends Controller
                     ],
                     1 => [
                         'title' => 'Cat Boarding',
-                        'description' => 'Owner-supplied food, routine cleaning, water, and welfare checks.',
+                        'description' => 'Water, owner-supplied food, routine cleaning, and welfare checks.',
                         'route' => 'services.boarding.species',
                         'params' => [
                             'species' => 'cats',
@@ -173,7 +173,7 @@ final class ServicesController extends Controller
                     ['icon' => 'water', 'title' => 'Water', 'desc' => 'Fresh water is part of routine boarding care.'],
                     ['icon' => 'nutrition', 'title' => 'Owner-Supplied Food', 'desc' => 'We follow the food and feeding instructions you provide.'],
                     ['icon' => 'verified', 'title' => 'Basic Welfare Checks', 'desc' => 'Routine cleaning and basic welfare checks are included.'],
-                    ['icon' => 'schedule', 'title' => 'Daily Drop-Off & Pick-Up', 'desc' => 'Drop-off and pick-up are available from 9:00am to 5:00pm daily.'],
+                    ['icon' => 'schedule', 'title' => 'Drop-off and pick-up', 'desc' => 'Share your preferred times in your request; our team will confirm the arrangements.'],
                     ['icon' => 'verified', 'title' => 'Manual Review', 'desc' => 'Special care and final pricing are confirmed with you.'],
                 ],
             ],
