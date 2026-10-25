@@ -47,7 +47,7 @@ final class HomeController extends Controller
                 ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, veterinary documents, crate planning, airline booking, and departure airport transport, confirmed for your route and quote.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
             ],
             'careStandardRows' => [
-                ['title' => 'On-Site Overnight Team', 'description' => 'A Waggies staff member and veterinarian are physically on site overnight.'],
+                ['title' => 'On-Site Overnight Team', 'description' => 'A Waggies staff member and veterinarian are on site overnight.'],
                 ['title' => 'Air-Conditioned Boarding Areas', 'description' => 'The boarding facility has air conditioning.'],
                 ['title' => 'Care Review', 'description' => 'Care instructions are reviewed before a boarding stay is confirmed.'],
             ],
