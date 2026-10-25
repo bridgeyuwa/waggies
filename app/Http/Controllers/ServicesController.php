@@ -91,7 +91,7 @@ final class ServicesController extends Controller
         }
         $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
         $faqs = $this->publishedFaqs('boarding', $species);
-        $metadata = ['title' => ['dogs' => 'Dog Boarding in Abuja | Waggies', 'cats' => 'Cat Boarding in Abuja | Waggies'][$species], 'description' => $page['description'], 'canonical' => route('services.boarding.species', ['species' => $species]), 'ogTitle' => $page['title'].' Abuja - Waggies', 'ogDescription' => $page['description']];
+        $metadata = ['title' => ['dogs' => 'Dog Boarding in Abuja | Waggies', 'cats' => 'Cat Boarding in Abuja | Waggies'][$species], 'description' => $page['description'], 'canonical' => route('services.boarding.species', ['species' => $species]), 'ogTitle' => $species === 'dogs' ? 'Dog Boarding in Abuja | Waggies' : $page['title'].' Abuja - Waggies', 'ogDescription' => $page['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($page['title'].' Abuja - Waggies', $metadata)]);
 
         return view('pages.services.boarding.species', $metadata + [
