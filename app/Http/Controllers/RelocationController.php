@@ -249,9 +249,9 @@ final class RelocationController extends Controller
                 ],
             ],
             'checklist' => [
-                'metaTitle' => 'Pet Relocation Checklist',
-                'description' => 'A practical checklist for planning your pet\'s international relocation around your destination requirements and travel date.',
-                'ogTitle' => 'Pet Relocation Checklist - Waggies',
+                'metaTitle' => 'Pet Relocation Checklist for International Travel',
+                'description' => 'Plan an international pet import or export with a checklist for route requirements, permits, veterinary documents, airline rules, and the travel day.',
+                'ogTitle' => 'Pet Relocation Checklist for International Travel - Waggies',
                 'hero' => [
                     'imageSrc' => '/media/services/relocation/checklist/hero.jpg',
                     'imageAlt' => 'Pet relocation checklist',
