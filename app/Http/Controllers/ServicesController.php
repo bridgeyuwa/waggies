@@ -447,7 +447,7 @@ final class ServicesController extends Controller
                 'hero' => [
                     'imageSrc' => '/media/services/vet-care/hero.jpg',
                     'imageAlt' => 'Veterinary care at Waggies Abuja',
-                    'description' => 'Wellness consultations, comprehensive examinations, vaccination requests, and standalone microchipping, subject to veterinary review.',
+                    'description' => 'Our Abuja veterinary team can help with wellness consultations, full examinations, vaccination requests, and microchipping. Request care for your dog or cat.',
                 ],
                 'features' => [
                     0 => 'Full nose-to-tail wellness examinations and health consultations',
