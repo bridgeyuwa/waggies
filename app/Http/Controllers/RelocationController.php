@@ -276,7 +276,7 @@ final class RelocationController extends Controller
                         'heading' => 'Arrange Permits and Veterinary Checks',
                         'icon' => 'document',
                         'items' => [
-                            0 => 'Coordinate the required import or export permits with Waggies',
+                            0 => 'Ask Waggies which permits can be coordinated for your route',
                             1 => 'Arrange any required health examination with a veterinarian',
                             2 => 'Ask Waggies about crate arrangements that meet your airline\'s requirements',
                             3 => 'Confirm destination country quarantine requirements',
@@ -289,7 +289,7 @@ final class RelocationController extends Controller
                         'items' => [
                             0 => 'Confirm which veterinary health certificates and endorsements your route requires',
                             1 => 'Check that vaccinations meet the requirements for your route and travel date',
-                            2 => 'Confirm the airline booking and travel arrangements with Waggies',
+                            2 => 'Confirm which airline and travel arrangements are included in your quote',
                             3 => 'Prepare a comfort pack with familiar items and food for travel',
                             4 => 'Confirm crate sizing against your airline and route requirements',
                         ],
@@ -299,7 +299,7 @@ final class RelocationController extends Controller
                         'icon' => 'airport-departure',
                         'items' => [
                             0 => 'Follow your airline\'s airport arrival and cargo check-in instructions',
-                            1 => 'Carry all original documents in your hand luggage',
+                            1 => 'Keep your original documents accessible and follow your airline\'s and destination authority\'s instructions for presenting them',
                             2 => 'Follow your veterinarian\'s and airline\'s guidance on feeding before travel',
                             3 => 'Attach a "Live Animal" label and your contact details to the crate',
                             4 => 'Confirm any arrival collection with the destination contact; Waggies does not offer door-to-door delivery',
