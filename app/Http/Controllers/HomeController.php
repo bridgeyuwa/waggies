@@ -12,7 +12,7 @@ final class HomeController extends Controller
     {
         $metadata = [
             'title' => 'Pet Boarding, Veterinary Care & Relocation in Abuja',
-            'description' => 'Waggies provides boarding, veterinary care, and dog and cat relocation for pets in Abuja, Nigeria.',
+            'description' => 'Dog and cat boarding and veterinary care in Abuja. Pet import and export coordination for international journeys to or from Nigeria. Explore Waggies’ services.',
             'canonical' => route('home'),
             'ogTitle' => 'Waggies - Pet Care in Abuja',
             'ogDescription' => 'Waggies provides boarding, veterinary care, and dog and cat relocation for pets in Abuja, Nigeria.',
