@@ -443,7 +443,7 @@ final class ServicesController extends Controller
                 'ctaParams' => [
                     'service' => 'vet-care',
                 ],
-                'description' => 'Request veterinary care for your dog or cat. Waggies reviews the reason for care, timing, and any product or administration requirements before confirmation.',
+                'description' => 'Tell us what your dog or cat needs and when you’d like to visit. Our veterinary team will review your request and confirm the next steps.',
                 'hero' => [
                     'imageSrc' => '/media/services/vet-care/hero.jpg',
                     'imageAlt' => 'Veterinary care at Waggies Abuja',
@@ -460,11 +460,12 @@ final class ServicesController extends Controller
                 ],
                 'benefits' => [
                     0 => 'Each request is reviewed by the veterinary team before an appointment or quote is confirmed.',
-                    1 => 'Vaccination remains request-only until a confirmed vaccine catalogue exists.',
+                    1 => 'Vaccinations are available by request. The veterinary team will confirm the suitable vaccine and any associated costs after review.',
                     2 => 'Microchipping is available as a standalone service under Veterinary Care → Identification.',
                     3 => 'Clinical records and any applicable certificates are discussed during review.',
                     4 => 'Urgent or emergency needs should be identified clearly in the request so the team can advise on next steps.',
                 ],
+                'benefitsSubtitle' => 'Veterinary care for dogs and cats in Abuja, with each request reviewed by the veterinary team.',
                 'packages' => [
                     0 => [
                         'name' => 'Wellness Consultation',
@@ -517,8 +518,8 @@ final class ServicesController extends Controller
                     'cards' => [
                         0 => [
                             'icon' => 'safety',
-                            'title' => 'Veterinary appointments, daily',
-                            'desc' => 'Appointments run from 9:00am to 5:00pm every day. Availability is confirmed after the team reviews your request.',
+                            'title' => 'Appointment requests',
+                            'desc' => 'Appointments are scheduled after the veterinary team reviews your request.',
                         ],
                         1 => [
                             'icon' => 'veterinary-care',
@@ -527,13 +528,13 @@ final class ServicesController extends Controller
                         ],
                         2 => [
                             'icon' => 'calendar',
-                            'title' => 'Digital Records & Boosters',
-                            'desc' => 'All health records are securely stored digitally with automated booster reminders so your pet stays protected.',
+                            'title' => 'Records and boosters',
+                            'desc' => 'The veterinary team can discuss your pet’s records and booster needs with you.',
                         ],
                         3 => [
                             'icon' => 'hours',
-                            'title' => 'Calm, Familiar Setting',
-                            'desc' => 'Examinations take place in a quiet, low-stress environment without the chaos of a crowded waiting room.',
+                            'title' => 'Location',
+                            'desc' => 'Veterinary examinations take place at Waggies in Abuja.',
                         ],
                     ],
                 ],
