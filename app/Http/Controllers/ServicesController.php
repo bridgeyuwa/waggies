@@ -390,7 +390,7 @@ final class ServicesController extends Controller
                             0 => [
                                 'icon' => 'boarding',
                                 'bold' => 'Private space',
-                                'text' => 'Each cat has its own enclosure for a calmer stay.',
+                                'text' => 'Each cat has an individual enclosure where they can rest.',
                             ],
                             1 => [
                                 'icon' => 'nutrition',
