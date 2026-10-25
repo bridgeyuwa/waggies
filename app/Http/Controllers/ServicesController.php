@@ -91,7 +91,7 @@ final class ServicesController extends Controller
         }
         $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
         $faqs = $this->publishedFaqs('boarding', $species);
-        $metadata = ['title' => $species === 'dogs' ? 'Dog Boarding in Abuja | Waggies' : $page['title'], 'description' => $page['description'], 'canonical' => route('services.boarding.species', ['species' => $species]), 'ogTitle' => $page['title'].' Abuja - Waggies', 'ogDescription' => $page['description']];
+        $metadata = ['title' => ['dogs' => 'Dog Boarding in Abuja | Waggies', 'cats' => 'Cat Boarding in Abuja | Waggies'][$species], 'description' => $page['description'], 'canonical' => route('services.boarding.species', ['species' => $species]), 'ogTitle' => $page['title'].' Abuja - Waggies', 'ogDescription' => $page['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($page['title'].' Abuja - Waggies', $metadata)]);
 
         return view('pages.services.boarding.species', $metadata + [
@@ -306,14 +306,14 @@ final class ServicesController extends Controller
                 ],
                 'cats' => [
                     'title' => 'Cat Boarding',
-                    'description' => 'Calm cat boarding in Abuja with owner-supplied food, routine cleaning, water, and basic welfare checks.',
+                    'description' => 'Cat boarding in Abuja with an individual enclosure and a fixed nightly rate per cat. Request a stay to check availability.',
                     'hero' => [
                         'imageSrc' => '/media/services/boarding/cats/hero.jpg',
                         'imageAlt' => 'Relaxed cat at Waggies boarding facility',
                         'eyebrow' => 'Cat Boarding',
                         'eyebrowIcon' => 'pets',
                         'title' => 'Calm, Cosy Stays for Your Cat',
-                        'description' => 'Owner-supplied food, routine cleaning, water, and basic welfare checks for cats.',
+                        'description' => 'Each cat has an individual enclosure. We serve the food you provide on your cat’s usual schedule, with water, routine cleaning, and basic welfare checks.',
                         'actions' => [
                             0 => [
                                 'label' => 'Request cat boarding',
