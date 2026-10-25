@@ -12,7 +12,7 @@ final class ServicesController extends Controller
     public function index(): View
     {
         $comparison = $this->serviceComparison();
-        $metadata = ['title' => 'Our Services - Waggies', 'description' => 'Pet services in Abuja: boarding, veterinary care, and dog and cat relocation.', 'canonical' => route('services.index'), 'ogTitle' => 'Our Services - Waggies Pet Care Abuja', 'ogDescription' => 'Pet services in Abuja: boarding, veterinary care, and dog and cat relocation.'];
+        $metadata = ['title' => 'Our Services - Waggies', 'description' => 'Dog and cat boarding and veterinary care in Abuja. Pet import and export coordination for international journeys to or from Nigeria. Explore Waggies’ services.', 'canonical' => route('services.index'), 'ogTitle' => 'Our Services - Waggies Pet Care Abuja', 'ogDescription' => 'Pet services in Abuja: boarding, veterinary care, and dog and cat relocation.'];
         $this->setPageHead($metadata, [Schema::webPage()->name('Our Services - Waggies Pet Care Abuja')->description($metadata['description'])->url($metadata['canonical'])->toArray()]);
 
         return view('pages.services.index', $metadata + [
