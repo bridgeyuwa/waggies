@@ -121,7 +121,7 @@ class ContactController extends Controller
         $intent = $context['intent'];
         $fields = [];
         $title = 'General inquiry';
-        $description = "Have a question? Send us a message and we'll get back to you on WhatsApp.";
+        $description = 'Send us a message, then continue the conversation on WhatsApp.';
 
         if ($intent === 'PRODUCT_INQUIRY') {
             $authoritative = $product['name'] ?? $context['productName'];

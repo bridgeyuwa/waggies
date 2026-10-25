@@ -4,7 +4,7 @@
     $gateway = [
         [
             'title' => 'SERVICE REQUESTS',
-            'description' => 'Start a service request in the dedicated booking flow',
+            'description' => 'Tell us what your pet needs.',
             'primary' => true,
             'items' => [
                 [
@@ -591,8 +591,8 @@
                             <h3 class="text-base font-semibold text-primary-dark">Opening Hours</h3>
                         </div>
                         <x-waggies.opening-hours :schedule="$business['openingHours']" />
-                        <p class="mt-2 text-xs leading-relaxed text-primary-dark/50">Boarding check-in and pickup
-                            arrangements are confirmed with each request.</p>
+                        <p class="mt-2 text-xs leading-relaxed text-primary-dark/50">Boarding drop-off and pickup are
+                            available every day, 9am&ndash;5pm.</p>
                     </div>
                 </div>
             </div>
