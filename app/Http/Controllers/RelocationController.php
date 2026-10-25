@@ -178,7 +178,7 @@ final class RelocationController extends Controller
                 'sectionHeading' => [
                     'eyebrow' => 'Export Process',
                     'title' => 'Export Support We Can Coordinate',
-                    'subtitle' => 'We coordinate export permits, veterinary documents, crate and airline arrangements, customs clearance, and departure transport, with route-specific scope confirmed in your quote.',
+                    'subtitle' => 'We review each route through Abuja Airport (ABV), then confirm the available support and cost in a quote.',
                 ],
                 'features' => [
                     0 => [
@@ -204,7 +204,7 @@ final class RelocationController extends Controller
                     4 => [
                         'icon' => 'microchip',
                         'title' => 'Microchip & Travel Documents',
-                        'desc' => 'For export requests, Waggies arranges microchipping if no chip is found; existing chips are scanned and recorded. Passport documents are prepared where required.',
+                        'desc' => 'Existing microchips are scanned and recorded. If your route requires a new microchip, Waggies can arrange it. Travel documents are prepared where required.',
                     ],
                     5 => [
                         'icon' => 'coordinator',
