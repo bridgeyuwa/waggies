@@ -91,7 +91,7 @@ final class ServicesController extends Controller
         }
         $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
         $faqs = $this->publishedFaqs('boarding', $species);
-        $metadata = ['title' => $page['title'], 'description' => $page['description'], 'canonical' => route('services.boarding.species', ['species' => $species]), 'ogTitle' => $page['title'].' Abuja - Waggies', 'ogDescription' => $page['description']];
+        $metadata = ['title' => $species === 'dogs' ? 'Dog Boarding in Abuja | Waggies' : $page['title'], 'description' => $page['description'], 'canonical' => route('services.boarding.species', ['species' => $species]), 'ogTitle' => $page['title'].' Abuja - Waggies', 'ogDescription' => $page['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($page['title'].' Abuja - Waggies', $metadata)]);
 
         return view('pages.services.boarding.species', $metadata + [
@@ -180,14 +180,14 @@ final class ServicesController extends Controller
             'species' => [
                 'dogs' => [
                     'title' => 'Dog Boarding',
-                    'description' => 'Dog boarding in Abuja with owner-supplied food, routine cleaning, and basic welfare checks.',
+                    'description' => 'Dog boarding in Abuja with individual enclosures and a secure outdoor yard. View nightly rates by dog size and request a stay.',
                     'hero' => [
                         'imageSrc' => '/media/services/boarding/dogs/hero.jpg',
                         'imageAlt' => 'Dog resting at Waggies boarding facility',
                         'eyebrow' => 'Dog Boarding',
                         'eyebrowIcon' => 'pets',
                         'title' => 'A Safe, Structured Stay for Your Dog',
-                        'description' => 'Your dog’s care instructions are reviewed before the stay is confirmed. Boarding dogs have access to a secure outdoor yard.',
+                        'description' => 'Your dog has an individual enclosure and access to a secure outdoor yard. We follow your feeding instructions and provide water, routine cleaning, and basic welfare checks.',
                         'actions' => [
                             0 => [
                                 'label' => 'Request dog boarding',
