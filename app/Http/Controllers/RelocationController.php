@@ -10,8 +10,8 @@ final class RelocationController extends Controller
 {
     public function index(): View
     {
-        $description = 'Request pet relocation via Abuja airport (ABV). Waggies reviews route requirements and providers, then confirms scope and costs in a custom quote.';
-        $metadata = ['title' => 'Pet Relocation via Abuja Airport (ABV) | Waggies', 'description' => $description, 'canonical' => route('services.relocation'), 'ogTitle' => 'Pet Relocation via Abuja Airport (ABV) | Waggies', 'ogDescription' => $description];
+        $description = 'Bringing a pet to Nigeria or travelling abroad with one? Waggies coordinates import and export support via Abuja Airport (ABV), with quotes tailored to each route.';
+        $metadata = ['title' => 'Pet Relocation to and from Nigeria | Waggies', 'description' => $description, 'canonical' => route('services.relocation'), 'ogTitle' => 'Pet Relocation to and from Nigeria | Waggies', 'ogDescription' => $description];
         $this->setPageHead($metadata, [$this->serviceSchema('Pet Relocation to and from Nigeria', $metadata)]);
 
         return view('pages.services.relocation', $metadata + [
