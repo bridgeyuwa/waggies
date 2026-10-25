@@ -186,7 +186,7 @@ final class ServicesController extends Controller
                         'imageAlt' => 'Dog resting at Waggies boarding facility',
                         'eyebrow' => 'Dog Boarding',
                         'eyebrowIcon' => 'pets',
-                        'title' => 'A Safe, Structured Stay for Your Dog',
+                        'title' => 'A Structured Stay for Your Dog',
                         'description' => 'Your dog has an individual enclosure and access to a secure outdoor yard. We follow your feeding instructions and provide water, routine cleaning, and basic welfare checks.',
                         'actions' => [
                             0 => [
