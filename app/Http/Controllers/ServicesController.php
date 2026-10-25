@@ -131,7 +131,7 @@ final class ServicesController extends Controller
                     'imageAlt' => 'Happy dog outdoors',
                     'eyebrow' => 'Pet Boarding in Abuja',
                     'eyebrowIcon' => 'pets',
-                    'title' => 'A Home Away From Home',
+                    'title' => 'Dog and Cat Boarding in Abuja',
                     'description' => 'Each pet has an assigned carrier for resting. Boarding also includes water, routine cleaning, basic welfare checks, and care based on your instructions.',
                     'actions' => [
                         0 => [
