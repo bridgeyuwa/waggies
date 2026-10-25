@@ -17,12 +17,4 @@ return new class extends Migration
                 'updated_at' => now(),
             ]);
     }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        // Do not restore the old US English spelling.
-    }
 };

@@ -54,12 +54,4 @@ HTML,
                 'updated_at' => now(),
             ]);
     }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        // Do not restore outdated boarding claims.
-    }
 };
