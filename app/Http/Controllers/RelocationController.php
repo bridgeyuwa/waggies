@@ -10,8 +10,8 @@ final class RelocationController extends Controller
 {
     public function index(): View
     {
-        $description = 'Request pet relocation via Abuja airport (ABV). Waggies reviews route requirements and providers, then confirms scope and costs in a custom quote.';
-        $metadata = ['title' => 'Pet Relocation via Abuja Airport (ABV) | Waggies', 'description' => $description, 'canonical' => route('services.relocation'), 'ogTitle' => 'Pet Relocation via Abuja Airport (ABV) | Waggies', 'ogDescription' => $description];
+        $description = 'Bringing a pet to Nigeria or travelling abroad with one? Waggies coordinates import and export support via Abuja Airport (ABV), with quotes tailored to each route.';
+        $metadata = ['title' => 'Pet Relocation to and from Nigeria | Waggies', 'description' => $description, 'canonical' => route('services.relocation'), 'ogTitle' => 'Pet Relocation to and from Nigeria | Waggies', 'ogDescription' => $description];
         $this->setPageHead($metadata, [$this->serviceSchema('Pet Relocation to and from Nigeria', $metadata)]);
 
         return view('pages.services.relocation', $metadata + [
@@ -51,15 +51,15 @@ final class RelocationController extends Controller
     {
         return [
             'import' => [
-                'metaTitle' => 'Import a Pet to Nigeria',
-                'description' => 'Waggies coordinates import permits, veterinary and health documents, customs clearance, and Abuja airport pickup. Route-specific scope and costs are confirmed in your quote.',
+                'metaTitle' => 'Pet Import to Nigeria',
+                'description' => 'Bringing a pet into Nigeria? Waggies coordinates route-specific permits, health documents, customs steps, and pickup at Abuja Airport (ABV). Request a quote.',
                 'ogTitle' => 'Import Pets to Nigeria - Waggies Abuja',
                 'hero' => [
                     'imageSrc' => '/media/services/relocation/import/hero.jpg',
                     'imageAlt' => 'Pet prepared for import travel',
                     'eyebrow' => 'Pet Import · Nigeria',
                     'title' => 'Bringing Your Pet<br/>to Nigeria?',
-                    'description' => 'Waggies coordinates import permits, veterinary and health documents, customs clearance, and Abuja airport pickup. Your quote confirms the route-specific scope and costs.',
+                    'description' => 'Pet import requirements depend on your origin and travel date. Share your route with us; we’ll confirm the steps Waggies can coordinate and the costs in your quote.',
                     'actions' => [
                         0 => [
                             'label' => 'Request Quote',
@@ -150,15 +150,15 @@ final class RelocationController extends Controller
                 ],
             ],
             'export' => [
-                'metaTitle' => 'Export a Pet from Nigeria',
-                'description' => 'Waggies coordinates export permits, veterinary and health documents, crate arrangements, airline booking, customs clearance, and transport to the departure airport. Route-specific scope and costs are confirmed in your quote.',
+                'metaTitle' => 'Pet Export from Nigeria',
+                'description' => 'Planning to travel abroad with your pet? Waggies coordinates route-specific documents, crate and airline arrangements, and transport to Abuja Airport (ABV). Request a quote.',
                 'ogTitle' => 'Export Pets from Nigeria - Waggies Abuja',
                 'hero' => [
                     'imageSrc' => '/media/services/relocation/export/hero.jpg',
                     'imageAlt' => 'Dog prepared for international export',
                     'eyebrow' => 'Pet Export · Nigeria',
                     'title' => 'Moving Abroad<br/>with Your Pet?',
-                    'description' => 'Waggies coordinates export permits, veterinary and health documents, crate arrangements, airline booking, customs clearance, and departure airport transport. Your quote confirms the route-specific scope and costs.',
+                    'description' => 'Export requirements vary by destination, airline, and travel date. Share your plans with us so we can confirm the documents and arrangements for your pet’s journey.',
                     'actions' => [
                         0 => [
                             'label' => 'Request Quote',
@@ -249,9 +249,9 @@ final class RelocationController extends Controller
                 ],
             ],
             'checklist' => [
-                'metaTitle' => 'Pet Relocation Checklist',
-                'description' => 'A practical checklist for planning your pet\'s international relocation around your destination requirements and travel date.',
-                'ogTitle' => 'Pet Relocation Checklist - Waggies',
+                'metaTitle' => 'Pet Relocation Checklist for International Travel',
+                'description' => 'Plan an international pet import or export with a checklist for route requirements, permits, veterinary documents, airline rules, and the travel day.',
+                'ogTitle' => 'Pet Relocation Checklist for International Travel - Waggies',
                 'hero' => [
                     'imageSrc' => '/media/services/relocation/checklist/hero.jpg',
                     'imageAlt' => 'Pet relocation checklist',
@@ -316,7 +316,8 @@ final class RelocationController extends Controller
         $page['hero']['imageSrc'] = "/media/services/relocation/{$type}/hero.jpg";
         $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
         $route = "relocation.{$type}";
-        $metadata = ['title' => $page['metaTitle'].' - Waggies', 'description' => $page['description'], 'canonical' => route($route), 'ogTitle' => $page['ogTitle'], 'ogDescription' => $page['description']];
+        $titleSuffix = in_array($type, ['import', 'export'], true) ? ' | Waggies' : ' - Waggies';
+        $metadata = ['title' => "{$page['metaTitle']}{$titleSuffix}", 'description' => $page['description'], 'canonical' => route($route), 'ogTitle' => $page['ogTitle'], 'ogDescription' => $page['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($page['ogTitle'], $metadata)]);
 
         return view("pages.relocation.{$type}", $metadata + [

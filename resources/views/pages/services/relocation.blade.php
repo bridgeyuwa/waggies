@@ -3,7 +3,7 @@
 @section('content')
 <x-waggies.breadcrumb-strip :items="[['label' => 'Services', 'route' => 'services.index'], ['label' => 'Pet Relocation', 'route' => 'services.relocation']]" />
 
-    <x-waggies.cover-hero :hero="array_merge($hero, ['eyebrow' => 'Import & Export Relocation', 'eyebrowIcon' => 'airport-departure', 'title' => 'Pet Relocation to and from Nigeria', 'description' => 'International pet relocation requests are reviewed through Abuja airport (ABV). Route requirements, provider availability, and the services Waggies can coordinate are confirmed in a custom quote.', 'actions' => [['label' => 'Request Relocation Quote', 'url' => route('book', ['service' => 'relocation']), 'icon' => 'arrow-forward'], ['label' => 'Open Relocation Checklist', 'url' => route('relocation.checklist'), 'icon' => 'checklist']]])" />
+    <x-waggies.cover-hero :hero="array_merge($hero, ['eyebrow' => 'Import & Export Relocation', 'eyebrowIcon' => 'airport-departure', 'title' => 'Pet Relocation to and from Nigeria', 'description' => 'Choose import to Nigeria or export from Nigeria to see the steps Waggies can coordinate for your pet’s journey.', 'actions' => [['label' => 'Request Relocation Quote', 'url' => route('book', ['service' => 'relocation']), 'icon' => 'arrow-forward'], ['label' => 'Open Relocation Checklist', 'url' => route('relocation.checklist'), 'icon' => 'checklist']]])" />
 
 <section class="bg-white py-20">
     <div class="page-container">

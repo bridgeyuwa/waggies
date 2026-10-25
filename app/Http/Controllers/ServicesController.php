@@ -12,18 +12,18 @@ final class ServicesController extends Controller
     public function index(): View
     {
         $comparison = $this->serviceComparison();
-        $metadata = ['title' => 'Our Services - Waggies', 'description' => 'Pet services in Abuja: boarding, veterinary care, and dog and cat relocation.', 'canonical' => route('services.index'), 'ogTitle' => 'Our Services - Waggies Pet Care Abuja', 'ogDescription' => 'Pet services in Abuja: boarding, veterinary care, and dog and cat relocation.'];
-        $this->setPageHead($metadata, [Schema::webPage()->name('Our Services - Waggies Pet Care Abuja')->description($metadata['description'])->url($metadata['canonical'])->toArray()]);
+        $metadata = ['title' => 'Pet Boarding, Vet Care & Relocation in Abuja | Waggies', 'description' => 'Dog and cat boarding and veterinary care in Abuja. Pet import and export coordination for international journeys to or from Nigeria. Explore Waggies’ services.', 'canonical' => route('services.index'), 'ogTitle' => 'Pet Boarding, Vet Care & Relocation in Abuja | Waggies', 'ogDescription' => 'Dog and cat boarding and veterinary care in Abuja. Pet import and export coordination for international journeys to or from Nigeria. Explore Waggies’ services.'];
+        $this->setPageHead($metadata, [Schema::webPage()->name('Pet Boarding, Vet Care & Relocation in Abuja | Waggies')->description($metadata['description'])->url($metadata['canonical'])->toArray()]);
 
         return view('pages.services.index', $metadata + [
             'navSection' => 'services',
-            'hero' => ['imageSrc' => '/media/services/hero.jpg', 'imageAlt' => 'Dog outdoors', 'eyebrow' => 'Everything Your Pet Needs', 'title' => 'Pet Care Services,<br/>All Under One Roof', 'description' => 'From overnight boarding to veterinary care and international relocation - Waggies handles each request through a clear review process.', 'actions' => [['label' => 'View Our Services', 'url' => route('services.index').'#services']]],
+            'hero' => ['imageSrc' => '/media/services/hero.jpg', 'imageAlt' => 'Dog outdoors', 'eyebrow' => 'Everything Your Pet Needs', 'title' => 'Pet Boarding,<br/>Veterinary Care & Pet Relocation', 'description' => 'Explore dog boarding, cat boarding, veterinary care, pet import, and pet export. Boarding and veterinary care are in Abuja; import and export requests are reviewed and quoted for each route.', 'actions' => [['label' => 'Explore Services', 'url' => route('services.index').'#services']]],
             'cards' => [
                 ['title' => 'Dog Boarding', 'description' => 'Owner-supplied food, routine cleaning, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'dogs'], 'imageSrc' => '/media/services/boarding/card-dogs.jpg', 'imageAlt' => 'Happy dogs at Waggies', 'icon' => 'pets'],
                 ['title' => 'Cat Boarding', 'description' => 'Owner-supplied food, routine cleaning, water, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'cats'], 'imageSrc' => '/media/services/boarding/card-cats.jpg', 'imageAlt' => 'Cat at Waggies boarding facility', 'icon' => 'cat'],
                 ['title' => 'Veterinary Care', 'description' => 'Wellness consultations, comprehensive examinations, vaccination requests, and microchipping.', 'route' => 'services.vet-care', 'imageSrc' => '/media/services/vet-care/hero.jpg', 'imageAlt' => 'Veterinarian with dog', 'icon' => 'veterinary-care'],
-                ['title' => 'Pet Import to Nigeria', 'description' => 'Import permits, veterinary and health documents, customs coordination, and Abuja airport pickup, confirmed for your route and quote.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
-                ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, veterinary documents, crate planning, airline booking, and departure airport transport, confirmed for your route and quote.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
+                ['title' => 'Pet Import to Nigeria', 'description' => 'Import permits, veterinary and health documents, customs clearance, and pickup at Abuja Airport (ABV). We’ll review your route and quote the services we can provide.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
+                ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, veterinary documents, crate planning, airline booking, and transport to the departure airport. We’ll review your route and quote the services we can provide.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
             ],
             'band' => [
                 'eyebrow' => 'The Waggies Standard',
@@ -50,7 +50,7 @@ final class ServicesController extends Controller
     {
         $page = $this->boardingPages()['index'];
         $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
-        $metadata = ['title' => 'Pet Boarding for Dogs and Cats in Abuja | Waggies', 'description' => 'Request boarding for your dog or cat at Waggies in Abuja. Prices are per pet per night; staff review each request and confirm availability before the stay.', 'canonical' => route('services.boarding'), 'ogTitle' => 'Pet Boarding for Dogs and Cats in Abuja | Waggies', 'ogDescription' => 'Request boarding for your dog or cat at Waggies in Abuja. Prices are per pet per night; staff review each request and confirm availability before the stay.'];
+        $metadata = ['title' => 'Pet Boarding for Dogs and Cats in Abuja | Waggies', 'description' => 'See dog and cat boarding options in Abuja, with care details for each. Request a stay for your preferred dates.', 'canonical' => route('services.boarding'), 'ogTitle' => 'Pet Boarding for Dogs and Cats in Abuja | Waggies', 'ogDescription' => 'Request boarding for your dog or cat at Waggies in Abuja. Prices are per pet per night; staff review each request and confirm availability before the stay.'];
         $this->setPageHead($metadata, [$this->serviceSchema('Dog and Cat Boarding in Abuja', $metadata)]);
 
         return view('pages.services.boarding.index', $metadata + [
@@ -91,7 +91,7 @@ final class ServicesController extends Controller
         }
         $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
         $faqs = $this->publishedFaqs('boarding', $species);
-        $metadata = ['title' => $page['title'], 'description' => $page['description'], 'canonical' => route('services.boarding.species', ['species' => $species]), 'ogTitle' => $page['title'].' Abuja - Waggies', 'ogDescription' => $page['description']];
+        $metadata = ['title' => ['dogs' => 'Dog Boarding in Abuja | Waggies', 'cats' => 'Cat Boarding in Abuja | Waggies'][$species], 'description' => $page['description'], 'canonical' => route('services.boarding.species', ['species' => $species]), 'ogTitle' => $species === 'dogs' ? 'Dog Boarding in Abuja | Waggies' : 'Cat Boarding in Abuja | Waggies', 'ogDescription' => $page['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($page['title'].' Abuja - Waggies', $metadata)]);
 
         return view('pages.services.boarding.species', $metadata + [
@@ -112,7 +112,7 @@ final class ServicesController extends Controller
     {
         $page = $this->withCanonicalPackagePricing($service, $this->serviceDetails()[$service]);
         $faqs = $this->publishedFaqs($service);
-        $metadata = ['title' => $page['meta']['title'].' - Waggies', 'description' => $page['meta']['description'], 'canonical' => route("services.{$service}"), 'ogTitle' => $page['meta']['title'].' - Waggies', 'ogDescription' => $page['meta']['description']];
+        $metadata = ['title' => $page['meta']['title'].' | Waggies', 'description' => $page['meta']['description'], 'canonical' => route("services.{$service}"), 'ogTitle' => $page['meta']['title'].' | Waggies', 'ogDescription' => $page['meta']['description']];
         $this->setPageHead($metadata, [$this->serviceSchema($metadata['ogTitle'], $metadata)]);
 
         return view('pages.services.detail', $metadata + [
@@ -131,8 +131,8 @@ final class ServicesController extends Controller
                     'imageAlt' => 'Happy dog outdoors',
                     'eyebrow' => 'Pet Boarding in Abuja',
                     'eyebrowIcon' => 'pets',
-                    'title' => 'A Home Away From Home',
-                    'description' => 'Each pet has an assigned carrier for resting. Boarding also includes water, routine cleaning, basic welfare checks, and care based on your instructions.',
+                    'title' => 'Dog and Cat Boarding in Abuja',
+                    'description' => 'Each pet has an assigned carrier for resting. Stays include water, routine cleaning, and basic welfare checks; our team follows your care instructions.',
                     'actions' => [
                         0 => [
                             'label' => 'Request boarding',
@@ -147,7 +147,7 @@ final class ServicesController extends Controller
                 'cards' => [
                     0 => [
                         'title' => 'Dog Boarding',
-                        'description' => 'Owner-supplied food, routine cleaning, and welfare checks.',
+                        'description' => 'Water, owner-supplied food, routine cleaning, and welfare checks.',
                         'route' => 'services.boarding.species',
                         'params' => [
                             'species' => 'dogs',
@@ -158,7 +158,7 @@ final class ServicesController extends Controller
                     ],
                     1 => [
                         'title' => 'Cat Boarding',
-                        'description' => 'Owner-supplied food, routine cleaning, water, and welfare checks.',
+                        'description' => 'Water, owner-supplied food, routine cleaning, and welfare checks.',
                         'route' => 'services.boarding.species',
                         'params' => [
                             'species' => 'cats',
@@ -173,21 +173,21 @@ final class ServicesController extends Controller
                     ['icon' => 'water', 'title' => 'Water', 'desc' => 'Fresh water is part of routine boarding care.'],
                     ['icon' => 'nutrition', 'title' => 'Owner-Supplied Food', 'desc' => 'We follow the food and feeding instructions you provide.'],
                     ['icon' => 'verified', 'title' => 'Basic Welfare Checks', 'desc' => 'Routine cleaning and basic welfare checks are included.'],
-                    ['icon' => 'schedule', 'title' => 'Daily Drop-Off & Pick-Up', 'desc' => 'Drop-off and pick-up are available from 9:00am to 5:00pm daily.'],
+                    ['icon' => 'schedule', 'title' => 'Drop-off and pick-up', 'desc' => 'Share your preferred times in your request; our team will confirm the arrangements.'],
                     ['icon' => 'verified', 'title' => 'Manual Review', 'desc' => 'Special care and final pricing are confirmed with you.'],
                 ],
             ],
             'species' => [
                 'dogs' => [
                     'title' => 'Dog Boarding',
-                    'description' => 'Dog boarding in Abuja with owner-supplied food, routine cleaning, and basic welfare checks.',
+                    'description' => 'Dog boarding in Abuja with individual enclosures and a secure outdoor yard. View nightly rates by dog size and request a stay.',
                     'hero' => [
                         'imageSrc' => '/media/services/boarding/dogs/hero.jpg',
                         'imageAlt' => 'Dog resting at Waggies boarding facility',
                         'eyebrow' => 'Dog Boarding',
                         'eyebrowIcon' => 'pets',
-                        'title' => 'A Safe, Structured Stay for Your Dog',
-                        'description' => 'Your dog’s care instructions are reviewed before the stay is confirmed. Boarding dogs have access to a secure outdoor yard.',
+                        'title' => 'A Structured Stay for Your Dog',
+                        'description' => 'Your dog has an individual enclosure and access to a secure outdoor yard. We follow your feeding instructions and provide water, routine cleaning, and basic welfare checks.',
                         'actions' => [
                             0 => [
                                 'label' => 'Request dog boarding',
@@ -306,14 +306,14 @@ final class ServicesController extends Controller
                 ],
                 'cats' => [
                     'title' => 'Cat Boarding',
-                    'description' => 'Calm cat boarding in Abuja with owner-supplied food, routine cleaning, water, and basic welfare checks.',
+                    'description' => 'Cat boarding in Abuja with an individual enclosure and a fixed nightly rate per cat. Request a stay to check availability.',
                     'hero' => [
                         'imageSrc' => '/media/services/boarding/cats/hero.jpg',
                         'imageAlt' => 'Relaxed cat at Waggies boarding facility',
                         'eyebrow' => 'Cat Boarding',
                         'eyebrowIcon' => 'pets',
                         'title' => 'Calm, Cosy Stays for Your Cat',
-                        'description' => 'Owner-supplied food, routine cleaning, water, and basic welfare checks for cats.',
+                        'description' => 'Each cat has an individual enclosure. We serve the food you provide on your cat’s usual schedule, with water, routine cleaning, and basic welfare checks.',
                         'actions' => [
                             0 => [
                                 'label' => 'Request cat boarding',
@@ -383,8 +383,8 @@ final class ServicesController extends Controller
                         ],
                     ],
                     'feline' => [
-                        'eyebrow' => 'Why Cats Love Waggies',
-                        'title' => 'Built for Feline Instincts',
+                        'eyebrow' => 'CAT BOARDING CARE',
+                        'title' => 'A Space of Their Own',
                         'body' => 'A quiet enclosure, familiar feeding instructions, and steady welfare checks give cats room to settle while they are away.',
                         'bullets' => [
                             0 => [
@@ -443,11 +443,11 @@ final class ServicesController extends Controller
                 'ctaParams' => [
                     'service' => 'vet-care',
                 ],
-                'description' => 'Request veterinary care for your dog or cat. Waggies reviews the reason for care, timing, and any product or administration requirements before confirmation.',
+                'description' => 'Tell us what your dog or cat needs and when you’d like to visit. Our veterinary team will review your request and confirm the next steps.',
                 'hero' => [
                     'imageSrc' => '/media/services/vet-care/hero.jpg',
                     'imageAlt' => 'Veterinary care at Waggies Abuja',
-                    'description' => 'Wellness consultations, comprehensive examinations, vaccination requests, and standalone microchipping, subject to veterinary review.',
+                    'description' => 'Our Abuja veterinary team can help with wellness consultations, full examinations, vaccination requests, and microchipping. Request care for your dog or cat.',
                 ],
                 'features' => [
                     0 => 'Full nose-to-tail wellness examinations and health consultations',
@@ -460,11 +460,12 @@ final class ServicesController extends Controller
                 ],
                 'benefits' => [
                     0 => 'Each request is reviewed by the veterinary team before an appointment or quote is confirmed.',
-                    1 => 'Vaccination remains request-only until a confirmed vaccine catalogue exists.',
+                    1 => 'Vaccinations are available by request. The veterinary team will confirm the suitable vaccine and any associated costs after review.',
                     2 => 'Microchipping is available as a standalone service under Veterinary Care → Identification.',
                     3 => 'Clinical records and any applicable certificates are discussed during review.',
                     4 => 'Urgent or emergency needs should be identified clearly in the request so the team can advise on next steps.',
                 ],
+                'benefitsSubtitle' => 'Veterinary care for dogs and cats in Abuja, with each request reviewed by the veterinary team.',
                 'packages' => [
                     0 => [
                         'name' => 'Wellness Consultation',
@@ -517,8 +518,8 @@ final class ServicesController extends Controller
                     'cards' => [
                         0 => [
                             'icon' => 'safety',
-                            'title' => 'Veterinary appointments, daily',
-                            'desc' => 'Appointments run from 9:00am to 5:00pm every day. Availability is confirmed after the team reviews your request.',
+                            'title' => 'Appointment requests',
+                            'desc' => 'Appointments are scheduled after the veterinary team reviews your request.',
                         ],
                         1 => [
                             'icon' => 'veterinary-care',
@@ -527,21 +528,21 @@ final class ServicesController extends Controller
                         ],
                         2 => [
                             'icon' => 'calendar',
-                            'title' => 'Digital Records & Boosters',
-                            'desc' => 'All health records are securely stored digitally with automated booster reminders so your pet stays protected.',
+                            'title' => 'Records and boosters',
+                            'desc' => 'The veterinary team can discuss your pet’s records and booster needs with you.',
                         ],
                         3 => [
                             'icon' => 'hours',
-                            'title' => 'Calm, Familiar Setting',
-                            'desc' => 'Examinations take place in a quiet, low-stress environment without the chaos of a crowded waiting room.',
+                            'title' => 'Location',
+                            'desc' => 'Veterinary examinations take place at Waggies in Abuja.',
                         ],
                     ],
                 ],
                 'shareTitle' => 'Veterinary Care - Waggies',
                 'shareDescription' => 'Request veterinary consultations, examinations, vaccination review, or standalone microchipping for dogs and cats at Waggies Abuja.',
                 'meta' => [
-                    'title' => 'Veterinary Care',
-                    'description' => 'Request veterinary consultations, examinations, vaccination review, or standalone microchipping for dogs and cats at Waggies Abuja.',
+                    'title' => 'Veterinary Care for Dogs and Cats in Abuja',
+                    'description' => 'Veterinary care in Abuja for dogs and cats: consultations, examinations, vaccination requests, and microchipping. Request an appointment with Waggies.',
                 ],
             ],
         ];
