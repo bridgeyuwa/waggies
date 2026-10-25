@@ -383,8 +383,8 @@ final class ServicesController extends Controller
                         ],
                     ],
                     'feline' => [
-                        'eyebrow' => 'Why Cats Love Waggies',
-                        'title' => 'Built for Feline Instincts',
+                        'eyebrow' => 'CAT BOARDING CARE',
+                        'title' => 'A Space of Their Own',
                         'body' => 'A quiet enclosure, familiar feeding instructions, and steady welfare checks give cats room to settle while they are away.',
                         'bullets' => [
                             0 => [
