@@ -10,9 +10,9 @@ final class RelocationController extends Controller
 {
     public function index(): View
     {
-        $description = 'Pet import and export coordination for dogs and cats, including permits, veterinary documents, customs clearance, import airport pickup, airline booking, and departure transport. Final scope is confirmed by route and quote.';
-        $metadata = ['title' => 'Pet Relocation Services - Waggies', 'description' => $description, 'canonical' => route('services.relocation'), 'ogTitle' => 'Pet Relocation Services Abuja - Waggies', 'ogDescription' => $description];
-        $this->setPageHead($metadata, [$this->serviceSchema('Pet Relocation Services Abuja - Waggies', $metadata)]);
+        $description = 'Request pet relocation via Abuja airport (ABV). Waggies reviews route requirements and providers, then confirms scope and costs in a custom quote.';
+        $metadata = ['title' => 'Pet Relocation via Abuja Airport (ABV) | Waggies', 'description' => $description, 'canonical' => route('services.relocation'), 'ogTitle' => 'Pet Relocation via Abuja Airport (ABV) | Waggies', 'ogDescription' => $description];
+        $this->setPageHead($metadata, [$this->serviceSchema('Pet Relocation to and from Nigeria', $metadata)]);
 
         return view('pages.services.relocation', $metadata + [
             'navSection' => 'services',

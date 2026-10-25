@@ -30,7 +30,7 @@ final class DevelopmentSeederTest extends TestCase
         foreach ([
             'users' => 1,
             'business_profiles' => 1,
-            'guides' => 2,
+            'guides' => 7,
             'knowledge_articles' => 10,
             'faqs' => 19,
             'gallery_items' => 13,
@@ -40,13 +40,13 @@ final class DevelopmentSeederTest extends TestCase
             'booking_requests' => 0,
             'contact_enquiries' => 0,
             'newsletter_subscriptions' => 0,
-            'media' => 25,
+            'media' => 30,
         ] as $table => $count) {
             $this->assertDatabaseCount($table, $count);
         }
 
         $this->assertSame(7, DB::table('business_hours')->where('kind', 'weekly')->count());
-        $this->assertSame(12, DB::table('media')->where('collection_name', 'cover')->count());
+        $this->assertSame(17, DB::table('media')->where('collection_name', 'cover')->count());
         $this->assertSame(13, DB::table('media')->where('collection_name', 'image')->count());
     }
 

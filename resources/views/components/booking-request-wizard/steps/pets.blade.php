@@ -53,10 +53,10 @@
 
 
                                     <div class="mt-6 border-t border-primary/10 pt-5">
-                                        <p class="text-sm font-semibold text-primary-dark">Optional details about this pet</p>
+                                        <p class="text-sm font-semibold text-primary-dark">Pet details for review</p>
                                         <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
                                             <x-waggies.field id="booking-pet-{{ $index }}-breed" label="Breed" :error="$errors->first('pets.'.$index.'.breed')" :help="$this->petBreedHelp($index)" :required="$this->petRequiresBreed($index)">
-                                                <input id="booking-pet-{{ $index }}-breed" wire:model.live.blur="pets.{{ $index }}.breed" wire:blur="fieldBlurred('pets.{{ $index }}.breed')" type="text" maxlength="120" class="contact-input">
+                                                <input id="booking-pet-{{ $index }}-breed" wire:model.live.blur="pets.{{ $index }}.breed" wire:blur="fieldBlurred('pets.{{ $index }}.breed')" type="text" maxlength="120" required class="contact-input">
                                             </x-waggies.field>
                                             <x-waggies.select id="booking-pet-{{ $index }}-age" label="Age or life stage" wire:model.live="pets.{{ $index }}.age" :error="$errors->first('pets.'.$index.'.age')" :help="$this->petAgeHelp($index)" :required="$this->petAgeRequired($index)">
                                                 <option value="">Select life stage</option>
@@ -77,8 +77,8 @@
                                                 </div>
                                                 @error('pets.'.$index.'.sex') <p class="mt-2 text-sm text-danger" role="alert">{{ $message }}</p> @enderror
                                             </fieldset>
-                                            <x-waggies.field id="booking-pet-{{ $index }}-notes" label="Pet notes" :error="$errors->first('pets.'.$index.'.notes')" help="Optional. Share temperament, routines, or care notes." class="sm:col-span-2">
-                                                <textarea id="booking-pet-{{ $index }}-notes" wire:model.live.blur="pets.{{ $index }}.notes" wire:blur="fieldBlurred('pets.{{ $index }}.notes')" rows="3" maxlength="1000" class="contact-input resize-y"></textarea>
+                                            <x-waggies.field id="booking-pet-{{ $index }}-notes" label="Pet notes" :error="$errors->first('pets.'.$index.'.notes')" help="Required. Add any other care or handling information; enter ‘None’ if there is nothing to add." :required="true" class="sm:col-span-2">
+                                                <textarea id="booking-pet-{{ $index }}-notes" wire:model.live.blur="pets.{{ $index }}.notes" wire:blur="fieldBlurred('pets.{{ $index }}.notes')" rows="3" maxlength="1000" required class="contact-input resize-y"></textarea>
                                             </x-waggies.field>
                                         </div>
                                     </div>

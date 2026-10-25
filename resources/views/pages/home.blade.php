@@ -40,10 +40,9 @@
             <div class="mt-12 grid grid-cols-1 gap-y-10 lg:mt-16 lg:grid-cols-12 lg:gap-x-14">
                 <figure class="lg:col-span-5">
                     <div class="relative aspect-square overflow-hidden rounded-2xl shadow-soft lg:aspect-4/5"><img
-                            src="/media/home/care-standards.jpg" alt="Puppy resting comfortably in a cozy boarding suite"
+                            src="/media/home/care-standards.jpg" alt="Puppy resting at Waggies boarding facility"
                             loading="lazy" class="h-full w-full object-cover"></div>
-                    <figcaption class="mt-3 text-xs leading-relaxed text-primary-dark/70">A young guest settling in for a
-                        rest in one of our boarding suites.</figcaption>
+                    <figcaption class="mt-3 text-xs leading-relaxed text-primary-dark/70">Each boarding pet has an assigned carrier for resting.</figcaption>
                 </figure>
                 <div class="flex flex-col lg:col-span-7">
                     <ul>

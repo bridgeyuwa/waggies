@@ -1305,17 +1305,12 @@ new class extends Component
 
     public function petRequiresBreed(int $petIndex): bool
     {
-        return collect($this->services)->contains(
-            fn (array $service): bool => ($service['service_key'] ?? null) === 'relocation'
-                && in_array($petIndex, array_map('intval', $service['assigned_pet_ids'] ?? []), true),
-        );
+        return true;
     }
 
     public function petBreedHelp(int $petIndex): string
     {
-        return $this->petRequiresBreed($petIndex)
-            ? 'Required for this assigned service. Use Mixed breed or Unknown if needed.'
-            : 'Optional. Use Mixed breed or Unknown if needed.';
+        return 'Use Mixed breed or Unknown if needed.';
     }
 
     /**
@@ -1336,14 +1331,12 @@ new class extends Component
 
     public function petAgeRequired(int $petIndex): bool
     {
-        return app(BookingRequestWizardRules::class)->requiresPetAge($this->services);
+        return true;
     }
 
     public function petAgeHelp(int $petIndex): string
     {
-        return $this->petAgeRequired($petIndex)
-            ? 'Required for veterinary care or relocation. Choose Not sure if you do not know.'
-            : 'Optional. Choose the closest life stage; Not sure is okay.';
+        return 'Choose the closest life stage. Select Not sure if you do not know.';
     }
 
     public function petAgeLabel(?string $age): ?string

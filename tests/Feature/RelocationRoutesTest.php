@@ -65,9 +65,9 @@ class RelocationRoutesTest extends TestCase
             ->assertOk()
             ->assertSee('Pet Import to Nigeria')
             ->assertSee('Pet Export from Nigeria')
-            ->assertSeeText('import and export coordination for dogs and cats')
-            ->assertSeeText('Your quote confirms the route-specific scope and costs.')
-            ->assertSeeText('Airport support does not include door-to-door delivery.');
+            ->assertSeeText('International relocation requests are reviewed through Abuja airport (ABV).')
+            ->assertSeeText('Your custom quote confirms the route-specific service scope, available providers, and costs.')
+            ->assertSeeText('Waggies does not offer door-to-door delivery or standalone domestic city-to-city relocation.');
 
         $this->get(route('relocation.import'))
             ->assertOk()

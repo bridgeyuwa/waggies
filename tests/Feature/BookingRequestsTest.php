@@ -411,20 +411,22 @@ it('explains the age requirement on the pet step before service assignment', fun
         'initialContext' => ['service' => 'vet-care', 'variant' => 'wellness-consultation'],
     ])
         ->set('step', 2)
-        ->assertSee('Required for veterinary care or relocation. Choose Not sure if you do not know.');
+        ->assertSee('Choose the closest life stage. Select Not sure if you do not know.');
 });
 
-it('keeps age optional on the pet step for boarding-only requests', function (): void {
+it('requires age on the pet step for boarding-only requests', function (): void {
     Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
     ])
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->set('step', 2)
         ->call('nextStep')
-        ->assertSet('step', 3)
-        ->assertHasNoErrors();
+        ->assertSet('step', 2)
+        ->assertHasErrors(['pets.0.age' => 'required']);
 });
 
 it('accepts not sure as a valid required pet life stage', function (): void {
@@ -439,8 +441,10 @@ it('accepts not sure as a valid required pet life stage', function (): void {
         ])
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->set('step', 3)
         ->call('nextStep')
         ->assertSet('step', 4)
@@ -539,8 +543,11 @@ it('selects dog size directly and stores it on the submitted pet', function (): 
         ->set('services.0.assigned_pet_ids', [0])
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.size', 'medium')
+        ->set('pets.0.age', '1-3-years')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->set('services.0.details.emergency_contact_primary', 'Chidi Obi — 0808 081 1903')
         ->set('services.0.details.emergency_vet_authorization', 'authorized')
         ->set('contact.name', 'Ada Obi')
@@ -576,9 +583,11 @@ it('persists every service selected in the livewire multi-service submission', f
         ->set('services.1.details.urgency', 'routine')
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.size', 'medium')
         ->set('pets.0.age', '1-3-years')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->set('contact.name', 'Ada Obi')
         ->set('contact.email', 'multi-livewire@example.com')
         ->set('contact.phone', '0808 081 1902')
@@ -595,6 +604,9 @@ it('persists every service selected in the livewire multi-service submission', f
 });
 
 it('adds the submitted build to the Livewire WhatsApp message', function (): void {
+    $checkIn = now()->addDays(4);
+    $checkOut = now()->addDays(6);
+
     $component = Livewire::test('booking-request-wizard', [
         'initialContext' => [
             'service' => 'boarding',
@@ -602,14 +614,17 @@ it('adds the submitted build to the Livewire WhatsApp message', function (): voi
             'whatsappUrl' => 'https://wa.me/2348000000000?text=old',
         ],
     ])
-        ->set('services.0.details.check_in', '2026-10-10')
-        ->set('services.0.details.check_out', '2026-10-12')
+        ->set('services.0.details.check_in', $checkIn->toDateString())
+        ->set('services.0.details.check_out', $checkOut->toDateString())
         ->set('services.0.details.emergency_vet_authorization', 'authorized')
         ->set('services.0.assigned_pet_ids', [0])
         ->set('pets.0.name', 'Bruno')
         ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.size', 'medium')
+        ->set('pets.0.age', '1-3-years')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->set('contact.name', 'Ada Obi')
         ->set('contact.email', 'livewire-whatsapp@example.com')
         ->set('contact.phone', '0808 081 1902')
@@ -625,7 +640,7 @@ it('adds the submitted build to the Livewire WhatsApp message', function (): voi
         ->toContain('Name: Ada Obi')
         ->toContain('Service 1: Boarding · Dogs')
         ->toContain('Bruno')
-        ->toContain('Sat, Oct 10, 2026')
+        ->toContain($checkIn->format('D, M j, Y'))
         ->not->toContain('livewire-whatsapp@example.com')
         ->not->toContain('0808 081 1902');
 });
@@ -837,17 +852,22 @@ it('allows relocation windows with different end dates in one request', function
 it('replays a submitted Livewire request without creating a duplicate', function (): void {
     Mail::fake();
     BusinessProfile::query()->firstOrFail()->update(['primary_email' => 'operations@waggies.test']);
+    $checkIn = now()->addDays(4)->toDateString();
+    $checkOut = now()->addDays(6)->toDateString();
 
     $component = Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'boarding', 'variant' => 'dogs'],
     ])
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
+        ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.size', 'medium')
+        ->set('pets.0.age', '1-3-years')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->set('services.0.assigned_pet_ids', [0])
-        ->set('services.0.details.check_in', '2026-10-10')
-        ->set('services.0.details.check_out', '2026-10-12')
+        ->set('services.0.details.check_in', $checkIn)
+        ->set('services.0.details.check_out', $checkOut)
         ->set('services.0.details.emergency_vet_authorization', 'authorized')
         ->set('contact.name', 'Ada Obi')
         ->set('contact.email', 'livewire-replay@example.com')

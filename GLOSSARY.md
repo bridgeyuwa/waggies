@@ -37,3 +37,7 @@ The staff-managed price for a booking request service after review. It is stored
 
 **Request confirmation**:
 The explicit staff decision that the overall booking request is accepted after every requested service has been confirmed. Confirming individual services does not automatically confirm the parent request.
+
+**Service coverage**:
+The geography or route where Waggies can provide a specific service. Boarding and veterinary appointments are Abuja-based; international relocation requests may come from elsewhere in Nigeria for journeys using Abuja’s ABV airport, with Waggies able to arrange a third-party domestic leg as part of the international move.
+_Avoid_: nationwide availability as a blanket claim across services.

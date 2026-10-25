@@ -38,7 +38,7 @@ test('services overview shows four ordered published general FAQs from the datab
 test('active service pages keep the existing public service composition', function () {
     $dogBoardingPage = $this->get(route('services.boarding.species', ['species' => 'dogs']))
         ->assertOk()
-        ->assertSeeText('Individual enclosure')
+        ->assertSeeText('Your dog’s care instructions are reviewed before the stay is confirmed.')
         ->assertSeeText('Built for Safe, Structured Stays')
         ->assertSeeText('Routine Boarding Care')
         ->assertSeeText("Choose your dog's size")

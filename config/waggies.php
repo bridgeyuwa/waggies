@@ -34,7 +34,7 @@ return [
             ['label' => 'Pet Care', 'items' => [
                 ['label' => 'Pet Age Calculator', 'route' => 'tools.pet-age', 'description' => 'Pet-to-human age conversion', 'icon' => 'pets'],
                 ['label' => 'Diet & Nutrition Calculator', 'route' => 'tools.nutrition', 'description' => 'Diet & feeding estimates', 'icon' => 'nutrition'],
-                ['label' => 'Behavior & Training Tips', 'route' => 'tools.behavior-tips', 'description' => 'Practical pet behavior advice', 'icon' => 'behavior'],
+                ['label' => 'Behaviour & Training Tips', 'route' => 'tools.behavior-tips', 'description' => 'Practical pet behaviour advice', 'icon' => 'behavior'],
                 ['label' => 'Breed Info Finder', 'route' => 'tools.breed-finder', 'description' => 'Explore dog & cat breeds', 'icon' => 'search'],
             ]],
             ['label' => 'Planning', 'items' => [

@@ -33,15 +33,15 @@ class SeoSearchSitemapTest extends TestCase
 
     public function test_relocation_metadata_and_service_schema_match_the_confirmed_scope(): void
     {
-        $description = 'Pet import and export coordination for dogs and cats, including permits, veterinary documents, customs clearance, import airport pickup, airline booking, and departure transport. Final scope is confirmed by route and quote.';
+        $description = 'Request pet relocation via Abuja airport (ABV). Waggies reviews route requirements and providers, then confirms scope and costs in a custom quote.';
         $response = $this->get(route('services.relocation'))->assertOk();
         $html = $response->getContent();
         $siteUrl = rtrim((string) config('app.url'), '/');
 
-        $response->assertSee('<title>Pet Relocation Services - Waggies</title>', false)
+        $response->assertSee('<title>Pet Relocation via Abuja Airport (ABV) | Waggies</title>', false)
             ->assertSee('<meta name="description" content="'.$description.'">', false)
             ->assertSee('<link rel="canonical" href="'.$siteUrl.'/services/relocation">', false)
-            ->assertSeeText('Airport support does not include door-to-door delivery.');
+            ->assertSeeText('Waggies does not offer door-to-door delivery or standalone domestic city-to-city relocation.');
 
         preg_match_all('/<script type="application\/ld\+json"[^>]*>(.*?)<\/script>/s', $html, $matches);
 
@@ -52,7 +52,7 @@ class SeoSearchSitemapTest extends TestCase
         $serviceSchemas = array_values(array_filter(
             $schemas,
             static fn (array $schema): bool => ($schema['@type'] ?? null) === 'Service'
-                && ($schema['name'] ?? null) === 'Pet Relocation Services Abuja - Waggies',
+                && ($schema['name'] ?? null) === 'Pet Relocation to and from Nigeria',
         ));
 
         $this->assertCount(1, $serviceSchemas);

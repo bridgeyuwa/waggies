@@ -19,8 +19,8 @@ final class ServicesController extends Controller
             'navSection' => 'services',
             'hero' => ['imageSrc' => '/media/services/hero.jpg', 'imageAlt' => 'Dog outdoors', 'eyebrow' => 'Everything Your Pet Needs', 'title' => 'Pet Care Services,<br/>All Under One Roof', 'description' => 'From overnight boarding to veterinary care and international relocation - Waggies handles each request through a clear review process.', 'actions' => [['label' => 'View Our Services', 'url' => route('services.index').'#services']]],
             'cards' => [
-                ['title' => 'Dog Boarding', 'description' => 'Individual enclosures, owner-supplied food, routine cleaning, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'dogs'], 'imageSrc' => '/media/services/boarding/card-dogs.jpg', 'imageAlt' => 'Happy dogs at Waggies', 'icon' => 'pets'],
-                ['title' => 'Cat Boarding', 'description' => 'Calm individual enclosures, owner-supplied food, routine cleaning, water, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'cats'], 'imageSrc' => '/media/services/boarding/card-cats.jpg', 'imageAlt' => 'Cat settled into an individual boarding enclosure', 'icon' => 'cat'],
+                ['title' => 'Dog Boarding', 'description' => 'Owner-supplied food, routine cleaning, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'dogs'], 'imageSrc' => '/media/services/boarding/card-dogs.jpg', 'imageAlt' => 'Happy dogs at Waggies', 'icon' => 'pets'],
+                ['title' => 'Cat Boarding', 'description' => 'Owner-supplied food, routine cleaning, water, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'cats'], 'imageSrc' => '/media/services/boarding/card-cats.jpg', 'imageAlt' => 'Cat at Waggies boarding facility', 'icon' => 'cat'],
                 ['title' => 'Veterinary Care', 'description' => 'Wellness consultations, comprehensive examinations, vaccination requests, and microchipping.', 'route' => 'services.vet-care', 'imageSrc' => '/media/services/vet-care/hero.jpg', 'imageAlt' => 'Veterinarian with dog', 'icon' => 'veterinary-care'],
                 ['title' => 'Pet Import to Nigeria', 'description' => 'Import permits, veterinary and health documents, customs coordination, and Abuja airport pickup, confirmed for your route and quote.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
                 ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, veterinary documents, crate planning, airline booking, and departure airport transport, confirmed for your route and quote.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
@@ -31,7 +31,7 @@ final class ServicesController extends Controller
                 'subtitle' => 'Every pet is handled through structured care protocols designed to ensure safety, comfort, and emotional wellbeing.',
                 'stats' => [
                     ['icon' => 'veterinary-care', 'title' => 'Veterinary Care', 'subtitle' => 'Health-first handling'],
-                    ['icon' => 'boarding', 'title' => 'Individual Enclosures', 'subtitle' => 'One enclosure per pet'],
+                    ['icon' => 'boarding', 'title' => 'Pet Boarding', 'subtitle' => 'Dogs and cats in Abuja'],
                     ['icon' => 'airport-departure', 'title' => 'Import & Export', 'subtitle' => 'Custom relocation review'],
                     ['icon' => 'verified', 'title' => 'Manual Confirmation', 'subtitle' => 'Clear next steps'],
                 ],
@@ -50,8 +50,8 @@ final class ServicesController extends Controller
     {
         $page = $this->boardingPages()['index'];
         $page['hero']['actions'] = $this->normalizeActionLinks($page['hero']['actions'] ?? []);
-        $metadata = ['title' => $page['title'], 'description' => $page['description'], 'canonical' => route('services.boarding'), 'ogTitle' => 'Pet Boarding Abuja - Waggies', 'ogDescription' => $page['description']];
-        $this->setPageHead($metadata, [$this->serviceSchema('Pet Boarding Abuja - Waggies', $metadata)]);
+        $metadata = ['title' => 'Pet Boarding for Dogs and Cats in Abuja | Waggies', 'description' => 'Request boarding for your dog or cat at Waggies in Abuja. Prices are per pet per night; staff review each request and confirm availability before the stay.', 'canonical' => route('services.boarding'), 'ogTitle' => 'Pet Boarding for Dogs and Cats in Abuja | Waggies', 'ogDescription' => 'Request boarding for your dog or cat at Waggies in Abuja. Prices are per pet per night; staff review each request and confirm availability before the stay.'];
+        $this->setPageHead($metadata, [$this->serviceSchema('Dog and Cat Boarding in Abuja', $metadata)]);
 
         return view('pages.services.boarding.index', $metadata + [
             'navSection' => 'services', 'page' => $page,
@@ -132,7 +132,7 @@ final class ServicesController extends Controller
                     'eyebrow' => 'Pet Boarding in Abuja',
                     'eyebrowIcon' => 'pets',
                     'title' => 'A Home Away From Home',
-                    'description' => 'Each pet receives an individual enclosure, water, routine cleaning, basic welfare checks, and care based on your instructions.',
+                    'description' => 'Each pet has an assigned carrier for resting. Boarding also includes water, routine cleaning, basic welfare checks, and care based on your instructions.',
                     'actions' => [
                         0 => [
                             'label' => 'Request boarding',
@@ -147,7 +147,7 @@ final class ServicesController extends Controller
                 'cards' => [
                     0 => [
                         'title' => 'Dog Boarding',
-                        'description' => 'Individual enclosures, owner-supplied food, routine cleaning, and welfare checks.',
+                        'description' => 'Owner-supplied food, routine cleaning, and welfare checks.',
                         'route' => 'services.boarding.species',
                         'params' => [
                             'species' => 'dogs',
@@ -158,36 +158,36 @@ final class ServicesController extends Controller
                     ],
                     1 => [
                         'title' => 'Cat Boarding',
-                        'description' => 'Calm individual enclosures, owner-supplied food, routine cleaning, water, and welfare checks.',
+                        'description' => 'Owner-supplied food, routine cleaning, water, and welfare checks.',
                         'route' => 'services.boarding.species',
                         'params' => [
                             'species' => 'cats',
                         ],
                         'imageSrc' => '/media/services/boarding/card-cats.jpg',
-                        'imageAlt' => 'Cat settled into an individual boarding enclosure',
+                        'imageAlt' => 'Cat at Waggies boarding facility',
                         'icon' => 'cat',
                     ],
                 ],
                 'included' => [
-                    ['icon' => 'boarding', 'title' => 'Individual Enclosure', 'desc' => 'Each boarding pet receives its own enclosure.'],
+                    ['icon' => 'boarding', 'title' => 'Resting Arrangement', 'desc' => 'Each pet has an assigned carrier for resting.'],
                     ['icon' => 'water', 'title' => 'Water', 'desc' => 'Fresh water is part of routine boarding care.'],
                     ['icon' => 'nutrition', 'title' => 'Owner-Supplied Food', 'desc' => 'We follow the food and feeding instructions you provide.'],
                     ['icon' => 'verified', 'title' => 'Basic Welfare Checks', 'desc' => 'Routine cleaning and basic welfare checks are included.'],
-                    ['icon' => 'water', 'title' => 'Light Bath or Wash', 'desc' => 'For boarded dogs before pickup where safe and appropriate.'],
+                    ['icon' => 'schedule', 'title' => 'Daily Drop-Off & Pick-Up', 'desc' => 'Drop-off and pick-up are available from 9:00am to 5:00pm daily.'],
                     ['icon' => 'verified', 'title' => 'Manual Review', 'desc' => 'Special care and final pricing are confirmed with you.'],
                 ],
             ],
             'species' => [
                 'dogs' => [
                     'title' => 'Dog Boarding',
-                    'description' => 'Dog boarding in Abuja with individual enclosures, owner-supplied food, routine cleaning, and basic welfare checks.',
+                    'description' => 'Dog boarding in Abuja with owner-supplied food, routine cleaning, and basic welfare checks.',
                     'hero' => [
                         'imageSrc' => '/media/services/boarding/dogs/hero.jpg',
-                        'imageAlt' => 'Dog resting calmly in an individual boarding enclosure',
+                        'imageAlt' => 'Dog resting at Waggies boarding facility',
                         'eyebrow' => 'Dog Boarding',
                         'eyebrowIcon' => 'pets',
                         'title' => 'A Safe, Structured Stay for Your Dog',
-                        'description' => 'Individual enclosures and predictable routines designed to keep your dog comfortable while you\'re away.',
+                        'description' => 'Your dog’s care instructions are reviewed before the stay is confirmed. Boarding dogs have access to a secure outdoor yard.',
                         'actions' => [
                             0 => [
                                 'label' => 'Request dog boarding',
@@ -202,8 +202,8 @@ final class ServicesController extends Controller
                     ],
                     'stats' => [
                         0 => [
-                            'value' => '1',
-                            'label' => 'Enclosure per Pet',
+                            'value' => '9am–5pm',
+                            'label' => 'Drop-Off & Pick-Up, Daily',
                         ],
                         1 => [
                             'value' => 'Routine',
@@ -226,7 +226,7 @@ final class ServicesController extends Controller
                             0 => [
                                 'icon' => 'home',
                                 'title' => 'Arrival & Settling',
-                                'description' => 'Your dog is settled into an individual enclosure after the request and care needs are reviewed.',
+                                'description' => 'Your dog’s care needs are reviewed before the stay is confirmed.',
                             ],
                             1 => [
                                 'icon' => 'nutrition',
@@ -245,8 +245,8 @@ final class ServicesController extends Controller
                             ],
                             4 => [
                                 'icon' => 'water',
-                                'title' => 'Pickup Preparation',
-                                'description' => 'A light bath or wash may be provided before pickup where safe and appropriate.',
+                                'title' => 'Pick-Up Arrangements',
+                                'description' => 'Drop-off and pick-up are available daily from 9:00am to 5:00pm.',
                             ],
                         ],
                         'images' => [
@@ -306,14 +306,14 @@ final class ServicesController extends Controller
                 ],
                 'cats' => [
                     'title' => 'Cat Boarding',
-                    'description' => 'Calm cat boarding in Abuja with individual enclosures, owner-supplied food, routine cleaning, water, and basic welfare checks.',
+                    'description' => 'Calm cat boarding in Abuja with owner-supplied food, routine cleaning, water, and basic welfare checks.',
                     'hero' => [
                         'imageSrc' => '/media/services/boarding/cats/hero.jpg',
-                        'imageAlt' => 'Relaxed cat settled into an individual boarding enclosure at Waggies',
+                        'imageAlt' => 'Relaxed cat at Waggies boarding facility',
                         'eyebrow' => 'Cat Boarding',
                         'eyebrowIcon' => 'pets',
                         'title' => 'Calm, Cosy Stays for Your Cat',
-                        'description' => 'Individual enclosures, owner-supplied food, routine cleaning, water, and basic welfare checks for cats.',
+                        'description' => 'Owner-supplied food, routine cleaning, water, and basic welfare checks for cats.',
                         'actions' => [
                             0 => [
                                 'label' => 'Request cat boarding',
@@ -328,8 +328,8 @@ final class ServicesController extends Controller
                     ],
                     'stats' => [
                         0 => [
-                            'value' => '1',
-                            'label' => 'Enclosure per Pet',
+                            'value' => '9am–5pm',
+                            'label' => 'Drop-Off & Pick-Up, Daily',
                         ],
                         1 => [
                             'value' => 'Routine',
@@ -352,7 +352,7 @@ final class ServicesController extends Controller
                             0 => [
                                 'icon' => 'daylight',
                                 'title' => 'Arrival & Settling',
-                                'description' => 'Your cat is settled into an individual enclosure and the requested care details are reviewed.',
+                                'description' => 'Your cat’s care needs are reviewed before the stay is confirmed.',
                             ],
                             1 => [
                                 'icon' => 'nutrition',
@@ -517,8 +517,8 @@ final class ServicesController extends Controller
                     'cards' => [
                         0 => [
                             'icon' => 'safety',
-                            'title' => 'On-Site Daily Doctor',
-                            'desc' => 'A licensed veterinarian present 7 days a week, ensuring immediate attention for routine care or unexpected guest needs.',
+                            'title' => 'Veterinary appointments, daily',
+                            'desc' => 'Appointments run from 9:00am to 5:00pm every day. Availability is confirmed after the team reviews your request.',
                         ],
                         1 => [
                             'icon' => 'veterinary-care',

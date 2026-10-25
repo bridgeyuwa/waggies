@@ -17,8 +17,8 @@
     $careHeadingId = $species === 'cats' ? 'cat-care-heading' : 'dog-care-heading';
     $safetyHref = $species === 'dogs' ? route('boarding-policy') : route('contact');
     $siblings = collect([
-        ['key' => 'dogs', 'title' => 'Dog Boarding', 'desc' => 'Individual enclosures, routine care, and manual review.', 'icon' => 'pets'],
-        ['key' => 'cats', 'title' => 'Cat Boarding', 'desc' => 'Calm individual enclosures with routine care and manual review.', 'icon' => 'pets'],
+        ['key' => 'dogs', 'title' => 'Dog Boarding', 'desc' => 'Routine care and manual review.', 'icon' => 'pets'],
+        ['key' => 'cats', 'title' => 'Cat Boarding', 'desc' => 'Calm routine care and manual review.', 'icon' => 'pets'],
     ])->map(fn (array $sibling): array => $sibling + ['image' => "/media/services/boarding/{$species}/related-{$sibling['key']}.jpg"])->all();
 @endphp
 

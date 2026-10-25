@@ -103,7 +103,7 @@ final class AboutPagesController extends Controller
                 'title' => 'Trusted by Pet Owners<br />Across Abuja',
                 'description' => 'Read what clients share about their Waggies experience.',
                 'imageSrc' => '/media/about/testimonials/hero.jpg',
-                'imageAlt' => 'Dog in a boarding suite',
+                'imageAlt' => 'Dog at Waggies boarding facility',
                 'actions' => [
                     0 => [
                         'label' => 'Explore Services',

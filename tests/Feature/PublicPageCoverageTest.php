@@ -13,7 +13,7 @@ dataset('public tool pages', [
     'pet age calculator' => ['tools.pet-age', 'Pet Age Calculator'],
     'nutrition calculator' => ['tools.nutrition', 'Diet & Nutrition Calculator'],
     'breed finder' => ['tools.breed-finder', 'Breed Info Finder'],
-    'behavior tips' => ['tools.behavior-tips', 'Behavior & Training Tips'],
+    'behavior tips' => ['tools.behavior-tips', 'Behaviour & Training Tips'],
     'new pet checklist' => ['tools.new-pet-checklist', 'New Pet Checklist'],
 ]);
 

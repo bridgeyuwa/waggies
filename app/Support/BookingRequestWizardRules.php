@@ -148,20 +148,6 @@ final class BookingRequestWizardRules
     }
 
     /**
-     * @param  array<int, array<string, mixed>>  $services
-     */
-    public function requiresPetAge(array $services): bool
-    {
-        foreach ($services as $service) {
-            if (in_array($service['service_key'] ?? null, ['vet-care', 'relocation'], true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * @param  array<string, mixed>  $contact
      * @return array<string, array<int, mixed>>
      */
@@ -220,7 +206,7 @@ final class BookingRequestWizardRules
     private function petRules(bool $enforceCompatibility, array $services): array
     {
         $ageRule = [
-            $this->requiresPetAge($services) ? 'required' : 'nullable',
+            'required',
             Rule::in(array_keys($this->pricingCatalog->petAgeOptions())),
         ];
 
@@ -229,10 +215,10 @@ final class BookingRequestWizardRules
             'pets.*.name' => ['required', 'string', 'max:80'],
             'pets.*.species' => ['required', Rule::in($enforceCompatibility ? array_keys($this->petTypeOptions($services)) : ['dog', 'cat'])],
             'pets.*.size' => ['nullable', Rule::in(array_keys($this->petSizeOptions($services)))],
-            'pets.*.breed' => ['nullable', 'string', 'max:120'],
+            'pets.*.breed' => ['required', 'string', 'max:120'],
             'pets.*.age' => $ageRule,
             'pets.*.sex' => ['required', Rule::in(['male', 'female'])],
-            'pets.*.notes' => ['nullable', 'string', 'max:1000'],
+            'pets.*.notes' => ['required', 'string', 'max:1000'],
         ];
     }
 

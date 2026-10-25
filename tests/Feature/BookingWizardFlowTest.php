@@ -8,7 +8,7 @@ uses(RefreshDatabase::class);
 dataset('valid booking service and pet permutations', [
     'boarding dog' => [
         ['service' => 'boarding', 'variant' => 'dogs'],
-        ['name' => 'Bruno', 'species' => 'dog', 'size' => 'medium', 'age' => null, 'sex' => 'male', 'breed' => null],
+        ['name' => 'Bruno', 'species' => 'dog', 'size' => 'medium', 'age' => 'not-sure', 'sex' => 'male', 'breed' => 'Mixed breed', 'notes' => 'None'],
         [
             'requested_date' => null,
             'details' => [
@@ -20,7 +20,7 @@ dataset('valid booking service and pet permutations', [
     ],
     'boarding cat' => [
         ['service' => 'boarding', 'variant' => 'cats'],
-        ['name' => 'Luna', 'species' => 'cat', 'size' => null, 'age' => null, 'sex' => 'female', 'breed' => null],
+        ['name' => 'Luna', 'species' => 'cat', 'size' => null, 'age' => 'not-sure', 'sex' => 'female', 'breed' => 'Domestic shorthair', 'notes' => 'None'],
         [
             'requested_date' => null,
             'details' => [
@@ -32,7 +32,7 @@ dataset('valid booking service and pet permutations', [
     ],
     'veterinary dog with multiple needs' => [
         ['service' => 'vet-care', 'variant' => 'wellness-consultation'],
-        ['name' => 'Bruno', 'species' => 'dog', 'size' => null, 'age' => '4-7-years', 'sex' => 'male', 'breed' => null],
+        ['name' => 'Bruno', 'species' => 'dog', 'size' => null, 'age' => '4-7-years', 'sex' => 'male', 'breed' => 'Mixed breed', 'notes' => 'None'],
         [
             'requested_date' => '2026-10-10',
             'details' => [
@@ -44,7 +44,7 @@ dataset('valid booking service and pet permutations', [
     ],
     'veterinary cat' => [
         ['service' => 'vet-care', 'variant' => 'vaccination-request'],
-        ['name' => 'Luna', 'species' => 'cat', 'size' => null, 'age' => 'not-sure', 'sex' => 'female', 'breed' => null],
+        ['name' => 'Luna', 'species' => 'cat', 'size' => null, 'age' => 'not-sure', 'sex' => 'female', 'breed' => 'Domestic shorthair', 'notes' => 'None'],
         [
             'requested_date' => '2026-10-10',
             'details' => [
@@ -56,7 +56,7 @@ dataset('valid booking service and pet permutations', [
     ],
     'relocation import dog' => [
         ['service' => 'relocation', 'variant' => 'import'],
-        ['name' => 'Bruno', 'species' => 'dog', 'size' => null, 'age' => '1-3-years', 'sex' => 'male', 'breed' => 'Mixed breed'],
+        ['name' => 'Bruno', 'species' => 'dog', 'size' => null, 'age' => '1-3-years', 'sex' => 'male', 'breed' => 'Mixed breed', 'notes' => 'None'],
         [
             'requested_date' => '2026-10-10',
             'details' => [
@@ -71,7 +71,7 @@ dataset('valid booking service and pet permutations', [
     ],
     'relocation export cat' => [
         ['service' => 'relocation', 'variant' => 'export'],
-        ['name' => 'Luna', 'species' => 'cat', 'size' => null, 'age' => '8-10-years', 'sex' => 'female', 'breed' => 'Domestic shorthair'],
+        ['name' => 'Luna', 'species' => 'cat', 'size' => null, 'age' => '8-10-years', 'sex' => 'female', 'breed' => 'Domestic shorthair', 'notes' => 'None'],
         [
             'requested_date' => '2026-10-10',
             'details' => [
@@ -204,6 +204,7 @@ it('blocks invalid relocation directions and unassigned pets before continuing',
         ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->set('services.0.details', [
             'travel_timing' => 'exact',
             'origin_country' => 'NG',
@@ -230,7 +231,10 @@ it('moves through the booking steps in order after each step is valid', function
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
         ->set('pets.0.size', 'medium')
+        ->set('pets.0.breed', 'Mixed breed')
+        ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->call('nextStep')
         ->assertSet('step', 3)
         ->set('services.0.assigned_pet_ids', [0])
@@ -258,6 +262,7 @@ it('preselects the only pet when entering the matching step', function (): void 
         ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->call('nextStep')
         ->assertSet('step', 3)
         ->assertSet('services.0.assigned_pet_ids', [0]);
@@ -275,6 +280,7 @@ it('preselects the only pet for every compatible selected service', function ():
         ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->call('nextStep')
         ->assertSet('step', 3)
         ->assertSet('services.0.assigned_pet_ids', [0])
@@ -296,8 +302,10 @@ it('leaves the only pet unassigned for an incompatible service', function (): vo
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
         ->set('pets.0.size', 'medium')
+        ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->call('nextStep')
         ->assertSet('step', 3)
         ->assertSet('services.0.assigned_pet_ids', [0])
@@ -314,6 +322,7 @@ it('preserves the automatic assignment when another pet is added', function (): 
         ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->call('nextStep')
         ->call('addPet')
         ->assertSet('pets.1.name', null)
@@ -330,6 +339,7 @@ it('requires a new match when the only pet clears an automatic assignment', func
         ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->call('nextStep')
         ->set('services.0.assigned_pet_ids', false)
         ->call('nextStep')
@@ -347,6 +357,7 @@ it('renders friendly labels for every missing relocation detail', function (): v
         ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->call('nextStep')
         ->set('services.0.assigned_pet_ids', [0])
         ->call('nextStep');
@@ -415,8 +426,10 @@ it('groups repeated service field errors in the summary', function (): void {
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
         ->set('pets.0.size', 'medium')
+        ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->call('nextStep')
         ->set('services.0.assigned_pet_ids', false)
         ->set('services.1.assigned_pet_ids', false)
@@ -468,6 +481,8 @@ it('continues from the pet step after the user chooses an explicit life stage', 
         ->set('pets.0.species', 'dog')
         ->set('pets.0.sex', 'male')
         ->set('pets.0.age', 'not-sure')
+        ->set('pets.0.breed', 'Mixed breed')
+        ->set('pets.0.notes', 'None')
         ->call('nextStep');
 
     $component->assertSet('step', 3)->assertHasNoErrors();
@@ -483,6 +498,7 @@ it('clears conditional date errors when the travel timing makes those dates opti
         ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->call('nextStep')
         ->set('services.0.assigned_pet_ids', [0])
         ->set('services.0.details', [
@@ -544,7 +560,10 @@ it('revalidates a touched check-out date when the check-in date changes', functi
         ->set('pets.0.name', 'Milo')
         ->set('pets.0.species', 'dog')
         ->set('pets.0.size', 'medium')
+        ->set('pets.0.breed', 'Mixed breed')
+        ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->call('nextStep')
         ->set('services.0.details.check_in', now()->addDays(7)->toDateString())
         ->set('services.0.details.check_out', now()->addDays(9)->toDateString())
@@ -553,7 +572,7 @@ it('revalidates a touched check-out date when the check-in date changes', functi
     $component->assertHasErrors(['services.0.details.check_out']);
 });
 
-it('clears a conditional breed error when a pet is unassigned from relocation', function (): void {
+it('keeps breed required after a pet is unassigned from relocation', function (): void {
     $component = Livewire::test('booking-request-wizard', [
         'initialContext' => ['service' => 'relocation', 'variant' => 'import'],
     ])
@@ -562,11 +581,12 @@ it('clears a conditional breed error when a pet is unassigned from relocation', 
         ->set('pets.0.species', 'dog')
         ->set('pets.0.age', 'not-sure')
         ->set('pets.0.sex', 'male')
+        ->set('pets.0.notes', 'None')
         ->call('nextStep')
         ->set('pets.0.breed', 'Mixed breed')
         ->set('pets.0.breed', null)
         ->assertHasErrors(['pets.0.breed'])
         ->set('services.0.assigned_pet_ids', false);
 
-    expect($component->errors()->has('pets.0.breed'))->toBeFalse();
+    $component->assertHasErrors(['pets.0.breed']);
 });

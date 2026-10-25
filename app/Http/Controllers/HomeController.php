@@ -40,17 +40,16 @@ final class HomeController extends Controller
                 ],
             ],
             'homeServiceCards' => [
-                ['title' => 'Dog Boarding', 'description' => 'Individual enclosures, owner-supplied food, routine cleaning, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'dogs'], 'imageSrc' => '/media/services/boarding/card-dogs.jpg', 'imageAlt' => 'Happy dogs at Waggies', 'icon' => 'pets'],
-                ['title' => 'Cat Boarding', 'description' => 'Calm individual enclosures, owner-supplied food, routine cleaning, water, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'cats'], 'imageSrc' => '/media/services/boarding/card-cats.jpg', 'imageAlt' => 'Cat settled into an individual boarding enclosure', 'icon' => 'cat'],
+                ['title' => 'Dog Boarding', 'description' => 'Owner-supplied food, routine cleaning, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'dogs'], 'imageSrc' => '/media/services/boarding/card-dogs.jpg', 'imageAlt' => 'Happy dogs at Waggies', 'icon' => 'pets'],
+                ['title' => 'Cat Boarding', 'description' => 'Owner-supplied food, routine cleaning, water, and welfare checks.', 'route' => 'services.boarding.species', 'params' => ['species' => 'cats'], 'imageSrc' => '/media/services/boarding/card-cats.jpg', 'imageAlt' => 'Cat at Waggies boarding facility', 'icon' => 'cat'],
                 ['title' => 'Veterinary Care', 'description' => 'Wellness consultations, comprehensive examinations, vaccination requests, and microchipping.', 'route' => 'services.vet-care', 'imageSrc' => '/media/home/services-vet-care.jpg', 'imageAlt' => 'Veterinarian caring for a dog', 'icon' => 'veterinary-care'],
                 ['title' => 'Pet Import to Nigeria', 'description' => 'Import permits, veterinary and health documents, customs coordination, and Abuja airport pickup, confirmed for your route and quote.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
                 ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, veterinary documents, crate planning, airline booking, and departure airport transport, confirmed for your route and quote.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
             ],
             'careStandardRows' => [
-                ['title' => '24/7 Supervision', 'description' => 'Your pets are monitored around the clock, never left alone.'],
-                ['title' => 'Climate-Controlled Suites', 'description' => 'Spacious suites with orthopedic bedding and temperature control.'],
-                ['title' => 'Daily Updates', 'description' => 'Receive photos and updates on your pet every day.'],
-                ['title' => 'Individual Care', 'description' => 'Every suite, meal, and exercise routine is structured around individual care requirements.'],
+                ['title' => 'On-Site Overnight Team', 'description' => 'A Waggies staff member and veterinarian are physically on site overnight.'],
+                ['title' => 'Air-Conditioned Boarding Areas', 'description' => 'The boarding facility has air conditioning.'],
+                ['title' => 'Care Review', 'description' => 'Care instructions are reviewed before a boarding stay is confirmed.'],
             ],
             'homeTestimonials' => Testimonial::query()
                 ->published()
