@@ -257,14 +257,14 @@ final class ServicesController extends Controller
                         ],
                     ],
                     'canine' => [
-                        'eyebrow' => 'WHY DOGS THRIVE AT WAGGIES',
-                        'title' => 'Built for Safe, Structured Stays',
+                        'eyebrow' => 'DOG BOARDING AT WAGGIES',
+                        'title' => 'Space, Routine and Care for Your Dog',
                         'body' => 'Each dog has individual space, a familiar care rhythm, and a clear review process before the stay is confirmed.',
                         'bullets' => [
                             0 => [
                                 'icon' => 'boarding',
                                 'bold' => 'Individual space',
-                                'text' => 'Every boarding dog receives its own enclosure for a calmer stay.',
+                                'text' => 'Each dog has an individual enclosure for rest during their stay.',
                             ],
                             1 => [
                                 'icon' => 'nutrition',
