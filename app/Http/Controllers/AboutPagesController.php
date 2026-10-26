@@ -22,7 +22,7 @@ final class AboutPagesController extends Controller
             ->get()
             ->map(fn (Testimonial $testimonial): array => $testimonial->toPublicArray())
             ->all();
-        $metadata = ['title' => 'Client Testimonials', 'description' => 'Read what pet owners across Abuja share about their Waggies boarding, veterinary care, and relocation experience.', 'canonical' => route('about.testimonials'), 'ogTitle' => 'Client Testimonials - Waggies Pet Care Abuja', 'ogDescription' => 'Read what pet owners across Abuja share about their Waggies boarding, veterinary care, and relocation experience.'];
+        $metadata = ['title' => 'Waggies Client Testimonials | Pet Care in Abuja', 'description' => 'Read first-hand stories from pet owners who have shared their experience with Waggies in Abuja.', 'canonical' => route('about.testimonials'), 'ogTitle' => 'Waggies Client Testimonials | Pet Care in Abuja', 'ogDescription' => 'Read first-hand stories from pet owners who have shared their experience with Waggies in Abuja.'];
         $this->setPageHead($metadata, [$this->webPageSchema($metadata)]);
 
         return view('pages.about.testimonials', $metadata + [
@@ -100,8 +100,8 @@ final class AboutPagesController extends Controller
             'hero' => [
                 'eyebrow' => 'What Clients Say',
                 'eyebrowIcon' => 'reviews',
-                'title' => 'Trusted by Pet Owners<br />Across Abuja',
-                'description' => 'Read what clients share about their Waggies experience.',
+                'title' => 'What Waggies Clients Say',
+                'description' => 'Hear from pet owners about their experience with Waggies.',
                 'imageSrc' => '/media/about/testimonials/hero.jpg',
                 'imageAlt' => 'Dog at Waggies boarding facility',
                 'actions' => [
