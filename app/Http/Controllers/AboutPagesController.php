@@ -44,7 +44,7 @@ final class AboutPagesController extends Controller
             ->map(fn (GalleryItem $item): array => $item->toPublicArray())
             ->filter(fn (array $image): bool => filled($image['src'] ?? null))
             ->all();
-        $metadata = ['title' => 'Inside Waggies | Pet Care in Abuja', 'description' => 'Explore the Waggies gallery for a closer look at pet care in Abuja.', 'canonical' => route('about.gallery'), 'ogTitle' => 'Inside Waggies | Pet Care in Abuja', 'ogDescription' => 'Explore the Waggies gallery for a closer look at pet care in Abuja.'];
+        $metadata = ['title' => 'Inside Waggies | Pet Care in Abuja', 'description' => 'Explore the Waggies gallery for a closer look at our work with pets in Abuja, including boarding, veterinary care, and route-specific relocation coordination through Nnamdi Azikiwe International Airport.', 'canonical' => route('about.gallery'), 'ogTitle' => 'Inside Waggies | Pet Care in Abuja', 'ogDescription' => 'Explore the Waggies gallery for a closer look at our work with pets in Abuja, including boarding, veterinary care, and route-specific relocation coordination through Nnamdi Azikiwe International Airport.'];
         $this->setPageHead($metadata, [$this->webPageSchema($metadata)]);
 
         return view('pages.about.gallery', $metadata + [
@@ -160,7 +160,7 @@ final class AboutPagesController extends Controller
             'hero' => [
                 'eyebrow' => 'Photo Gallery',
                 'title' => 'A Look Inside Waggies',
-                'description' => 'Take a closer look at Waggies and the work we do with pets.',
+                'description' => 'Take a closer look at Waggies and our work with pets in Abuja, including boarding, veterinary care, and route-specific relocation coordination through Nnamdi Azikiwe International Airport.',
             ],
         ];
     }
