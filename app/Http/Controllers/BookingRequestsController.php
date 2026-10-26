@@ -17,11 +17,11 @@ final class BookingRequestsController extends Controller
     public function create(Request $request, BookingWhatsAppMessage $bookingWhatsAppMessage): View
     {
         $metadata = [
-            'title' => 'Request a Service - Waggies Pet Care Abuja',
-            'description' => 'Send Waggies a booking request for boarding, veterinary care, or pet relocation in Abuja.',
+            'title' => 'Pet Boarding, Vet Care & Relocation Requests | Waggies',
+            'description' => 'Request dog or cat boarding or veterinary care in Abuja, or ask about pet import or export through Nnamdi Azikiwe International Airport in Abuja. Every request is reviewed and quoted.',
             'canonical' => route('book'),
-            'ogTitle' => 'Request a Service - Waggies Pet Care Abuja',
-            'ogDescription' => 'Tell Waggies what your pet needs and our team will confirm the details with you.',
+            'ogTitle' => 'Pet Boarding, Vet Care & Relocation Requests | Waggies',
+            'ogDescription' => 'Request dog or cat boarding or veterinary care in Abuja, or ask about pet import or export through Nnamdi Azikiwe International Airport in Abuja. Every request is reviewed and quoted.',
         ];
 
         $this->setPageHead($metadata, [

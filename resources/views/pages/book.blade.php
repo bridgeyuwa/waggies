@@ -7,7 +7,7 @@
         eyebrow="BOOKING REQUEST"
         title-id="booking-page-title"
         title="Tell us what your pet needs"
-        description="Choose your services, add your pets, and send one clear request for Waggies to review."
+        description="Tell us what your pet needs. Our team will review the details and get back to you with availability and a quote. Pet relocation arrangements depend on the route."
         class="bg-surface-purple [&_[data-page-intro-content]]:py-8 md:[&_[data-page-intro-content]]:py-8"
     />
 
@@ -21,7 +21,7 @@
                         </div>
                         <div>
                             <h2 id="booking-form-title" class="font-serif text-2xl font-bold text-primary-dark">Your request was received</h2>
-                            <p class="mt-3 max-w-xl text-sm leading-relaxed text-primary-dark/70">Our team will review your service, date, and pet details, then contact you to confirm the arrangements. Your requested time is not reserved until Waggies confirms it.</p>
+                            <p class="mt-3 max-w-xl text-sm leading-relaxed text-primary-dark/70">Our team will review your service, date, and pet details, then contact you to confirm the arrangements. Your booking is confirmed only after Waggies confirms it with you.</p>
                         </div>
                         <x-waggies.booking-request-success-actions :whatsapp-url="$whatsappUrl" />
                     </div>
