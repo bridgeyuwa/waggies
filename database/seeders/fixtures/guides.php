@@ -169,7 +169,7 @@ HTML,
 <p>The consignee and notify party on the airway bill must be correct. Keep the original documents in the carrier’s required document pouch and keep copies with the owner and receiving agent.</p>
 
 <h2>Arrival in Nigeria</h2>
-<p>Notify the relevant Nigerian authorities as required, present the original permit and health documents, and make the named receiver available for inspection and clearance. Waggies can coordinate Abuja airport collection and onward handover, but release remains subject to the competent authorities and carrier.</p>
+<p>Notify the relevant Nigerian authorities as required, present the original permit and health documents, and make the named receiver available for inspection and clearance. Waggies can coordinate collection at Nnamdi Azikiwe International Airport in Abuja and onward handover, but release remains subject to the competent authorities and carrier.</p>
 
 <h2>Common mistakes</h2>
 <ul>
@@ -313,7 +313,7 @@ HTML,
 
 <h2>6. Arrival and Nigerian clearance</h2>
 <p>Notify the relevant Nigerian authority as required, present the original permit and veterinary documents, and make the receiver available for inspection. NAQS may inspect the animal and documents and may direct quarantine or further controls when the requirements are not met.</p>
-<p>Waggies can coordinate Abuja airport collection and onward handover after the competent authorities and carrier release the pet.</p>
+<p>Waggies can coordinate collection at Nnamdi Azikiwe International Airport in Abuja and onward handover after the competent authorities and carrier release the pet.</p>
 
 <h2>How Waggies helps</h2>
 <p>Send the departure province and airport, Nigerian destination, pet records, preferred arrival window, and receiver details. We will separate the South African certification work from the Nigerian import and clearance work, then put both into one route checklist.</p>
@@ -379,7 +379,7 @@ HTML,
 
 <h2>6. Nigerian inspection and collection</h2>
 <p>NAQS may inspect the pet and the accompanying records at the point of entry. The receiver should be ready with identification, contact details, and the ability to respond to any inspection or clearance request.</p>
-<p>Waggies can coordinate Abuja airport collection and onward handover after the authority and airline release the pet.</p>
+<p>Waggies can coordinate collection at Nnamdi Azikiwe International Airport in Abuja and onward handover after the authority and airline release the pet.</p>
 
 <h2>Common mistakes on this route</h2>
 <ul>

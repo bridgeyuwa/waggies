@@ -10,7 +10,7 @@ final class RelocationController extends Controller
 {
     public function index(): View
     {
-        $description = 'Bringing a pet to Nigeria or travelling abroad with one? Waggies coordinates import and export support via Abuja Airport (ABV), with quotes tailored to each route.';
+        $description = 'Waggies reviews route-specific pet import and export requests through Nnamdi Azikiwe International Airport in Abuja and confirms available services in a quote.';
         $metadata = ['title' => 'Pet Relocation to and from Nigeria | Waggies', 'description' => $description, 'canonical' => route('services.relocation'), 'ogTitle' => 'Pet Relocation to and from Nigeria | Waggies', 'ogDescription' => $description];
         $this->setPageHead($metadata, [$this->serviceSchema('Pet Relocation to and from Nigeria', $metadata)]);
 
@@ -18,7 +18,7 @@ final class RelocationController extends Controller
             'navSection' => 'services',
             'hero' => ['imageSrc' => '/media/services/relocation/hero.jpg', 'imageAlt' => 'International pet relocation service by Waggies'],
             'cards' => [
-                ['title' => 'Pet Import to Nigeria', 'description' => 'Import permits, veterinary and health documents, customs clearance, and Abuja airport pickup. Scope depends on route and quote.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
+                ['title' => 'Pet Import to Nigeria', 'description' => 'Import permits, veterinary and health documents, customs clearance, and pickup at Nnamdi Azikiwe International Airport in Abuja. Scope depends on route and quote.', 'route' => 'relocation.import', 'imageSrc' => '/media/services/relocation/card-import.jpg', 'imageAlt' => 'Pet Import to Nigeria', 'icon' => 'airport-arrival'],
                 ['title' => 'Pet Export from Nigeria', 'description' => 'Export permits, veterinary documents, crate planning, airline booking, and departure airport transport. Scope depends on route and quote.', 'route' => 'relocation.export', 'imageSrc' => '/media/services/relocation/card-export.jpg', 'imageAlt' => 'Pet Export from Nigeria', 'icon' => 'airport-departure'],
             ],
             'faqs' => $this->serviceFaqs(),
@@ -52,7 +52,7 @@ final class RelocationController extends Controller
         return [
             'import' => [
                 'metaTitle' => 'Pet Import to Nigeria',
-                'description' => 'Bringing a pet into Nigeria? Waggies coordinates route-specific permits, health documents, customs steps, and pickup at Abuja Airport (ABV). Request a quote.',
+                'description' => 'Bringing a pet into Nigeria? Waggies reviews your route to Nnamdi Azikiwe International Airport in Abuja and quotes available import support.',
                 'ogTitle' => 'Import Pets to Nigeria - Waggies Abuja',
                 'hero' => [
                     'imageSrc' => '/media/services/relocation/import/hero.jpg',
@@ -132,7 +132,7 @@ final class RelocationController extends Controller
                     2 => [
                         'step' => '03',
                         'title' => 'Coordinate arrival',
-                        'description' => 'We coordinate customs clearance and Abuja airport pickup. Airport pickup is not door-to-door delivery; any post-arrival care is arranged separately.',
+                        'description' => 'We coordinate customs clearance and pickup at Nnamdi Azikiwe International Airport in Abuja. This is airport pickup, not door-to-door delivery; any post-arrival care is arranged separately.',
                     ],
                 ],
                 'cta' => [
@@ -151,7 +151,7 @@ final class RelocationController extends Controller
             ],
             'export' => [
                 'metaTitle' => 'Pet Export from Nigeria',
-                'description' => 'Planning to travel abroad with your pet? Waggies coordinates route-specific documents, crate and airline arrangements, and transport to Abuja Airport (ABV). Request a quote.',
+                'description' => 'Travelling abroad with your pet? Waggies reviews your route through Nnamdi Azikiwe International Airport in Abuja and quotes available export support.',
                 'ogTitle' => 'Export Pets from Nigeria - Waggies Abuja',
                 'hero' => [
                     'imageSrc' => '/media/services/relocation/export/hero.jpg',
@@ -178,7 +178,7 @@ final class RelocationController extends Controller
                 'sectionHeading' => [
                     'eyebrow' => 'Export Process',
                     'title' => 'Export Support We Can Coordinate',
-                    'subtitle' => 'We review each route through Abuja Airport (ABV), then confirm the available support and cost in a quote.',
+                    'subtitle' => 'We review each route through Nnamdi Azikiwe International Airport in Abuja, then confirm the available support and cost in a quote.',
                 ],
                 'features' => [
                     0 => [
