@@ -7,7 +7,7 @@
         eyebrow="BOOKING REQUEST"
         title-id="booking-page-title"
         title="Tell us what your pet needs"
-        description="Tell us what your pet needs. Our team will review the details and get back to you with availability and a quote. Pet relocation arrangements depend on the route."
+        description="Select the services your pet needs and share the relevant details. Our team will review your request and contact you about availability and next steps. Relocation options and pricing depend on the route."
         class="bg-surface-purple [&_[data-page-intro-content]]:py-8 md:[&_[data-page-intro-content]]:py-8"
     />
 

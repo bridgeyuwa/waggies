@@ -18,10 +18,10 @@ final class BookingRequestsController extends Controller
     {
         $metadata = [
             'title' => 'Pet Boarding, Vet Care & Relocation Requests | Waggies',
-            'description' => 'Request dog or cat boarding or veterinary care in Abuja, or ask about pet import or export through Nnamdi Azikiwe International Airport in Abuja. Every request is reviewed and quoted.',
+            'description' => 'Request dog or cat boarding or veterinary care in Abuja, or ask about pet import or export through Nnamdi Azikiwe International Airport in Abuja. Waggies reviews availability; relocation options and pricing depend on the route.',
             'canonical' => route('book'),
             'ogTitle' => 'Pet Boarding, Vet Care & Relocation Requests | Waggies',
-            'ogDescription' => 'Request dog or cat boarding or veterinary care in Abuja, or ask about pet import or export through Nnamdi Azikiwe International Airport in Abuja. Every request is reviewed and quoted.',
+            'ogDescription' => 'Request dog or cat boarding or veterinary care in Abuja, or ask about pet import or export through Nnamdi Azikiwe International Airport in Abuja. Waggies reviews availability; relocation options and pricing depend on the route.',
         ];
 
         $this->setPageHead($metadata, [
