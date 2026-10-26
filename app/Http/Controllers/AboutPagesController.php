@@ -85,7 +85,7 @@ final class AboutPagesController extends Controller
     public function partnerships(): View
     {
         $page = $this->partnershipsPage();
-        $metadata = ['title' => 'Partnerships', 'description' => 'Waggies partners with veterinary clinics, pet retailers, breeders, and corporate organisations who share our commitment to animal welfare.', 'canonical' => route('about.partnerships'), 'ogTitle' => 'Partnerships - Waggies Pet Care Abuja', 'ogDescription' => 'Waggies partners with veterinary clinics, pet retailers, breeders, and corporate organisations who share our commitment to animal welfare.'];
+        $metadata = ['title' => 'Pet Care Partnerships in Abuja | Waggies', 'description' => 'Explore potential collaborations with Waggies in Abuja. Veterinary clinics, breeders, pet retailers, employers, property developers, and animal-welfare organisations can contact us to discuss fit and scope.', 'canonical' => route('about.partnerships'), 'ogTitle' => 'Pet Care Partnerships in Abuja | Waggies', 'ogDescription' => 'Explore potential collaborations with Waggies in Abuja. Veterinary clinics, breeders, pet retailers, employers, property developers, and animal-welfare organisations can contact us to discuss fit and scope.'];
         $this->setPageHead($metadata, [$this->webPageSchema($metadata)]);
 
         return view('pages.about.partnerships', $metadata + [
@@ -220,44 +220,44 @@ final class AboutPagesController extends Controller
         return [
             'hero' => [
                 'eyebrow' => 'Partnerships',
-                'title' => 'Better Together',
-                'description' => 'We partner with aligned organisations  -  vets, breeders, pet retailers, and businesses  -  who share our commitment to animal welfare and quality care.',
+                'title' => 'Explore Partnership Opportunities',
+                'description' => 'Waggies is open to conversations with veterinary clinics, breeders, pet retailers, employers, property developers, and animal-welfare organisations in Abuja. Each collaboration is discussed individually; scope and terms depend on agreement.',
             ],
             'typesHeading' => [
                 'eyebrow' => 'Partnership Types',
                 'title' => 'How We Work<br/>With Partners',
-                'subtitle' => 'Whether you\'re a veterinary clinic, a pet shop, or a corporate with pet-owning employees, we have a partnership model that works.',
+                'subtitle' => 'These are potential areas for collaboration. We discuss scope and terms with each organisation individually.',
             ],
             'types' => [
                 0 => [
                     'icon' => 'medical',
                     'title' => 'Veterinary Clinics',
-                    'desc' => 'Cross-referral partnerships with vet clinics across Abuja  -  ensuring continuity of care for shared patients.',
+                    'desc' => 'Discuss possible referrals or collaboration with clinics in Abuja. Any arrangement depends on agreed scope and responsibilities.',
                 ],
                 1 => [
                     'icon' => 'partnership',
                     'title' => 'Pet Retailers',
-                    'desc' => 'Partner with pet shops and suppliers to offer our clients exclusive product discounts and bundled services.',
+                    'desc' => 'Discuss ways to connect pet owners with relevant products or Waggies services. Discounts or bundles apply only if agreed in advance.',
                 ],
                 2 => [
                     'icon' => 'pets',
                     'title' => 'Breeders',
-                    'desc' => 'We work with licensed breeders to provide early socialisation and health checks for new litters.',
+                    'desc' => 'Discuss responsible pet-care referrals and support that fits Waggies\' confirmed veterinary scope.',
                 ],
                 3 => [
                     'icon' => 'partnership',
                     'title' => 'Corporate Partners',
-                    'desc' => 'Corporate employee benefit packages  -  discounted Waggies services for your pet-owning staff.',
+                    'desc' => 'Discuss possible pet-care information or employee benefit options; availability and terms depend on agreement.',
                 ],
                 4 => [
                     'icon' => 'boarding',
                     'title' => 'Property Developers',
-                    'desc' => 'Partner with residential developers to offer Waggies services to residents as a convenient amenity.',
+                    'desc' => 'Discuss ways for residents to learn about Waggies\' services. Service availability depends on location and confirmation.',
                 ],
                 5 => [
                     'icon' => 'community',
                     'title' => 'NGOs & Rescue Orgs',
-                    'desc' => 'We support animal rescue and welfare NGOs with discounted services and pro bono care where we can.',
+                    'desc' => 'Discuss possible animal-welfare support, subject to capacity and agreed scope.',
                 ],
             ],
             'cta' => [
