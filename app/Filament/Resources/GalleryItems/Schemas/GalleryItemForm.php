@@ -54,10 +54,10 @@ class GalleryItemForm
                 Section::make('Placement and publication')
                     ->schema([
                         Grid::make(2)->schema([
-                            TextInput::make('category')
+                            Select::make('category')
+                                ->options(GalleryItem::categoryOptions())
                                 ->required()
-                                ->maxLength(80)
-                                ->helperText('Examples: Boarding, Veterinary, Relocation.'),
+                                ->helperText('Choose the service shown in this image.'),
                             TextInput::make('sort_order')
                                 ->label('Display order')
                                 ->numeric()

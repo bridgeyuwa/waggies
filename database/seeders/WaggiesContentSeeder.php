@@ -212,7 +212,7 @@ final class WaggiesContentSeeder extends Seeder
         $aboutPages = require database_path('seeders/fixtures/about_pages.php');
 
         foreach ($aboutPages['gallery']['images'] ?? [] as $sortOrder => $image) {
-            if (! in_array($image['category'], ['Boarding', 'Veterinary', 'Relocation'], true)) {
+            if (! array_key_exists($image['category'], GalleryItem::categoryOptions())) {
                 continue;
             }
 

@@ -47,6 +47,10 @@ final class GalleryItem extends Model implements HasMedia
                 throw new InvalidArgumentException("Invalid Gallery Item status [{$item->status}].");
             }
 
+            if (! array_key_exists($item->category, self::categoryOptions()) && $item->status !== self::STATUS_ARCHIVED) {
+                throw new InvalidArgumentException("Invalid Gallery Item category [{$item->category}].");
+            }
+
             if ($item->status === self::STATUS_PUBLISHED && $item->published_at === null) {
                 $item->published_at = now();
             }
@@ -96,6 +100,18 @@ final class GalleryItem extends Model implements HasMedia
             self::STATUS_DRAFT => 'Draft',
             self::STATUS_PUBLISHED => 'Published',
             self::STATUS_ARCHIVED => 'Archived',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function categoryOptions(): array
+    {
+        return [
+            'Boarding' => 'Boarding',
+            'Veterinary' => 'Veterinary',
+            'Relocation' => 'Relocation',
         ];
     }
 
