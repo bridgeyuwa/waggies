@@ -3,7 +3,7 @@
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Guides']]" class="bg-white border-b border-primary/5" />
 
-    <x-waggies.page-header alignment="center" eyebrow="Guides" eyebrow-icon="guide" title="Pet Care Guides" description="Step-by-step guides to help you give your pets the best care." />
+    <x-waggies.page-header alignment="center" eyebrow="Guides" eyebrow-icon="guide" title="Pet Care Guides" description="Explore educational guides on pet care, health, boarding, and travel for dogs and cats." />
 
     <section x-data="waggiesGuidesIndex('{{ $initialCategory }}')" class="page-container py-12 md:py-20">
         <div class="flex flex-wrap gap-2 mb-10">
