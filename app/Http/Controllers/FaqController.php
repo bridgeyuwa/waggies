@@ -31,7 +31,7 @@ final class FaqController extends Controller
         ];
         $category = (string) $request->query('category', '');
         $category = $category === '' ? null : $category;
-        $meta = $categoryMeta[$category] ?? ['title' => 'Pet Boarding, Veterinary Care & Relocation FAQs', 'description' => 'Find answers to common questions about pet care with Waggies. Our team provides boarding and veterinary care in Abuja, and reviews each pet relocation request by route.'];
+        $meta = $categoryMeta[$category] ?? ['title' => 'Pet Boarding, Veterinary Care & Relocation FAQs | Waggies', 'description' => 'Planning care or travel for your pet? Find practical answers about boarding and veterinary care in Abuja, and how Waggies reviews each relocation route.'];
         $isPublishedCategory = isset($categoryMeta[$category]);
         $canonical = $isPublishedCategory ? route('faq', ['category' => $category]) : route('faq');
         $schemaFaqs = $isPublishedCategory
@@ -41,7 +41,7 @@ final class FaqController extends Controller
             'title' => $meta['title'],
             'description' => $meta['description'],
             'canonical' => $canonical,
-            'ogTitle' => $meta['title'].' - Waggies',
+            'ogTitle' => str_ends_with($meta['title'], 'Waggies') ? $meta['title'] : $meta['title'].' - Waggies',
             'ogDescription' => $meta['description'],
             'robots' => $category === null || $isPublishedCategory ? ['index', 'follow'] : ['noindex', 'follow'],
         ];
@@ -60,7 +60,7 @@ final class FaqController extends Controller
                 'eyebrow' => 'Help Centre',
                 'eyebrowIcon' => 'help',
                 'title' => 'FAQs About Pet Boarding, Veterinary Care & Pet Relocation',
-                'description' => 'Find answers to common questions about pet care with Waggies. Our team provides boarding and veterinary care in Abuja, and reviews each pet relocation request by route.',
+                'description' => 'Find out what to expect when arranging care or travel for your pet. If the details depend on your pet or route, the Waggies team will review them with you.',
             ],
             'faqs' => $faqs,
             'faqsByCategory' => $faqsByCategory,

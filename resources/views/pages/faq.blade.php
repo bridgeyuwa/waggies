@@ -16,7 +16,7 @@
         <div x-show="!query.trim()" x-transition class="mx-auto mb-10 max-w-3xl overflow-hidden">
             <div class="flex flex-wrap items-center gap-2">
                 <span class="mr-1 text-xs font-bold uppercase tracking-widest text-primary/60">Popular:</span>
-                <template x-for="item in popular" :key="item.id"><button type="button" @click="popularClick(item.id)" class="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-surface-purple px-4 py-2.5 text-xs font-semibold text-primary-dark shadow-sm transition hover:bg-primary hover:text-white"><x-waggies.icon name="progress" size="14" /> <span x-text="item.label"></span></button></template>
+                <template x-for="item in popular" :key="item.question"><button type="button" @click="popularClick(item.question)" class="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-surface-purple px-4 py-2.5 text-xs font-semibold text-primary-dark shadow-sm transition hover:bg-primary hover:text-white"><x-waggies.icon name="progress" size="14" /> <span x-text="item.label"></span></button></template>
             </div>
         </div>
 

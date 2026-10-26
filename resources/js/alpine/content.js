@@ -2,7 +2,7 @@ const waggiesShare = (title, description) => ({ copied: false, checkIcon: '<span
 
 const faqPage = (faqs, categories) => ({
     faqs, categories, active: new URLSearchParams(window.location.search).get('category') || 'all', query: '',
-    popular: [{ id: 19, label: 'How do I make a booking?' }, { id: 1, label: 'What do I need to bring for check-in?' }, { id: 10, label: 'How early to plan a pet relocation?' }],
+    popular: [{ question: 'How do I make a booking?', label: 'How do I make a booking?' }, { question: 'What do I need to bring for check-in?', label: 'What do I need to bring for check-in?' }, { question: 'What information should I provide for a pet import request?', label: 'What do I need for a pet import?' }],
     init() { if (!this.categories.includes(this.active)) this.active = 'all'; },
     select(category) { this.active = category; const url = new URL(window.location.href); category === 'all' ? url.searchParams.delete('category') : url.searchParams.set('category', category); history.replaceState({}, '', url); },
     tabId(category) { return `faq-tab-${String(category).replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase()}`; },
@@ -11,7 +11,7 @@ const faqPage = (faqs, categories) => ({
     faqVisible(id) { const faq = this.faqs.find(item => item.id === id); if (!faq) return false; return this.query.trim() ? this.matches(faq) : this.active === 'all' || faq.category === this.active; },
     categoryVisible(category) { return this.query.trim() ? this.faqs.some(faq => faq.category === category && this.matches(faq)) : this.active === 'all' || this.active === category; },
     highlight(text) { const escaped = text.replace(/[&<>\"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', "'": '&#039;' }[char])); const q = this.query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); return q ? escaped.replace(new RegExp(`(${q})`, 'gi'), '<mark class="rounded bg-primary/15 px-0.5 py-0.5 text-primary-dark">$1</mark>') : escaped; },
-    popularClick(id) { const faq = this.faqs.find(item => item.id === id); if (!faq) return; this.select(faq.category); requestAnimationFrame(() => requestAnimationFrame(() => { const node = document.querySelector(`[data-faq-id="${id}"]`); if (node) { node.open = true; node.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); node.focus(); } })); },
+    popularClick(question) { const faq = this.faqs.find(item => item.question === question); if (!faq) return; const id = faq.id; this.select(faq.category); requestAnimationFrame(() => requestAnimationFrame(() => { const node = document.querySelector(`[data-faq-id="${id}"]`); if (node) { node.open = true; node.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); node.focus(); } })); },
     tabKeydown(event) {
         const currentTab = event.target.closest('[role="tab"]');
         const tabs = [...event.currentTarget.querySelectorAll('[role="tab"]')]
