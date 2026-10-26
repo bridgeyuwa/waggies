@@ -101,7 +101,7 @@ final class AboutPagesController extends Controller
                 'eyebrow' => 'What Clients Say',
                 'eyebrowIcon' => 'reviews',
                 'title' => 'What Waggies Clients Say',
-                'description' => 'Hear from pet owners about their experience with Waggies.',
+                'description' => 'Read client feedback on Waggies dog and cat boarding, veterinary care, and route-specific pet import and export through Nnamdi Azikiwe International Airport in Abuja.',
                 'imageSrc' => '/media/about/testimonials/hero.jpg',
                 'imageAlt' => 'Dog at Waggies boarding facility',
                 'actions' => [
