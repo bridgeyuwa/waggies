@@ -23,11 +23,11 @@ final class AboutController extends Controller
         }
 
         $metadata = [
-            'title' => 'About Waggies - Pet Care in Abuja',
-            'description' => 'Waggies is a pet care centre in Abuja offering boarding, veterinary care, and dog and cat relocation.',
+            'title' => 'About Waggies | Pet Services in Abuja',
+            'description' => 'Waggies Pet Services provides dog and cat boarding and veterinary care in Abuja, with route-specific pet import and export coordination.',
             'canonical' => route('about'),
-            'ogTitle' => 'About Waggies - Pet Care in Abuja',
-            'ogDescription' => 'Waggies is a pet care centre in Abuja offering boarding, veterinary care, and dog and cat relocation.',
+            'ogTitle' => 'About Waggies | Pet Services in Abuja',
+            'ogDescription' => 'Waggies Pet Services provides dog and cat boarding and veterinary care in Abuja, with route-specific pet import and export coordination.',
         ];
 
         $this->setPageHead($metadata, [
@@ -42,7 +42,7 @@ final class AboutController extends Controller
             'navSection' => 'about',
             'hero' => [
                 'title' => 'Meet the Waggies Team in Abuja',
-                'description' => 'Boarding, veterinary care, and dog and cat relocation - all coordinated through one clear request process.',
+                'description' => 'At our Abuja centre, we provide dog and cat boarding and veterinary care. We also coordinate pet import and export requests for routes through Nnamdi Azikiwe International Airport.',
                 'actions' => [
                     ['label' => 'Submit Booking Request', 'url' => route('book')],
                     ['label' => 'Explore Services', 'url' => route('services.index')],
