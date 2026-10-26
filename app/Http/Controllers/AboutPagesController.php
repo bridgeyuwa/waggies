@@ -265,6 +265,7 @@ final class AboutPagesController extends Controller
                 'body' => 'We\'d love to explore how we can work together. Get in touch to start the conversation.',
                 'ctaLabel' => 'Get in Touch',
                 'ctaRoute' => 'contact',
+                'ctaParams' => ['intent' => 'general', 'source' => 'partnership'],
                 'ctaIcon' => 'arrow-forward',
             ],
         ];
