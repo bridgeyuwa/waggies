@@ -62,15 +62,15 @@ final class AboutPagesController extends Controller
         $openRoles = JobOpening::query()->open()->orderBy('sort_order')->orderBy('title')->get();
         $hasOpenRoles = $openRoles->isNotEmpty();
         $metadata = [
-            'title' => 'Careers at Waggies',
+            'title' => 'Pet Care Careers in Abuja | Waggies',
             'description' => $hasOpenRoles
-                ? 'Explore current opportunities with the Waggies pet care team in Abuja.'
-                : 'Learn about working at Waggies and check back when new pet care opportunities open.',
+                ? 'Explore current pet-care job openings with Waggies in Abuja. Review each role’s details and requirements, then contact the team with questions.'
+                : 'Learn about working with Waggies in Abuja. No pet-care openings are currently available; check back for future roles.',
             'canonical' => route('about.careers'),
-            'ogTitle' => 'Careers at Waggies',
+            'ogTitle' => 'Pet Care Careers in Abuja | Waggies',
             'ogDescription' => $hasOpenRoles
-                ? 'Explore current opportunities with the Waggies pet care team in Abuja.'
-                : 'There are no current openings at Waggies right now.',
+                ? 'Explore current pet-care job openings with Waggies in Abuja. Review each role’s details and requirements, then contact the team with questions.'
+                : 'Learn about working with Waggies in Abuja. No pet-care openings are currently available; check back for future roles.',
         ];
         $this->setPageHead($metadata, [$this->webPageSchema($metadata)]);
 
@@ -172,8 +172,8 @@ final class AboutPagesController extends Controller
                 'imageSrc' => '/media/about/careers/team.jpg',
                 'imageAlt' => 'A diverse pet-care team',
                 'eyebrow' => 'Careers',
-                'title' => 'Join the Waggies Pack',
-                'description' => 'Build a career doing what you love — caring for pets in Abuja\'s premier pet care facility.',
+                'title' => 'Careers at Waggies',
+                'description' => 'Explore pet-care work at Waggies in Abuja. Review current roles and requirements, then contact us with questions.',
                 'actions' => [
                     0 => [
                         'label' => 'View Open Roles',
@@ -189,8 +189,8 @@ final class AboutPagesController extends Controller
             'perks' => [
                 0 => [
                     'icon' => 'training',
-                    'title' => 'Paid Training',
-                    'desc' => 'Fully funded professional development and certification for all team members.',
+                    'title' => 'Training & Development',
+                    'desc' => 'Training and development options vary by role.',
                 ],
                 1 => [
                     'icon' => 'favorite',
@@ -205,7 +205,7 @@ final class AboutPagesController extends Controller
                 3 => [
                     'icon' => 'progress',
                     'title' => 'Room to Grow',
-                    'desc' => 'We promote from within and invest in the long-term careers of our staff.',
+                    'desc' => 'Career growth depends on role requirements and available opportunities.',
                 ],
             ],
             'openRolesHeading' => [
