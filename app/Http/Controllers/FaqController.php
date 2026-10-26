@@ -31,7 +31,7 @@ final class FaqController extends Controller
         ];
         $category = (string) $request->query('category', '');
         $category = $category === '' ? null : $category;
-        $meta = $categoryMeta[$category] ?? ['title' => 'Frequently Asked Questions', 'description' => 'Quick answers to the questions we hear most often about Waggies boarding, veterinary care, and relocation services in Abuja.'];
+        $meta = $categoryMeta[$category] ?? ['title' => 'Pet Boarding, Veterinary Care & Relocation FAQs', 'description' => 'Find answers to common questions about pet care with Waggies. Our team provides boarding and veterinary care in Abuja, and reviews each pet relocation request by route.'];
         $isPublishedCategory = isset($categoryMeta[$category]);
         $canonical = $isPublishedCategory ? route('faq', ['category' => $category]) : route('faq');
         $schemaFaqs = $isPublishedCategory
@@ -59,8 +59,8 @@ final class FaqController extends Controller
                 'imageAlt' => 'Pets relaxing together',
                 'eyebrow' => 'Help Centre',
                 'eyebrowIcon' => 'help',
-                'title' => 'Frequently Asked Questions',
-                'description' => "Quick answers to the questions we hear most often. Can't find what you need? Contact us directly.",
+                'title' => 'FAQs About Pet Boarding, Veterinary Care & Pet Relocation',
+                'description' => 'Find answers to common questions about pet care with Waggies. Our team provides boarding and veterinary care in Abuja, and reviews each pet relocation request by route.',
             ],
             'faqs' => $faqs,
             'faqsByCategory' => $faqsByCategory,
