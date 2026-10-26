@@ -23,7 +23,7 @@ final class PublicUrlCatalog
             'knowledge-base.index', 'tools.index', 'tools.symptom-checker', 'tools.pet-age',
             'tools.vaccination', 'tools.nutrition',
             'tools.emergency', 'tools.new-pet-checklist', 'tools.parasite', 'tools.behavior-tips',
-            'tools.breed-finder', 'faq', 'contact', 'book', 'loyalty', 'privacy-policy',
+            'tools.breed-finder', 'faq', 'contact', 'book', 'privacy-policy',
             'terms-of-service', 'cookies-policy', 'boarding-policy', 'cancellation-policy', 'relocation-policy',
         ];
 

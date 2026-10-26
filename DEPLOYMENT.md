@@ -142,7 +142,7 @@ WhatsApp is a handoff URL from the database-backed BusinessProfile; it is not an
 Run after every production deployment:
 
 - `GET /up` returns success without diagnostics.
-- Homepage, Services, Pricing, Booking, Contact, Shop, one product detail, Guides, Knowledge Base, FAQ, Gallery, Careers, Loyalty, and the existing search endpoint load.
+- Homepage, Services, Pricing, Booking, Contact, Shop, one product detail, Guides, Knowledge Base, FAQ, Gallery, Careers, and the existing search endpoint load.
 - `/sitemap.xml` returns canonical URLs for the current `APP_URL`; `/robots.txt` disallows `/admin/` and `/api/`.
 - Booking, Contact, Newsletter, and Testimonial forms reject invalid input and keep the documented request boundary.
 - A guest request to `/admin` redirects to authentication; an authenticated staff check is performed separately with authorized credentials for the target environment.

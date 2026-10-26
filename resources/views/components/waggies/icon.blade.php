@@ -98,7 +98,6 @@
         'quotes' => ['outlined' => 'format_quote.svg', 'filled' => 'format_quote-fill.svg'],
         'star' => ['outlined' => 'star.svg', 'filled' => 'star-fill.svg'],
         'reviews' => ['outlined' => 'reviews.svg', 'filled' => 'reviews-fill.svg'],
-        'loyalty' => ['outlined' => 'card_membership.svg', 'filled' => 'card_membership-fill.svg'],
         'global' => ['outlined' => 'public.svg', 'filled' => 'public-fill.svg'],
         'values' => ['outlined' => 'diamond.svg', 'filled' => 'diamond-fill.svg'],
         'process' => ['outlined' => 'sync.svg', 'filled' => 'sync-fill.svg'],

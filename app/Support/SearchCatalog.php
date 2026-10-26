@@ -25,7 +25,6 @@ final class SearchCatalog
             ['key' => 'faq', 'type' => 'page', 'title' => 'FAQ', 'excerpt' => 'Answers to common questions about Waggies services, preparation, care and bookings.', 'route' => 'faq', 'section' => 'Support', 'category' => 'Page', 'keywords' => 'questions answers help', 'boost' => 8],
             ['key' => 'contact', 'type' => 'page', 'title' => 'Contact', 'excerpt' => 'Contact Waggies in Abuja for a service request, booking request, quote or general question.', 'route' => 'contact', 'section' => 'Support', 'category' => 'Page', 'keywords' => 'contact phone WhatsApp booking request', 'boost' => 8],
             ['key' => 'careers', 'type' => 'page', 'title' => 'Careers at Waggies', 'excerpt' => 'See current job openings and learn how to apply to join the Waggies team.', 'route' => 'about.careers', 'section' => 'About', 'category' => 'Page', 'keywords' => 'jobs careers vacancies employment', 'boost' => 6],
-            ['key' => 'loyalty', 'type' => 'page', 'title' => 'Loyalty Programme', 'excerpt' => 'Learn about Waggies loyalty benefits and ask the team about current eligibility.', 'route' => 'loyalty', 'section' => 'About', 'category' => 'Page', 'keywords' => 'loyalty rewards benefits', 'boost' => 6],
         ];
 
         if (config('services.waggies_shop.enabled', false)) {

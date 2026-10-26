@@ -12,7 +12,6 @@ use App\Http\Controllers\GuidesController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KnowledgeBaseController;
 use App\Http\Controllers\LegalController;
-use App\Http\Controllers\LoyaltyController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\RelocationController;
 use App\Http\Controllers\RobotsController;
@@ -39,8 +38,6 @@ if (app()->isLocal()) {
 }
 
 Route::get('/', HomeController::class)->name('home');
-Route::permanentRedirect('/service-hero-boarding-cats.jpg', '/media/services/boarding/hero-cats.jpg');
-Route::permanentRedirect('/service-hero-boarding-dogs.jpg', '/media/services/boarding/hero-dogs.jpg');
 Route::get('/about', AboutController::class)->name('about');
 Route::controller(AboutPagesController::class)->group(function (): void {
     Route::get('/about/testimonials', 'testimonials')->name('about.testimonials');
@@ -75,7 +72,6 @@ Route::controller(BookingRequestsController::class)->group(function (): void {
         ->middleware('throttle:booking-requests')
         ->name('booking-requests.store');
 });
-Route::get('/loyalty', LoyaltyController::class)->name('loyalty');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/shop/{product}', [ShopController::class, 'show'])->where('product', '[a-z0-9-]+')->name('shop.show');
 Route::get('/guides', [GuidesController::class, 'index'])->name('guides.index');

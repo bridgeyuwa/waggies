@@ -44,7 +44,7 @@ final class ContactContextResolver
             'veterinary' => 'VETERINARY_REQUEST', 'relocation' => 'RELOCATION_REQUEST',
             'product-inquiry' => 'PRODUCT_INQUIRY', 'cart-order' => 'CART_ORDER', 'contact' => 'CONTACT_REQUEST',
             'general' => 'GENERAL_INQUIRY', 'tool-assistance' => 'TOOL_ASSISTANCE', 'partnership' => 'PARTNERSHIP_REQUEST',
-            'careers' => 'CAREERS_REQUEST', 'loyalty' => 'LOYALTY_REQUEST',
+            'careers' => 'CAREERS_REQUEST',
         ];
 
         if (in_array($raw, ['book', 'save', 'consult'], true)) {
@@ -74,7 +74,7 @@ final class ContactContextResolver
 
     private function allowedSource(?string $value): string
     {
-        return in_array($value, ['contact-direct', 'pricing', 'service-page', 'product-page', 'partnership', 'careers', 'loyalty', 'tool'], true)
+        return in_array($value, ['contact-direct', 'pricing', 'service-page', 'product-page', 'partnership', 'careers', 'tool'], true)
             ? $value
             : 'contact-direct';
     }

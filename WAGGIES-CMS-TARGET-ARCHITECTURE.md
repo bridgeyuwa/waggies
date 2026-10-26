@@ -47,7 +47,7 @@ The important implemented journeys are:
 
 ### Informational, operational, commerce, and tools
 
-**Informational:** service education, about/company copy, guides, knowledge articles, FAQs, legal text, loyalty explanation, careers, partnerships, gallery captions, and trust copy.
+**Informational:** service education, about/company copy, guides, knowledge articles, FAQs, legal text, careers, partnerships, gallery captions, and trust copy.
 
 **Operational:** the current application accepts enquiries and stores newsletter/testimonial submissions. It does not allocate capacity, confirm a booking, schedule a pickup, manage a customer case, or send a transactional notification workflow.
 
@@ -65,7 +65,7 @@ The configuration files already express meaningful structure, even though they a
 - relocation subtypes and checklist content;
 - products, categories, features, images, and prices;
 - tool catalogues, reference data, schedules, and guidance;
-- about pages, gallery, testimonials/proof presentation, careers, partnerships, and loyalty copy;
+- about pages, gallery, testimonials/proof presentation, careers, and partnerships;
 - site navigation, contact details, service comparisons, and publication metadata assembled by controllers.
 
 This is evidence for a future typed model where relationships and independent editing are validated. It is not evidence that every config array should immediately become a table or CMS resource.
@@ -100,7 +100,7 @@ The following may look like editable page content but must remain application-ow
 | Calculators/tools | KEEP / ADAPT | Multiple route-backed tools and Alpine modules are implemented. | Keep algorithms and safety rules in code. CMS may manage reviewed explanatory text/reference rows only when a clear editor and review need exists. |
 | Shop catalogue | KEEP / ADAPT | Database-backed `Product` records with published slug detail routes and a client-side cart. | Keep the catalogue boundary without expanding it into orders, stock, payment, or fulfilment. |
 | Cart | KEEP / DEFER | Browser-local cart supports an enquiry/order-intent path; no order is created. | Keep the current interaction. Do not call it checkout or build order persistence without payment/fulfilment requirements. |
-| Loyalty | KEEP / DEFER | Public explanatory loyalty page is config-backed; no account, ledger, or redemption runtime exists. | Keep the page as informational content. Defer all account/points/redemption systems. |
+| Loyalty landing page | REMOVE | The public explanatory page has been withdrawn; no customer-facing benefits or eligibility details are published. | Keep future loyalty account, points, and redemption work deferred until commercial rules and ownership are approved. |
 | Careers | KEEP / ADAPT | Current careers page is informational. | Keep typed page content. Defer application intake and document workflow until recruitment ownership is validated. |
 | Partnerships | KEEP / ADAPT | Current partnership page is informational; prototype directory/logos are unverified. | Keep proposition content. Do not build a directory until there is a maintained partnership strategy and consented data. |
 | Company/about | KEEP / ADAPT | About and child pages are composed from controller/config data and include many claims. | Keep fixed page compositions with editable verified fields where useful. Require claim ownership and expiry for credentials, statistics, people, and guarantees. |
@@ -122,7 +122,7 @@ The following may look like editable page content but must remain application-ow
 - Contextual enquiry/contact as the primary conversion boundary.
 - Server-authoritative pricing and browser serialization of server-owned values.
 - Separate Guides and Knowledge Base domains.
-- Existing FAQ, testimonial moderation, gallery, shop/cart, tools, legal, careers, partnerships, and loyalty page concepts.
+- Existing FAQ, testimonial moderation, gallery, shop/cart, tools, legal, careers, and partnerships.
 - Semantic Waggies Blade components, design tokens, accessibility foundations, and focused tests.
 - Explicit SEO/publication inventory through `PublicUrlCatalog`.
 
