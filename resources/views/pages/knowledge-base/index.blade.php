@@ -3,7 +3,7 @@
 @section('content')
     <x-waggies.breadcrumb-strip :items="[['label' => 'Knowledge Base']]" class="bg-white border-b border-primary/5" />
 
-    <x-waggies.page-header alignment="center" eyebrow="Knowledge Base" eyebrow-icon="training" title="Pet Care Answers" description="Find quick, practical answers to common questions about pet care services and more." />
+    <x-waggies.page-header alignment="center" eyebrow="Knowledge Base" eyebrow-icon="training" title="Pet Care Answers" description="Browse practical articles on pet health, nutrition, behaviour, training, grooming, and getting started with a dog or cat. Search by topic or browse categories." />
 
     <section x-data="waggiesKnowledgeBase(@js($filterItems), @js($categories), @js($initialCategory), @js($initialSearch), {{ $currentPage }})" class="page-container py-12 md:py-20">
         <div class="flex flex-col sm:flex-row gap-4 mb-10">
@@ -29,7 +29,7 @@
 
         <div x-show="visibleCount() === 0" x-cloak class="text-center py-16">
             <x-waggies.icon name="search" size="48" class="mb-4 text-text-muted/40" />
-            <p class="text-text-muted text-body">No articles found. Try a different search term or category.</p>
+            <p class="text-text-muted text-body">No articles match that search. Try another term or choose a different category. Need help with a Waggies service? <a href="{{ route('contact') }}" class="font-semibold text-primary hover:underline">Contact our team.</a></p>
         </div>
 
         <nav x-show="totalPages() > 1" role="navigation" aria-label="Pagination Navigation" class="mt-12 flex items-center justify-between gap-4 flex-wrap">

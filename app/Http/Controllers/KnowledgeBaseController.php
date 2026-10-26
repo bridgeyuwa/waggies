@@ -29,14 +29,14 @@ final class KnowledgeBaseController extends Controller
         $requestedPage = max(1, $request->integer('page', 1));
 
         $metadata = [
-            'title' => 'Knowledge Base - Pet Care Answers - Waggies',
-            'description' => 'Quick answers to common questions about pet boarding, veterinary care, relocation, and general pet care from Waggies.',
+            'title' => 'Pet Care Answers for Dogs & Cats | Waggies',
+            'description' => 'Browse practical answers on pet health, nutrition, behaviour, training, grooming, and getting started with a dog or cat. Search by topic or choose a category.',
             'canonical' => route('knowledge-base.index'),
-            'ogTitle' => 'Knowledge Base - Pet Care Answers - Waggies',
-            'ogDescription' => 'Quick answers to common questions about pet boarding, veterinary care, relocation, and general pet care from Waggies.',
+            'ogTitle' => 'Pet Care Answers for Dogs & Cats | Waggies',
+            'ogDescription' => 'Browse practical answers on pet health, nutrition, behaviour, training, grooming, and getting started with a dog or cat. Search by topic or choose a category.',
             'robots' => $request->query() === [] ? ['index', 'follow'] : ['noindex', 'follow'],
         ];
-        $this->setPageHead($metadata, [Schema::collectionPage()->name('Knowledge Base')->description('Pet care answers from Waggies')->url($metadata['canonical'])->toArray()]);
+        $this->setPageHead($metadata, [Schema::collectionPage()->name('Knowledge Base')->description($metadata['description'])->url($metadata['canonical'])->toArray()]);
 
         return view('pages.knowledge-base.index', $metadata + [
             'navSection' => 'resources',
