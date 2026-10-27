@@ -103,11 +103,11 @@ final class SearchDocumentSynchronizer
     private function documentFor(Model $model): ?array
     {
         if ($model instanceof Guide) {
-            return $this->editorialDocument('guide', $model->getKey(), $model->title, $model->excerpt, $model->content, route('guides.show', ['slug' => $model->slug]), 'Guides', 'Guide', $model->published_at, $model->isIndexable());
+            return $this->editorialDocument('guide', $model->getKey(), $model->title, $model->excerpt, $model->content, route('guides.show', ['slug' => $model->slug]), 'Waggies Pet Handbook', 'Guide', $model->published_at, $model->isIndexable());
         }
 
         if ($model instanceof KnowledgeArticle) {
-            return $this->editorialDocument('knowledge-base', $model->getKey(), $model->title, $model->excerpt, $model->content, route('knowledge-base.show', ['slug' => $model->slug]), 'Knowledge Base', 'Knowledge Base', $model->published_at, $model->isIndexable());
+            return $this->editorialDocument('knowledge-base', $model->getKey(), $model->title, $model->excerpt, $model->content, route('knowledge-base.show', ['slug' => $model->slug]), 'Waggies Pet Handbook', 'Answer', $model->published_at, $model->isIndexable());
         }
 
         if ($model instanceof Product) {

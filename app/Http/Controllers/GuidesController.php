@@ -12,52 +12,6 @@ use Spatie\SchemaOrg\Schema;
 
 final class GuidesController extends Controller
 {
-    public function index(Request $request): View
-    {
-        $items = Guide::query()
-            ->with('media')
-            ->published()
-            ->orderBy('id')
-            ->get()
-            ->map(static fn (Guide $guide): array => $guide->toPublicArray("/media/guides/card-{$guide->slug}.jpg"))
-            ->all();
-        $categories = array_values(array_unique(array_column($items, 'category')));
-        $requestedCategory = $request->string('category')->toString();
-        $category = in_array($requestedCategory, $categories, true) ? $requestedCategory : null;
-        $filteredItems = $category === null
-            ? $items
-            : array_values(array_filter(
-                $items,
-                static fn (array $guide): bool => $guide['category'] === $category,
-            ));
-        $perPage = 9;
-        $totalPages = max(1, (int) ceil(count($filteredItems) / $perPage));
-        $requestedPage = max(1, $request->integer('page', 1));
-        $currentPage = min($requestedPage, $totalPages);
-
-        $metadata = [
-            'title' => 'Pet Care & Pet Relocation Guides | Waggies',
-            'description' => 'Explore practical guides on pet care, health, boarding, and travel for dogs and cats.',
-            'canonical' => route('guides.index'),
-            'ogTitle' => 'Pet Care & Pet Relocation Guides | Waggies',
-            'ogDescription' => 'Explore practical guides on pet care, health, boarding, and travel for dogs and cats.',
-            'robots' => $request->query() === [] ? ['index', 'follow'] : ['noindex', 'follow'],
-        ];
-        $this->setPageHead($metadata, [Schema::collectionPage()->name($metadata['title'])->description($metadata['description'])->url($metadata['canonical'])->toArray()]);
-
-        return view('pages.guides.index', $metadata + [
-            'navSection' => 'resources',
-            'categories' => $categories,
-            'category' => $category,
-            'initialCategory' => $category ?? 'All',
-            'items' => $items,
-            'filteredCount' => count($filteredItems),
-            'currentPage' => $currentPage,
-            'totalPages' => $totalPages,
-            'perPage' => $perPage,
-        ]);
-    }
-
     public function show(Request $request, string $slug): View|RedirectResponse
     {
         $guideRecord = Guide::query()
@@ -108,7 +62,7 @@ final class GuidesController extends Controller
         $articleBody = ArticleBodyProcessor::process($guide['content']);
         $isIndexable = $guideRecord->isIndexable();
         $canonical = $isIndexable ? route('guides.show', ['slug' => $guideRecord->slug]) : null;
-        $title = $guideRecord->seo_title ?: $guideRecord->title.' - Waggies Guides - Waggies';
+        $title = $guideRecord->seo_title ?: $guideRecord->title.' - Waggies Pet Handbook - Waggies';
         $description = $guideRecord->seo_description ?: $guideRecord->excerpt;
 
         $metadata = [

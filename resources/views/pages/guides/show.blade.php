@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-waggies.breadcrumb-strip :items="[['label' => 'Guides', 'route' => 'guides.index'], ['label' => $guide['title']]]" class="bg-white border-b border-primary/5" />
+    <x-waggies.breadcrumb-strip :items="[['label' => 'Waggies Pet Handbook', 'route' => 'guides.index'], ['label' => $guide['title']]]" class="bg-white border-b border-primary/5" />
 
     <article class="page-container py-10 md:py-16">
         <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12">

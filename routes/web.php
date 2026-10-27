@@ -13,6 +13,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KnowledgeBaseController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\PetHandbookController;
 use App\Http\Controllers\RelocationController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SearchController;
@@ -74,7 +75,7 @@ Route::controller(BookingRequestsController::class)->group(function (): void {
 });
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/shop/{product}', [ShopController::class, 'show'])->where('product', '[a-z0-9-]+')->name('shop.show');
-Route::get('/guides', [GuidesController::class, 'index'])->name('guides.index');
+Route::get('/guides', [PetHandbookController::class, 'index'])->name('guides.index');
 Route::get('/guides/{slug}', [GuidesController::class, 'show'])->name('guides.show');
 Route::get('/knowledge-base', [KnowledgeBaseController::class, 'index'])->name('knowledge-base.index');
 Route::get('/knowledge-base/{slug}', [KnowledgeBaseController::class, 'show'])->name('knowledge-base.show');

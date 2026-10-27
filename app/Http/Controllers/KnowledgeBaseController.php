@@ -13,44 +13,9 @@ use Spatie\SchemaOrg\Schema;
 
 final class KnowledgeBaseController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): RedirectResponse
     {
-        $items = KnowledgeArticle::query()
-            ->with('media')
-            ->published()
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get()
-            ->map(static fn (KnowledgeArticle $article): array => $article->toPublicArray("/media/knowledge-base/card-{$article->slug}.jpg"))
-            ->all();
-        $categories = array_values(array_unique(array_column($items, 'category')));
-        $requestedCategory = $request->string('category')->toString();
-        $category = in_array($requestedCategory, $categories, true) ? $requestedCategory : 'All';
-        $requestedPage = max(1, $request->integer('page', 1));
-
-        $metadata = [
-            'title' => 'Pet Care Answers for Dogs & Cats | Waggies',
-            'description' => 'Browse practical answers on pet health, nutrition, behaviour, training, grooming, and getting started with a dog or cat. Search by topic or choose a category.',
-            'canonical' => route('knowledge-base.index'),
-            'ogTitle' => 'Pet Care Answers for Dogs & Cats | Waggies',
-            'ogDescription' => 'Browse practical answers on pet health, nutrition, behaviour, training, grooming, and getting started with a dog or cat. Search by topic or choose a category.',
-            'robots' => $request->query() === [] ? ['index', 'follow'] : ['noindex', 'follow'],
-        ];
-        $this->setPageHead($metadata, [Schema::collectionPage()->name('Knowledge Base')->description($metadata['description'])->url($metadata['canonical'])->toArray()]);
-
-        return view('pages.knowledge-base.index', $metadata + [
-            'navSection' => 'resources',
-            'categories' => $categories,
-            'items' => $items,
-            'filterItems' => array_map(static fn (array $item): array => [
-                'title' => $item['title'],
-                'excerpt' => $item['excerpt'],
-                'category' => $item['category'],
-            ], $items),
-            'initialCategory' => $category,
-            'initialSearch' => $request->string('q')->toString(),
-            'currentPage' => $requestedPage,
-        ]);
+        return redirect()->route('guides.index', $request->query(), 301);
     }
 
     public function show(Request $request, string $slug): View|RedirectResponse
@@ -99,14 +64,14 @@ final class KnowledgeBaseController extends Controller
             ->orderBy('id')
             ->take(3)
             ->get()
-            ->map(fn (KnowledgeArticle $relatedArticle): array => $relatedArticle->toPublicArray("/media/knowledge-base/{$articleRecord->slug}/related-{$relatedArticle->slug}.jpg"))
+            ->map(static fn (KnowledgeArticle $relatedArticle): array => $relatedArticle->toPublicArray("/media/knowledge-base/{$articleRecord->slug}/related-{$relatedArticle->slug}.jpg") + ['contentType' => 'Answer'])
             ->all();
 
         $isIndexable = $articleRecord->isIndexable();
         $canonical = $isIndexable ? route('knowledge-base.show', ['slug' => $articleRecord->slug]) : null;
         $description = $articleRecord->seo_description ?: $articleRecord->excerpt;
         $metadata = [
-            'title' => $articleRecord->seo_title ?: $articleRecord->title.' - Waggies Knowledge Base - Waggies',
+            'title' => $articleRecord->seo_title ?: $articleRecord->title.' - Waggies Pet Handbook - Waggies',
             'description' => $description,
             'canonical' => $canonical,
             'robots' => $isIndexable ? ['index', 'follow'] : ['noindex', 'follow'],

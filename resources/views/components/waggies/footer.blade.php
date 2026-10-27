@@ -21,8 +21,7 @@
         ],
         'Resources' => [
             ['FAQ', route('faq')],
-            ['Guides', route('guides.index')],
-            ['Knowledge Base', route('knowledge-base.index')],
+            ['Waggies Pet Handbook', route('guides.index')],
             ['Tools', route('tools.index')],
         ],
         'Support' => [

@@ -20,7 +20,7 @@ final class PublicUrlCatalog
             'services.relocation', 'relocation.import', 'relocation.export',
             'relocation.checklist', 'about', 'about.testimonials',
             'about.gallery', 'about.careers', 'about.partnerships', 'guides.index',
-            'knowledge-base.index', 'tools.index', 'tools.symptom-checker', 'tools.pet-age',
+            'tools.index', 'tools.symptom-checker', 'tools.pet-age',
             'tools.vaccination', 'tools.nutrition',
             'tools.emergency', 'tools.new-pet-checklist', 'tools.parasite', 'tools.behavior-tips',
             'tools.breed-finder', 'faq', 'contact', 'book', 'privacy-policy',

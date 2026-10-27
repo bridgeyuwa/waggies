@@ -1,38 +1,55 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-waggies.breadcrumb-strip :items="[['label' => 'Guides']]" class="bg-white border-b border-primary/5" />
+    <x-waggies.breadcrumb-strip :items="[['label' => 'Waggies Pet Handbook']]" class="bg-white border-b border-primary/5" />
 
-    <x-waggies.page-header alignment="center" eyebrow="Guides" eyebrow-icon="guide" title="Pet Care Guides" description="Explore educational guides on pet care, health, boarding, and travel for dogs and cats." />
+    <x-waggies.page-header alignment="center" eyebrow="Guides & Answers" eyebrow-icon="guide" title="Waggies Pet Handbook" description="Clear answers and practical guides for caring for dogs and cats." />
 
-    <section x-data="waggiesGuidesIndex('{{ $initialCategory }}')" class="page-container py-12 md:py-20">
-        <div class="flex flex-wrap gap-2 mb-10">
-            @foreach(array_merge(['All'], $categories) as $filter)
-                <button type="button" @click="select('{{ $filter }}')" class="rounded-full px-4 py-2 transition-colors" :class="activeCategory === '{{ $filter }}' ? 'bg-primary text-white' : 'bg-surface-purple text-primary hover:bg-primary/10'">{{ $filter }}</button>
+    <section x-data="waggiesKnowledgeBase(@js($filterItems), @js($categories), @js($initialCategory), @js($initialSearch), {{ $currentPage }})" class="page-container py-12 md:py-20">
+        <div class="flex flex-col sm:flex-row gap-4 mb-10">
+            <div class="relative flex-1 max-w-md">
+                <label for="handbook-search" class="sr-only">Search pet care guides and answers</label>
+                <x-waggies.icon name="search" size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                <input id="handbook-search" type="search" placeholder="Search pet care topics..." x-model="search" class="w-full pl-10 pr-4 py-2.5 rounded-full border border-border-subtle bg-white text-sm text-primary-dark placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/40">
+            </div>
+            <div class="flex flex-wrap gap-2" role="group" aria-label="Browse by topic">
+                <button type="button" @click="select('All')" class="rounded-full px-4 py-2 text-label" :class="activeCategory === 'All' ? 'bg-primary text-white' : 'bg-surface-purple text-primary hover:bg-primary/10'">All topics</button>
+                @foreach($categories as $category)
+                    <button type="button" @click="select('{{ $category }}')" class="rounded-full px-4 py-2 text-label" :class="activeCategory === '{{ $category }}' ? 'bg-primary text-white' : 'bg-surface-purple text-primary hover:bg-primary/10'">{{ $category }}</button>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach($items as $index => $item)
+                <div x-show="matches({{ $index }})" x-transition.opacity>
+                    <x-waggies.article-card :guide="$item" />
+                </div>
             @endforeach
         </div>
 
-        @foreach(array_merge(['All'], $categories) as $filter)
-            @php($filterItems = $filter === 'All' ? $items : array_values(array_filter($items, static fn (array $guide): bool => $guide['category'] === $filter)))
-            <div @if($filter !== 'All') x-cloak @endif x-show="activeCategory === '{{ $filter }}'">
-                @if(count($filterItems) > 0)
-                    @php($featured = $filterItems[0])
-                    @php($rest = array_slice($filterItems, 1))
-                    <x-waggies.article-card :guide="$featured" featured class="mb-8" />
+        <div x-show="visibleCount() === 0" x-cloak class="text-center py-16">
+            <x-waggies.icon name="search" size="48" class="mb-4 text-text-muted/40" />
+            <p class="text-text-muted text-body">No articles match that search. Try another term or choose a different topic. Need help with a Waggies service? <a href="{{ route('contact') }}" class="font-semibold text-primary hover:underline">Contact our team.</a></p>
+        </div>
 
-                    @if(count($rest) > 0)
-                        <div class="w-collection w-collection--gap-6 w-collection--md-2 w-collection--lg-3">
-                            @foreach($rest as $guide)
-                                <x-waggies.article-card :guide="$guide" />
-                            @endforeach
-                        </div>
-                    @endif
-                @else
-                    <div class="text-center py-16"><p class="text-text-muted text-body">No guides found in this category.</p></div>
-                @endif
+        <nav x-show="totalPages() > 1" role="navigation" aria-label="Pagination Navigation" class="mt-12 flex items-center justify-between gap-4 flex-wrap">
+            <div class="flex items-center gap-2 sm:hidden">
+                <a x-show="page > 1" :href="pageHref(page - 1)" rel="prev" class="inline-flex items-center px-4 py-2 text-sm font-medium text-primary bg-white border border-primary/30 rounded-full hover:bg-primary/5 transition">« Previous</a>
+                <span x-show="page <= 1" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-white border border-gray-200 rounded-full cursor-not-allowed">« Previous</span>
+                <a x-show="page < totalPages()" :href="pageHref(page + 1)" rel="next" class="inline-flex items-center px-4 py-2 text-sm font-medium text-primary bg-white border border-primary/30 rounded-full hover:bg-primary/5 transition">Next »</a>
+                <span x-show="page >= totalPages()" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-white border border-gray-200 rounded-full cursor-not-allowed">Next »</span>
             </div>
-        @endforeach
-
+            <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between gap-4 flex-wrap">
+                <p class="text-sm text-gray-500">Showing <span class="font-semibold text-gray-700" x-text="rangeStart()"></span> - <span class="font-semibold text-gray-700" x-text="rangeEnd()"></span> of <span class="font-semibold text-gray-700" x-text="filteredItems().length"></span> results</p>
+                <div class="flex items-center gap-1">
+                    <a x-show="page > 1" :href="pageHref(page - 1)" rel="prev" aria-label="Previous page" class="inline-flex items-center justify-center w-9 h-9 text-sm font-medium text-primary rounded-full hover:bg-primary/10 transition"><x-waggies.icon name="chevron-left" size="20" /></a>
+                    <span x-show="page <= 1" aria-disabled="true" class="inline-flex items-center justify-center w-9 h-9 text-gray-300 rounded-full cursor-not-allowed"><x-waggies.icon name="chevron-left" size="20" /></span>
+                    <template x-for="number in pageNumbers()" :key="number"><span class="contents"><a x-show="number !== page" :href="pageHref(number)" :aria-label="`Go to page ${number}`" class="inline-flex items-center justify-center w-9 h-9 text-sm font-medium text-primary rounded-full hover:bg-primary/10 transition" x-text="number"></a><span x-show="number === page" class="inline-flex items-center justify-center w-9 h-9 text-sm font-semibold text-white bg-primary rounded-full shadow-sm" aria-current="page" x-text="number"></span></span></template>
+                    <a x-show="page < totalPages()" :href="pageHref(page + 1)" rel="next" aria-label="Next page" class="inline-flex items-center justify-center w-9 h-9 text-sm font-medium text-primary rounded-full hover:bg-primary/10 transition"><x-waggies.icon name="chevron-right" size="20" /></a>
+                    <span x-show="page >= totalPages()" aria-disabled="true" class="inline-flex items-center justify-center w-9 h-9 text-gray-300 rounded-full cursor-not-allowed"><x-waggies.icon name="chevron-right" size="20" /></span>
+                </div>
+            </div>
+        </nav>
     </section>
-
 @endsection

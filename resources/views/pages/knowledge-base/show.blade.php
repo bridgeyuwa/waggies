@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-waggies.breadcrumb-strip :items="[['label' => 'Knowledge Base', 'route' => 'knowledge-base.index'], ['label' => $article['title']]]" class="bg-white border-b border-primary/5" />
+    <x-waggies.breadcrumb-strip :items="[['label' => 'Waggies Pet Handbook', 'route' => 'guides.index'], ['label' => $article['title']]]" class="bg-white border-b border-primary/5" />
 
     <article class="page-container py-10 md:py-16">
         <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12">
             <div class="max-w-3xl">
                 <div>
                     <div class="flex items-center gap-3 mb-4">
-                        <span class="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-label text-white"><x-waggies.icon name="training" size="16" />Knowledge Base</span>
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-label text-white"><x-waggies.icon name="knowledge-base" size="16" />Answer</span>
                         <span class="inline-flex items-center rounded-full bg-surface-purple px-3 py-1 text-label text-primary">{{ $article['category'] }}</span>
                     </div>
 
